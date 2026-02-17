@@ -1,6 +1,21 @@
+@config "../../tailwind.config.js";
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 @custom-variant dark (&:is(.dark *));
+
+@theme {
+    --animate-infinite-scroll: infinite-scroll 12s linear infinite;
+
+    @keyframes infinite-scroll {
+        from {
+            transform: translateX(0);
+        }
+        to {
+            transform: translateX(-50%);
+        }
+    }
+}
+
 @theme inline {
     /* --- 1. Custom Breakpoint Fix --- */
     --breakpoint-2xl: 1400px;
