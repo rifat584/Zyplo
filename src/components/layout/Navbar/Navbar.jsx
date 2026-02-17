@@ -1,56 +1,67 @@
-import Link from 'next/link';
-import { Search, Sun } from 'lucide-react';
+"use client";
+
+import Link from "next/link";
+import { Sun, Moon, Search } from "lucide-react";
+// import { useTheme } from "@/context/ThemeContext";
 
 const Navbar = () => {
+  // const { theme, toggleTheme } = useTheme();
+
+  const isClient = typeof window !== "undefined";
+
   return (
-    // STICKY HEADER CHANGES:
-    <nav className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md">
-      
-      {/* MAX WIDTH 1280px (max-w-7xl) & CENTERED (mx-auto) */}
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        
-        {/* --- Left: Logo --- */}
+    <nav className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md transition-colors duration-300">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+        {/* Logo */}
         <div className="flex items-center gap-2">
-          {/* Logo with your primary color #4f46e5 */}
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white font-bold text-xl">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-white font-bold text-lg">
             Z
           </div>
-          <span className="text-xl font-bold text-gray-900">Zyplo</span>
+          <span className="text-xl font-bold text-gray-900 dark:text-white">
+            Zyplo
+          </span>
         </div>
 
-        {/* --- Center: Links --- */}
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-          <Link href="#" className="hover:text-gray-900 transition-colors">Features</Link>
-          <Link href="#" className="hover:text-gray-900 transition-colors">Workflow</Link>
-          <Link href="#" className="hover:text-gray-900 transition-colors">Pricing</Link>
-          <Link href="#" className="hover:text-gray-900 transition-colors">FAQ</Link>
+        {/* Links */}
+        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600 dark:text-gray-300">
+          <Link href="#">Features</Link>
+          <Link href="#">Workflow</Link>
+          <Link href="#">Pricing</Link>
+          <Link href="#">FAQ</Link>
         </div>
 
-        {/* --- Right: Actions --- */}
+        {/* Right Actions */}
         <div className="flex items-center gap-4">
-          
-          {/* Search Button */}
-          <button className="hidden sm:flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-500 hover:border-gray-300 hover:bg-gray-50 transition-all">
+          <button className="hidden sm:flex items-center gap-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 text-sm text-gray-500 dark:text-gray-300 transition">
             <Search size={16} />
-            <span className="font-medium text-gray-500">Ctrl+K</span>
+            Ctrl+K
           </button>
 
-          {/* Theme Toggle */}
-          <button className="rounded-full p-2 text-gray-500 hover:bg-gray-100 transition-colors">
-            <Sun size={20} />
-          </button>
+          {/* 🌙 Theme toggle */}
+          {/* {isClient && (
+            <button
+              onClick={toggleTheme}
+              className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:scale-105"
+            >
+              {theme === "light" ? (
+                <Sun size={18} className="text-yellow-500" />
+              ) : (
+                <Moon size={18} className="text-blue-400" />
+              )}
+            </button>
+          )} */}
 
-          {/* Sign In Link */}
-          <Link href="#" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+          <Link
+            href="#"
+            className="text-sm font-medium text-gray-600 dark:text-gray-300"
+          >
             Sign in
           </Link>
 
-          {/* Get Started Button */}
-          <button className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors">
+          <button className="rounded-lg bg-indigo-600 dark:bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 transition">
             Get started
           </button>
         </div>
-
       </div>
     </nav>
   );
