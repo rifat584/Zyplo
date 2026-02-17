@@ -132,11 +132,11 @@ export default function CommandPaletteSection() {
             <div className="pointer-events-none absolute inset-0 -z-10">
                 <motion.div
                     style={{ y: gridY }}
-                    className="absolute inset-0 bg-[linear-gradient(to_right,rgba(79,70,229,0.10)_1px,transparent_1px),linear-gradient(to_bottom,rgba(79,70,229,0.10)_1px,transparent_1px)] bg-[size:28px_28px] dark:opacity-40"
+                    className="absolute inset-0 bg-[linear-gradient(to_right,rgba(79,70,229,0.10)_1px,transparent_1px),linear-gradient(to_bottom,rgba(79,70,229,0.10)_1px,transparent_1px)] bg-size-[28px_28px] dark:opacity-40"
                 />
                 <motion.div
                     style={{ y: glowY }}
-                    className="absolute left-1/2 top-1/3 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-secondary/25 blur-3xl"
+                    className="absolute left-1/2 top-1/3 h-105 w-105 -translate-x-1/2 rounded-full bg-secondary/25 blur-3xl"
                 />
             </div>
 
@@ -168,7 +168,7 @@ export default function CommandPaletteSection() {
                 <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
                     {/* Left: Feature rails */}
                     <div className="relative">
-                        <div className="absolute left-3 top-0 h-full w-px bg-gradient-to-b from-secondary/50 via-secondary/20 to-transparent" />
+                        <div className="absolute left-3 top-0 h-full w-px bg-linear-to-b from-secondary/50 via-secondary/20 to-transparent" />
                         <div className="space-y-8">
                             {rails.map((r, i) => (
                                 <motion.div
