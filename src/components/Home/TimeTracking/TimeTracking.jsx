@@ -23,7 +23,7 @@ export default function TimeTracking() {
     <section className="w-full py-16 sm:py-24 bg-white">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6">
 
-        <div className="rounded-2xl border border-gray-200 bg-gradient-to-br from-primary/5 via-white to-secondary/10 p-6 sm:p-8">
+        <div className="rounded-2xl border border-gray-200 bg-[radial-gradient(circle_at_20%_20%,rgba(79,70,229,0.18),transparent_40%),radial-gradient(circle_at_80%_10%,rgba(34,211,238,0.14),transparent_36%)] p-6 sm:p-8">
           
           {/* Header */}
           <div className="mb-16 max-w-2xl">

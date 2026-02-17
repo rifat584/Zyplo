@@ -4,14 +4,13 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Circle } from "lucide-react";
 
-// --- Data Configuration (Matches your image exactly) ---
+// --- Data Configuration  ---
 const workflowSteps = [
   {
     id: "plan",
     stepNumber: "1",
     title: "Plan",
     subtitle: "Align scope before code",
-    // Content for the Right Side Card
     content: {
       heading: "Plan",
       description:
@@ -55,6 +54,38 @@ const workflowSteps = [
       badges: ["QA checklist", "Release notes", "Deploy ready"],
       previewTitle: "Release Review",
       previewItems: ["Tests passing", "No blockers", "Deploy ready"],
+    },
+  },
+  {
+    id: "measure",
+    stepNumber: "4",
+    title: "Measure",
+    subtitle: "Track impact instantly",
+    content: {
+      heading: "Measure",
+      description:
+        "Monitor feature adoption and system health with real-time analytics and error logging.",
+      badges: ["Usage metrics", "Error tracking", "Performance insights"],
+      previewTitle: "Live Analytics",
+      previewItems: ["99.99% Uptime",
+        "Avg. Latency < 50ms",
+        "Zero critical errors",],
+    },
+  },
+  {
+    id: "scale",
+    stepNumber: "5",
+    title: "Scale",
+    subtitle: "Grow without limits",
+    content: {
+      heading: "Scale",
+      description:
+        "Automate repetitive workflows and expand global infrastructure to handle increased load.",
+      badges: ["Auto-scaling", "Global distribution", "Workflow automation"],
+      previewTitle: "Infrastructure",
+      previewItems: ["5 Regions active",
+        "Auto-scale enabled",
+        "Database optimized",],
     },
   },
 ];
