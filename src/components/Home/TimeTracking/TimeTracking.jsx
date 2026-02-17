@@ -21,7 +21,7 @@ const timeTrackingData = {
 export default function TimeTracking() {
   return (
     <section className="w-full py-16 sm:py-24 bg-white">
-      <div className="container mx-auto max-w-6xl px-4 sm:px-6">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6">
 
         <div className="rounded-2xl border border-gray-200 bg-gradient-to-br from-primary/5 via-white to-secondary/10 p-6 sm:p-8">
           
