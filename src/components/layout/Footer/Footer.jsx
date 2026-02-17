@@ -1,0 +1,103 @@
+import Link from "next/link";
+import { FaFacebookF, FaLinkedinIn, FaTwitter, FaGithub } from "react-icons/fa";
+
+export default function Footer() {
+  return (
+    <footer className="bg-[#0B1120] text-white pt-20 pb-8">
+      <div className="max-w-[1280px] mx-auto px-6">
+
+        {/* Top Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+
+          {/* Brand */}
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Zyplo</h2>
+            <p className="text-slate-400 leading-relaxed mb-6">
+              Zyplo is a powerful project management platform built to help
+              teams plan smarter, collaborate better, and deliver faster.
+            </p>
+
+            {/* Social Icons */}
+            <div className="flex space-x-4">
+              <Link
+                href="#"
+                className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition"
+              >
+                <FaFacebookF size={14} />
+              </Link>
+
+              <Link
+                href="#"
+                className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition"
+              >
+                <FaTwitter size={14} />
+              </Link>
+
+              <Link
+                href="#"
+                className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition"
+              >
+                <FaLinkedinIn size={14} />
+              </Link>
+
+              <Link
+                href="#"
+                className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition"
+              >
+                <FaGithub size={14} />
+              </Link>
+            </div>
+          </div>
+
+          {/* Product */}
+          <div>
+            <h4 className="font-semibold mb-4">Product</h4>
+            <ul className="space-y-2 text-slate-400">
+              <li><Link href="/features" className="hover:text-sky-400 transition">Features</Link></li>
+              <li><Link href="/pricing" className="hover:text-sky-400 transition">Pricing</Link></li>
+              <li><Link href="/integrations" className="hover:text-sky-400 transition">Integrations</Link></li>
+              <li><Link href="/roadmap" className="hover:text-sky-400 transition">Roadmap</Link></li>
+            </ul>
+          </div>
+
+          {/* Company */}
+          <div>
+            <h4 className="font-semibold mb-4">Company</h4>
+            <ul className="space-y-2 text-slate-400">
+              <li><Link href="/about" className="hover:text-sky-400 transition">About</Link></li>
+              <li><Link href="/careers" className="hover:text-sky-400 transition">Careers</Link></li>
+              <li><Link href="/blog" className="hover:text-sky-400 transition">Blog</Link></li>
+              <li><Link href="/contact" className="hover:text-sky-400 transition">Contact</Link></li>
+            </ul>
+          </div>
+
+          {/* Newsletter */}
+          <div>
+            <h4 className="font-semibold mb-4">Stay Updated</h4>
+            <p className="text-slate-400 mb-4">
+              Get product updates and productivity tips directly in your inbox.
+            </p>
+
+            <div className="flex">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="w-full px-4 py-2 rounded-l-lg bg-slate-800 border border-slate-700 text-sm focus:outline-none"
+              />
+              <button className="bg-sky-500 hover:bg-sky-600 px-4 rounded-r-lg text-sm font-medium transition">
+                Subscribe
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Bottom */}
+        <div className="border-t border-slate-800 mt-16 pt-6 text-center text-slate-500 text-sm">
+          © {new Date().getFullYear()} Zyplo. All rights reserved.
+        </div>
+
+      </div>
+    </footer>
+  );
+}
