@@ -17,7 +17,7 @@ export default function HeroAppMock() {
             {/* Top bar */}
             <div className="flex h-12 items-center justify-between border-b border-gray-200 px-3 dark:border-gray-800">
                 <div className="flex items-center gap-2">
-                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-indigo-500 to-cyan-400 text-xs font-bold text-white">
+                    <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-linear-to-br from-indigo-500 to-cyan-400 text-xs font-bold text-white">
                         Z
                     </span>
                     <button className="flex items-center gap-1 text-xs text-gray-700 dark:text-gray-300">
