@@ -2,13 +2,11 @@
 
 import Link from "next/link";
 import { Sun, Moon, Search } from "lucide-react";
-import { useTheme } from "@/context/ThemeContext";
+// import { useTheme } from "@/context/ThemeContext";
 
 const Navbar = () => {
-  const { theme, toggleTheme } = useTheme();
+  // const { theme, toggleTheme } = useTheme();
 
-  // ❌ No need for mounted state
-  // We render icons only if window exists
   const isClient = typeof window !== "undefined";
 
   return (
@@ -40,7 +38,7 @@ const Navbar = () => {
           </button>
 
           {/* 🌙 Theme toggle */}
-          {isClient && (
+          {/* {isClient && (
             <button
               onClick={toggleTheme}
               className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:scale-105"
@@ -51,7 +49,7 @@ const Navbar = () => {
                 <Moon size={18} className="text-blue-400" />
               )}
             </button>
-          )}
+          )} */}
 
           <Link
             href="#"
