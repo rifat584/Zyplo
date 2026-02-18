@@ -1,0 +1,47 @@
+[
+  {
+    "id": "starter",
+    "name": "Starter",
+    "description": "For solo developers building and shipping quickly.",
+    "monthlyPrice": 12,
+    "yearlyPrice": 10,
+    "highlight": false,
+    "features": [
+      "1 workspace",
+      "Unlimited personal boards",
+      "Basic automation rules",
+      "Email support"
+    ],
+    "cta": "Start Starter"
+  },
+  {
+    "id": "team",
+    "name": "Team",
+    "description": "For product teams that need speed and visibility.",
+    "monthlyPrice": 29,
+    "yearlyPrice": 23,
+    "highlight": true,
+    "features": [
+      "Up to 20 members",
+      "Advanced automation",
+      "Time tracking and worklog",
+      "Priority support"
+    ],
+    "cta": "Start Team"
+  },
+  {
+    "id": "studio",
+    "name": "Studio",
+    "description": "For agencies managing multiple clients and projects.",
+    "monthlyPrice": 59,
+    "yearlyPrice": 47,
+    "highlight": false,
+    "features": [
+      "Unlimited client spaces",
+      "Permissions and roles",
+      "Invoice-friendly exports",
+      "Dedicated success support"
+    ],
+    "cta": "Contact sales"
+  }
+]
