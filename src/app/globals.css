@@ -13,10 +13,10 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
 
+  /* --- FONT MAPPING --- */
   --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
-  
-  /* Creates a utility for Playfair Display */
   --font-heading: var(--font-playfair), ui-serif, Georgia, serif;
+  --font-fancy: var(--font-creepster), cursive;
 
   /* --- Theme Colors (Mapped to Variables) --- */
   --color-background: var(--background);
@@ -32,10 +32,6 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-}
-
-body {
-  font-family: var(--font-sans);
 }
 
 /* Playfair Display to Headings */
