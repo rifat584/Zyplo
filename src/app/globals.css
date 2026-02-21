@@ -35,6 +35,10 @@ h1, h2, h3, .font-heading {
   font-family: var(--font-playfair), ui-serif, Georgia, serif !important;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
 }
