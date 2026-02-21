@@ -7,6 +7,10 @@ import TimeTracking from '@/components/Home/TimeTracking/TimeTracking';
 import WorkflowStepper from '@/components/Home/WorkFlow/WorkflowStepper';
 import FeatureSectionLivingDashboard from '@/components/Home/FeatureSection';
 import PartnerMarquee from '@/components/marquee/PartnerMarquee';
+import Stats from '@/components/Home/Stats/Stats';
+
+
+
 
 export default function Home() {
   return (
@@ -18,6 +22,8 @@ export default function Home() {
       <TimeTracking />
       <CommandPaletteSection />
       <Testimonials />
+      <Stats />
+  
       <Automation/>
       <FAQ/>
     </main>

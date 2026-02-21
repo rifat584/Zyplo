@@ -89,11 +89,17 @@ export default function Hero() {
             }}
             className="mt-8 flex flex-wrap gap-4"
           >
-            <motion.a
+           <motion.a
               whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.97 }}
+              whileTap={{ scale: 0.95 }}
               href="/register"
-              className="inline-flex items-center justify-center rounded-lg bg-secondary px-6 py-3 font-medium text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-secondaryHover"
+              className="inline-flex items-center justify-center 
+              px-6 py-3 rounded-lg font-semibold text-white
+              bg-gradient-to-br from-indigo-500 to-cyan-400
+              shadow-lg shadow-indigo-500/20
+              transition-all duration-300
+              hover:scale-[1.03] hover:shadow-indigo-500/40
+              active:scale-95"
             >
               Get started free
             </motion.a>

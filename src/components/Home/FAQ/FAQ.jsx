@@ -1,5 +1,7 @@
 "use client";
+
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const faqs = [
   {
@@ -40,39 +42,64 @@ export default function FAQ() {
     <section className="bg-white py-24">
       <div className="max-w-[1280px] mx-auto px-6">
 
-        {/* Heading */}
-        <div className="text-center mb-16">
+        {/* Heading Animation */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
           <h2 className="text-4xl font-bold mb-4 text-gray-900">
             Frequently Asked Questions
           </h2>
           <p className="text-gray-600">
             Have questions? We’ve got answers.
           </p>
-        </div>
+        </motion.div>
 
         {/* FAQ Items */}
         <div className="max-w-3xl mx-auto space-y-4">
           {faqs.map((faq, index) => (
-            <div
+            <motion.div
               key={index}
-              className="bg-gray-50 border border-gray-200 rounded-xl p-6 cursor-pointer hover:shadow-md transition"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+              viewport={{ once: true }}
+              className="bg-gray-50 border border-gray-200 rounded-xl p-6 cursor-pointer hover:shadow-lg transition"
               onClick={() => toggle(index)}
             >
               <div className="flex justify-between items-center">
                 <h3 className="font-semibold text-lg text-gray-900">
                   {faq.question}
                 </h3>
-                <span className="text-xl font-bold text-sky-500">
-                  {openIndex === index ? "−" : "+"}
-                </span>
+
+                {/* Rotate Icon */}
+                <motion.span
+                  animate={{ rotate: openIndex === index ? 180 : 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-xl font-bold text-sky-500"
+                >
+                  +
+                </motion.span>
               </div>
 
-              {openIndex === index && (
-                <p className="mt-4 text-gray-600 leading-relaxed">
-                  {faq.answer}
-                </p>
-              )}
-            </div>
+              {/* Animated Answer */}
+              <AnimatePresence>
+                {openIndex === index && (
+                  <motion.p
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="mt-4 text-gray-600 leading-relaxed overflow-hidden"
+                  >
+                    {faq.answer}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </motion.div>
           ))}
         </div>
 
