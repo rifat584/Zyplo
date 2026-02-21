@@ -23,7 +23,6 @@ export default function Home() {
       <CommandPaletteSection />
       <Testimonials />
       <Stats />
-  
       <Automation/>
       <FAQ/>
     </main>
