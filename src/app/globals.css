@@ -1,67 +1,8 @@
 @import "tailwindcss";
-
 @plugin "tailwindcss-animate";
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    /* --- Custom Breakpoint --- */
-    --breakpoint-2xl: 1400px;
-    /* --- Radius Variables --- */
-    --radius-sm: calc(var(--radius) - 4px);
-    --radius-md: calc(var(--radius) - 2px);
-    --radius-lg: var(--radius);
-    /* --- Theme Colors (Mapped to Variables) --- */
-    --color-background: var(--background);
-    --color-foreground: var(--foreground);
-    --color-primary: var(--primary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-secondary: var(--secondary);
-    --color-secondary-foreground: var(--secondary-foreground);
-    /* Essentials for layout (borders, inputs) */
-    --color-border: var(--border);
-    --color-input: var(--input);
-    --color-ring: var(--ring);
-}
-
-
-/* --- LIGHT MODE VARIABLES --- */
-
-:root {
-    --radius: 0.625rem;
-    /* Base */
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-	--primary: oklch(0.78 0.12 195);
-    /* Primary: Indigo (#4f46e5) */
-    --primary: oklch(0.78 0.12 195);
-	--primary-foreground: oklch(0.985 0 0);
-    /* Secondary: Sky Blue (#0ea5e9) */
-    --secondary: oklch(0.70 0.19 235);
-    --secondary-foreground: oklch(0.985 0 0);
-    /* Layout Essentials */
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-}
-
-
-/* --- DARK MODE VARIABLES --- */
-
-.dark {
-    /* Base */
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    /* Primary: Light Indigo */
-    --primary: oklch(0.65 0.20 271);
-    --primary-foreground: oklch(0.205 0 0);
-    /* Secondary: Light Sky Blue */
-    --secondary: oklch(0.75 0.15 235);
-    --secondary-foreground: oklch(0.205 0 0);
-    /* Layout Essentials */
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
   /* --- Custom Breakpoint --- */
   --breakpoint-2xl: 1400px;
 
@@ -70,18 +11,16 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
 
+  /* --- FONT MAPPING (Fixed: Moved here so Tailwind can see them) --- */
   --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
-  
-  /* Creates a utility for Playfair Display */
   --font-heading: var(--font-playfair), ui-serif, Georgia, serif;
+  --font-fancy: var(--font-creepster), cursive;
 
   /* --- Theme Colors (Mapped to Variables) --- */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
 
@@ -91,13 +30,13 @@
   --color-ring: var(--ring);
 }
 
-body {
-  font-family: var(--font-sans);
+/* Force Playfair on heading elements and explicit heading utility */
+h1, h2, h3, .font-heading {
+  font-family: var(--font-playfair), ui-serif, Georgia, serif !important;
 }
 
-/* Playfair Display to Headings */
-h1, h2, h3 {
-  font-family: var(--font-heading);
+body {
+  font-family: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* --- LIGHT MODE VARIABLES --- */
@@ -140,4 +79,33 @@ h1, h2, h3 {
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
+}
+
+@keyframes aurora-pan {
+  0% {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(2%, 1.5%, 0) scale(1.04);
+  }
+  100% {
+    transform: translate3d(-1%, 2%, 0) scale(1.01);
+  }
+}
+
+@keyframes aurora-drift {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate3d(1%, -1%, 0) rotate(1deg) scale(1.03);
+  }
+  100% {
+    transform: translate3d(-1.5%, 1%, 0) rotate(-1deg) scale(1.02);
+  }
+}
+
+.auth-noise {
+  background-image: radial-gradient(rgba(15, 23, 42, 0.16) 0.45px, transparent 0.45px);
+  background-size: 3px 3px;
 }

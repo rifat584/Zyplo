@@ -45,7 +45,7 @@ export default function Hero() {
               hidden: { opacity: 0, y: 12 },
               show: { opacity: 1, y: 0 },
             }}
-            className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl text-gray-900 dark:text-primary"
+            className="text-4xl font-heading font-bold tracking-tight sm:text-5xl lg:text-6xl text-gray-900 dark:text-primary"
           >
             Plan faster. <br />
             <span className="text-secondary">Ship better.</span>

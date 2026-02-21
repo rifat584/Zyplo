@@ -3,7 +3,7 @@ export default function SectionHeader() {
     <header className="max-w-3xl">
       <h2
         id="living-dashboard-features-heading"
-        className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl"
+        className="text-3xl font-heading font-semibold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl"
       >
         A dashboard that feels like shipping.
       </h2>
