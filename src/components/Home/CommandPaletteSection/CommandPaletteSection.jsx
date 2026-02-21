@@ -148,9 +148,12 @@ export default function CommandPaletteSection() {
                             <Command className="h-4 w-4" />
                             Command Palette
                         </span>
-                        <h2 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 dark:text-primary sm:text-4xl">
-                            Work at the speed of thought
-                        </h2>
+                        <h2 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+  Work at the{" "}
+  <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-cyan-500">
+    speed of thought
+  </span>
+</h2>
                         <p className="mt-3 max-w-2xl text-gray-600 dark:text-gray-400">
                             Search, create, assign, and move work without touching the mouse.
                             The command palette keeps you in flow—always.

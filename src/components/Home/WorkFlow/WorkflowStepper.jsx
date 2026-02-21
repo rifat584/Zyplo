@@ -67,9 +67,11 @@ const workflowSteps = [
         "Monitor feature adoption and system health with real-time analytics and error logging.",
       badges: ["Usage metrics", "Error tracking", "Performance insights"],
       previewTitle: "Live Analytics",
-      previewItems: ["99.99% Uptime",
+      previewItems: [
+        "99.99% Uptime",
         "Avg. Latency < 50ms",
-        "Zero critical errors",],
+        "Zero critical errors",
+      ],
     },
   },
   {
@@ -83,54 +85,101 @@ const workflowSteps = [
         "Automate repetitive workflows and expand global infrastructure to handle increased load.",
       badges: ["Auto-scaling", "Global distribution", "Workflow automation"],
       previewTitle: "Infrastructure",
-      previewItems: ["5 Regions active",
+      previewItems: [
+        "5 Regions active",
         "Auto-scale enabled",
-        "Database optimized",],
+        "Database optimized",
+      ],
     },
   },
 ];
 
-export default function WorkflowStepper() {
-  const [activeTab, setActiveTab] = useState("ship"); // Default to 'Ship' to match image
+// --- Animation Variants ---
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1, // Staggers the appearance of the buttons
+    },
+  },
+};
 
-  // Find the active step data
+const buttonVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: { 
+    opacity: 1, 
+    x: 0, 
+    transition: { type: "spring", stiffness: 300, damping: 24 } 
+  },
+};
+
+export default function WorkflowStepper() {
+  const [activeTab, setActiveTab] = useState("ship");
+
   const activeStep =
     workflowSteps.find((step) => step.id === activeTab) || workflowSteps[0];
 
   return (
-    <section className="w-full dark:bg-blue py-20">
+    <section className="w-full py-20 dark:bg-blue overflow-hidden">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        {/* --- Section Header --- */}
-        <div className="mb-16">
+        
+        {/* --- Section Header (Animated) --- */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.5 }}
+          className="mb-16"
+        >
           <p className="mb-4 text-sm font-semibold text-primary uppercase tracking-wide">
             Workflow
           </p>
-          <h2 className="text-4xl font-bold tracking-tight text-gray-900">
-            Plan, build, and ship without losing thread
-          </h2>
-        </div>
+          <h2 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+  Plan, build, and ship{" "}
+  <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-cyan-500">
+    without losing thread
+  </span>
+</h2>
+        </motion.div>
 
         {/* --- Main Boxed Layout --- */}
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+          
           {/* === LEFT COLUMN: Navigation Buttons === */}
-          <div className="flex flex-col gap-4">
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-50px" }}
+            className="flex flex-col gap-4"
+          >
             {workflowSteps.map((step) => {
               const isActive = activeTab === step.id;
               return (
-                <button
+                <motion.button
                   key={step.id}
+                  variants={buttonVariants}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => setActiveTab(step.id)}
-                  className={`group relative flex w-full items-center gap-4 rounded-2xl border p-6 text-left transition-all duration-200 
+                  className={`group relative flex w-full items-center gap-4 rounded-2xl border p-6 text-left transition-colors duration-200 
                     ${
                       isActive
-                        ? "border-blue-500 bg-blue-50/50 ring-1 ring-blue-500" // Active Styles
-                        : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50" // Inactive Styles
+                        ? "border-blue-500 bg-blue-50/50 ring-1 ring-blue-500"
+                        : "border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
                     }`}
                 >
                   {/* Icon */}
-                  <div className="flex-shrink-0">
+                  <div className="shrink-0">
                     {isActive ? (
-                      <CheckCircle2 className="h-6 w-6 text-blue-500" />
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                      >
+                        <CheckCircle2 className="h-6 w-6 text-blue-500" />
+                      </motion.div>
                     ) : (
                       <Circle className="h-6 w-6 text-gray-300 group-hover:text-gray-400" />
                     )}
@@ -144,31 +193,36 @@ export default function WorkflowStepper() {
                       {step.stepNumber}. {step.title}
                     </span>
                     <span
-                      className={`block text-sm ${isActive ? "text-gray-700" : "text-gray-400"}`}
+                      className={`block text-sm transition-colors duration-200 ${isActive ? "text-gray-700" : "text-gray-400"}`}
                     >
                       {step.subtitle}
                     </span>
                   </div>
-                </button>
+                </motion.button>
               );
             })}
-          </div>
+          </motion.div>
 
           {/* === RIGHT COLUMN: Content Card === */}
-          {/* This matches the 'Boxed System' from the image */}
-          <div className="relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm h-full">
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm h-full"
+          >
             <div className="p-8 flex flex-col h-full">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeStep.id}
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
                   className="flex flex-col h-full"
                 >
                   {/* Heading */}
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                  <h3 className="text-2xl font-heading font-bold text-gray-900 mb-3">
                     {activeStep.content.heading}
                   </h3>
 
@@ -179,13 +233,16 @@ export default function WorkflowStepper() {
 
                   {/* Badges */}
                   <div className="flex flex-wrap gap-2 mb-8">
-                    {activeStep.content.badges.map((badge) => (
-                      <span
+                    {activeStep.content.badges.map((badge, idx) => (
+                      <motion.span
                         key={badge}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: idx * 0.1 }}
                         className="inline-flex items-center rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-medium text-gray-700"
                       >
                         {badge}
-                      </span>
+                      </motion.span>
                     ))}
                   </div>
 
@@ -195,7 +252,7 @@ export default function WorkflowStepper() {
                       <span className="text-sm font-semibold text-gray-900">
                         {activeStep.content.previewTitle}
                       </span>
-                      <span className="text-[10px] text-gray-400 font-mono lowercase">
+                      <span className="text-[10px] text-gray-400 font-mono lowercase tracking-wider">
                         live preview
                       </span>
                     </div>
@@ -207,7 +264,7 @@ export default function WorkflowStepper() {
                           key={item}
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: idx * 0.1 }}
+                          transition={{ delay: 0.2 + (idx * 0.1) }}
                           className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm text-gray-600 shadow-sm"
                         >
                           {item}
@@ -218,7 +275,7 @@ export default function WorkflowStepper() {
                 </motion.div>
               </AnimatePresence>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
