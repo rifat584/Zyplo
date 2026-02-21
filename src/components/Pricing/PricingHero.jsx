@@ -5,7 +5,7 @@ export default function PricingHero() {
     <section className="border-b border-slate-200 bg-slate-50 py-10 dark:border-slate-800 dark:bg-slate-950/60">
       <div className="mx-auto max-w-6xl px-6">
         <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-5xl">
+          <h1 className="text-4xl font-heading font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-5xl">
             Pricing
           </h1>
           <p className="mt-3 text-base text-slate-600 dark:text-slate-300">
