@@ -105,7 +105,7 @@ export default function WorkflowStepper() {
           <p className="mb-4 text-sm font-semibold text-primary uppercase tracking-wide">
             Workflow
           </p>
-          <h2 className="text-4xl font-bold tracking-tight text-gray-900">
+          <h2 className="text-4xl font-heading font-bold tracking-tight text-gray-900">
             Plan, build, and ship without losing thread
           </h2>
         </div>
@@ -128,7 +128,7 @@ export default function WorkflowStepper() {
                     }`}
                 >
                   {/* Icon */}
-                  <div className="flex-shrink-0">
+                  <div className="shrink-0">
                     {isActive ? (
                       <CheckCircle2 className="h-6 w-6 text-blue-500" />
                     ) : (
@@ -168,7 +168,7 @@ export default function WorkflowStepper() {
                   className="flex flex-col h-full"
                 >
                   {/* Heading */}
-                  <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                  <h3 className="text-2xl font-heading font-bold text-gray-900 mb-3">
                     {activeStep.content.heading}
                   </h3>
 
