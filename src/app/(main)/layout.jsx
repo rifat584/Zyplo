@@ -11,7 +11,9 @@ export default function MainLayout({ children }) {
       {/* <ThemeProviders> */}
       <Navbar />
 
-      {children}
+      <div className="min-h-screen">
+        {children}
+      </div>
       {/* </ThemeProviders> */}
 
       <Footer />

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Search, Menu, X, ChevronDown } from "lucide-react";
+import ResourcesMenu from "./ResourcesMenu/ResourcesMenu";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,37 +32,18 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  const closeAllMobile = () => {
+    setIsOpen(false);
+    setMobileResourcesOpen(false);
+  };
+
   const resources = [
-    {
-      title: "Zyplo Guide",
-      desc: "Learn how to use Zyplo step by step",
-      href: "/resources/guide",
-    },
-    {
-      title: "Remote Work",
-      desc: "Best practices for remote teams",
-      href: "/resources/remote-work",
-    },
-    {
-      title: "Webinars",
-      desc: "Productivity and workflow sessions",
-      href: "/resources/webinars",
-    },
-    {
-      title: "Customer Stories",
-      desc: "How teams use Zyplo",
-      href: "/resources/customer-stories",
-    },
-    {
-      title: "Developers",
-      desc: "Build and extend Zyplo",
-      href: "/resources/developers",
-    },
-    {
-      title: "Help Center",
-      desc: "FAQs and support resources",
-      href: "/resources/help",
-    },
+    { title: "Zyplo Guide", desc: "Learn how to use Zyplo step by step", href: "/resources/guide" },
+    { title: "Remote Work", desc: "Best practices for remote teams", href: "/resources/remote-work" },
+    { title: "Webinars", desc: "Productivity and workflow sessions", href: "/resources/webinars" },
+    { title: "Customer Stories", desc: "How teams use Zyplo", href: "/resources/customer-stories" },
+    { title: "Developers", desc: "Build and extend Zyplo", href: "/resources/developers" },
+    { title: "Help Center", desc: "FAQs and support resources", href: "/resources/help" },
   ];
 
   return (
@@ -89,39 +71,14 @@ const Navbar = () => {
           </button>
 
           {/* Mega Menu */}
-          {resourcesOpen && (
-            <div className="absolute top-14 -right-90 w-[720px] rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl p-6 grid grid-cols-3 gap-6">
-              <div className="col-span-2 grid grid-cols-2 gap-4">
-                {resources.map((item) => (
-                  <Link
-                    key={item.title}
-                    href={item.href}
-                    onClick={() => setResourcesOpen(false)}
-                    className="block rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-                  >
-                    <p className="font-semibold mb-1">{item.title}</p>
-                    <p className="text-sm text-gray-500">{item.desc}</p>
-                  </Link>
-                ))}
-              </div>
-
-              <div className="rounded-xl bg-gray-50 dark:bg-gray-800 p-4 flex flex-col justify-between">
-                <div>
-                  <p className="font-semibold mb-2">Helping teams work better</p>
-                  <p className="text-sm text-gray-500">
-                    Guides, tips, and best practices for using Zyplo effectively.
-                  </p>
-                </div>
-                <Link
-                  href="/blog"
-                  onClick={() => setResourcesOpen(false)}
-                  className="mt-4 inline-flex items-center justify-center rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm font-medium"
-                >
-                  Visit Zyplo Blog
-                </Link>
-              </div>
-            </div>
-          )}
+          <ResourcesMenu
+            resources={resources}
+            resourcesOpen={resourcesOpen}
+            setResourcesOpen={setResourcesOpen}
+            mobileResourcesOpen={false}
+            setMobileResourcesOpen={() => { }}
+            closeAll={() => { }}
+          />
         </div>
 
         {/* Right Actions */}
@@ -158,8 +115,8 @@ const Navbar = () => {
         <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-6 py-4 space-y-4 shadow-xl">
           {/* Top Links */}
           <div className="flex flex-col space-y-2">
-            <Link href="/" onClick={() => setIsOpen(false)} className={getLinkClass("/")}>Home</Link>
-            <Link href="/pricing" onClick={() => setIsOpen(false)} className={getLinkClass("/pricing")}>Pricing</Link>
+            <Link href="/" onClick={closeAllMobile} className={getLinkClass("/")}>Home</Link>
+            <Link href="/pricing" onClick={closeAllMobile} className={getLinkClass("/pricing")}>Pricing</Link>
 
             {/* Resources Toggle */}
             <button
@@ -170,33 +127,14 @@ const Navbar = () => {
               <ChevronDown size={16} className={`${mobileResourcesOpen ? "rotate-180" : ""} transition-transform`} />
             </button>
 
-            {mobileResourcesOpen && (
-              <div className="pl-4 space-y-2">
-                {resources.map((item) => (
-                  <Link
-                    key={item.title}
-                    href={item.href}
-                    onClick={() => {
-                      setIsOpen(false);
-                      setMobileResourcesOpen(false);
-                    }}
-                    className="block py-1 text-sm text-gray-600 dark:text-gray-300"
-                  >
-                    {item.title}
-                  </Link>
-                ))}
-                <Link
-                  href="/blog"
-                  onClick={() => {
-                    setIsOpen(false);
-                    setMobileResourcesOpen(false);
-                  }}
-                  className="block py-1 text-sm font-medium"
-                >
-                  Zyplo Blog
-                </Link>
-              </div>
-            )}
+            <ResourcesMenu
+              resources={resources}
+              resourcesOpen={false}
+              setResourcesOpen={() => { }}
+              mobileResourcesOpen={mobileResourcesOpen}
+              setMobileResourcesOpen={setMobileResourcesOpen}
+              closeAll={closeAllMobile}
+            />
           </div>
 
           {/* Divider */}
@@ -210,7 +148,7 @@ const Navbar = () => {
             {/* Sign in */}
             <Link
               href="/login"
-              onClick={() => setIsOpen(false)}
+              onClick={closeAllMobile}
               className="flex w-full items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
             >
               Sign in
@@ -219,7 +157,7 @@ const Navbar = () => {
             {/* Get started */}
             <Link
               href="/register"
-              onClick={() => setIsOpen(false)}
+              onClick={closeAllMobile}
               className="flex w-full items-center justify-center rounded-lg bg-linear-to-br from-indigo-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-indigo-500/40 active:scale-95"
             >
               Get started
