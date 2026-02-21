@@ -30,9 +30,12 @@ export default function TimeTracking() {
             <p className="mb-4 text-sm font-semibold text-primary uppercase tracking-wide">
               Time Tracking & Worklog
             </p>
-            <h2 className="text-3xl font-heading font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Timer-first logging that feels built into the board
-            </h2>
+            <h2 className="mt-4 text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+  Timer-first logging{" "}
+  <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-cyan-500">
+    that feels built into the board
+  </span>
+</h2>
           </div>
 
           {/* Bento Grid Layout */}
