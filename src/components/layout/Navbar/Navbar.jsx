@@ -4,11 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation"; 
 import { Sun, Moon, Search, Menu, X } from "lucide-react";
-<<<<<<< HEAD
 import Logo from "./Logo";
 // import { useTheme } from "@/context/ThemeContext";
-=======
->>>>>>> origin/development
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
