@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation"; 
 import { Sun, Moon, Search, Menu, X } from "lucide-react";
+import Logo from "./Logo";
 // import { useTheme } from "@/context/ThemeContext";
 
 const Navbar = () => {
@@ -25,15 +26,8 @@ const Navbar = () => {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         
         {/* --- Logo --- */}
-        <Link href="/" className="flex items-center gap-2">
-          <div className="group flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-400 text-white font-bold text-lg transition-transform duration-500 hover:rotate-[10deg] hover:scale-110 shadow-lg shadow-indigo-500/30">
-  Z
-</div>
-          <span className="text-xl font-bold text-gray-900 dark:text-white">
-            Zyplo
-          </span>
-        </Link>
-
+      <Logo/>
+      
         {/* --- Desktop Links (Hidden on Mobile) --- */}
         <div className="hidden md:flex items-center gap-2">
           <Link href="/" className={getLinkClass("/")}>Home</Link>
