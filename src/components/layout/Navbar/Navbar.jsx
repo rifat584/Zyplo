@@ -4,6 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation"; 
 import { Sun, Moon, Search, Menu, X } from "lucide-react";
+<<<<<<< HEAD
+import Logo from "./Logo";
+// import { useTheme } from "@/context/ThemeContext";
+=======
+>>>>>>> origin/development
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,10 +23,21 @@ const Navbar = () => {
   };
 
   return (
-    // Removed the standard border-b here to let the custom line shine
-    <nav className="sticky top-0 z-50 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md transition-colors duration-300 shadow-sm">
-      <div className="relative">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+    <nav className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md transition-colors duration-300">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+        
+        {/* --- Logo --- */}
+      <Logo/>
+      
+        {/* --- Desktop Links (Hidden on Mobile) --- */}
+        <div className="hidden md:flex items-center gap-2">
+          <Link href="/" className={getLinkClass("/")}>Home</Link>
+          <Link href="/pricing" className={getLinkClass("/pricing")}>Pricing</Link>
+          <Link href="/docs" className={getLinkClass("/docs")}>Docs</Link>
+        </div>
+
+        {/* --- Right Actions & Mobile Menu Toggle --- */}
+        <div className="flex items-center gap-4">
           
           {/* --- Logo --- */}
           <Link href="/" className="flex items-center gap-2">

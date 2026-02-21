@@ -76,3 +76,32 @@ h1, h2, h3 {
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
 }
+
+@keyframes aurora-pan {
+  0% {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(2%, 1.5%, 0) scale(1.04);
+  }
+  100% {
+    transform: translate3d(-1%, 2%, 0) scale(1.01);
+  }
+}
+
+@keyframes aurora-drift {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate3d(1%, -1%, 0) rotate(1deg) scale(1.03);
+  }
+  100% {
+    transform: translate3d(-1.5%, 1%, 0) rotate(-1deg) scale(1.02);
+  }
+}
+
+.auth-noise {
+  background-image: radial-gradient(rgba(15, 23, 42, 0.16) 0.45px, transparent 0.45px);
+  background-size: 3px 3px;
+}
