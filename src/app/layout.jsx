@@ -1,6 +1,6 @@
 import Navbar from "@/components/layout/Navbar/Navbar";
 import "./globals.css";
-// import ThemeProviders from "@/Context/ThemeProviders";
+import ThemeProviders from "@/Context/ThemeProviders";
 import Footer from "@/components/layout/Footer/Footer";
 
 import { Poppins, Playfair_Display, Creepster } from "next/font/google";
@@ -32,7 +32,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${poppins.className} ${poppins.variable} ${playfair.variable} ${creepster.variable} antialiased`}>
+        <ThemeProviders>
         {children}
+        </ThemeProviders>
       </body>
     </html>
   );
