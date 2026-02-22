@@ -19,11 +19,14 @@ const Navbar = () => {
   const [mounted, setMounted] = useState(false);
 
   const getLinkClass = (path) => {
-    const baseStyles = "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200";
+    const baseStyles =
+      "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200";
+
     if (pathname === path) {
-      return `${baseStyles} bg-primary/10 text-black font-semibold shadow-sm ring-1 ring-primary/20 dark:text-white dark:bg-primary/20`;
+      return `${baseStyles} bg-primary/10 text-gray-900 dark:text-gray-100 font-semibold shadow-sm ring-1 ring-primary/20 dark:bg-primary/20`;
     }
-    return `${baseStyles} text-muted-foreground hover:bg-secondary/20 hover:text-primary transition-colors`;
+
+    return `${baseStyles} text-gray-600 dark:text-gray-300 hover:bg-secondary/20 dark:hover:bg-secondary/20 hover:text-gray-900 dark:hover:text-white transition-colors`;
   };
 
   // Close mega menu on outside click
@@ -61,14 +64,14 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md transition-colors duration-300">
+    <nav className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-[#0F1629]/80 backdrop-blur-md transition-colors duration-300">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <div className="group flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-400 text-white font-bold text-lg transition-transform duration-500 hover:rotate-[10deg] hover:scale-110 shadow-lg shadow-indigo-500/30">
+          <div className="group flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-indigo-500 to-cyan-400 text-white font-bold text-lg transition-transform duration-500 hover:rotate-10 hover:scale-110 shadow-lg shadow-indigo-500/30">
             Z
           </div>
-          <span className="text-xl font-bold text-gray-900 dark:text-white">Zyplo</span>
+          <span className="text-xl font-bold text-gray-900 dark:text-gray-100">Zyplo</span>
         </Link>
 
         {/* Desktop Links */}
@@ -97,12 +100,12 @@ const Navbar = () => {
 
         {/* Right Actions */}
         <div className="flex items-center gap-4">
-          
+
           {/* --- Theme Toggle --- */}
           {mounted && (
             <button
               onClick={toggleTheme}
-              className="relative flex h-9 w-9 items-center justify-center rounded-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:scale-105"
+              className="relative flex h-9 w-9 items-center justify-center rounded-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:scale-105 cursor-pointer"
               aria-label="Toggle theme"
             >
               {theme === "light" ? (
@@ -113,7 +116,7 @@ const Navbar = () => {
             </button>
           )}
 
-          <button className="hidden sm:flex items-center gap-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 text-sm text-gray-500 dark:text-gray-300 transition hover:bg-gray-100 dark:hover:bg-gray-700">
+          <button className="hidden sm:flex items-center gap-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 transition hover:bg-gray-100 dark:hover:bg-gray-700">
             <Search size={16} />
             <span className="text-xs">Ctrl+K</span>
           </button>
@@ -142,7 +145,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-6 py-4 space-y-4 shadow-xl">
+        <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0F1629] px-6 py-4 space-y-4 shadow-xl">
           {/* Top Links */}
           <div className="flex flex-col space-y-2">
             <Link href="/" onClick={closeAllMobile} className={getLinkClass("/")}>Home</Link>
@@ -151,7 +154,7 @@ const Navbar = () => {
             {/* Resources Toggle */}
             <button
               onClick={() => setMobileResourcesOpen((p) => !p)}
-              className="w-full flex items-center justify-between px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-secondary/20"
+              className="w-full flex items-center justify-between px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground dark:text-gray-300 hover:bg-secondary/20"
             >
               Resources
               <ChevronDown size={16} className={`${mobileResourcesOpen ? "rotate-180" : ""} transition-transform`} />
