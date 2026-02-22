@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, Menu, X } from "lucide-react";
-// import { useTheme } from "@/context/ThemeContext";
+import { Search, Menu, X, ChevronDown } from "lucide-react";
+import ResourcesMenu from "./ResourcesMenu/ResourcesMenu";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const pathname = usePathname(); 
+  const [resourcesOpen, setResourcesOpen] = useState(false);
+  const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false);
+  const pathname = usePathname();
+  const dropdownRef = useRef(null);
 
   const getLinkClass = (path) => {
     const baseStyles = "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200";
@@ -18,41 +21,75 @@ const Navbar = () => {
     return `${baseStyles} text-muted-foreground hover:bg-secondary/20 hover:text-primary transition-colors`;
   };
 
+  // Close mega menu on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setResourcesOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const closeAllMobile = () => {
+    setIsOpen(false);
+    setMobileResourcesOpen(false);
+  };
+
+  const resources = [
+    { title: "Zyplo Guide", desc: "Learn how to use Zyplo step by step", href: "/resources/guide" },
+    { title: "Remote Work", desc: "Best practices for remote teams", href: "/resources/remote-work" },
+    { title: "Webinars", desc: "Productivity and workflow sessions", href: "/resources/webinars" },
+    { title: "Customer Stories", desc: "How teams use Zyplo", href: "/resources/customer-stories" },
+    { title: "Developers", desc: "Build and extend Zyplo", href: "/resources/developers" },
+    { title: "Help Center", desc: "FAQs and support resources", href: "/resources/help" },
+  ];
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md transition-colors duration-300">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-
-        {/* --- Logo --- */}
+        {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <div className="group flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-400 text-white font-bold text-lg transition-transform duration-500 hover:rotate-[10deg] hover:scale-110 shadow-lg shadow-indigo-500/30">
             Z
           </div>
-          <span className="text-xl font-bold text-gray-900 dark:text-white">
-            Zyplo
-          </span>
+          <span className="text-xl font-bold text-gray-900 dark:text-white">Zyplo</span>
         </Link>
 
-        {/* --- Desktop Links (Hidden on Mobile) --- */}
-        <div className="hidden md:flex items-center gap-2">
+        {/* Desktop Links */}
+        <div className="hidden md:flex items-center gap-2 relative" ref={dropdownRef}>
           <Link href="/" className={getLinkClass("/")}>Home</Link>
           <Link href="/pricing" className={getLinkClass("/pricing")}>Pricing</Link>
-          <Link href="/docs" className={getLinkClass("/docs")}>Docs</Link>
+
+          {/* Resources Button */}
+          <button
+            onClick={() => setResourcesOpen((p) => !p)}
+            className={`${getLinkClass("/resources")} flex items-center gap-1 cursor-pointer`}
+          >
+            Resources <ChevronDown size={16} />
+          </button>
+
+          {/* Mega Menu */}
+          <ResourcesMenu
+            resources={resources}
+            resourcesOpen={resourcesOpen}
+            setResourcesOpen={setResourcesOpen}
+            mobileResourcesOpen={false}
+            setMobileResourcesOpen={() => { }}
+            closeAll={() => { }}
+          />
         </div>
 
-        {/* --- Right Actions & Mobile Menu Toggle --- */}
+        {/* Right Actions */}
         <div className="flex items-center gap-4">
-          {/* Search (Hidden on very small screens) */}
           <button className="hidden sm:flex items-center gap-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 text-sm text-gray-500 dark:text-gray-300 transition hover:bg-gray-100 dark:hover:bg-gray-700">
             <Search size={16} />
             <span className="text-xs">Ctrl+K</span>
           </button>
 
-          {/* Desktop Sign In/Get Started */}
           <div className="hidden md:flex items-center gap-4">
-            <Link
-              href="/login"
-              className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-secondary"
-            >
+            <Link href="/login" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-secondary">
               Sign in
             </Link>
             <Link href="/register" className="flex items-center justify-center rounded-lg bg-linear-to-br from-indigo-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-indigo-500/40 active:scale-95">
@@ -60,7 +97,7 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* --- Mobile Menu Button --- */}
+          {/* Mobile Toggle */}
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
@@ -69,32 +106,58 @@ const Navbar = () => {
           </button>
         </div>
       </div>
-      {/* ✨ THE PREMIUM GRADIENT LINE ✨ */}
+
+      {/* Gradient line */}
       <div className="absolute bottom-0 left-0 h-[1px] w-full bg-gradient-to-r from-transparent via-indigo-500/30 dark:via-cyan-400/30 to-transparent" />
 
-      {/* --- Mobile Dropdown Menu --- */}
+      {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-6 py-4 space-y-4 shadow-xl animate-in slide-in-from-top-5">
+        <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-6 py-4 space-y-4 shadow-xl">
+          {/* Top Links */}
           <div className="flex flex-col space-y-2">
-            <Link href="/" onClick={() => setIsOpen(false)} className={getLinkClass("/")}>Home</Link>
-            <Link href="/pricing" onClick={() => setIsOpen(false)} className={getLinkClass("/pricing")}>Pricing</Link>
-            <Link href="/docs" onClick={() => setIsOpen(false)} className={getLinkClass("/docs")}>Docs</Link>
+            <Link href="/" onClick={closeAllMobile} className={getLinkClass("/")}>Home</Link>
+            <Link href="/pricing" onClick={closeAllMobile} className={getLinkClass("/pricing")}>Pricing</Link>
+
+            {/* Resources Toggle */}
+            <button
+              onClick={() => setMobileResourcesOpen((p) => !p)}
+              className="w-full flex items-center justify-between px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-secondary/20"
+            >
+              Resources
+              <ChevronDown size={16} className={`${mobileResourcesOpen ? "rotate-180" : ""} transition-transform`} />
+            </button>
+
+            <ResourcesMenu
+              resources={resources}
+              resourcesOpen={false}
+              setResourcesOpen={() => { }}
+              mobileResourcesOpen={mobileResourcesOpen}
+              setMobileResourcesOpen={setMobileResourcesOpen}
+              closeAll={closeAllMobile}
+            />
           </div>
 
+          {/* Divider */}
           <div className="border-t border-gray-100 dark:border-gray-800 pt-4 flex flex-col gap-3">
-             <button className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-500 dark:text-gray-300">
-               <Search size={16} />
-               Search...
+            {/* Search */}
+            <button className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-500 dark:text-gray-300">
+              <Search size={16} />
+              Search...
             </button>
+
+            {/* Sign in */}
             <Link
               href="/login"
-              onClick={() => setIsOpen(false)}
+              onClick={closeAllMobile}
               className="flex w-full items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
             >
               Sign in
             </Link>
+
+            {/* Get started */}
             <Link
               href="/register"
+              onClick={closeAllMobile}
               className="flex w-full items-center justify-center rounded-lg bg-linear-to-br from-indigo-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-indigo-500/40 active:scale-95"
             >
               Get started

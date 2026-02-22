@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import docs from "@/lib/docs.json";
-import DocsSidebar from "@/components/Docs/DocsSidebar/DocsSidebar";
+import docs from "@/lib/guide.json";
+import DocsSidebar from "@/components/resources/ResourcesSidebar/ResourcesSidebar";
 
 export default function DocsPage() {
     const [open, setOpen] = useState(false);
