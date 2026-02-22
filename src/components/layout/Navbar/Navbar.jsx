@@ -3,8 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, Menu, X, ChevronDown } from "lucide-react";
+import { Search, Menu, X, ChevronDown, Sun, Moon } from "lucide-react";
 import ResourcesMenu from "./ResourcesMenu/ResourcesMenu";
+import { useTheme } from "@/Context/ThemeContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,10 +14,14 @@ const Navbar = () => {
   const pathname = usePathname();
   const dropdownRef = useRef(null);
 
+  // Theme state
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
   const getLinkClass = (path) => {
     const baseStyles = "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200";
     if (pathname === path) {
-      return `${baseStyles} bg-primary/10 text-black font-semibold shadow-sm ring-1 ring-primary/20`;
+      return `${baseStyles} bg-primary/10 text-black font-semibold shadow-sm ring-1 ring-primary/20 dark:text-white dark:bg-primary/20`;
     }
     return `${baseStyles} text-muted-foreground hover:bg-secondary/20 hover:text-primary transition-colors`;
   };
@@ -32,9 +37,18 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // Prevent hydration mismatch for theme toggle
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const closeAllMobile = () => {
     setIsOpen(false);
     setMobileResourcesOpen(false);
+  };
+
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light");
   };
 
   const resources = [
@@ -83,6 +97,22 @@ const Navbar = () => {
 
         {/* Right Actions */}
         <div className="flex items-center gap-4">
+          
+          {/* --- Theme Toggle --- */}
+          {mounted && (
+            <button
+              onClick={toggleTheme}
+              className="relative flex h-9 w-9 items-center justify-center rounded-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:scale-105"
+              aria-label="Toggle theme"
+            >
+              {theme === "light" ? (
+                <Moon size={16} className="text-gray-600" />
+              ) : (
+                <Sun size={16} className="text-yellow-400" />
+              )}
+            </button>
+          )}
+
           <button className="hidden sm:flex items-center gap-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 text-sm text-gray-500 dark:text-gray-300 transition hover:bg-gray-100 dark:hover:bg-gray-700">
             <Search size={16} />
             <span className="text-xs">Ctrl+K</span>
