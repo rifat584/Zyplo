@@ -1,72 +1,47 @@
 "use client";
-
-import { useMemo, useState } from "react";
-import { useReducedMotion, useScroll, useTransform } from "framer-motion";
-import {
-  EASE,
-  integrations,
-  kanbanColumns,
-  notificationToggles,
-  projects,
-  roles,
-} from "./data";
-import SectionHeader from "./ui/SectionHeader";
-import LivingDashboard from "./dashboard/LivingDashboard";
-
+import { motion } from "framer-motion";
+import { FeatureGrid } from "./FeatureGrid";
+import MainContainer from "@/components/container/MainContainer";
 export default function FeatureSection() {
-  const reducedMotion = useReducedMotion();
-  const { scrollYProgress } = useScroll();
-  const bgY = useTransform(scrollYProgress, [0, 1], [0, reducedMotion ? 0 : 10]);
-  const fgY = useTransform(scrollYProgress, [0, 1], [0, reducedMotion ? 0 : 6]);
-
-  const [selectedTaskId, setSelectedTaskId] = useState("task-sync-race");
-  const [activeColumn, setActiveColumn] = useState("in-progress");
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [mobileTab, setMobileTab] = useState("tasks");
-
-  const allTasks = useMemo(
-    () => kanbanColumns.flatMap((column) => column.tasks.map((task) => ({ ...task, columnId: column.id }))),
-    [],
-  );
-
-  const selectedTask = allTasks.find((task) => task.id === selectedTaskId) ?? allTasks[0];
-
-  const handleTaskSelect = (taskId, columnId) => {
-    setSelectedTaskId(taskId);
-    setActiveColumn(columnId);
-  };
-
   return (
-    <section
-      aria-labelledby="living-dashboard-features-heading"
-      className="relative overflow-hidden bg-white py-16 dark:bg-slate-950 sm:py-20 lg:py-28"
-    >
-      <div className="pointer-events-none absolute inset-0 -z-20 bg-[radial-gradient(circle_at_14%_8%,rgba(34,211,238,0.16),transparent_36%),radial-gradient(circle_at_88%_2%,rgba(59,130,246,0.14),transparent_34%)]" />
+    <MainContainer>
+      <section
+        className="overflow-hidden bg-zinc-20/80 py-20 sm:py-24"
+        style={{
+          // Lightweight dot-grid texture keeps the section tactile without using images.
+          backgroundImage: `
+            linear-gradient(to right, var(--feature-grid-color, rgba(15,23,42,0.05)) 1px, transparent 1px),
+            linear-gradient(to bottom, var(--feature-grid-color, rgba(15,23,42,0.05)) 1px, transparent 1px)
+          `,
+          backgroundSize: "44px 44px",
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionHeader />
-        <LivingDashboard
-          fgY={fgY}
-          bgY={bgY}
-          reducedMotion={reducedMotion}
-          ease={EASE}
-          selectedTask={selectedTask}
-          selectedTaskId={selectedTaskId}
-          activeColumn={activeColumn}
-          isDrawerOpen={isDrawerOpen}
-          mobileTab={mobileTab}
-          allTasks={allTasks}
-          projects={projects}
-          notificationToggles={notificationToggles}
-          roles={roles}
-          integrations={integrations}
-          onMobileTabChange={setMobileTab}
-          onToggleDrawer={() => setIsDrawerOpen((prev) => !prev)}
-          onCloseDrawer={() => setIsDrawerOpen(false)}
-          onTaskSelect={handleTaskSelect}
-          onColumnSelect={setActiveColumn}
-        />
-      </div>
-    </section>
+          // Strong center + soft falloff: fades the grid on every edge
+          WebkitMaskImage:
+            "radial-gradient(ellipse 78% 68% at 50% 50%, rgba(0,0,0,1) 38%, rgba(0,0,0,0.88) 56%, rgba(0,0,0,0.58) 74%, rgba(0,0,0,0.2) 84%, transparent 100%)",
+          maskImage:
+            "radial-gradient(ellipse 78% 68% at 50% 50%, rgba(0,0,0,1) 38%, rgba(0,0,0,0.88) 56%, rgba(0,0,0,0.58) 64%, rgba(0,0,0,0.2) 84%, transparent 100%)",
+        }}
+      >
+        <div className="mx-auto w-full max-w-5xl px-4">
+          <motion.div
+            // Header enters once when near viewport to avoid repeated motion on scroll.
+            initial={{ opacity: 0, y: 26 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="mx-auto max-w-3xl text-center"
+          >
+            <h2 className="text-3xl font-heading font-semibold tracking-tight text-zinc-900 sm:text-4xl lg:text-5xl">
+              All your workflow - in one place.
+            </h2>
+            <p className="mt-4 text-sm text-zinc-600 sm:text-base">
+              Tasks, projects, docs, collaboration, and planning - built for
+              teams shipping real web apps.
+            </p>
+          </motion.div>
+          <FeatureGrid />
+        </div>
+      </section>
+    </MainContainer>
   );
 }
