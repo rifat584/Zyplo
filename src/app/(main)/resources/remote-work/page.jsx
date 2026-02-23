@@ -1,14 +1,56 @@
+"use client";
+
+import { useState } from "react";
+import { Menu } from "lucide-react";
+import ResourcesSidebar from "@/components/resources/ResourcesSidebar/ResourcesSidebar";
+import remoteWork from "@/lib/resources/remote-work.json";
+
 export default function RemoteWorkPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <div className="mx-auto max-w-7xl px-6 py-20 lg:px-8 min-h-[60vh]">
-      <div className="max-w-2xl">
-        <h1 className="text-4xl font-heading font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
-          Remote Work Best Practices
-        </h1>
-        <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">
-          Discover how top engineering teams use Zyplo to stay aligned, ship faster, and maintain a healthy async culture across multiple time zones.
-        </p>
+    <main className="mx-auto max-w-7xl px-6 py-12 grid gap-8 lg:grid-cols-[260px_1fr] bg-base text-foreground">
+      {/* Sidebar */}
+      <ResourcesSidebar
+        sections={remoteWork}
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+
+      {/* Content */}
+      <div>
+        {/* Mobile Header Button */}
+        <div className="lg:hidden mb-4">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground hover:bg-surface/80"
+          >
+            <Menu size={18} />
+            Open remote work guide
+          </button>
+        </div>
+
+        <div className="prose max-w-none dark:prose-invert">
+          {remoteWork.map((section) => (
+            <section key={section.id} id={section.id} className="mb-24">
+              <h2>{section.title}</h2>
+
+              {section.body?.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+
+              {section.subsections?.map((sub) => (
+                <div key={sub.id} id={sub.id} className="mt-10">
+                  <h3>{sub.title}</h3>
+                  {sub.body.map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))}
+                </div>
+              ))}
+            </section>
+          ))}
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

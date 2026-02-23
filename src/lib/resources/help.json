@@ -1,0 +1,59 @@
+[
+    {
+        "id": "intro",
+        "title": "Help Center",
+        "body": [
+            "Welcome to the Zyplo Help Center.",
+            "Find answers to common questions and troubleshooting tips."
+        ]
+    },
+    {
+        "id": "account",
+        "title": "Account & Billing",
+        "body": [
+            "Manage your profile and password from settings.",
+            "Upgrade or downgrade your plan anytime.",
+            "View invoices and billing history."
+        ]
+    },
+    {
+        "id": "projects",
+        "title": "Projects & Tasks",
+        "body": [
+            "Learn how to create and manage projects.",
+            "Understand task statuses and workflows.",
+            "Troubleshoot common issues with boards."
+        ]
+    },
+    {
+        "id": "troubleshooting",
+        "title": "Troubleshooting",
+        "subsections": [
+            {
+                "id": "login-issues",
+                "title": "Login Issues",
+                "body": [
+                    "Reset your password if you can’t log in.",
+                    "Check your email for verification links."
+                ]
+            },
+            {
+                "id": "performance",
+                "title": "Performance Issues",
+                "body": [
+                    "Refresh the page or clear cache.",
+                    "Check status page for outages."
+                ]
+            }
+        ]
+    },
+    {
+        "id": "contact",
+        "title": "Contact Support",
+        "body": [
+            "Reach out to our support team for help.",
+            "Provide screenshots and steps to reproduce issues.",
+            "We usually reply within 24 hours."
+        ]
+    }
+]

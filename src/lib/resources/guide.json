@@ -1,0 +1,116 @@
+[
+    {
+        "id": "intro",
+        "title": "Introduction",
+        "body": [
+            "Welcome to Zyplo documentation.",
+            "Zyplo is a developer-focused project management tool designed to help teams plan faster and ship better.",
+            "This guide walks you through the core concepts, workflows, and productivity features."
+        ]
+    },
+    {
+        "id": "getting-started",
+        "title": "Getting Started",
+        "body": [
+            "Create an account and log in to Zyplo.",
+            "Create your first workspace for your team.",
+            "Create a project inside the workspace.",
+            "Invite teammates and assign roles.",
+            "Create and assign your first task."
+        ]
+    },
+    {
+        "id": "core-concepts",
+        "title": "Core Concepts",
+        "subsections": [
+            {
+                "id": "workspace",
+                "title": "Workspace",
+                "body": [
+                    "A workspace is your team’s main space in Zyplo.",
+                    "It contains all your projects, members, and settings.",
+                    "You can create multiple workspaces for different teams or companies."
+                ]
+            },
+            {
+                "id": "project",
+                "title": "Project",
+                "body": [
+                    "A project represents a product or codebase.",
+                    "Each project lives inside a workspace.",
+                    "Projects contain tasks, boards, and activity history."
+                ]
+            },
+            {
+                "id": "task",
+                "title": "Task",
+                "body": [
+                    "A task is a unit of work tracked in Zyplo.",
+                    "Each task has a title, description, status, priority, assignee, and due date.",
+                    "Tasks move across the board as work progresses."
+                ]
+            }
+        ]
+    },
+    {
+        "id": "kanban",
+        "title": "Using the Kanban Board",
+        "subsections": [
+            {
+                "id": "board",
+                "title": "The Board",
+                "body": [
+                    "The board shows tasks grouped by status.",
+                    "Each column represents a workflow stage.",
+                    "This gives a real-time view of project progress."
+                ]
+            },
+            {
+                "id": "columns",
+                "title": "Columns",
+                "body": [
+                    "Columns represent steps like To Do, In Progress, Review, and Done.",
+                    "You can customize columns per project.",
+                    "Moving a card updates the task status."
+                ]
+            },
+            {
+                "id": "cards",
+                "title": "Cards",
+                "body": [
+                    "Each task appears as a card.",
+                    "Cards show key information like assignee and priority.",
+                    "Click a card to open full task details."
+                ]
+            }
+        ]
+    },
+    {
+        "id": "command-palette",
+        "title": "Command Palette",
+        "body": [
+            "Press Ctrl + K to open the command palette.",
+            "Jump to projects, create tasks, assign issues, and update status instantly.",
+            "This keeps you productive without leaving the keyboard."
+        ]
+    },
+    {
+        "id": "notifications",
+        "title": "Notifications & Activity",
+        "body": [
+            "Get notified when tasks are assigned to you.",
+            "Track changes via the activity log.",
+            "Stay updated without checking every board manually."
+        ]
+    },
+    {
+        "id": "shortcuts",
+        "title": "Shortcuts & Tips",
+        "body": [
+            "Ctrl + K opens the command palette.",
+            "Use labels to group related tasks.",
+            "Use priorities to plan sprints effectively.",
+            "Review your dashboard daily to stay aligned."
+        ]
+    }
+]

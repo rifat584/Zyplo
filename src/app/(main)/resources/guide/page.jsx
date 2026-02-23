@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import docs from "@/lib/guide.json";
+import docs from "@/lib/resources/guide.json";
 import { Menu } from "lucide-react";
 import ResourcesSidebar from "@/components/resources/ResourcesSidebar/ResourcesSidebar";
 
