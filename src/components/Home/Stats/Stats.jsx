@@ -11,7 +11,7 @@ const stats = [
 
 export default function Stats() {
   return (
-    <section className="bg-white dark:bg-gray-900 py-24 transition-colors duration-300">
+    <section className="bg-white dark:bg-[#0B0f19] py-20 transition-colors duration-300">
       <div className="max-w-[1280px] mx-auto px-6 text-center">
 
         <motion.h2
