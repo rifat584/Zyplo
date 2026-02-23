@@ -1,40 +1,44 @@
-"use client";
+import Link from "next/link";
+import { BookOpen, Globe, Video, Users, Code, HelpCircle } from "lucide-react";
 
-import { useState } from "react";
-import docs from "@/lib/guide.json";
-import DocsSidebar from "@/components/resources/ResourcesSidebar/ResourcesSidebar";
+export default function ResourcesHubPage() {
+  const resources = [
+    { title: "Zyplo Guide", desc: "Learn how to use Zyplo step by step", icon: BookOpen, href: "/resources/guide" },
+    { title: "Remote Work", desc: "Best practices for remote teams", icon: Globe, href: "/resources/remote-work" },
+    { title: "Webinars", desc: "Productivity and workflow sessions", icon: Video, href: "/resources/webinars" },
+    { title: "Customer Stories", desc: "How teams use Zyplo", icon: Users, href: "/resources/customer-stories" },
+    { title: "Developers", desc: "Build and extend Zyplo", icon: Code, href: "/resources/developers" },
+    { title: "Help Center", desc: "FAQs and support resources", icon: HelpCircle, href: "/resources/help" },
+  ];
 
-export default function DocsPage() {
-    const [open, setOpen] = useState(false);
+  return (
+    <div className="mx-auto max-w-7xl px-6 py-20 lg:px-8 min-h-[70vh]">
+      <div className="text-center mb-16">
+        <h1 className="text-4xl font-heading font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+          Zyplo Resources
+        </h1>
+        <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">
+          Everything you need to ship faster and manage your team better.
+        </p>
+      </div>
 
-    return (
-        <main className="bg-white dark:bg-base">
-            <div className="mx-auto max-w-7xl px-4 py-12 lg:px-6 grid gap-6 lg:grid-cols-[260px_1fr]">
-                <DocsSidebar sections={docs} open={open} onClose={() => setOpen(false)} />
-
-                <div>
-                    {/* Mobile toggle */}
-                    <div className="mb-4 lg:hidden">
-                        <button
-                            onClick={() => setOpen(true)}
-                            className="rounded-lg border border-gray-300 px-3 py-2 text-sm dark:border-gray-700"
-                        >
-                            Open Docs Menu
-                        </button>
-                    </div>
-
-                    <div className="prose prose-zinc max-w-none dark:prose-invert">
-                        {docs.map((s) => (
-                            <section key={s.id} id={s.id} className="mb-16 scroll-mt-24">
-                                <h1 className="first:mt-0 text-3xl font-medium mb-2">{s.title}</h1>
-                                {s.body.map((p, i) => (
-                                    <p key={i}>{p}</p>
-                                ))}
-                            </section>
-                        ))}
-                    </div>
-                </div>
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {resources.map((item) => (
+          <Link 
+            key={item.title} 
+            href={item.href}
+            className="group flex flex-col items-start justify-between rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-8 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+              <item.icon size={24} />
             </div>
-        </main>
-    );
+            <div className="mt-6">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">{item.title}</h3>
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{item.desc}</p>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
 }
