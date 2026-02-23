@@ -119,8 +119,7 @@ export default function WorkflowStepper() {
     workflowSteps.find((step) => step.id === activeTab) || workflowSteps[0];
 
   return (
-    // Replaced the square grid with a "Micro-Dot Matrix" 
-    // It keeps the exact same vignette fading as the section above so they flow together seamlessly.
+
     <section 
       className="relative w-full overflow-hidden bg-white py-20 [--feature-dot-color:rgba(15,23,42,0.15)] [--feature-vignette-edge:rgba(255,255,255,1)] dark:bg-[#0B0F19] dark:[--feature-dot-color:rgba(148,163,184,0.25)] dark:[--feature-vignette-edge:rgba(11,15,25,1)] sm:py-24 transition-colors duration-300"
       style={{
@@ -134,8 +133,7 @@ export default function WorkflowStepper() {
       }}
     >
       
-      {/* === AMBIENT AURA === */}
-      {/* A soft, glowing orb in the background that adds massive depth to the dot matrix */}
+
       <div className="pointer-events-none absolute left-1/2 top-1/2 -z-0 h-[600px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-400/10 blur-[120px] dark:bg-indigo-500/15" />
 
       {/* === MAIN CONTENT === */}
@@ -163,7 +161,6 @@ export default function WorkflowStepper() {
         {/* --- Main Boxed Layout --- */}
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
           
-          {/* === LEFT COLUMN: Navigation Buttons === */}
           <motion.div 
             variants={containerVariants}
             initial="hidden"
