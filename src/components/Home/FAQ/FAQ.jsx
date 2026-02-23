@@ -39,10 +39,10 @@ export default function FAQ() {
   };
 
   return (
-    <section className="bg-white py-24">
+    <section className="bg-white dark:bg-gray-900 py-24 transition-colors duration-300">
       <div className="max-w-[1280px] mx-auto px-6">
 
-        {/* Heading Animation */}
+        {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -50,10 +50,10 @@ export default function FAQ() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold mb-4 text-gray-900">
+          <h2 className="text-4xl font-bold mb-4 text-gray-900 dark:text-white">
             Frequently Asked Questions
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Have questions? We’ve got answers.
           </p>
         </motion.div>
@@ -67,17 +67,22 @@ export default function FAQ() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="bg-gray-50 border border-gray-200 rounded-xl p-6 cursor-pointer hover:shadow-lg transition"
+              className="
+                rounded-xl p-6 cursor-pointer transition-all duration-300
+                bg-gray-50 dark:bg-gray-800
+                border border-gray-200 dark:border-gray-700
+                hover:shadow-lg dark:hover:shadow-indigo-500/10
+              "
               onClick={() => toggle(index)}
             >
               <div className="flex justify-between items-center">
-                <h3 className="font-semibold text-lg text-gray-900">
+                <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
                   {faq.question}
                 </h3>
 
                 {/* Rotate Icon */}
                 <motion.span
-                  animate={{ rotate: openIndex === index ? 180 : 0 }}
+                  animate={{ rotate: openIndex === index ? 45 : 0 }}
                   transition={{ duration: 0.3 }}
                   className="text-xl font-bold text-sky-500"
                 >
@@ -93,7 +98,7 @@ export default function FAQ() {
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.4 }}
-                    className="mt-4 text-gray-600 leading-relaxed overflow-hidden"
+                    className="mt-4 text-gray-600 dark:text-gray-400 leading-relaxed overflow-hidden"
                   >
                     {faq.answer}
                   </motion.p>
