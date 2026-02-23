@@ -2,65 +2,129 @@ export const pricingPlans = [
   {
     id: "starter",
     name: "Starter",
-    description: "For solo developers moving fast with clear task ownership.",
     monthlyPrice: 12,
     yearlyPrice: 10,
     highlight: false,
-    included: "Tasks, docs, and boards for focused personal delivery.",
+    bestFor: "Best for solo developers and early products",
     features: [
       "1 workspace",
       "Up to 3 members",
-      "Kanban boards and docs",
+      "Unlimited boards and docs",
+      "Timeline + workload view",
       "Activity history (30 days)",
+      "3 native integrations",
       "Community support",
     ],
-    cta: "Start Starter",
+    cta: "Start Free Trial",
   },
   {
     id: "team",
     name: "Team",
-    description: "For product teams that need shared visibility and fast handoffs.",
     monthlyPrice: 29,
     yearlyPrice: 23,
     highlight: true,
-    included: "Roles, notifications, integrations, and deeper project controls.",
+    bestFor: "Best for scaling product and engineering teams",
     features: [
       "5 workspaces",
       "Up to 25 members",
       "Unlimited boards and docs",
+      "Custom workflows and automations",
       "Activity history (1 year)",
+      "15 integrations + API access",
       "Priority support",
     ],
-    cta: "Start Team",
+    cta: "Choose Team",
   },
   {
     id: "studio",
     name: "Studio",
-    description: "For agencies and studios coordinating multiple client streams.",
     monthlyPrice: 59,
     yearlyPrice: 47,
     highlight: false,
-    included: "Advanced governance and support for multi-team delivery.",
+    bestFor: "Best for agencies, studios, and enterprise programs",
     features: [
       "Unlimited workspaces",
       "Unlimited members",
       "Granular roles and approvals",
+      "SSO and advanced permissions",
       "Unlimited history retention",
+      "Unlimited integrations",
       "Dedicated success support",
     ],
     cta: "Contact Sales",
   },
 ];
 
-export const comparisonRows = [
-  { feature: "Workspaces", starter: "1", team: "5", studio: "Unlimited" },
-  { feature: "Boards", starter: "Unlimited", team: "Unlimited", studio: "Unlimited" },
-  { feature: "Docs", starter: "Included", team: "Included", studio: "Included" },
-  { feature: "Activity History", starter: "30 days", team: "1 year", studio: "Unlimited" },
-  { feature: "Notifications", starter: "Basic", team: "Advanced", studio: "Advanced" },
-  { feature: "Roles", starter: "Member/Admin", team: "Custom roles", studio: "Custom roles" },
-  { feature: "Integrations", starter: "3", team: "15", studio: "Unlimited" },
-  { feature: "Support", starter: "Community", team: "Priority", studio: "Dedicated" },
+export const comparisonCategories = [
+  {
+    id: "workspace",
+    title: "Workspace & Planning",
+    rows: [
+      { feature: "Workspaces", starter: "1", team: "5", studio: "Unlimited" },
+      { feature: "Boards and docs", starter: true, team: true, studio: true },
+      { feature: "Timeline view", starter: true, team: true, studio: true },
+      { feature: "Workload planning", starter: false, team: true, studio: true },
+    ],
+  },
+  {
+    id: "collaboration",
+    title: "Collaboration & Controls",
+    rows: [
+      { feature: "Member limit", starter: "3", team: "25", studio: "Unlimited" },
+      { feature: "Custom workflows", starter: false, team: true, studio: true },
+      { feature: "Role permissions", starter: "Basic", team: "Advanced", studio: "Granular" },
+      { feature: "Approvals", starter: false, team: true, studio: true },
+    ],
+  },
+  {
+    id: "security",
+    title: "Security & Support",
+    rows: [
+      { feature: "SSO / SAML", starter: false, team: false, studio: true },
+      { feature: "Audit history", starter: "30 days", team: "1 year", studio: "Unlimited" },
+      { feature: "Integrations", starter: "3", team: "15", studio: "Unlimited" },
+      { feature: "Support tier", starter: "Community", team: "Priority", studio: "Dedicated" },
+    ],
+  },
+];
+
+export const pricingBenefits = [
+  {
+    id: "launch",
+    icon: "Rocket",
+    title: "Ship Faster",
+    description: "Teams move from planning to delivery with fewer status bottlenecks.",
+  },
+  {
+    id: "visibility",
+    icon: "Activity",
+    title: "Real-Time Visibility",
+    description: "Live progress, blockers, and ownership stay clear across every project.",
+  },
+  {
+    id: "automation",
+    icon: "Bot",
+    title: "Automation Built-In",
+    description: "Reduce repetitive updates with workflow automations and rules.",
+  },
+  {
+    id: "security",
+    icon: "ShieldCheck",
+    title: "Secure by Default",
+    description: "Role-based access and audit trails keep collaboration controlled.",
+  },
+  {
+    id: "integration",
+    icon: "Puzzle",
+    title: "Connected Stack",
+    description: "Bring commits, tickets, and team updates into one focused workspace.",
+  },
+  {
+    id: "scale",
+    icon: "TrendingUp",
+    title: "Scales with Teams",
+    description: "From startup sprinting to enterprise programs, Zyplo keeps pace.",
+  },
 ];
 
 export const faqs = [
@@ -95,32 +159,5 @@ export const faqs = [
   {
     q: "How is billing handled for yearly plans?",
     a: "Yearly plans are billed once per year and include the published annual discount.",
-  },
-];
-
-export const useCaseCards = [
-  {
-    id: "solo",
-    icon: "User",
-    title: "Solo developers",
-    description: "Keep planning lean while you ship features without process overhead.",
-    bestFit: "Best fit: Starter",
-    bullets: ["Focused boards + docs in one workspace", "Enough history retention for weekly iteration"],
-  },
-  {
-    id: "team",
-    icon: "Users",
-    title: "Product teams",
-    description: "Coordinate handoffs across engineers, PMs, and designers with clear ownership.",
-    bestFit: "Best fit: Team",
-    bullets: ["Custom roles and richer notification controls", "Longer activity history for release traceability"],
-  },
-  {
-    id: "studio",
-    icon: "Building2",
-    title: "Agencies / Studios",
-    description: "Run multiple client tracks with stronger governance and integrations.",
-    bestFit: "Best fit: Studio",
-    bullets: ["Unlimited workspaces for multi-client delivery", "Higher integration limits and dedicated support"],
   },
 ];

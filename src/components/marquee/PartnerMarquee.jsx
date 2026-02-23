@@ -17,34 +17,91 @@ const partners = [
   { name: "Stripe", url: "/partners/stripe.svg" },
 ];
 
+const rowTwoPartners = [
+  { name: "GitLab", url: "/partners/gitlab.svg" },
+  { name: "Notion", url: "/partners/notion.svg" },
+  { name: "Linear", url: "/partners/linear.svg" },
+  { name: "Sentry", url: "/partners/sentry.svg" },
+  { name: "Netlify", url: "/partners/netlify.svg" },
+  { name: "Atlassian", url: "/partners/atlassian.svg" },
+  { name: "Postman", url: "/partners/postman.svg" },
+  { name: "Trello", url: "/partners/trello.svg" },
+  { name: "Cloudflare", url: "/partners/cloudflare.svg" },
+  { name: "Bitbucket", url: "/partners/bitbucket.svg" },
+];
+
+const darkModeWhiteLogos = new Set([
+  "GitHub",
+  "Next.js",
+  "Notion",
+  "Linear",
+  "Sentry",
+  "Vercel",
+]);
+
+const PartnerLogo = ({ partner, subtle = false }) => (
+  <div
+    className={[
+      "flex h-16 w-24 shrink-0 items-center justify-center rounded-xl border border-zinc-200/70 bg-white/80 p-3",
+      "dark:border-gray-700 dark:bg-[#0F1629]/80",
+      subtle ? "opacity-85" : "",
+    ].join(" ")}
+  >
+    <Image
+      src={partner.url}
+      alt={partner.name}
+      width={54}
+      height={54}
+      className={[
+        subtle ? "h-9" : "h-10",
+        "w-auto object-contain",
+        darkModeWhiteLogos.has(partner.name)
+          ? "dark:filter-[brightness(0)_invert(1)]"
+          : "",
+      ].join(" ")}
+    />
+  </div>
+);
+
 const PartnerMarquee = () => {
   return (
-    <section>
-      <MainContainer className="px-6 py-12">
-        <h3 className="mb-12 text-center text-4xl font-bold text-foreground">
+    <section className="bg-white dark:bg-[#0B0F19]">
+      <MainContainer className="px-6 py-14 sm:py-16">
+        <h3 className="mb-8 text-center text-3xl font-bold text-foreground dark:text-gray-100 sm:text-4xl">
           Our Partners
         </h3>
 
-        <Marquee
-          speed={40}
-          gradient={true}
-          autoFill
-          pauseOnHover
-          gradientWidth={80}
+        <div
+          className="
+            relative overflow-hidden rounded-2xl  bg-zinc-50/70 py-5
+             dark:bg-[#111A2E]/60
+          "
+          style={{
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
+            maskImage:
+              "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
+          }}
+          aria-label="Partner logos"
         >
-          <ul className="flex items-center gap-16 px-8">
-            {partners.map((partner) => (
-              <li key={partner.name} className="shrink-0">
-                <Image
-                  src={partner.url}
-                  alt={partner.name}
-                  height={70}
-                  width={70}
-                />
-              </li>
-            ))}
-          </ul>
-        </Marquee>
+          <Marquee speed={42} autoFill pauseOnHover gradient={false}>
+            <div className="flex items-center gap-12 px-6">
+              {partners.map((partner) => (
+                <PartnerLogo key={`top-${partner.name}`} partner={partner} />
+              ))}
+            </div>
+          </Marquee>
+
+          <div className="mt-3">
+            <Marquee speed={28} autoFill pauseOnHover gradient={false} direction="right">
+              <div className="flex items-center gap-12 px-6">
+                {rowTwoPartners.map((partner) => (
+                  <PartnerLogo key={`bottom-${partner.name}`} partner={partner} subtle />
+                ))}
+              </div>
+            </Marquee>
+          </div>
+        </div>
       </MainContainer>
     </section>
   );
