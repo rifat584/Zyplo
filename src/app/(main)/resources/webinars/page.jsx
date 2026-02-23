@@ -1,19 +1,53 @@
+"use client";
+
+import { useState } from "react";
+import { Menu } from "lucide-react";
+import ResourcesSidebar from "@/components/resources/ResourcesSidebar/ResourcesSidebar";
+import webinars from "@/lib/resources/webinars.json";
+
 export default function WebinarsPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <div className="mx-auto max-w-7xl px-6 py-20 lg:px-8 min-h-[60vh]">
-      <div className="max-w-2xl">
-        <h1 className="text-4xl font-heading font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
-          Zyplo Webinars
-        </h1>
-        <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">
-          Join our live sessions to learn advanced workflow techniques, productivity hacks, and deep dives into new Zyplo features.
-        </p>
+    <main className="mx-auto max-w-7xl px-6 py-12 grid gap-8 lg:grid-cols-[260px_1fr] bg-base text-foreground">
+      <ResourcesSidebar
+        sections={webinars}
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+
+      <div>
+        <div className="lg:hidden mb-4">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground hover:bg-surface/80"
+          >
+            <Menu size={18} />
+            Open webinars
+          </button>
+        </div>
+
+        <div className="prose max-w-none dark:prose-invert">
+          {webinars.map((section) => (
+            <section key={section.id} id={section.id} className="mb-24">
+              <h2>{section.title}</h2>
+
+              {section.body?.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+
+              {section.subsections?.map((sub) => (
+                <div key={sub.id} id={sub.id} className="mt-10">
+                  <h3>{sub.title}</h3>
+                  {sub.body.map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))}
+                </div>
+              ))}
+            </section>
+          ))}
+        </div>
       </div>
-      
-      {/* Placeholder for future video grid */}
-      <div className="mt-10 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 p-12 text-center text-gray-500 dark:text-gray-400">
-        Upcoming webinars will be listed here.
-      </div>
-    </div>
+    </main>
   );
 }

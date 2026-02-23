@@ -10,16 +10,13 @@ export default function RemoteWorkPage() {
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-12 grid gap-8 lg:grid-cols-[260px_1fr] bg-base text-foreground">
-      {/* Sidebar */}
       <ResourcesSidebar
         sections={remoteWork}
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
 
-      {/* Content */}
       <div>
-        {/* Mobile Header Button */}
         <div className="lg:hidden mb-4">
           <button
             onClick={() => setSidebarOpen(true)}
