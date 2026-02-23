@@ -11,10 +11,6 @@ function AuthBackground() {
 
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_18%,rgba(99,102,241,0.16),transparent_36%),radial-gradient(circle_at_78%_20%,rgba(34,211,238,0.14),transparent_36%),radial-gradient(circle_at_50%_85%,rgba(99,102,241,0.08),transparent_40%)] dark:bg-[radial-gradient(circle_at_12%_18%,rgba(99,102,241,0.24),transparent_38%),radial-gradient(circle_at_78%_20%,rgba(34,211,238,0.20),transparent_38%),radial-gradient(circle_at_50%_85%,rgba(99,102,241,0.10),transparent_44%)]" />
 
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.05)_1px,transparent_1px)] bg-[size:34px_34px] opacity-25 dark:bg-[linear-gradient(to_right,rgba(148,163,184,0.10)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.10)_1px,transparent_1px)] dark:opacity-20" />
-
-      <div className="pointer-events-none absolute inset-0 auth-noise opacity-[0.03] dark:opacity-[0.06]" />
-
       <div className="absolute inset-0 bg-[radial-gradient(140%_90%_at_50%_50%,transparent_55%,rgba(248,250,252,0.60)_100%)] dark:bg-[radial-gradient(140%_90%_at_50%_50%,transparent_52%,rgba(2,6,23,0.72)_100%)]" />
     </div>
   );
