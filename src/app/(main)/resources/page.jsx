@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import docs from "@/lib/guide.json";
-import DocsSidebar from "@/components/resources/ResourcesSidebar/ResourcesSidebar";
+import ResourcesSidebar from "@/components/resources/ResourcesSidebar/ResourcesSidebar";
 
 export default function DocsPage() {
     const [open, setOpen] = useState(false);
@@ -10,7 +10,7 @@ export default function DocsPage() {
     return (
         <main className="bg-white dark:bg-base">
             <div className="mx-auto max-w-7xl px-4 py-12 lg:px-6 grid gap-6 lg:grid-cols-[260px_1fr]">
-                <DocsSidebar sections={docs} open={open} onClose={() => setOpen(false)} />
+                <ResourcesSidebar sections={docs} open={open} onClose={() => setOpen(false)} />
 
                 <div>
                     {/* Mobile toggle */}

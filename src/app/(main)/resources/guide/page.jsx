@@ -9,7 +9,7 @@ export default function GuidePage() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     return (
-        <main className="mx-auto max-w-7xl px-6 py-12 grid gap-8 lg:grid-cols-[260px_1fr]">
+        <main className="mx-auto max-w-7xl px-6 py-12 grid gap-8 lg:grid-cols-[260px_1fr] bg-base text-foreground">
             {/* Sidebar */}
             <ResourcesSidebar
                 sections={docs}
@@ -23,7 +23,7 @@ export default function GuidePage() {
                 <div className="lg:hidden mb-4">
                     <button
                         onClick={() => setSidebarOpen(true)}
-                        className="inline-flex items-center gap-2 rounded-md border border-gray-300 px-3 py-2 text-sm"
+                        className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground hover:bg-surface/80"
                     >
                         <Menu size={18} />
                         Open guide

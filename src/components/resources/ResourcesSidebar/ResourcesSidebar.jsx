@@ -61,7 +61,7 @@ export default function ResourcesSidebar({ sections, open, onClose }) {
                 className={`block w-full rounded-md px-3 py-1.5 text-sm transition-colors ${level === 0 ? "font-medium" : ""
                     } ${isActive
                         ? "bg-primary/10 text-primary"
-                        : "text-gray-700 hover:bg-gray-100 hover:text-primary dark:text-gray-300 dark:hover:bg-base"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-primary dark:text-gray-300 dark:hover:bg-surface"
                     }`}
             >
                 {title}
@@ -82,7 +82,7 @@ export default function ResourcesSidebar({ sections, open, onClose }) {
                         <div
                             className={`w-full rounded-md transition ${groupActive
                                     ? "bg-primary/10"
-                                    : "hover:bg-gray-100 dark:hover:bg-base"
+                                    : "hover:bg-gray-100 dark:hover:bg-surface"
                                 }`}
                         >
                             <div className="flex items-center justify-between gap-2 px-2 py-1.5">
@@ -154,8 +154,8 @@ export default function ResourcesSidebar({ sections, open, onClose }) {
     return (
         <>
             {/* Desktop Sidebar */}
-            <aside className="hidden lg:block sticky top-20 h-[calc(100vh-5rem)] w-64 shrink-0 overflow-y-auto">
-                <p className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+            <aside className="hidden lg:block sticky top-20 h-[calc(100vh-5rem)] w-64 shrink-0 overflow-y-auto bg-base">
+                <p className="mb-4 text-lg font-semibold text-foreground">
                     Getting started with Zyplo
                 </p>
                 <SidebarContent />
@@ -175,10 +175,10 @@ export default function ResourcesSidebar({ sections, open, onClose }) {
 
                 {/* Drawer */}
                 <div
-                    className={`absolute left-0 top-0 h-full w-80 bg-white p-4 dark:bg-surface border-r border-gray-200 dark:border-gray-800 transition-transform ${open ? "translate-x-0" : "-translate-x-full"
+                    className={`absolute left-0 top-0 h-full w-80 bg-base p-4 border-r border-border transition-transform ${open ? "translate-x-0" : "-translate-x-full"
                         }`}
                 >
-                    <p className="mb-4 text-base font-semibold">
+                    <p className="mb-4 text-base font-semibold dark:text-foreground">
                         Learn Zyplo basics
                     </p>
 
