@@ -1,0 +1,50 @@
+[
+    {
+        "id": "intro",
+        "title": "Zyplo Webinars",
+        "body": [
+            "Our webinars help you learn Zyplo faster.",
+            "Join live sessions or watch recordings anytime."
+        ]
+    },
+    {
+        "id": "getting-value",
+        "title": "Getting Value from Webinars",
+        "body": [
+            "Attend live sessions to ask questions.",
+            "Watch recordings to learn at your own pace.",
+            "Share learnings with your team."
+        ]
+    },
+    {
+        "id": "topics",
+        "title": "Popular Topics",
+        "subsections": [
+            {
+                "id": "productivity",
+                "title": "Team Productivity",
+                "body": [
+                    "Learn how to optimize workflows.",
+                    "Discover best practices from experienced teams."
+                ]
+            },
+            {
+                "id": "roadmaps",
+                "title": "Roadmaps & Planning",
+                "body": [
+                    "Plan sprints more effectively.",
+                    "Align stakeholders with clear roadmaps."
+                ]
+            }
+        ]
+    },
+    {
+        "id": "community",
+        "title": "Community Sessions",
+        "body": [
+            "Hear from real teams using Zyplo.",
+            "Learn from real-world case studies.",
+            "Get inspired by different workflows."
+        ]
+    }
+]

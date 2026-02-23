@@ -1,14 +1,44 @@
-export default function CustomerStoriesPage() {
+"use client";
+
+import { useState } from "react";
+import { Menu } from "lucide-react";
+import ResourcesSidebar from "@/components/resources/ResourcesSidebar/ResourcesSidebar";
+import customerStories from "@/lib/resources/customer-stories.json";
+
+export default function HelpPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <div className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
-      <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
-        Customer Stories
-      </h1>
-      <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">
-        See how teams are using Zyplo to ship faster.
-      </p>
-      
-      {/* You can build out the rest of the page here later! */}
-    </div>
+    <main className="mx-auto max-w-7xl px-6 pt-6 grid gap-8 lg:grid-cols-[260px_1fr] bg-base text-foreground">
+      <ResourcesSidebar
+        sections={customerStories}
+        title="Customer Stories"
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+
+      <div>
+        <div className="prose max-w-none dark:prose-invert">
+          {customerStories.map((section) => (
+            <section key={section.id} id={section.id} className="mb-24">
+              <h2>{section.title}</h2>
+
+              {section.body?.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+
+              {section.subsections?.map((sub) => (
+                <div key={sub.id} id={sub.id} className="mt-10">
+                  <h3>{sub.title}</h3>
+                  {sub.body.map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))}
+                </div>
+              ))}
+            </section>
+          ))}
+        </div>
+      </div>
+    </main>
   );
 }

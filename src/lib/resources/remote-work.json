@@ -1,0 +1,59 @@
+[
+    {
+        "id": "intro",
+        "title": "Remote Work with Zyplo",
+        "body": [
+            "Zyplo is built for distributed and hybrid teams.",
+            "This guide covers best practices for working remotely using Zyplo."
+        ]
+    },
+    {
+        "id": "team-setup",
+        "title": "Setting Up Your Remote Team",
+        "body": [
+            "Create a workspace for your remote team.",
+            "Invite members across different time zones.",
+            "Define clear roles and responsibilities."
+        ]
+    },
+    {
+        "id": "async",
+        "title": "Async Collaboration",
+        "subsections": [
+            {
+                "id": "updates",
+                "title": "Status Updates",
+                "body": [
+                    "Use comments and activity logs to share progress.",
+                    "Avoid blocking teammates by documenting decisions."
+                ]
+            },
+            {
+                "id": "handoffs",
+                "title": "Work Handoffs",
+                "body": [
+                    "Move tasks across columns when your part is done.",
+                    "Mention teammates so they know what to do next."
+                ]
+            }
+        ]
+    },
+    {
+        "id": "meetings",
+        "title": "Meetings & Planning",
+        "body": [
+            "Use boards to plan sprints and milestones.",
+            "Keep meetings short and focused.",
+            "Track decisions in tasks instead of chat tools."
+        ]
+    },
+    {
+        "id": "culture",
+        "title": "Building Remote Culture",
+        "body": [
+            "Celebrate wins using comments and reactions.",
+            "Encourage clear written communication.",
+            "Use transparency to build trust across the team."
+        ]
+    }
+]

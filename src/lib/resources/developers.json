@@ -1,0 +1,50 @@
+[
+    {
+        "id": "intro",
+        "title": "Developers & Integrations",
+        "body": [
+            "Zyplo is built with developers in mind.",
+            "You can extend Zyplo using APIs and integrations."
+        ]
+    },
+    {
+        "id": "api",
+        "title": "Zyplo API",
+        "body": [
+            "Use the API to manage projects and tasks programmatically.",
+            "Authenticate using API keys or OAuth.",
+            "Build internal tools and automations on top of Zyplo."
+        ]
+    },
+    {
+        "id": "webhooks",
+        "title": "Webhooks",
+        "body": [
+            "Receive real-time updates when things change.",
+            "Trigger workflows in other tools.",
+            "Use webhooks for CI/CD or reporting pipelines."
+        ]
+    },
+    {
+        "id": "integrations",
+        "title": "Integrations",
+        "subsections": [
+            {
+                "id": "github",
+                "title": "GitHub Integration",
+                "body": [
+                    "Link commits to tasks.",
+                    "Automatically update task status from PRs."
+                ]
+            },
+            {
+                "id": "slack",
+                "title": "Slack Integration",
+                "body": [
+                    "Get task notifications in Slack.",
+                    "Create tasks directly from messages."
+                ]
+            }
+        ]
+    }
+]
