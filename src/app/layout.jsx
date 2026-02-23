@@ -30,8 +30,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className={`${poppins.className} ${poppins.variable} ${playfair.variable} ${creepster.variable} antialiased`}>
+    <html lang="en" className="h-full">
+      <body className={`${poppins.className} ${poppins.variable} ${playfair.variable} ${creepster.variable} min-h-screen bg-white text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100`}>
         <ThemeProviders>
         {children}
         </ThemeProviders>
