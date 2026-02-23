@@ -84,9 +84,16 @@ export default function Footer() {
                 placeholder="Enter your email"
                 className="w-full px-4 py-2 rounded-l-lg bg-slate-800 border border-slate-700 text-sm focus:outline-none"
               />
-              <button className="bg-sky-500 hover:bg-sky-600 px-4 rounded-r-lg text-sm font-medium transition">
-                Subscribe
-              </button>
+             <button
+  className="px-4 rounded-r-lg text-sm font-semibold text-white
+  bg-gradient-to-br from-indigo-500 to-cyan-400
+  shadow-lg shadow-indigo-500/20
+  transition-all duration-300
+  hover:scale-[1.02] hover:shadow-indigo-500/40
+  active:scale-95"
+>
+  Subscribe
+</button>
             </div>
           </div>
 

@@ -11,11 +11,13 @@ const features = [
   "Real-time collaboration and activity logs",
 ];
 
+const headline = ["Plan faster.", "Ship better."];
+
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden py-16 sm:py-24">
+    <section className="relative z-10 overflow-hidden py-16 sm:py-24 bg-white dark:bg-[#0B0F19]">
       {/* Background gradient */}
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(79,70,229,0.18),transparent_40%),radial-gradient(circle_at_80%_10%,rgba(34,211,238,0.14),transparent_36%)]" />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(79,70,229,0.18),transparent_40%),radial-gradient(circle_at_80%_10%,rgba(34,211,238,0.14),transparent_36%)] dark:bg-[radial-gradient(circle_at_20%_20%,rgba(79,70,229,0.25),transparent_40%),radial-gradient(circle_at_80%_10%,rgba(34,211,238,0.20),transparent_36%)]" />
 
       <div className="max-w-7xl mx-auto px-6 grid items-center gap-12 lg:grid-cols-2">
         {/* Left content */}
@@ -41,14 +43,30 @@ export default function Hero() {
           </motion.span>
 
           <motion.h1
-            variants={{
-              hidden: { opacity: 0, y: 12 },
-              show: { opacity: 1, y: 0 },
-            }}
-            className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl text-gray-900 dark:text-primary"
+            className="text-4xl font-heading font-bold tracking-tight sm:text-5xl lg:text-6xl
+             text-gray-900 dark:text-gray-100"
           >
-            Plan faster. <br />
-            <span className="text-secondary">Ship better.</span>
+            {headline.map((line, i) => (
+              <motion.span
+                key={i}
+                className={`block ${i === 1
+                    ? "text-transparent bg-clip-text bg-size-[200%_200%] bg-linear-to-r from-indigo-400 via-cyan-300 to-indigo-400"
+                    : ""
+                  }`}
+                animate={
+                  i === 1
+                    ? { backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }
+                    : {}
+                }
+                transition={
+                  i === 1
+                    ? { duration: 2, ease: "easeInOut", repeat: Infinity }
+                    : {}
+                }
+              >
+                {line}
+              </motion.span>
+            ))}
           </motion.h1>
 
           <motion.p
@@ -91,9 +109,15 @@ export default function Hero() {
           >
             <motion.a
               whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.97 }}
+              whileTap={{ scale: 0.95 }}
               href="/register"
-              className="inline-flex items-center justify-center rounded-lg bg-secondary px-6 py-3 font-medium text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-secondaryHover"
+              className="inline-flex items-center justify-center 
+              px-6 py-3 rounded-lg font-semibold text-white
+              bg-linear-to-br from-indigo-500 to-cyan-400
+              shadow-lg shadow-indigo-500/20
+              transition-all duration-300
+              hover:scale-[1.03] hover:shadow-indigo-500/40
+              active:scale-95"
             >
               Get started free
             </motion.a>

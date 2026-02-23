@@ -8,7 +8,7 @@ const AUTO_SLIDE_MS = 4000;
 
 function SkeletonCard() {
     return (
-        <div className="animate-pulse rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-surface">
+        <div className="animate-pulse rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0B0f19] p-6">
             <div className="mb-3 h-4 w-3/4 rounded bg-gray-200 dark:bg-gray-700" />
             <div className="mb-2 h-3 w-full rounded bg-gray-200 dark:bg-gray-700" />
             <div className="mb-2 h-3 w-5/6 rounded bg-gray-200 dark:bg-gray-700" />
@@ -25,14 +25,14 @@ function SkeletonCard() {
 
 function TestimonialCard({ t }) {
     return (
-        <div className="h-full rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-surface">
+        <div className="h-full rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#111A2E] p-6 shadow-sm">
             <p className="text-sm text-gray-700 dark:text-gray-300">“{t.quote}”</p>
             <div className="mt-6 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 text-sm font-semibold dark:border-gray-700 dark:text-primary">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 dark:border-gray-700 text-sm font-semibold text-gray-700 dark:text-gray-200">
                     {t.avatar || t.name?.[0]}
                 </div>
                 <div>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-primary">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                         {t.name}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -98,9 +98,9 @@ export default function Testimonials() {
     const x = -index * cardWidth;
 
     return (
-        <section className="bg-white py-20 dark:bg-base">
+        <section className="bg-white py-20 dark:bg-[#0B0f19]">
             <div className="mx-auto max-w-7xl px-6">
-                <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-primary">
+                <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-gray-100">
                     Loved by modern teams
                 </h2>
                 <p className="mt-3 text-center text-gray-600 dark:text-gray-400">
@@ -109,10 +109,19 @@ export default function Testimonials() {
 
                 <div className="relative mt-12 overflow-hidden" ref={containerRef}>
                     {loading ? (
-                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                            {Array.from({ length: 3 }).map((_, i) => (
-                                <SkeletonCard key={i} />
-                            ))}
+                        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                            {/* 1st skeleton: always visible */}
+                            <SkeletonCard />
+
+                            {/* 2nd skeleton: hidden on mobile, visible from sm */}
+                            <div className="hidden sm:block">
+                                <SkeletonCard />
+                            </div>
+
+                            {/* 3rd skeleton: hidden until lg */}
+                            <div className="hidden lg:block">
+                                <SkeletonCard />
+                            </div>
                         </div>
                     ) : (
                         <motion.div
@@ -154,8 +163,8 @@ export default function Testimonials() {
                                 key={i}
                                 onClick={() => setIndex(i)}
                                 className={`h-2.5 w-2.5 rounded-full transition ${i === index
-                                        ? "bg-secondary"
-                                        : "bg-gray-300 dark:bg-gray-700"
+                                    ? "bg-secondary"
+                                    : "bg-gray-300 dark:bg-gray-600"
                                     }`}
                                 aria-label={`Go to slide ${i + 1}`}
                             />
