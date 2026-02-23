@@ -9,24 +9,15 @@ export default function GuidePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <main className="mx-auto max-w-7xl px-6 py-12 grid gap-8 lg:grid-cols-[260px_1fr] bg-base text-foreground">
+    <main className="mx-auto max-w-7xl px-6 pt-6 grid gap-8 lg:grid-cols-[260px_1fr] bg-base text-foreground">
       <ResourcesSidebar
         sections={guide}
+        title="Zyplo Guide"
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
 
       <div>
-        <div className="lg:hidden mb-4">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground hover:bg-surface/80"
-          >
-            <Menu size={18} />
-            Open guide
-          </button>
-        </div>
-
         <div className="prose max-w-none dark:prose-invert">
           {guide.map((section) => (
             <section key={section.id} id={section.id} className="mb-24">
