@@ -9,7 +9,7 @@ export function IntegrationsCard({ integrations }) {
           Connected
         </span>
       }
-      className="col-span-1 md:col-span-3 lg:col-span-6"
+      className="col-span-1 md:col-span-2 lg:col-span-7"
       delay={0.12}
     >
       <div className="flex flex-wrap gap-2">
