@@ -18,7 +18,7 @@ export default function LogoutButton({ collapsed, closeMobileSidebar }) {
   return (
     <button
       onClick={handleLogout}
-      className="group relative flex items-center gap-3 w-full rounded-xl px-3 py-2.5 transition-all duration-300 text-gray-600 hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+      className="group relative flex items-center gap-3 w-full rounded-xl px-3 py-2.5 transition-all duration-300 text-gray-600 hover:bg-red-50 hover:text-red-600 dark:text-gray-400 dark:hover:bg-red-500/10 dark:hover:text-red-400 cursor-pointer"
     >
       {/* Fixed width icon wrapper */}
       <div className="flex h-6 w-6 shrink-0 items-center justify-center">

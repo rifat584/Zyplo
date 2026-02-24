@@ -1,17 +1,21 @@
+import Logo from "@/components/Shared/Logo/Logo";
 import Link from "next/link";
 import { FaFacebookF, FaLinkedinIn, FaTwitter, FaGithub } from "react-icons/fa";
 
 export default function Footer() {
   return (
     <footer className="bg-[#0B1120] text-white pt-20 pb-8">
-      <div className="max-w-[1280px] mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-6">
 
         {/* Top Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
 
           {/* Brand */}
           <div>
-            <h2 className="text-2xl font-bold mb-4">Zyplo</h2>
+            <Link href={"/"} className="flex justify-start items-center">
+              <Logo showText={false} size={64} className="-ml-4" />
+              <span className="-ml-2 font-bold font-serif text-xl text-gray-200">Zyplo</span>
+            </Link>
             <p className="text-slate-400 leading-relaxed mb-6">
               Zyplo is a powerful project management platform built to help
               teams plan smarter, collaborate better, and deliver faster.
@@ -84,16 +88,16 @@ export default function Footer() {
                 placeholder="Enter your email"
                 className="w-full px-4 py-2 rounded-l-lg bg-slate-800 border border-slate-700 text-sm focus:outline-none"
               />
-             <button
-  className="px-4 rounded-r-lg text-sm font-semibold text-white
-  bg-gradient-to-br from-indigo-500 to-cyan-400
+              <button
+                className="px-4 rounded-r-lg text-sm font-semibold text-white
+  bg-linear-to-br from-indigo-500 to-cyan-400
   shadow-lg shadow-indigo-500/20
   transition-all duration-300
   hover:scale-[1.02] hover:shadow-indigo-500/40
   active:scale-95"
->
-  Subscribe
-</button>
+              >
+                Subscribe
+              </button>
             </div>
           </div>
 

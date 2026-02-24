@@ -17,7 +17,7 @@ export default function Hero() {
   return (
     <section className="relative z-10 overflow-hidden py-16 sm:py-24 bg-white dark:bg-[#0B0F19]">
       {/* Background gradient */}
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(79,70,229,0.18),transparent_40%),radial-gradient(circle_at_80%_10%,rgba(34,211,238,0.14),transparent_36%)] dark:bg-[radial-gradient(circle_at_20%_20%,rgba(79,70,229,0.25),transparent_40%),radial-gradient(circle_at_80%_10%,rgba(34,211,238,0.20),transparent_36%)]" />
+      <div className="absolute inset-0 -z-10 bg-secondary/15 dark:bg-secondary/10" />
 
       <div className="max-w-7xl mx-auto px-6 grid items-center gap-12 lg:grid-cols-2">
         {/* Left content */}

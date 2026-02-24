@@ -21,7 +21,7 @@ export default function DashboardNavbar({ setSidebarOpen }) {
       <div className="flex items-center gap-4">
         <button
           onClick={() => setSidebarOpen(true)}
-          className="lg:hidden p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5 rounded-md"
+          className="lg:hidden p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5 rounded-md cursor-pointer"
         >
           <Menu size={20} />
         </button>
@@ -50,7 +50,7 @@ export default function DashboardNavbar({ setSidebarOpen }) {
         {mounted && (
           <button
             onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-            className="relative flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition-all hover:scale-105 dark:border-white/10 dark:bg-[#0B0F19] dark:text-gray-300"
+            className="relative flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-600 transition-all hover:scale-105 dark:border-white/10 dark:bg-[#0B0F19] dark:text-gray-300 cursor-pointer"
           >
             {theme === "light" ? (
               <Moon size={16} />
@@ -61,7 +61,7 @@ export default function DashboardNavbar({ setSidebarOpen }) {
         )}
 
         {/* Notifications */}
-        <button className="relative p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">
+        <button className="relative p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors cursor-pointer">
           <Bell size={20} />
           <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-blue-500 ring-2 ring-white dark:ring-[#0B0F19]" />
         </button>
