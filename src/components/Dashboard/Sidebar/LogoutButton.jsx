@@ -1,15 +1,13 @@
 "use client";
 
 import { LogOut } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 export default function LogoutButton({ collapsed }) {
-  const router = useRouter();
-
-  const handleLogout = () => {
-    // TODO: Add actual logout logic (JWT clearing, etc.)
-    console.log("Logging out...");
-    router.push("/login");
+  const handleLogout = async () => {
+    await signOut({
+      callbackUrl: "/login",
+    });
   };
 
   return (
@@ -20,12 +18,11 @@ export default function LogoutButton({ collapsed }) {
         ${collapsed ? "justify-center p-2" : "w-full gap-3 px-3 py-2 text-sm font-medium"}
       `}
     >
-      <LogOut 
-        size={20} 
-        className="shrink-0 text-gray-400 transition-colors group-hover:text-red-500 dark:text-gray-500 dark:group-hover:text-red-400" 
+      <LogOut
+        size={20}
+        className="shrink-0 text-gray-400 transition-colors group-hover:text-red-500 dark:text-gray-500 dark:group-hover:text-red-400"
       />
-      
-      {/* Only render text if the sidebar is fully expanded */}
+
       {!collapsed && <span className="truncate">Log out</span>}
     </button>
   );

@@ -9,15 +9,16 @@ function SocialButtons() {
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-2.5">
         <Button
-          onClick={() => signIn("github")}
+          onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
           type="button"
           variant="outline"
           className="w-full text-slate-700 dark:text-slate-200"
         >
           <Github className="size-4" /> GitHub
         </Button>
+
         <Button
-          onClick={() => signIn("google")}
+          onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
           type="button"
           variant="outline"
           className="w-full text-slate-700 dark:text-slate-200"
@@ -25,6 +26,7 @@ function SocialButtons() {
           <Chrome className="size-4" /> Google
         </Button>
       </div>
+
       <div className="flex items-center gap-3">
         <Separator className="flex-1" />
         <span className="text-xs uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">

@@ -54,7 +54,9 @@ export const authOptions = {
           body: JSON.stringify({
             name: user.name,
             email: user.email,
+            image: user.image,
             provider: account.provider,
+            providerId: account.providerAccountId,
           }),
         });
       }
