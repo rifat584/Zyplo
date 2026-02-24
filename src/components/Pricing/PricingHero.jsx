@@ -16,7 +16,7 @@ export default function PricingHero() {
         <h1 className="mx-auto max-w-4xl text-4xl font-heading font-semibold tracking-tight text-slate-900 dark:text-slate-100 sm:text-5xl lg:text-6xl">
           Simple pricing, built to scale.
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-slate-600 dark:text-slate-300 sm:text-base">
+        <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-slate-600 dark:text-slate-300">
           Pick the right plan and start shipping faster.
         </p>
 

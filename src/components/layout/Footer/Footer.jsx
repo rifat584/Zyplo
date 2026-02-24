@@ -12,9 +12,9 @@ export default function Footer() {
 
           {/* Brand */}
           <div>
-            <Link href={"/"} className="flex justify-start items-center">
-              <Logo showText={false} size={64} className="-ml-4" />
-              <span className="-ml-2 font-bold font-serif text-xl text-gray-200">Zyplo</span>
+            <Link href={"/"} className="flex justify-start items-center mb-4">
+              <Logo showText={false} size={65} className="-ml-1 -mt-2" />
+              <span className="ml-2 font-bold font-serif text-3xl text-gray-200 -mt-1">Zyplo</span>
             </Link>
             <p className="text-slate-400 leading-relaxed mb-6">
               Zyplo is a powerful project management platform built to help
