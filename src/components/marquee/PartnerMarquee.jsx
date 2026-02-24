@@ -42,7 +42,7 @@ const darkModeWhiteLogos = new Set([
 const PartnerLogo = ({ partner, subtle = false }) => (
   <div
     className={[
-      "flex h-16 w-24 shrink-0 items-center justify-center rounded-xl border border-zinc-200/70 bg-white/80 p-3",
+      "flex h-14 w-20 shrink-0 items-center justify-center rounded-xl border border-zinc-200/70 bg-white/80 p-2.5 sm:h-16 sm:w-24 sm:p-3",
       "dark:border-gray-700 dark:bg-[#0F1629]/80",
       subtle ? "opacity-85" : "",
     ].join(" ")}
@@ -53,7 +53,7 @@ const PartnerLogo = ({ partner, subtle = false }) => (
       width={54}
       height={54}
       className={[
-        subtle ? "h-9" : "h-10",
+        subtle ? "h-8 sm:h-9" : "h-9 sm:h-10",
         "w-auto object-contain",
         darkModeWhiteLogos.has(partner.name)
           ? "dark:filter-[brightness(0)_invert(1)]"
@@ -85,7 +85,7 @@ const PartnerMarquee = () => {
           aria-label="Partner logos"
         >
           <Marquee speed={42} autoFill pauseOnHover gradient={false}>
-            <div className="flex items-center gap-12 px-6">
+            <div className="flex items-center gap-8 px-4 sm:gap-12 sm:px-6">
               {partners.map((partner) => (
                 <PartnerLogo key={`top-${partner.name}`} partner={partner} />
               ))}
@@ -94,7 +94,7 @@ const PartnerMarquee = () => {
 
           <div className="mt-3">
             <Marquee speed={28} autoFill pauseOnHover gradient={false} direction="right">
-              <div className="flex items-center gap-12 px-6">
+              <div className="flex items-center gap-8 px-4 sm:gap-12 sm:px-6">
                 {rowTwoPartners.map((partner) => (
                   <PartnerLogo key={`bottom-${partner.name}`} partner={partner} subtle />
                 ))}
