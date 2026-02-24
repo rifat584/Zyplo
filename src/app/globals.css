@@ -141,6 +141,21 @@ body {
   }
 }
 
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.6s ease-out both;
+}
+
 .auth-noise {
   background-image: radial-gradient(rgba(15, 23, 42, 0.16) 0.45px, transparent 0.45px);
   background-size: 3px 3px;
