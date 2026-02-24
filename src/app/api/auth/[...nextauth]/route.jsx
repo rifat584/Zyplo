@@ -17,7 +17,7 @@ export const authOptions = {
         password: {},
       },
       async authorize(credentials) {
-        const res = await fetch("http://localhost:5000/auth/login", {
+        const res = await fetch(`${process.env.BASE_URL}/auth/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(credentials),
@@ -48,13 +48,15 @@ export const authOptions = {
     // 🔹 Runs after OAuth login
     async signIn({ user, account }) {
       if (account.provider !== "credentials") {
-        await fetch("http://localhost:5000/auth/oauth", {
+        await fetch(`${process.env.BASE_URL}/auth/oauth`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: user.name,
             email: user.email,
+            image: user.image,
             provider: account.provider,
+            providerId: account.providerAccountId,
           }),
         });
       }

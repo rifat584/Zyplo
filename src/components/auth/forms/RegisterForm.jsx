@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const registerSchema = z
   .object({
@@ -42,8 +44,10 @@ function RegisterForm() {
     },
   });
 
+  const router = useRouter();
+
   const onSubmit = async (data) => {
-    await fetch("http://localhost:5000/auth/register", {
+    const res = await fetch(`${process.env.BASE_URL}/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -53,6 +57,20 @@ function RegisterForm() {
         email: data.email,
         password: data.password,
       }),
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      alert(result.message);
+      return;
+    }
+
+    await signIn("credentials", {
+      email: data.email,
+      password: data.password,
+      redirect: true,
+      callbackUrl: "/dashboard",
     });
   };
 
