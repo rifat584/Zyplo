@@ -14,7 +14,7 @@ export default function PricingFinalCTA() {
               <h2 className="text-2xl font-heading font-semibold tracking-tight text-slate-900 dark:text-slate-100 sm:text-3xl">
                 Ready to run a calmer, faster execution cycle?
               </h2>
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 sm:text-base">
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
                 Start with Team in minutes, or work with us on a Studio rollout for your org.
               </p>
             </div>

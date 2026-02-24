@@ -107,13 +107,14 @@ export default function Sidebar({ role, sidebarOpen, setSidebarOpen }) {
 
         {/* Logo Header */}
         <div className="flex h-16 shrink-0 items-center px-4 border-b border-gray-200/80 dark:border-white/10">
+          <Link href={"/"}>
           <Logo
-            href="/"
             size={60}
             showText={sidebarOpen}
             className={`transition-all duration-300 ${sidebarOpen ? "-ml-2" : "ml-0"}`}
             onClick={handleMobileClose}
           />
+          </Link>
 
           <button onClick={() => setSidebarOpen(false)} className={`lg:hidden ml-auto text-gray-500 transition-opacity ${sidebarOpen ? "opacity-100" : "opacity-0"}`}>
             <X size={20} />
