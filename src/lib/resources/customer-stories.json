@@ -1,0 +1,34 @@
+[
+    {
+        "id": "intro",
+        "title": "Customer Stories",
+        "body": [
+            "Teams around the world use Zyplo to ship better software.",
+            "Here are some real stories from our customers."
+        ]
+    },
+    {
+        "id": "startup",
+        "title": "Startup Team",
+        "body": [
+            "A small startup used Zyplo to organize their sprint workflow.",
+            "They reduced planning time by 40% and shipped faster."
+        ]
+    },
+    {
+        "id": "enterprise",
+        "title": "Enterprise Team",
+        "body": [
+            "A large enterprise adopted Zyplo across multiple teams.",
+            "They improved visibility and cross-team collaboration."
+        ]
+    },
+    {
+        "id": "remote",
+        "title": "Remote Company",
+        "body": [
+            "A fully remote company used Zyplo to stay aligned across time zones.",
+            "They replaced multiple tools with a single workflow in Zyplo."
+        ]
+    }
+]

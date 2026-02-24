@@ -1,0 +1,69 @@
+import { Fragment } from "react";
+import { Check } from "lucide-react";
+
+function ComparisonCell({ value }) {
+  if (value === true) {
+    return <Check className="mx-auto h-4 w-4 text-cyan-500 dark:text-cyan-300" />;
+  }
+  if (value === false) {
+    return <span className="text-slate-300 dark:text-slate-700">-</span>;
+  }
+  return <span>{value}</span>;
+}
+
+export default function PricingComparison({ categories }) {
+  return (
+    <section id="compare-plans" className="py-10 sm:py-14">
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="mb-5">
+          <h2 className="text-3xl font-heading font-semibold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl">
+            Compare plans in detail
+          </h2>
+          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 sm:text-base">
+            Feature groups are organized for quick scanning across planning, collaboration, and security needs.
+          </p>
+        </div>
+
+        <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white/90 shadow-[0_20px_42px_-28px_rgba(15,23,42,0.5)] dark:border-slate-800 dark:bg-slate-950/85">
+          <table className="min-w-[760px] w-full text-sm">
+            <thead>
+              <tr className="text-left text-slate-700 dark:text-slate-200">
+                <th className="sticky left-0 z-20 border-b border-slate-200 bg-white px-4 py-3 font-semibold dark:border-slate-800 dark:bg-slate-950">
+                  Feature
+                </th>
+                <th className="border-b border-slate-200 px-4 py-3 text-center font-semibold dark:border-slate-800">Starter</th>
+                <th className="border-b border-slate-200 px-4 py-3 text-center font-semibold dark:border-slate-800">Team</th>
+                <th className="border-b border-slate-200 px-4 py-3 text-center font-semibold dark:border-slate-800">Studio</th>
+              </tr>
+            </thead>
+            <tbody>
+              {categories.map((category) => (
+                <Fragment key={category.id}>
+                  <tr key={`${category.id}-header`} className="bg-slate-100/80 dark:bg-slate-900/70">
+                    <td
+                      className="sticky left-0 z-10 px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400"
+                      colSpan={4}
+                    >
+                      {category.title}
+                    </td>
+                  </tr>
+                  {category.rows.map((row) => (
+                    <tr
+                      key={`${category.id}-${row.feature}`}
+                      className="border-t border-slate-200/80 text-slate-700 transition hover:bg-cyan-50/40 dark:border-slate-800 dark:text-slate-200 dark:hover:bg-cyan-950/10"
+                    >
+                      <td className="sticky left-0 z-10 bg-white px-4 py-3 font-medium dark:bg-slate-950">{row.feature}</td>
+                      <td className="px-4 py-3 text-center"><ComparisonCell value={row.starter} /></td>
+                      <td className="px-4 py-3 text-center"><ComparisonCell value={row.team} /></td>
+                      <td className="px-4 py-3 text-center"><ComparisonCell value={row.studio} /></td>
+                    </tr>
+                  ))}
+                </Fragment>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  );
+}
