@@ -19,7 +19,7 @@ export function FeatureGrid() {
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="mx-auto mt-12 w-full max-w-5xl"
     >
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-6 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-12">
         <KanbanCard columns={kanbanColumns} />
         <ProjectsCard projects={projects} />
         <UpdatesCard notifications={notifications} />

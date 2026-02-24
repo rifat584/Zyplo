@@ -6,7 +6,7 @@ export function UpdatesCard({ notifications }) {
     <BentoCard
       title="Updates"
       right={<Bell className="h-4 w-4 text-zinc-500 dark:text-gray-400" />}
-      className="col-span-1 md:col-span-2 lg:col-span-4"
+      className="col-span-1 md:col-span-1 lg:col-span-5"
       delay={0.1}
     >
       <div className="space-y-2">

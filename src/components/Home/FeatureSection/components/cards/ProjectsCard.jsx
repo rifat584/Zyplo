@@ -2,7 +2,7 @@ import { BentoCard } from "../BentoCard";
 
 export function ProjectsCard({ projects }) {
   return (
-    <BentoCard title="Projects" className="col-span-1 md:col-span-2 lg:col-span-4" delay={0.08}>
+    <BentoCard title="Projects" className="col-span-1 md:col-span-1 lg:col-span-5" delay={0.08}>
       <div className="space-y-2.5">
         {projects.map((project) => (
           <div
