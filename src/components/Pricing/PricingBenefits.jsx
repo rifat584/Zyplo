@@ -47,7 +47,7 @@ export default function PricingBenefits({ benefits }) {
                 <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-indigo-300/40 bg-indigo-500/10 text-indigo-600 dark:border-indigo-400/35 dark:bg-indigo-400/10 dark:text-indigo-300">
                   <Icon className="h-4 w-4" />
                 </div>
-                <h3 className="mt-3 text-base font-semibold text-slate-900 dark:text-slate-100">{item.title}</h3>
+                <h3 className="mt-3 text-base font-semibold dark:text-slate-100">{item.title}</h3>
                 <p className="mt-1 text-sm leading-relaxed text-slate-600 dark:text-slate-300">{item.description}</p>
               </motion.article>
             );
