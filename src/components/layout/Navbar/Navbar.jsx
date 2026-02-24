@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Search, Menu, X, ChevronDown, Sun, Moon } from "lucide-react";
 import ResourcesMenu from "./ResourcesMenu/ResourcesMenu";
 import { useTheme } from "@/Context/ThemeContext";
+import Logo from "@/components/Shared/Logo/Logo";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -65,13 +66,10 @@ const Navbar = () => {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-[#0F1629]/80 backdrop-blur-md transition-colors duration-300">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between pr-6 pl-3">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <div className="group flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-indigo-500 to-cyan-400 text-white font-bold text-lg transition-transform duration-500 hover:rotate-10 hover:scale-110 shadow-lg shadow-indigo-500/30">
-            Z
-          </div>
-          <span className="text-xl font-bold text-gray-900 dark:text-gray-100">Zyplo</span>
+          <Logo size={60} />
         </Link>
 
         {/* Desktop Links */}

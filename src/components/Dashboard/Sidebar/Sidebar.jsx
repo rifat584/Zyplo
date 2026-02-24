@@ -3,18 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { 
-  LayoutDashboard, 
-  CheckSquare, 
-  FolderKanban, 
-  Clock, 
-  Users, 
-  Settings, 
-  CreditCard, 
-  X, 
+import {
+  LayoutDashboard,
+  CheckSquare,
+  FolderKanban,
+  Clock,
+  Users,
+  Settings,
+  CreditCard,
+  X,
   ChevronLeft
 } from "lucide-react";
 import LogoutButton from "./LogoutButton";
+import Logo from "@/components/Shared/Logo/Logo";
 
 export default function Sidebar({ role, sidebarOpen, setSidebarOpen }) {
   const pathname = usePathname();
@@ -41,16 +42,15 @@ export default function Sidebar({ role, sidebarOpen, setSidebarOpen }) {
 
   const NavLink = ({ item }) => {
     const isActive = pathname === item.href;
-    
+
     return (
       <Link
         href={item.href}
         onClick={handleMobileClose}
-        className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-300 ${
-          isActive
+        className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-300 ${isActive
             ? "bg-blue-50/80 text-blue-700 dark:bg-blue-500/10 dark:text-cyan-400"
             : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-200"
-        }`}
+          }`}
       >
         {/* Premium Active Left Border Indicator */}
         {isActive && (
@@ -63,17 +63,16 @@ export default function Sidebar({ role, sidebarOpen, setSidebarOpen }) {
 
         {/* Fixed Width Icon Wrapper (Prevents snapping) */}
         <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-          <item.icon 
-            size={20} 
-            className={`transition-colors duration-200 ${isActive ? "text-blue-600 dark:text-cyan-400" : "text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300"}`} 
+          <item.icon
+            size={20}
+            className={`transition-colors duration-200 ${isActive ? "text-blue-600 dark:text-cyan-400" : "text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300"}`}
           />
         </div>
-        
+
         {/* Smooth Text Reveal */}
-        <span 
-          className={`whitespace-nowrap text-sm font-medium transition-all duration-300 ease-in-out ${
-            sidebarOpen ? "opacity-100 translate-x-0" : "w-0 overflow-hidden opacity-0 -translate-x-4 pointer-events-none"
-          }`}
+        <span
+          className={`whitespace-nowrap text-sm font-medium transition-all duration-300 ease-in-out ${sidebarOpen ? "opacity-100 translate-x-0" : "w-0 overflow-hidden opacity-0 -translate-x-4 pointer-events-none"
+            }`}
         >
           {item.name}
         </span>
@@ -92,7 +91,7 @@ export default function Sidebar({ role, sidebarOpen, setSidebarOpen }) {
     <>
       {/* Mobile Backdrop */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
@@ -100,23 +99,22 @@ export default function Sidebar({ role, sidebarOpen, setSidebarOpen }) {
 
       {/* Sidebar Container */}
       {/* FIX: Replaced strict overflow-hidden with lg:overflow-visible so tooltips can escape the container on desktop! */}
-      <aside 
+      <aside
         className={`fixed lg:relative inset-y-0 left-0 z-50 flex flex-col shrink-0 border-r border-gray-200/80 bg-white/50 backdrop-blur-xl transition-[width] duration-300 ease-in-out overflow-hidden lg:overflow-visible dark:border-white/10 dark:bg-[#0B0F19]/50 
           ${sidebarOpen ? "w-64" : "w-0 lg:w-20"}
         `}
       >
-        
+
         {/* Logo Header */}
         <div className="flex h-16 shrink-0 items-center px-4 border-b border-gray-200/80 dark:border-white/10">
-          <Link href="/dashboard" onClick={handleMobileClose} className="flex items-center gap-3 px-2">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-cyan-500 text-white font-bold text-lg shadow-md">
-              Z
-            </div>
-            <span className={`whitespace-nowrap text-xl font-heading font-bold text-gray-900 dark:text-white transition-all duration-300 ease-in-out ${sidebarOpen ? "opacity-100 translate-x-0" : "w-0 overflow-hidden opacity-0 -translate-x-4"}`}>
-              Zyplo
-            </span>
-          </Link>
-          
+          <Logo
+            href="/"
+            size={60}
+            showText={sidebarOpen}
+            className={`transition-all duration-300 ${sidebarOpen ? "-ml-2" : "ml-0"}`}
+            onClick={handleMobileClose}
+          />
+
           <button onClick={() => setSidebarOpen(false)} className={`lg:hidden ml-auto text-gray-500 transition-opacity ${sidebarOpen ? "opacity-100" : "opacity-0"}`}>
             <X size={20} />
           </button>
@@ -124,7 +122,7 @@ export default function Sidebar({ role, sidebarOpen, setSidebarOpen }) {
 
         {/* Scrollable Links Area */}
         <div className="flex flex-1 flex-col gap-6 py-6 px-4">
-          
+
           {/* Your Work Section */}
           <div className="flex flex-col gap-1">
             <div className="h-6 flex items-center px-3 mb-1">
@@ -153,9 +151,9 @@ export default function Sidebar({ role, sidebarOpen, setSidebarOpen }) {
 
         {/* --- Collapse Toggle --- */}
         <div className="hidden lg:flex justify-center p-3 border-t border-gray-200/80 dark:border-white/10">
-          <button 
+          <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="group flex w-full items-center justify-center rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/5 dark:hover:text-gray-300 transition-colors"
+            className="group flex w-full items-center justify-center rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/5 dark:hover:text-gray-300 transition-colors cursor-pointer"
           >
             <div className={`flex w-6 justify-center shrink-0 transition-transform duration-300 ${!sidebarOpen ? "rotate-180" : ""}`}>
               <ChevronLeft size={18} />
@@ -170,7 +168,7 @@ export default function Sidebar({ role, sidebarOpen, setSidebarOpen }) {
         <div className="mt-auto shrink-0 flex flex-col gap-2 p-4 border-t border-gray-200/80 dark:border-white/10">
           <LogoutButton collapsed={!sidebarOpen} closeMobileSidebar={handleMobileClose} />
         </div>
-        
+
       </aside>
     </>
   );
