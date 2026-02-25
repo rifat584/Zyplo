@@ -4,7 +4,11 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Briefcase, CircleAlert, ListTodo } from "lucide-react";
 import AppShell from "@/components/dashboard/AppShell";
-import { ContinueCard, RecentProjects, WorkspaceGrid } from "@/components/dashboard/workspaces";
+import {
+  ContinueCard,
+  RecentProjects,
+  WorkspaceGrid,
+} from "@/components/dashboard/workspaces";
 import {
   getContinueContext,
   getRecentProjects,
@@ -15,12 +19,14 @@ import {
 export default function WorkspacesPage() {
   const [activeStatFilter, setActiveStatFilter] = useState("all");
 
-  const { workspaces, projects, tasks, lastVisited } = useMockStore((state) => ({
-    workspaces: state.workspaces,
-    projects: state.projects,
-    tasks: state.tasks,
-    lastVisited: state.lastVisited,
-  }));
+  const { workspaces, projects, tasks, lastVisited } = useMockStore(
+    (state) => ({
+      workspaces: state.workspaces,
+      projects: state.projects,
+      tasks: state.tasks,
+      lastVisited: state.lastVisited,
+    }),
+  );
 
   const continueContext = getContinueContext();
   const recentProjects = getRecentProjects(5);
@@ -32,7 +38,9 @@ export default function WorkspacesPage() {
     const today = new Date();
     const dueSoonLimit = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
     const mine = tasks
-      .filter((task) => task.assignee === currentUserId && task.status !== "done")
+      .filter(
+        (task) => task.assignee === currentUserId && task.status !== "done",
+      )
       .slice(0, 5)
       .map((task) => {
         const project = projects.find((item) => item.id === task.projectId);
@@ -45,7 +53,9 @@ export default function WorkspacesPage() {
       const due = new Date(task.dueDate);
       return due >= today && due <= dueSoonLimit;
     }).length;
-    const overdue = mine.filter((task) => task.dueDate && new Date(task.dueDate) < today).length;
+    const overdue = mine.filter(
+      (task) => task.dueDate && new Date(task.dueDate) < today,
+    ).length;
 
     return {
       assigned,
@@ -57,10 +67,18 @@ export default function WorkspacesPage() {
 
   const workspaceMeta = useMemo(() => {
     return workspaces.map((workspace) => {
-      const workspaceProjects = projects.filter((project) => project.workspaceId === workspace.id);
-      const workspaceTasks = tasks.filter((task) => workspaceProjects.some((project) => project.id === task.projectId));
-      const openTasksCount = workspaceTasks.filter((task) => task.status !== "done").length;
-      const inProgressCount = workspaceTasks.filter((task) => task.status === "inprogress").length;
+      const workspaceProjects = projects.filter(
+        (project) => project.workspaceId === workspace.id,
+      );
+      const workspaceTasks = tasks.filter((task) =>
+        workspaceProjects.some((project) => project.id === task.projectId),
+      );
+      const openTasksCount = workspaceTasks.filter(
+        (task) => task.status !== "done",
+      ).length;
+      const inProgressCount = workspaceTasks.filter(
+        (task) => task.status === "inprogress",
+      ).length;
       const updatedAt = getWorkspaceLastUpdated(workspace.id);
       return {
         workspace,
@@ -96,8 +114,12 @@ export default function WorkspacesPage() {
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex flex-col gap-3 border-b border-slate-200 pb-4 dark:border-white/10 lg:flex-row lg:items-end lg:justify-between">
           <div className="space-y-1">
-            <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">Workspaces</h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400">Pick up where you left off and jump back into execution.</p>
+            <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+              Workspaces
+            </h1>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Pick up where you left off and jump back into execution.
+            </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <a
@@ -124,7 +146,11 @@ export default function WorkspacesPage() {
           </div>
         </div>
 
-        <ContinueCard continueContext={continueContext} lastVisited={lastVisited} myWorkPreview={myWorkPreview} />
+        <ContinueCard
+          continueContext={continueContext}
+          lastVisited={lastVisited}
+          myWorkPreview={myWorkPreview}
+        />
 
         <WorkspaceGrid
           filteredWorkspaces={filteredWorkspaces}

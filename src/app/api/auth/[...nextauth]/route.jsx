@@ -57,6 +57,7 @@ export const authOptions = {
             image: user.image,
             provider: account.provider,
             providerId: account.providerAccountId,
+            role: "admin",
           }),
         });
       }

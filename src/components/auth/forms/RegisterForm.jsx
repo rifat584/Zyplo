@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import PasswordField from "@/components/auth/PasswordField";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const registerSchema = z
   .object({
@@ -58,6 +58,7 @@ function RegisterForm() {
           name: data.name,
           email: data.email,
           password: data.password,
+          role: "admin",
         }),
       },
     );
@@ -65,16 +66,28 @@ function RegisterForm() {
     const result = await res.json();
 
     if (!res.ok) {
-      alert(result.message);
+      toast.error(result.message || "Registration failed");
       return;
     }
 
-    await signIn("credentials", {
+    // 👇 login without redirect
+    const loginRes = await signIn("credentials", {
       email: data.email,
       password: data.password,
-      redirect: true,
+      redirect: false,
       callbackUrl: "/dashboard",
     });
+
+    if (loginRes?.error) {
+      toast.error("Account created but login failed.");
+      return;
+    }
+
+    toast.success("Account created 🎉 Redirecting...");
+
+    setTimeout(() => {
+      router.push("/dashboard");
+    }, 1200);
   };
 
   return (
