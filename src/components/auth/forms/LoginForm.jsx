@@ -73,7 +73,7 @@ function LoginForm() {
   const onSubmit = async (data) => {
     setServerError("");
 
-    const res = await fetch("http://localhost:5000/auth/login", {
+    const res = await fetch(`${process.env.BASE_URL}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
