@@ -73,28 +73,24 @@ function LoginForm() {
   const onSubmit = async (data) => {
     setServerError("");
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-        }),
-      },
-    );
+    const result = await signIn("credentials", {
+      email: data.email,
+      password: data.password,
+      redirect: false,
+    });
 
-    const result = await res.json();
+    if (result?.error) {
+      try {
+        const parsedError = JSON.parse(result.error);
 
-    if (!res.ok) {
-      if (result.lockUntil) {
-        setLockUntil(result.lockUntil);
-        setServerError("Account locked");
-      } else {
-        setServerError(result.message);
+        if (parsedError.lockUntil) {
+          setLockUntil(parsedError.lockUntil);
+          setServerError("Account locked");
+        } else {
+          setServerError(parsedError.message || "Login failed");
+        }
+      } catch {
+        setServerError(result.error || "Login failed");
       }
       return;
     }
