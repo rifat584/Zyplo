@@ -6,7 +6,12 @@ import GitHubProvider from "next-auth/providers/github";
 function normalizeId(value) {
   if (!value) return "";
   if (typeof value === "string") {
-    if (value === "[object Object]" || value === "undefined" || value === "null") return "";
+    if (
+      value === "[object Object]" ||
+      value === "undefined" ||
+      value === "null"
+    )
+      return "";
     return value;
   }
   if (typeof value === "number") return String(value);
@@ -20,7 +25,13 @@ function normalizeId(value) {
     }
   }
   const raw = String(value);
-  if (!raw || raw === "[object Object]" || raw === "undefined" || raw === "null") return "";
+  if (
+    !raw ||
+    raw === "[object Object]" ||
+    raw === "undefined" ||
+    raw === "null"
+  )
+    return "";
   return raw;
 }
 
@@ -38,11 +49,14 @@ export const authOptions = {
         password: {},
       },
       async authorize(credentials) {
-        const res = await fetch(`${process.env.BASE_URL}/auth/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(credentials),
-        });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(credentials),
+          },
+        );
 
         const user = await res.json();
 
@@ -72,7 +86,7 @@ export const authOptions = {
     // 🔹 Runs after OAuth login
     async signIn({ user, account }) {
       if (account.provider !== "credentials") {
-        await fetch(`${process.env.BASE_URL}/auth/oauth`, {
+        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/oauth`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
