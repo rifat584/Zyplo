@@ -27,7 +27,7 @@ const Navbar = () => {
       return `${baseStyles} bg-primary/10 text-gray-900 dark:text-gray-100 font-semibold shadow-sm ring-1 ring-primary/20 dark:bg-primary/20`;
     }
 
-    return `${baseStyles} text-gray-600 dark:text-gray-300 hover:bg-secondary/20 dark:hover:bg-secondary/20 hover:text-gray-900 dark:hover:text-white transition-colors`;
+    return `${baseStyles} text-gray-600 dark:text-gray-300 hover:text-secondary hover:border dark:hover:text-secondary transition-colors`;
   };
 
   // Close mega menu on outside click
@@ -66,10 +66,10 @@ const Navbar = () => {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-[#0F1629]/80 backdrop-blur-md transition-colors duration-300">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between pr-6 pl-3">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <Logo size={60} />
+          <Logo size={50} />
         </Link>
 
         {/* Desktop Links */}

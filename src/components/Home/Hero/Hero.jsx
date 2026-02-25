@@ -16,7 +16,7 @@ const headline = ["Plan faster.", "Ship better."];
 
 export default function Hero() {
   return (
-    <section className="relative z-10 overflow-hidden py-16 sm:py-24 bg-white dark:bg-[#0B0F19]">
+    <section className="relative z-10 overflow-hidden py-6 sm:py-8 bg-white dark:bg-[#0B0F19]">
       {/* Background gradient */}
       <div className="absolute inset-0 -z-10 bg-secondary/15 dark:bg-secondary/10" />
 

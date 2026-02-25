@@ -3,6 +3,27 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 
+function normalizeId(value) {
+  if (!value) return "";
+  if (typeof value === "string") {
+    if (value === "[object Object]" || value === "undefined" || value === "null") return "";
+    return value;
+  }
+  if (typeof value === "number") return String(value);
+  if (typeof value === "object") {
+    if (typeof value.$oid === "string") return value.$oid;
+    if (typeof value._id === "string") return value._id;
+    if (typeof value.id === "string") return value.id;
+    if (typeof value.toString === "function") {
+      const asText = value.toString();
+      if (asText && asText !== "[object Object]") return asText;
+    }
+  }
+  const raw = String(value);
+  if (!raw || raw === "[object Object]" || raw === "undefined" || raw === "null") return "";
+  return raw;
+}
+
 export const authOptions = {
   session: {
     strategy: "jwt",
@@ -27,7 +48,10 @@ export const authOptions = {
 
         if (!res.ok) throw new Error(user.message);
 
-        return user;
+        return {
+          ...user,
+          id: normalizeId(user?.id || user?._id),
+        };
       },
     }),
 
@@ -61,19 +85,23 @@ export const authOptions = {
           }),
         });
       }
+      user.id = normalizeId(user?.id || user?._id);
       return true;
     },
 
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        token.id = normalizeId(user?.id || user?._id);
         token.email = user.email;
+      }
+      if (!token.id) {
+        token.id = normalizeId(token?.sub);
       }
       return token;
     },
 
     async session({ session, token }) {
-      session.user.id = token.id;
+      session.user.id = normalizeId(token?.id || token?.sub);
       return session;
     },
   },
