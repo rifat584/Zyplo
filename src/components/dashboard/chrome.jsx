@@ -53,8 +53,12 @@ function AvatarMenu() {
       {open ? (
         <div className="absolute right-0 top-11 z-30 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg dark:border-white/10 dark:bg-slate-900">
           <div className="mb-2 border-b border-slate-200 pb-2 dark:border-white/10">
-            <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{session?.user?.name || "User"}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">{session?.user?.email || ""}</p>
+            <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
+              {session?.user?.name || "User"}
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {session?.user?.email || ""}
+            </p>
           </div>
           <button
             type="button"
@@ -92,19 +96,27 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
 
   const content = (
     <div className="flex h-full flex-col overflow-visible p-3">
-      <div className={`mb-3 flex items-center ${effectiveCollapsed ? "justify-center" : "justify-between"}`}>
+      <div
+        className={`mb-3 flex items-center ${effectiveCollapsed ? "justify-center" : "justify-between"}`}
+      >
         {!effectiveCollapsed ? (
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Navigation</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Navigation
+          </p>
         ) : null}
         <button
           type="button"
           onClick={toggle}
           className="hidden rounded-lg border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800 md:block"
         >
-          <ChevronLeft className={`size-4 transition ${effectiveCollapsed ? "rotate-180" : ""}`} />
+          <ChevronLeft
+            className={`size-4 transition ${effectiveCollapsed ? "rotate-180" : ""}`}
+          />
         </button>
       </div>
-      <div className={effectiveCollapsed ? "flex justify-center" : ""}>{item}</div>
+      <div className={effectiveCollapsed ? "flex justify-center" : ""}>
+        {item}
+      </div>
     </div>
   );
 
@@ -120,7 +132,11 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
 
       {mobileOpen ? (
         <div className="fixed inset-0 z-50 md:hidden">
-          <button type="button" className="absolute inset-0 bg-slate-900/35" onClick={onCloseMobile} />
+          <button
+            type="button"
+            className="absolute inset-0 bg-slate-900/35"
+            onClick={onCloseMobile}
+          />
           <div className="absolute left-0 top-0 h-full w-20 border-r border-slate-200 bg-white shadow-xl dark:border-white/10 dark:bg-slate-950">
             {content}
           </div>
@@ -148,8 +164,12 @@ function Topbar({ onOpenSidebar }) {
             <Menu className="size-4" />
           </button>
           <div>
-            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">Workspace</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Create workspace, invite members, assign tasks.</p>
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              Workspace
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Create workspace, invite members, assign tasks.
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -159,7 +179,11 @@ function Topbar({ onOpenSidebar }) {
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               className="rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-900"
             >
-              {theme === "dark" ? <Sun className="size-4 text-cyan-400" /> : <Moon className="size-4" />}
+              {theme === "dark" ? (
+                <Sun className="size-4 text-cyan-400" />
+              ) : (
+                <Moon className="size-4" />
+              )}
             </button>
           ) : null}
           <AvatarMenu />
@@ -174,10 +198,15 @@ export function AppShell({ children }) {
 
   return (
     <div className="flex min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-      <AppSidebar mobileOpen={mobileOpen} onCloseMobile={() => setMobileOpen(false)} />
+      <AppSidebar
+        mobileOpen={mobileOpen}
+        onCloseMobile={() => setMobileOpen(false)}
+      />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar onOpenSidebar={() => setMobileOpen(true)} />
-        <main className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 lg:px-7 dark:bg-slate-950/30">{children}</main>
+        <main className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 lg:px-7 dark:bg-slate-950/30">
+          {children}
+        </main>
       </div>
     </div>
   );
