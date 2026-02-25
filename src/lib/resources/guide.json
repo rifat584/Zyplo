@@ -1,0 +1,133 @@
+[
+    {
+        "id": "intro",
+        "title": "Introduction",
+        "image": "/resources/guide-1.png",
+        "body": [
+            "Welcome to the Zyplo documentation. This guide will help you understand how to use Zyplo to plan work, track progress, and deliver projects efficiently.",
+            "Zyplo is a developer-focused project management platform designed for modern teams that value speed, clarity, and focus. It combines a clean interface with powerful workflows inspired by tools like Linear and Jira.",
+            "With Zyplo, teams can organize work into workspaces, break projects into tasks, and visualize progress using a Kanban-style board.",
+            "This guide walks you through the core concepts, daily workflows, and productivity features so you can get the most out of Zyplo from day one."
+        ]
+    },
+    {
+        "id": "getting-started",
+        "title": "Getting Started",
+        "image": "/resources/guide-2.png",
+        "body": [
+            "Getting started with Zyplo is simple and takes only a few minutes. The goal is to set up your workspace, create a project, and start tracking work.",
+            "First, create an account and log in to Zyplo using your credentials. After logging in, you will be prompted to create your first workspace.",
+            "A workspace represents your team or organization. Inside a workspace, you can create one or more projects depending on how your team is structured.",
+            "After creating a project, invite your teammates and assign them appropriate roles so everyone can collaborate effectively.",
+            "Finally, create your first task, assign it to a team member, and start moving work forward using the board."
+        ]
+    },
+    {
+        "id": "core-concepts",
+        "title": "Core Concepts",
+        "subsections": [
+            {
+                "id": "workspace",
+                "title": "Workspace",
+                "image": "/resources/guide-3.png",
+                "body": [
+                    "A workspace is your team’s main space in Zyplo. It acts as a container for all projects, members, and workspace-level settings.",
+                    "Most teams create one workspace per company or organization. Larger companies may create multiple workspaces for different departments or teams.",
+                    "Inside a workspace, you can manage members, control permissions, and configure settings that apply to all projects.",
+                    "Keeping your workspace structure aligned with your team structure helps maintain clarity and avoids permission confusion as your team grows."
+                ]
+            },
+            {
+                "id": "project",
+                "title": "Project",
+                "image": "/resources/guide-4.png",
+                "body": [
+                    "A project represents a product, service, or codebase that your team is working on. Every project lives inside a workspace.",
+                    "Projects help you organize work around a specific goal, such as building a feature, launching a product, or maintaining an existing system.",
+                    "Each project contains tasks, a board view, and an activity history so you can track what is happening over time.",
+                    "You can customize workflows, use labels, and adjust priorities to match the way your team prefers to work."
+                ]
+            },
+            {
+                "id": "task",
+                "title": "Task",
+                "image": "/resources/guide-5.png",
+                "body": [
+                    "A task is a unit of work tracked in Zyplo. Tasks represent concrete pieces of work that move your project forward.",
+                    "Each task has a title and description, and can be assigned to a team member with a specific priority and due date.",
+                    "As work progresses, tasks move across the board through different statuses, making progress visible to the entire team.",
+                    "Keeping tasks small, clear, and well-defined helps teams deliver work more predictably and avoid hidden complexity."
+                ]
+            }
+        ]
+    },
+    {
+        "id": "kanban",
+        "title": "Using the Kanban Board",
+        "subsections": [
+            {
+                "id": "board",
+                "title": "The Board",
+                "image": "/resources/guide-6.png",
+                "body": [
+                    "The Kanban board provides a real-time visual overview of your project. Tasks are grouped into columns based on their current status.",
+                    "This visual layout makes it easy to understand what is being worked on, what is blocked, and what has already been completed.",
+                    "Teams use the board during daily stand-ups and planning sessions to quickly align on priorities and progress."
+                ]
+            },
+            {
+                "id": "columns",
+                "title": "Columns",
+                "image": "/resources/guide-7.png",
+                "body": [
+                    "Columns represent stages of your workflow, such as To Do, In Progress, Review, and Done.",
+                    "Each column maps to a task status, and you can customize these columns per project to match your team’s process.",
+                    "When you move a card from one column to another, Zyplo automatically updates the task’s status and activity history."
+                ]
+            },
+            {
+                "id": "cards",
+                "title": "Cards",
+                "image": "/resources/guide-8.png",
+                "body": [
+                    "Each task appears as a card on the board. Cards are designed to show the most important information at a glance.",
+                    "From the board, you can quickly see who is responsible for what and which tasks are high priority.",
+                    "Clicking a card opens the full task details, where you can update the description, change the assignee, or adjust priority and status."
+                ]
+            }
+        ]
+    },
+    {
+        "id": "command-palette",
+        "title": "Command Palette",
+        "image": "/resources/guide-9.png",
+        "body": [
+            "The command palette is a powerful feature that lets you control Zyplo directly from your keyboard.",
+            "Press Ctrl + K to open the command palette from anywhere in the app. From there, you can quickly jump to projects, create tasks, and update task status.",
+            "This workflow is designed for power users who want to stay focused and avoid unnecessary context switching between mouse and keyboard.",
+            "Over time, using the command palette can significantly speed up your daily workflow in Zyplo."
+        ]
+    },
+    {
+        "id": "notifications",
+        "title": "Notifications & Activity",
+        "image": "/resources/guide-10.png",
+        "body": [
+            "Zyplo keeps you informed about important changes through notifications and the activity log.",
+            "You will receive notifications when tasks are assigned to you, when someone mentions you, or when important updates happen in your projects.",
+            "The activity log provides a chronological history of changes, helping you understand what happened and when.",
+            "This system ensures that you stay up to date without needing to manually check every project and board."
+        ]
+    },
+    {
+        "id": "shortcuts",
+        "title": "Shortcuts & Tips",
+        "image": "/resources/guide-11.png",
+        "body": [
+            "Using shortcuts and simple best practices can greatly improve your productivity in Zyplo.",
+            "Press Ctrl + K to open the command palette and navigate or perform actions quickly.",
+            "Use labels to group related tasks and priorities to plan sprints and releases more effectively.",
+            "Make it a habit to review your dashboard daily to stay aligned with your team’s goals and current priorities."
+        ]
+    }
+]

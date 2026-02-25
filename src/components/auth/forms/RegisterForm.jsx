@@ -4,12 +4,14 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import PasswordField from "@/components/auth/PasswordField";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const registerSchema = z
   .object({
@@ -42,8 +44,50 @@ function RegisterForm() {
     },
   });
 
-  const onSubmit = async (email,password, name) => {
-    console.log(email,password,name);
+  const router = useRouter();
+
+  const onSubmit = async (data) => {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/register`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          password: data.password,
+          role: "admin",
+        }),
+      },
+    );
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      toast.error(result.message || "Registration failed");
+      return;
+    }
+
+    // 👇 login without redirect
+    const loginRes = await signIn("credentials", {
+      email: data.email,
+      password: data.password,
+      redirect: false,
+      callbackUrl: "/dashboard",
+    });
+
+    if (loginRes?.error) {
+      toast.error("Account created but login failed.");
+      return;
+    }
+
+    toast.success("Account created 🎉 Redirecting...");
+
+    setTimeout(() => {
+      router.push("/dashboard");
+    }, 1200);
   };
 
   return (
@@ -53,15 +97,24 @@ function RegisterForm() {
           Full name
         </Label>
         <Input id="name" placeholder="Alex Morgan" {...register("name")} />
-        {errors.name ? <p className="text-xs text-red-500">{errors.name.message}</p> : null}
+        {errors.name ? (
+          <p className="text-xs text-red-500">{errors.name.message}</p>
+        ) : null}
       </div>
 
       <div className="space-y-1.5">
         <Label htmlFor="email" className="text-slate-700 dark:text-slate-200">
           Email
         </Label>
-        <Input id="email" type="email" placeholder="you@company.com" {...register("email")} />
-        {errors.email ? <p className="text-xs text-red-500">{errors.email.message}</p> : null}
+        <Input
+          id="email"
+          type="email"
+          placeholder="you@company.com"
+          {...register("email")}
+        />
+        {errors.email ? (
+          <p className="text-xs text-red-500">{errors.email.message}</p>
+        ) : null}
       </div>
 
       <PasswordField
@@ -81,11 +134,16 @@ function RegisterForm() {
       />
 
       <div className="space-y-1">
-        <Label htmlFor="acceptTerms" className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-300">
-          <Checkbox id="acceptTerms" {...register("acceptTerms")} />
-          I agree to the terms and privacy policy
+        <Label
+          htmlFor="acceptTerms"
+          className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-300"
+        >
+          <Checkbox id="acceptTerms" {...register("acceptTerms")} />I agree to
+          the terms and privacy policy
         </Label>
-        {errors.acceptTerms ? <p className="text-xs text-red-500">{errors.acceptTerms.message}</p> : null}
+        {errors.acceptTerms ? (
+          <p className="text-xs text-red-500">{errors.acceptTerms.message}</p>
+        ) : null}
       </div>
 
       <Button type="submit" className="w-full" disabled={isSubmitting}>
@@ -94,7 +152,10 @@ function RegisterForm() {
 
       <p className="text-center text-sm text-slate-600 dark:text-slate-300">
         Already have an account?{" "}
-        <Link href="/login" className="text-cyan-600 transition-colors hover:text-cyan-700 dark:text-cyan-300 dark:hover:text-cyan-200">
+        <Link
+          href="/login"
+          className="text-cyan-600 transition-colors hover:text-cyan-700 dark:text-cyan-300 dark:hover:text-cyan-200"
+        >
           Sign in
         </Link>
       </p>

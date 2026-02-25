@@ -5,7 +5,7 @@ export function KanbanCard({ columns }) {
     <BentoCard
       title="Kanban Board"
       right={<span className="text-[11px] text-zinc-500 dark:text-gray-400">Current sprint</span>}
-      className="col-span-1 md:col-span-6 lg:col-span-6"
+      className="col-span-1 md:col-span-2 lg:col-span-7"
     >
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
         {columns.map((column) => (

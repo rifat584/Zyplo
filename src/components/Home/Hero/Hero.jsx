@@ -2,7 +2,8 @@
 
 import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
-import HeroAppMock from "./HeroAppMock";
+import Image from "next/image";
+import rightHeroImg from "../../../../public/right-hero.png"
 
 const features = [
   "Fast Kanban workflows for dev teams",
@@ -15,13 +16,14 @@ const headline = ["Plan faster.", "Ship better."];
 
 export default function Hero() {
   return (
-    <section className="relative z-10 overflow-hidden py-16 sm:py-24 bg-white dark:bg-[#0B0F19]">
+    <section className="relative z-10 overflow-hidden py-6 sm:py-8 bg-white dark:bg-[#0B0F19]">
       {/* Background gradient */}
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,rgba(79,70,229,0.18),transparent_40%),radial-gradient(circle_at_80%_10%,rgba(34,211,238,0.14),transparent_36%)] dark:bg-[radial-gradient(circle_at_20%_20%,rgba(79,70,229,0.25),transparent_40%),radial-gradient(circle_at_80%_10%,rgba(34,211,238,0.20),transparent_36%)]" />
+      <div className="absolute inset-0 -z-10 bg-secondary/15 dark:bg-secondary/10" />
 
-      <div className="max-w-7xl mx-auto px-6 grid items-center gap-12 lg:grid-cols-2">
+      <div className="max-w-7xl mx-auto px-6 grid items-center gap-12 md:grid-cols-2">
         {/* Left content */}
         <motion.div
+        className="order-2 lg:order-1"
           initial="hidden"
           animate="show"
           variants={{
@@ -50,8 +52,8 @@ export default function Hero() {
               <motion.span
                 key={i}
                 className={`block ${i === 1
-                    ? "text-transparent bg-clip-text bg-size-[200%_200%] bg-linear-to-r from-indigo-400 via-cyan-300 to-indigo-400"
-                    : ""
+                  ? "text-transparent bg-clip-text bg-size-[200%_200%] bg-linear-to-r from-indigo-400 via-cyan-300 to-indigo-400"
+                  : ""
                   }`}
                 animate={
                   i === 1
@@ -133,8 +135,28 @@ export default function Hero() {
           </motion.div>
         </motion.div>
 
-        {/* Right mock UI */}
-        <HeroAppMock />
+        {/* Right Hero Image (No background, clean) */}
+        <motion.div
+          initial={{ opacity: 0, y: 40, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="relative flex justify-center lg:justify-end order-1 lg:order-2"
+        >
+          {/* Floating animation */}
+          <motion.div
+            animate={{ y: [0, -12, 0] }}
+            transition={{ duration: 4, ease: "easeInOut", repeat: Infinity }}
+            className="relative"
+          >
+            <Image
+              src={rightHeroImg}
+              alt="Zyplo App Preview"
+              width={700}
+              height={500}
+              priority
+            />
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );

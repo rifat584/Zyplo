@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
-export default function ResourcesSidebar({ sections, open, onClose }) {
+export default function ResourcesSidebar({ sections, open, onClose, title = "Contents" }) {
     const [active, setActive] = useState(sections[0]?.id || "");
     const [openGroups, setOpenGroups] = useState({});
+    const mobileRef = useRef(null);
 
     // Observe sections + subsections for active highlight
     useEffect(() => {
@@ -46,6 +47,26 @@ export default function ResourcesSidebar({ sections, open, onClose }) {
         });
     }, [active, sections]);
 
+    useEffect(() => {
+        function handleClickOutside(e) {
+            if (
+                openGroups["__mobile_root"] &&
+                mobileRef.current &&
+                !mobileRef.current.contains(e.target)
+            ) {
+                setOpenGroups((prev) => ({ ...prev, ["__mobile_root"]: false }));
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("touchstart", handleClickOutside);
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("touchstart", handleClickOutside);
+        };
+    }, [openGroups]);
+
     const isGroupActive = (section) => {
         if (active === section.id) return true;
         return section.subsections?.some((sub) => sub.id === active);
@@ -54,14 +75,19 @@ export default function ResourcesSidebar({ sections, open, onClose }) {
     const LinkItem = ({ id, title, level = 0 }) => {
         const isActive = active === id;
 
+        const handleClick = () => {
+            setOpenGroups((prev) => ({ ...prev, ["__mobile_root"]: false }));
+            onClose?.();
+        };
+
         return (
             <a
                 href={`#${id}`}
-                onClick={onClose}
-                className={`block w-full rounded-md px-3 py-1.5 text-sm transition-colors ${level === 0 ? "font-medium" : ""
+                onClick={handleClick}
+                className={`block w-full rounded-l-md px-3 py-1.5 text-sm transition-colors ${level === 0 ? "font-medium" : ""
                     } ${isActive
                         ? "bg-primary/10 text-primary"
-                        : "text-gray-700 hover:bg-gray-100 hover:text-primary dark:text-gray-300 dark:hover:bg-base"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-primary dark:text-gray-300 dark:hover:bg-surface"
                     }`}
             >
                 {title}
@@ -80,42 +106,39 @@ export default function ResourcesSidebar({ sections, open, onClose }) {
                     <div key={s.id}>
                         {/* Top level item */}
                         <div
-                            className={`w-full rounded-md transition ${groupActive
+                            className={`w-full rounded-md lg:rounded-none transition ${groupActive
                                     ? "bg-primary/10"
-                                    : "hover:bg-gray-100 dark:hover:bg-base"
+                                    : "hover:bg-gray-100 dark:hover:bg-surface"
                                 }`}
                         >
                             <div className="flex items-center justify-between gap-2 px-2 py-1.5">
-                                <div className="flex items-center gap-2">
-                                    <span className="w-6 text-sm text-gray-400 text-left">
-                                        {i + 1}
-                                    </span>
+                                {/* Left side: FULL ROW CLICK AREA */}
+                                {hasChildren ? (
+                                    <button
+                                        type="button"
+                                        onClick={() => toggleGroup(s.id)}
+                                        className={`flex w-full items-center gap-2 text-left text-sm font-medium ${groupActive ? "text-primary" : "text-gray-700 dark:text-gray-300"
+                                            }`}
+                                    >
+                                        <span className="w-6 text-sm text-gray-400 text-left">{i + 1}</span>
+                                        <span className="flex-1">{s.title}</span>
+                                    </button>
+                                ) : (
+                                    <a
+                                        href={`#${s.id}`}
+                                        onClick={() => {
+                                            setOpenGroups((prev) => ({ ...prev, ["__mobile_root"]: false }));
+                                            onClose?.();
+                                        }}
+                                        className={`flex w-full items-center gap-2 text-left text-sm font-medium ${active === s.id ? "text-primary" : "text-gray-700 dark:text-gray-300"
+                                            }`}
+                                    >
+                                        <span className="w-6 text-sm text-gray-400 text-left">{i + 1}</span>
+                                        <span className="flex-1">{s.title}</span>
+                                    </a>
+                                )}
 
-                                    {hasChildren ? (
-                                        <button
-                                            type="button"
-                                            onClick={() => toggleGroup(s.id)}
-                                            className={`text-sm font-medium text-left ${groupActive
-                                                    ? "text-primary"
-                                                    : "text-gray-700 dark:text-gray-300"
-                                                }`}
-                                        >
-                                            {s.title}
-                                        </button>
-                                    ) : (
-                                        <a
-                                            href={`#${s.id}`}
-                                            onClick={onClose}
-                                            className={`text-sm font-medium ${active === s.id
-                                                    ? "text-primary"
-                                                    : "text-gray-700 dark:text-gray-300"
-                                                }`}
-                                        >
-                                            {s.title}
-                                        </a>
-                                    )}
-                                </div>
-
+                                {/* Right side: Chevron only for groups */}
                                 {hasChildren && (
                                     <button
                                         type="button"
@@ -124,8 +147,7 @@ export default function ResourcesSidebar({ sections, open, onClose }) {
                                     >
                                         <ChevronDown
                                             size={16}
-                                            className={`transition-transform ${isOpen ? "rotate-180" : ""
-                                                }`}
+                                            className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
                                         />
                                     </button>
                                 )}
@@ -154,36 +176,35 @@ export default function ResourcesSidebar({ sections, open, onClose }) {
     return (
         <>
             {/* Desktop Sidebar */}
-            <aside className="hidden lg:block sticky top-20 h-[calc(100vh-5rem)] w-64 shrink-0 overflow-y-auto">
-                <p className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+            <aside className="hidden lg:block sticky top-20 h-[calc(100vh-5rem)] w-64 shrink-0 overflow-y-auto bg-surface border-r border-gray-200 dark:border-none rounded-t-xl shadow-md">
+                <p className="mb-2 text-lg font-semibold text-primary p-4">
                     Getting started with Zyplo
                 </p>
                 <SidebarContent />
             </aside>
 
-            {/* Mobile Drawer */}
+            {/* Mobile Collapsible Sidebar */}
             <div
-                className={`fixed top-16 inset-0 z-40 lg:hidden ${open ? "pointer-events-auto" : "pointer-events-none"
-                    }`}
+                ref={mobileRef}
+                className="lg:hidden rounded-lg border border-border bg-base shadow-sm sticky top-22 z-40"
             >
-                {/* Backdrop */}
-                <div
-                    onClick={onClose}
-                    className={`absolute inset-0 bg-black/40 transition ${open ? "opacity-100" : "opacity-0"
-                        }`}
-                />
-
-                {/* Drawer */}
-                <div
-                    className={`absolute left-0 top-0 h-full w-80 bg-white p-4 dark:bg-surface border-r border-gray-200 dark:border-gray-800 transition-transform ${open ? "translate-x-0" : "-translate-x-full"
-                        }`}
+                <button
+                    onClick={() => toggleGroup("__mobile_root")}
+                    className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold text-foreground"
                 >
-                    <p className="mb-4 text-base font-semibold">
-                        Learn Zyplo basics
-                    </p>
+                    {title}
+                    <ChevronDown
+                        size={18}
+                        className={`transition-transform ${openGroups["__mobile_root"] ? "rotate-180" : ""
+                            }`}
+                    />
+                </button>
 
-                    <SidebarContent />
-                </div>
+                {openGroups["__mobile_root"] && (
+                    <div className="border-t border-border p-3">
+                        <SidebarContent />
+                    </div>
+                )}
             </div>
         </>
     );

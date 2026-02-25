@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Search, Menu, X, ChevronDown, Sun, Moon } from "lucide-react";
 import ResourcesMenu from "./ResourcesMenu/ResourcesMenu";
 import { useTheme } from "@/Context/ThemeContext";
+import Logo from "@/components/Shared/Logo/Logo";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,7 +27,7 @@ const Navbar = () => {
       return `${baseStyles} bg-primary/10 text-gray-900 dark:text-gray-100 font-semibold shadow-sm ring-1 ring-primary/20 dark:bg-primary/20`;
     }
 
-    return `${baseStyles} text-gray-600 dark:text-gray-300 hover:bg-secondary/20 dark:hover:bg-secondary/20 hover:text-gray-900 dark:hover:text-white transition-colors`;
+    return `${baseStyles} text-gray-600 dark:text-gray-300 hover:text-secondary hover:border dark:hover:text-secondary transition-colors`;
   };
 
   // Close mega menu on outside click
@@ -68,10 +69,7 @@ const Navbar = () => {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <div className="group flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-indigo-500 to-cyan-400 text-white font-bold text-lg transition-transform duration-500 hover:rotate-10 hover:scale-110 shadow-lg shadow-indigo-500/30">
-            Z
-          </div>
-          <span className="text-xl font-bold text-gray-900 dark:text-gray-100">Zyplo</span>
+          <Logo size={50} />
         </Link>
 
         {/* Desktop Links */}

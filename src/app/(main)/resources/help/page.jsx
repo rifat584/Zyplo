@@ -1,27 +1,44 @@
-import { Search } from "lucide-react";
+"use client";
 
-export default function HelpCenterPage() {
+import { useState } from "react";
+import { Menu } from "lucide-react";
+import ResourcesSidebar from "@/components/resources/ResourcesSidebar/ResourcesSidebar";
+import help from "@/lib/resources/help.json";
+
+export default function HelpPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <div className="mx-auto max-w-7xl px-6 py-20 lg:px-8 min-h-[60vh]">
-      <div className="max-w-2xl">
-        <h1 className="text-4xl font-heading font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
-          Help Center
-        </h1>
-        <p className="mt-4 text-lg text-gray-500 dark:text-gray-400">
-          Need a hand? Search our documentation or contact our support team.
-        </p>
-      </div>
+    <main className="mx-auto max-w-7xl px-6 pt-6 grid gap-8 lg:grid-cols-[260px_1fr] bg-base text-foreground">
+      <ResourcesSidebar
+        sections={help}
+        title="Help Center"
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-      <div className="mt-8 max-w-xl">
-        <div className="relative flex items-center">
-          <Search className="absolute left-4 h-5 w-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search for articles, guides, or FAQs..."
-            className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 py-3 pl-12 pr-4 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
+      <div>
+        <div className="prose max-w-none dark:prose-invert">
+          {help.map((section) => (
+            <section key={section.id} id={section.id} className="mb-24">
+              <h2>{section.title}</h2>
+
+              {section.body?.map((p, i) => (
+                <p key={i}>{p}</p>
+              ))}
+
+              {section.subsections?.map((sub) => (
+                <div key={sub.id} id={sub.id} className="mt-10">
+                  <h3>{sub.title}</h3>
+                  {sub.body.map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))}
+                </div>
+              ))}
+            </section>
+          ))}
         </div>
       </div>
-    </div>
+    </main>
   );
 }
