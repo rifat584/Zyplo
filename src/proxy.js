@@ -7,11 +7,10 @@ export async function proxy(req) {
   const token = await getToken({ req });
   const reqPath = req.nextUrl.pathname;
   const isAuthenticated = Boolean(token);
-  const isPrivate = privateRoutes.some((route) => route.startsWith(route));
+  const isPrivate = privateRoutes.some((route) => reqPath.startsWith(route));
   if (!isAuthenticated && isPrivate) {
-    // return NextResponse.redirect(new URL("/login"), req.url);
+    return NextResponse.redirect(new URL("/login", req.url));
   }
-  console.log(token, reqPath);
 
   return NextResponse.next();
 }
@@ -20,5 +19,5 @@ export async function proxy(req) {
 // export default function proxy(request) { ... }
 
 export const config = {
-  matcher: "/dashboard/:path*",
+  matcher: ["/dashboard/:path*"],
 };
