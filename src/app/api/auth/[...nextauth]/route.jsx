@@ -60,7 +60,14 @@ export const authOptions = {
 
         const user = await res.json();
 
-        if (!res.ok) throw new Error(user.message);
+        if (!res.ok) {
+          throw new Error(
+            JSON.stringify({
+              message: user.message,
+              lockUntil: user.lockUntil || null,
+            }),
+          );
+        }
 
         return {
           ...user,
