@@ -7,6 +7,7 @@ import { signOut, useSession } from "next-auth/react";
 import { Building2, ChevronLeft, Menu, Moon, Sun } from "lucide-react";
 import { useTheme } from "@/Context/ThemeContext";
 import { Avatar } from "./ui";
+import Logo from "../Shared/Logo/Logo";
 
 const SIDEBAR_KEY = "dashboard.sidebarCollapsed";
 
@@ -100,8 +101,10 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         className={`mb-3 flex items-center ${effectiveCollapsed ? "justify-center" : "justify-between"}`}
       >
         {!effectiveCollapsed ? (
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            Navigation
+          <p className="text-xs font-semibold tracking-wide text-slate-500 dark:text-slate-400">
+            <Link href={"/"}>
+            <Logo size={45} className="ml-0.5"/>
+            </Link>
           </p>
         ) : null}
         <button
