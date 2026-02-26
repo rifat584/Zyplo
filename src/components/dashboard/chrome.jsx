@@ -7,6 +7,7 @@ import { signOut, useSession } from "next-auth/react";
 import { Building2, ChevronLeft, Menu, Moon, Sun } from "lucide-react";
 import { useTheme } from "@/Context/ThemeContext";
 import { Avatar } from "./ui";
+import Logo from "../Shared/Logo/Logo";
 
 const SIDEBAR_KEY = "dashboard.sidebarCollapsed";
 
@@ -82,11 +83,10 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     <Link
       href="/dashboard/workspaces"
       onClick={onCloseMobile}
-      className={`group flex items-center rounded-xl transition ${
-        pathname === "/dashboard/workspaces"
+      className={`group flex items-center rounded-xl transition ${pathname === "/dashboard/workspaces"
           ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
           : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-      } ${effectiveCollapsed ? "size-10 justify-center" : "gap-2 px-3 py-2"}`}
+        } ${effectiveCollapsed ? "size-10 justify-center" : "gap-2 px-3 py-2"}`}
       title={effectiveCollapsed ? "Workspaces" : undefined}
     >
       <Building2 className="size-4 shrink-0" />
@@ -100,9 +100,11 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         className={`mb-3 flex items-center ${effectiveCollapsed ? "justify-center" : "justify-between"}`}
       >
         {!effectiveCollapsed ? (
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            Navigation
-          </p>
+          <div className="text-xs font-semibold tracking-wide text-slate-500 dark:text-slate-400">
+            <Link href={"/"}>
+              <Logo size={45} className="ml-0.5" />
+            </Link>
+          </div>
         ) : null}
         <button
           type="button"
@@ -123,9 +125,8 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   return (
     <>
       <aside
-        className={`relative z-40 hidden h-screen shrink-0 border-r border-slate-200 bg-white/90 dark:border-white/10 dark:bg-slate-950/80 md:sticky md:top-0 md:flex md:flex-col ${
-          effectiveCollapsed ? "md:w-20" : "md:w-64"
-        }`}
+        className={`relative z-40 hidden h-screen shrink-0 border-r border-slate-200 bg-white/90 dark:border-white/10 dark:bg-slate-950/80 md:sticky md:top-0 md:flex md:flex-col ${effectiveCollapsed ? "md:w-20" : "md:w-64"
+          }`}
       >
         {content}
       </aside>
