@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import {
   BriefcaseBusiness,
   Building2,
   ChevronLeft,
+  Ellipsis,
   Cpu,
   FlaskConical,
   Landmark,
@@ -16,12 +17,17 @@ import {
   Moon,
   PenTool,
   Rocket,
+  Settings,
+  Star,
   Sun,
+  Trash2,
+  UserPlus,
 } from "lucide-react";
+import { toast } from "sonner";
 import { useTheme } from "@/Context/ThemeContext";
 import { Avatar } from "./ui";
 import Logo from "../Shared/Logo/Logo";
-import { useMockStore } from "./mockStore";
+import { deleteWorkspace, useMockStore } from "./mockStore";
 
 const SIDEBAR_KEY = "dashboard.sidebarCollapsed";
 
@@ -89,10 +95,15 @@ function AvatarMenu() {
 }
 
 function AppSidebar({ mobileOpen, onCloseMobile }) {
+  const router = useRouter();
   const pathname = usePathname();
   const { collapsed, toggle } = useSidebarState();
   const effectiveCollapsed = mobileOpen ? true : collapsed;
   const workspaces = useMockStore((state) => state.workspaces || []);
+  const [actionsOpenFor, setActionsOpenFor] = useState("");
+  const [confirmDeleteId, setConfirmDeleteId] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const actionsMenuRef = useRef(null);
 
   const workspaceIcons = [
     { Icon: Rocket, color: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300" },
@@ -110,6 +121,18 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     for (let i = 0; i < key.length; i += 1) hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
     return workspaceIcons[hash % workspaceIcons.length];
   };
+
+  useEffect(() => {
+    function onPointerDown(event) {
+      if (!actionsOpenFor) return;
+      if (actionsMenuRef.current && !actionsMenuRef.current.contains(event.target)) {
+        setActionsOpenFor("");
+      }
+    }
+
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, [actionsOpenFor]);
 
   const rootItem = (
     <Link
@@ -137,23 +160,90 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         const { Icon, color } = pickWorkspaceIcon(workspace);
         const href = `/dashboard/w/${workspace.id}`;
         const active = pathname === href || pathname.startsWith(`${href}/`);
+        const menuOpen = actionsOpenFor === workspace.id;
         return (
-          <Link
-            key={workspace.id}
-            href={href}
-            onClick={onCloseMobile}
-            className={`group flex items-center rounded-xl transition ${
-              active
-                ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
-                : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-            } ${effectiveCollapsed ? "size-10 justify-center" : "gap-2 px-3 py-2"}`}
-            title={workspace.name}
-          >
-            <span className={`flex size-5 items-center justify-center rounded-md ${color}`}>
-              <Icon className="size-3.5" />
-            </span>
-            {!effectiveCollapsed ? <span className="truncate text-sm">{workspace.name}</span> : null}
-          </Link>
+          <div key={workspace.id} className="group relative">
+            <button
+              type="button"
+              onClick={() => {
+                router.push(href);
+                onCloseMobile?.();
+              }}
+              className={`flex w-full items-center rounded-xl transition cursor-pointer ${
+                active
+                  ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
+                  : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+              } ${effectiveCollapsed ? "size-10 justify-center" : "gap-2 px-3 py-2 pr-10"}`}
+              title={workspace.name}
+            >
+              <span className={`flex size-5 items-center justify-center rounded-md ${color}`}>
+                <Icon className="size-3.5" />
+              </span>
+              {!effectiveCollapsed ? <span className="truncate text-sm">{workspace.name}</span> : null}
+            </button>
+
+            {!effectiveCollapsed ? (
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setActionsOpenFor((current) => (current === workspace.id ? "" : workspace.id));
+                }}
+                className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 text-slate-500 hover:bg-slate-200/70 group-hover:block dark:text-slate-300 dark:hover:bg-slate-700 cursor-pointer"
+              >
+                <Ellipsis className="size-4" />
+              </button>
+            ) : null}
+
+            {menuOpen ? (
+              <div ref={actionsMenuRef} className="absolute right-0 top-10 z-50 w-52 rounded-xl border border-slate-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-slate-900">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActionsOpenFor("");
+                    toast.info(`Added ${workspace.name} to starred`);
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                >
+                  <Star className="size-4" />
+                  Add to starred
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActionsOpenFor("");
+                    router.push(`/dashboard/w/${workspace.id}/members`);
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                >
+                  <UserPlus className="size-4" />
+                  Add people
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActionsOpenFor("");
+                    router.push(`/dashboard/w/${workspace.id}/settings`);
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                >
+                  <Settings className="size-4" />
+                  Workspace settings
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActionsOpenFor("");
+                    setConfirmDeleteId(workspace.id);
+                  }}
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10"
+                >
+                  <Trash2 className="size-4" />
+                  Delete workspace
+                </button>
+              </div>
+            ) : null}
+          </div>
         );
       })}
     </div>
@@ -206,6 +296,55 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
           />
           <div className="absolute left-0 top-0 h-full w-20 border-r border-slate-200 bg-white shadow-xl dark:border-white/10 dark:bg-slate-950">
             {content}
+          </div>
+        </div>
+      ) : null}
+
+      {confirmDeleteId ? (
+        <div className="fixed inset-0 z-[70]">
+          <button
+            type="button"
+            className="absolute inset-0 bg-slate-900/45"
+            onClick={() => (deleting ? null : setConfirmDeleteId(""))}
+          />
+          <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-slate-900">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Delete workspace?</h3>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+              This action will remove the workspace and related projects/tasks permanently.
+            </p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmDeleteId("")}
+                disabled={deleting}
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 dark:border-white/10 dark:text-slate-200"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deleting}
+                onClick={async () => {
+                  try {
+                    setDeleting(true);
+                    const deletingId = confirmDeleteId;
+                    await deleteWorkspace(deletingId);
+                    toast.success("Workspace deleted");
+                    setConfirmDeleteId("");
+                    if (pathname.startsWith(`/dashboard/w/${deletingId}`)) {
+                      router.push("/dashboard/workspaces");
+                    }
+                  } catch (error) {
+                    toast.error(error?.message || "Failed to delete workspace");
+                  } finally {
+                    setDeleting(false);
+                  }
+                }}
+                className="rounded-lg bg-rose-600 px-3 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+              >
+                {deleting ? "Deleting..." : "Delete Workspace"}
+              </button>
+            </div>
           </div>
         </div>
       ) : null}
