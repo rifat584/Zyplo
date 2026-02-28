@@ -4,10 +4,24 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import { Building2, ChevronLeft, Menu, Moon, Sun } from "lucide-react";
+import {
+  BriefcaseBusiness,
+  Building2,
+  ChevronLeft,
+  Cpu,
+  FlaskConical,
+  Landmark,
+  Megaphone,
+  Menu,
+  Moon,
+  PenTool,
+  Rocket,
+  Sun,
+} from "lucide-react";
 import { useTheme } from "@/Context/ThemeContext";
 import { Avatar } from "./ui";
 import Logo from "../Shared/Logo/Logo";
+import { useMockStore } from "./mockStore";
 
 const SIDEBAR_KEY = "dashboard.sidebarCollapsed";
 
@@ -78,8 +92,26 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   const pathname = usePathname();
   const { collapsed, toggle } = useSidebarState();
   const effectiveCollapsed = mobileOpen ? true : collapsed;
+  const workspaces = useMockStore((state) => state.workspaces || []);
 
-  const item = (
+  const workspaceIcons = [
+    { Icon: Rocket, color: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300" },
+    { Icon: BriefcaseBusiness, color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300" },
+    { Icon: PenTool, color: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300" },
+    { Icon: Megaphone, color: "bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300" },
+    { Icon: FlaskConical, color: "bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300" },
+    { Icon: Cpu, color: "bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300" },
+    { Icon: Landmark, color: "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300" },
+  ];
+
+  const pickWorkspaceIcon = (workspace) => {
+    const key = workspace?.id || workspace?.name || "workspace";
+    let hash = 0;
+    for (let i = 0; i < key.length; i += 1) hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
+    return workspaceIcons[hash % workspaceIcons.length];
+  };
+
+  const rootItem = (
     <Link
       href="/dashboard/workspaces"
       onClick={onCloseMobile}
@@ -92,6 +124,39 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
       <Building2 className="size-4 shrink-0" />
       {!effectiveCollapsed ? <span className="text-sm">Workspaces</span> : null}
     </Link>
+  );
+
+  const workspaceItems = (
+    <div className={`mt-3 space-y-1 ${effectiveCollapsed ? "flex flex-col items-center" : ""}`}>
+      {!effectiveCollapsed ? (
+        <p className="px-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          Your Workspaces
+        </p>
+      ) : null}
+      {workspaces.map((workspace) => {
+        const { Icon, color } = pickWorkspaceIcon(workspace);
+        const href = `/dashboard/w/${workspace.id}`;
+        const active = pathname === href || pathname.startsWith(`${href}/`);
+        return (
+          <Link
+            key={workspace.id}
+            href={href}
+            onClick={onCloseMobile}
+            className={`group flex items-center rounded-xl transition ${
+              active
+                ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
+                : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+            } ${effectiveCollapsed ? "size-10 justify-center" : "gap-2 px-3 py-2"}`}
+            title={workspace.name}
+          >
+            <span className={`flex size-5 items-center justify-center rounded-md ${color}`}>
+              <Icon className="size-3.5" />
+            </span>
+            {!effectiveCollapsed ? <span className="truncate text-sm">{workspace.name}</span> : null}
+          </Link>
+        );
+      })}
+    </div>
   );
 
   const content = (
@@ -117,8 +182,9 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         </button>
       </div>
       <div className={effectiveCollapsed ? "flex justify-center" : ""}>
-        {item}
+        {rootItem}
       </div>
+      {workspaceItems}
     </div>
   );
 
@@ -169,7 +235,7 @@ function Topbar({ onOpenSidebar }) {
               Workspace
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Create workspace, invite members, assign tasks.
+              Overview, timeline, board, and members.
             </p>
           </div>
         </div>

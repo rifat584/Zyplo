@@ -1,3 +1,5 @@
+import AppShell from "@/components/dashboard/chrome";
+
 export default function DashboardAppLayout({ children }) {
-  return children;
+  return <AppShell>{children}</AppShell>;
 }
