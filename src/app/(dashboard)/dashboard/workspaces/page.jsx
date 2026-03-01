@@ -2,11 +2,31 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BriefcaseBusiness, Cpu, Ellipsis, FlaskConical, Landmark, Megaphone, PenTool, Plus, Rocket, Settings, Star, Trash2, UserPlus } from "lucide-react";
+import {
+  BriefcaseBusiness,
+  Cpu,
+  Ellipsis,
+  FlaskConical,
+  Landmark,
+  Megaphone,
+  PenTool,
+  Plus,
+  Rocket,
+  Settings,
+  Star,
+  Trash2,
+  UserPlus,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import AppShell from "@/components/dashboard/chrome";
-import { createWorkspace, deleteWorkspace, getState, loadDashboard, useMockStore } from "@/components/dashboard/mockStore";
+import {
+  createWorkspace,
+  deleteWorkspace,
+  getState,
+  loadDashboard,
+  useMockStore,
+} from "@/components/dashboard/mockStore";
 
 export default function WorkspacesPage() {
   const router = useRouter();
@@ -49,7 +69,8 @@ export default function WorkspacesPage() {
   }, []);
 
   useEffect(() => {
-    if (status === "authenticated") loadDashboard({ force: true }).catch(() => {});
+    if (status === "authenticated")
+      loadDashboard({ force: true }).catch(() => {});
   }, [status]);
 
   useEffect(() => {
@@ -58,31 +79,63 @@ export default function WorkspacesPage() {
   }, [loaded, workspaces.length]);
 
   const sortedWorkspaces = useMemo(
-    () => [...workspaces].sort((a, b) => (a.name || "").localeCompare(b.name || "")),
-    [workspaces]
+    () =>
+      [...workspaces].sort((a, b) =>
+        (a.name || "").localeCompare(b.name || ""),
+      ),
+    [workspaces],
   );
 
   const workspaceIcons = [
-    { Icon: Rocket, color: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300" },
-    { Icon: BriefcaseBusiness, color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300" },
-    { Icon: PenTool, color: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300" },
-    { Icon: Megaphone, color: "bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300" },
-    { Icon: FlaskConical, color: "bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300" },
-    { Icon: Cpu, color: "bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300" },
-    { Icon: Landmark, color: "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300" },
+    {
+      Icon: Rocket,
+      color: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300",
+    },
+    {
+      Icon: BriefcaseBusiness,
+      color:
+        "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300",
+    },
+    {
+      Icon: PenTool,
+      color:
+        "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
+    },
+    {
+      Icon: Megaphone,
+      color: "bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300",
+    },
+    {
+      Icon: FlaskConical,
+      color:
+        "bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300",
+    },
+    {
+      Icon: Cpu,
+      color: "bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300",
+    },
+    {
+      Icon: Landmark,
+      color:
+        "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300",
+    },
   ];
 
   const pickWorkspaceIcon = (workspace) => {
     const key = workspace?.id || workspace?.name || "workspace";
     let hash = 0;
-    for (let i = 0; i < key.length; i += 1) hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
+    for (let i = 0; i < key.length; i += 1)
+      hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
     return workspaceIcons[hash % workspaceIcons.length];
   };
 
   useEffect(() => {
     function onPointerDown(event) {
       if (!menuOpenFor) return;
-      if (actionsMenuRef.current && !actionsMenuRef.current.contains(event.target)) {
+      if (
+        actionsMenuRef.current &&
+        !actionsMenuRef.current.contains(event.target)
+      ) {
         setMenuOpenFor("");
       }
     }
@@ -120,9 +173,12 @@ export default function WorkspacesPage() {
       <div className="mx-auto max-w-5xl space-y-6">
         <div className="flex flex-wrap items-end justify-between gap-3 border-b border-slate-200 pb-4 dark:border-white/10">
           <div>
-            <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Workspaces</h1>
+            <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+              Workspaces
+            </h1>
             <p className="text-sm text-slate-600 dark:text-slate-400">
-              Create a workspace, then manage everything from its dedicated route.
+              Create a workspace, then manage everything from its dedicated
+              route.
             </p>
           </div>
           <button
@@ -141,7 +197,10 @@ export default function WorkspacesPage() {
           </h2>
           <div className="space-y-2">
             {sortedWorkspaces.map((workspace) => (
-              <div key={workspace.id} className="group relative rounded-xl border border-slate-200 px-3 py-3 text-left hover:bg-slate-50 dark:border-white/10 dark:hover:bg-slate-800/40">
+              <div
+                key={workspace.id}
+                className="group relative rounded-xl border border-slate-200 px-3 py-3 text-left hover:bg-slate-50 dark:border-white/10 dark:hover:bg-slate-800/40"
+              >
                 <button
                   type="button"
                   onClick={() => router.push(`/dashboard/w/${workspace.id}`)}
@@ -151,26 +210,39 @@ export default function WorkspacesPage() {
                     {(() => {
                       const { Icon, color } = pickWorkspaceIcon(workspace);
                       return (
-                        <span className={`flex size-6 items-center justify-center rounded-md ${color}`}>
+                        <span
+                          className={`flex size-6 items-center justify-center rounded-md ${color}`}
+                        >
                           <Icon className="size-4" />
                         </span>
                       );
                     })()}
-                    <span className="font-medium text-slate-900 dark:text-slate-100">{workspace.name}</span>
+                    <span className="font-medium text-slate-900 dark:text-slate-100">
+                      {workspace.name}
+                    </span>
                   </span>
-                  <span className="pr-8 text-xs text-slate-500 dark:text-slate-400">{workspace.members?.length || 0} members</span>
+                  <span className="pr-8 text-xs text-slate-500 dark:text-slate-400">
+                    {workspace.members?.length || 0} members
+                  </span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => setMenuOpenFor((current) => (current === workspace.id ? "" : workspace.id))}
+                  onClick={() =>
+                    setMenuOpenFor((current) =>
+                      current === workspace.id ? "" : workspace.id,
+                    )
+                  }
                   className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 text-slate-500 hover:bg-slate-200/70 group-hover:block dark:text-slate-300 dark:hover:bg-slate-700 cursor-pointer"
                 >
                   <Ellipsis className="size-4" />
                 </button>
 
                 {menuOpenFor === workspace.id ? (
-                  <div ref={actionsMenuRef} className="absolute right-2 top-12 z-20 w-56 rounded-xl border border-slate-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-slate-900">
+                  <div
+                    ref={actionsMenuRef}
+                    className="absolute right-2 top-12 z-20 w-56 rounded-xl border border-slate-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-slate-900"
+                  >
                     <button
                       type="button"
                       onClick={() => {
@@ -220,7 +292,9 @@ export default function WorkspacesPage() {
               </div>
             ))}
             {!sortedWorkspaces.length ? (
-              <p className="text-sm text-slate-500 dark:text-slate-400">No workspace yet. Create your first workspace.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                No workspace yet. Create your first workspace.
+              </p>
             ) : null}
           </div>
         </section>
@@ -228,10 +302,18 @@ export default function WorkspacesPage() {
 
       {onboardingOpen ? (
         <div className="fixed inset-0 z-50">
-          <button type="button" className="absolute inset-0 bg-slate-900/40" onClick={() => setOnboardingOpen(false)} />
+          <button
+            type="button"
+            className="absolute inset-0 bg-slate-900/40"
+            onClick={() => setOnboardingOpen(false)}
+          />
           <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-slate-900">
-            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">Create Workspace</h3>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Add workspace name and optional member emails.</p>
+            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+              Create Workspace
+            </h3>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+              Add workspace name and optional member emails.
+            </p>
             <div className="mt-4 space-y-3">
               <input
                 value={workspaceName}
@@ -264,7 +346,9 @@ export default function WorkspacesPage() {
                 Create
               </button>
             </div>
-            {errorText ? <p className="mt-3 text-sm text-rose-600">{errorText}</p> : null}
+            {errorText ? (
+              <p className="mt-3 text-sm text-rose-600">{errorText}</p>
+            ) : null}
           </div>
         </div>
       ) : null}
@@ -277,9 +361,12 @@ export default function WorkspacesPage() {
             onClick={() => (deleting ? null : setConfirmDeleteId(""))}
           />
           <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-slate-900">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Delete workspace?</h3>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              Delete workspace?
+            </h3>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-              This action will remove the workspace and related projects/tasks permanently.
+              This action will remove the workspace and related projects/tasks
+              permanently.
             </p>
             <div className="mt-5 flex justify-end gap-2">
               <button
@@ -315,7 +402,9 @@ export default function WorkspacesPage() {
         </div>
       ) : null}
 
-      {!loaded || loading ? <div className="pointer-events-none fixed inset-0 z-40 bg-transparent" /> : null}
+      {!loaded || loading ? (
+        <div className="pointer-events-none fixed inset-0 z-40 bg-transparent" />
+      ) : null}
     </AppShell>
   );
 }
