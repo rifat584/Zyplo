@@ -27,7 +27,7 @@ export default function WorkspaceTimelinePage() {
           <div key={task.id} className="rounded-xl border border-slate-200 p-3 text-sm dark:border-white/10">
             <p className="font-medium text-slate-900 dark:text-slate-100">{task.title}</p>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              {task.dueDate ? `Due ${task.dueDate}` : "No due date"} | {task.status || "todo"} | {task.projectName || "No project"}
+              {task.dueDate ? `Due ${new Date(task.dueDate).toLocaleString()}` : "No due date"} | {task.status || "todo"} | {task.projectName || "No project"}
             </p>
           </div>
         ))}
