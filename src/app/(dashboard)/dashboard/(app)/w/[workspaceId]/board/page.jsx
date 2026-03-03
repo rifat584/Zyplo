@@ -11,6 +11,12 @@ import {
   useMockStore,
 } from "@/components/dashboard/mockStore";
 
+const PROJECT_SELECTION_KEY_PREFIX = "dashboard.selectedProject.";
+
+function getProjectSelectionKey(workspaceId) {
+  return `${PROJECT_SELECTION_KEY_PREFIX}${workspaceId}`;
+}
+
 function createQueryClient() {
   return new QueryClient({
     defaultOptions: {
@@ -55,6 +61,16 @@ export default function WorkspaceBoardPage() {
   );
 
   useEffect(() => {
+    if (!workspaceId) return;
+    try {
+      const saved = window.localStorage.getItem(getProjectSelectionKey(workspaceId));
+      if (saved) setSelectedProjectId(saved);
+    } catch {
+      // no-op
+    }
+  }, [workspaceId]);
+
+  useEffect(() => {
     if (!workspaceProjects.length) {
       setSelectedProjectId("");
       return;
@@ -63,9 +79,35 @@ export default function WorkspaceBoardPage() {
       (project) => project.id === selectedProjectId,
     );
     if (!stillValid) {
+      try {
+        const saved = window.localStorage.getItem(
+          getProjectSelectionKey(workspaceId),
+        );
+        const savedStillValid = workspaceProjects.some(
+          (project) => project.id === saved,
+        );
+        if (savedStillValid) {
+          setSelectedProjectId(saved || "");
+          return;
+        }
+      } catch {
+        // no-op
+      }
       setSelectedProjectId(workspaceProjects[0]?.id || "");
     }
-  }, [workspaceProjects, selectedProjectId]);
+  }, [workspaceId, workspaceProjects, selectedProjectId]);
+
+  useEffect(() => {
+    if (!workspaceId || !selectedProjectId) return;
+    try {
+      window.localStorage.setItem(
+        getProjectSelectionKey(workspaceId),
+        selectedProjectId,
+      );
+    } catch {
+      // no-op
+    }
+  }, [workspaceId, selectedProjectId]);
 
   if (!workspaceId) {
     return (
