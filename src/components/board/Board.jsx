@@ -40,6 +40,23 @@ function getStatusFromColumnName(columnName, fallback = "") {
   return fallback;
 }
 
+function normalizeStatusKey(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z]/g, "");
+}
+
+function findColumnByStatus(columns = [], status = "") {
+  const target = normalizeStatusKey(status);
+  if (!target) return null;
+  return (
+    columns.find(
+      (column) =>
+        normalizeStatusKey(getStatusFromColumnName(column.name, "")) === target,
+    ) || null
+  );
+}
+
 function normalizeColumns(columns = []) {
   return sortColumns(columns).map((column) => ({
     ...column,
@@ -476,10 +493,48 @@ export default function Board({ workspaceId, projectId }) {
     if (!selectedTask?.id) return;
 
     const members = membersQuery.data || [];
-    const selectedMember = members.find((member) => member.id === values.assigneeId);
+    const selectedMember = members.find(
+      (member) => member.id === values.assigneeId,
+    );
     const assigneeName = values.assigneeId
       ? selectedMember?.name || selectedTask.assigneeName || "Unassigned"
       : "Unassigned";
+
+    const nextStatus = values.status || selectedTask.status || "todo";
+    const sourceColumnId = selectedTask.columnId;
+    const destinationColumn = findColumnByStatus(columns, nextStatus);
+    const shouldMove =
+      destinationColumn &&
+      sourceColumnId &&
+      destinationColumn.id !== sourceColumnId;
+
+    if (shouldMove) {
+      try {
+        const moveData = await fetchJson(
+          `/api/dashboard/tasks/${selectedTask.id}/move`,
+          {
+            method: "PATCH",
+            body: JSON.stringify({
+              sourceColumnId,
+              destinationColumnId: destinationColumn.id,
+              newOrder: (destinationColumn.tasks || []).length,
+              status: nextStatus,
+            }),
+          },
+        );
+
+        queryClient.setQueryData(boardQueryKey, (current) => {
+          if (!current) return current;
+          return {
+            ...current,
+            columns: normalizeColumns(moveData?.columns || current.columns || []),
+          };
+        });
+      } catch (error) {
+        toast.error(error?.message || "Failed to move task");
+        return;
+      }
+    }
 
     await updateTaskMutation.mutateAsync({
       taskId: selectedTask.id,
@@ -487,7 +542,7 @@ export default function Board({ workspaceId, projectId }) {
         title: values.title,
         description: values.description,
         priority: values.priority,
-        status: values.status,
+        status: nextStatus,
         dueDate: values.dueDate,
         assigneeId: values.assigneeId,
         assigneeName,
