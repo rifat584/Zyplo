@@ -23,34 +23,44 @@ export default function Footer() {
 
             {/* Social Icons */}
             <div className="flex space-x-4">
-              <Link
-                href="#"
-                className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition"
-              >
-                <FaFacebookF size={14} />
-              </Link>
 
-              <Link
-                href="#"
-                className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition"
-              >
-                <FaTwitter size={14} />
-              </Link>
+  <Link
+    href="https://facebook.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition"
+  >
+    <FaFacebookF size={14} />
+  </Link>
 
-              <Link
-                href="#"
-                className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition"
-              >
-                <FaLinkedinIn size={14} />
-              </Link>
+  <Link
+    href="https://twitter.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition"
+  >
+    <FaTwitter size={14} />
+  </Link>
 
-              <Link
-                href="#"
-                className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition"
-              >
-                <FaGithub size={14} />
-              </Link>
-            </div>
+  <Link
+    href="https://linkedin.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition"
+  >
+    <FaLinkedinIn size={14} />
+  </Link>
+
+  <Link
+    href="https://github.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition"
+  >
+    <FaGithub size={14} />
+  </Link>
+
+</div>
           </div>
 
           {/* Product */}
@@ -58,8 +68,8 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">Product</h4>
             <ul className="space-y-2 text-slate-400">
               <li><Link href="/features" className="hover:text-sky-400 transition">Features</Link></li>
-              <li><Link href="/pricing" className="hover:text-sky-400 transition">Pricing</Link></li>
-              <li><Link href="/integrations" className="hover:text-sky-400 transition">Integrations</Link></li>
+
+            
               <li><Link href="/roadmap" className="hover:text-sky-400 transition">Roadmap</Link></li>
             </ul>
           </div>
@@ -70,7 +80,7 @@ export default function Footer() {
             <ul className="space-y-2 text-slate-400">
               <li><Link href="/about" className="hover:text-sky-400 transition">About</Link></li>
               <li><Link href="/careers" className="hover:text-sky-400 transition">Careers</Link></li>
-              <li><Link href="/blog" className="hover:text-sky-400 transition">Blog</Link></li>
+           
               <li><Link href="/contact" className="hover:text-sky-400 transition">Contact</Link></li>
             </ul>
           </div>
