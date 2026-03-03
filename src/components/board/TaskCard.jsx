@@ -45,7 +45,7 @@ function CardBody({ task }) {
   );
 }
 
-function SortableTaskCard({ task, columnId }) {
+function SortableTaskCard({ task, columnId, onClick }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: task.id,
     data: {
@@ -66,6 +66,9 @@ function SortableTaskCard({ task, columnId }) {
       style={style}
       {...attributes}
       {...listeners}
+      onClick={() => {
+        if (!isDragging && onClick) onClick();
+      }}
       className={`touch-none rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-white/10 dark:bg-slate-900 ${
         isDragging ? "opacity-40" : "opacity-100"
       }`}
@@ -75,7 +78,12 @@ function SortableTaskCard({ task, columnId }) {
   );
 }
 
-export default function TaskCard({ task, columnId, isDragOverlay = false }) {
+export default function TaskCard({
+  task,
+  columnId,
+  isDragOverlay = false,
+  onClick,
+}) {
   if (isDragOverlay) {
     return (
       <article className="rounded-xl border border-slate-200 bg-white p-3 shadow-lg dark:border-white/10 dark:bg-slate-900">
@@ -84,5 +92,5 @@ export default function TaskCard({ task, columnId, isDragOverlay = false }) {
     );
   }
 
-  return <SortableTaskCard task={task} columnId={columnId} />;
+  return <SortableTaskCard task={task} columnId={columnId} onClick={onClick} />;
 }
