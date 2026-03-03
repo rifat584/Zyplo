@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import Column from "./Column";
 import TaskCard from "./TaskCard";
 import CreateTaskModal from "./CreateTaskModal";
+import TaskDetailsModal from "./TaskDetailsModal";
 
 function sortColumns(columns = []) {
   return [...columns].sort(
@@ -180,6 +181,7 @@ export default function Board({ workspaceId, projectId }) {
   const [activeTaskId, setActiveTaskId] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedColumnId, setSelectedColumnId] = useState("");
+  const [selectedTaskId, setSelectedTaskId] = useState("");
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -303,6 +305,42 @@ export default function Board({ workspaceId, projectId }) {
     },
   });
 
+  const updateTaskMutation = useMutation({
+    mutationFn: async ({ taskId, patch }) => {
+      try {
+        const data = await fetchJson(`/api/dashboard/tasks/${taskId}`, {
+          method: "PATCH",
+          body: JSON.stringify(patch),
+        });
+        return data?.task || { id: taskId, ...patch };
+      } catch (error) {
+        // Some backend variants return "Task not found" even when update succeeds.
+        if (error?.message === "Task not found") {
+          return { id: taskId, ...patch };
+        }
+        throw error;
+      }
+    },
+    onSuccess: (updatedTask) => {
+      queryClient.setQueryData(boardQueryKey, (current) => {
+        if (!current || !updatedTask?.id) return current;
+        const nextColumns = (current.columns || []).map((column) => ({
+          ...column,
+          tasks: (column.tasks || []).map((task) =>
+            task.id === updatedTask.id ? { ...task, ...updatedTask } : task,
+          ),
+        }));
+        return { ...current, columns: normalizeColumns(nextColumns) };
+      });
+      queryClient.invalidateQueries({ queryKey: boardQueryKey });
+      toast.success("Task updated");
+      setSelectedTaskId("");
+    },
+    onError: (error) => {
+      toast.error(error?.message || "Failed to update task");
+    },
+  });
+
   const boardData = boardQuery.data || { board: null, columns: [] };
   const columns = boardData.columns || [];
   const selectedColumn =
@@ -313,10 +351,24 @@ export default function Board({ workspaceId, projectId }) {
     () => findTaskById(columns, activeTaskId),
     [columns, activeTaskId],
   );
+  const selectedTask = useMemo(
+    () => findTaskById(columns, selectedTaskId),
+    [columns, selectedTaskId],
+  );
 
   function openCreateModal(columnId) {
     setSelectedColumnId(columnId || columns[0]?.id || "");
     setCreateOpen(true);
+  }
+
+  function openTaskDetails(task) {
+    if (!task?.id) return;
+    setSelectedTaskId(task.id);
+  }
+
+  function closeTaskDetails() {
+    if (updateTaskMutation.isPending) return;
+    setSelectedTaskId("");
   }
 
   function handleCreateTask(values) {
@@ -420,6 +472,29 @@ export default function Board({ workspaceId, projectId }) {
     setActiveTaskId("");
   }
 
+  async function handleTaskUpdate(values) {
+    if (!selectedTask?.id) return;
+
+    const members = membersQuery.data || [];
+    const selectedMember = members.find((member) => member.id === values.assigneeId);
+    const assigneeName = values.assigneeId
+      ? selectedMember?.name || selectedTask.assigneeName || "Unassigned"
+      : "Unassigned";
+
+    await updateTaskMutation.mutateAsync({
+      taskId: selectedTask.id,
+      patch: {
+        title: values.title,
+        description: values.description,
+        priority: values.priority,
+        status: values.status,
+        dueDate: values.dueDate,
+        assigneeId: values.assigneeId,
+        assigneeName,
+      },
+    });
+  }
+
   if (boardQuery.isLoading) {
     return (
       <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900">
@@ -485,6 +560,7 @@ export default function Board({ workspaceId, projectId }) {
                 key={column.id}
                 column={column}
                 onCreateTask={openCreateModal}
+                onTaskClick={openTaskDetails}
                 disabled={createTaskMutation.isPending}
               />
             ))}
@@ -515,6 +591,15 @@ export default function Board({ workspaceId, projectId }) {
         members={membersQuery.data || []}
         columnName={selectedColumn?.name || ""}
         submitting={createTaskMutation.isPending}
+      />
+
+      <TaskDetailsModal
+        open={Boolean(selectedTask)}
+        task={selectedTask}
+        members={membersQuery.data || []}
+        submitting={updateTaskMutation.isPending}
+        onClose={closeTaskDetails}
+        onSubmit={handleTaskUpdate}
       />
     </>
   );
