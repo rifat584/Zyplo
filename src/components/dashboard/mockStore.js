@@ -61,25 +61,38 @@ export function useMockStore(selector) {
 }
 
 export async function loadDashboard(options = {}) {
-  void options;
+  const force = Boolean(options?.force);
+  const silent = Boolean(options?.silent);
 
-  if (state.loading && pendingLoad) return pendingLoad;
+  if (state.loading && pendingLoad) {
+    if (!force) return pendingLoad;
+    try {
+      await pendingLoad;
+    } catch {
+      // ignore and continue with forced reload
+    }
+  }
 
-  setState({ loading: true });
-  pendingLoad = (async () => {
+  if (!silent) setState({ loading: true });
+  const loadPromise = (async () => {
     try {
       const data = await request("/api/dashboard/bootstrap");
-      setState({ ...data, loaded: true, loading: false });
+      const nextState = { ...data, loaded: true };
+      if (!silent) nextState.loading = false;
+      setState(nextState);
     } catch (error) {
-      setState({ loaded: true, loading: false });
+      const nextState = { loaded: true };
+      if (!silent) nextState.loading = false;
+      setState(nextState);
       throw error;
     }
   })();
+  pendingLoad = loadPromise;
 
   try {
-    await pendingLoad;
+    await loadPromise;
   } finally {
-    pendingLoad = null;
+    if (pendingLoad === loadPromise) pendingLoad = null;
   }
 }
 

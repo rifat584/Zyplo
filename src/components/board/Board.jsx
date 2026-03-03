@@ -12,6 +12,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RefreshCw, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { loadDashboard } from "@/components/dashboard/mockStore";
 import Column from "./Column";
 import TaskCard from "./TaskCard";
 import CreateTaskModal from "./CreateTaskModal";
@@ -195,6 +196,10 @@ export default function Board({ workspaceId, projectId }) {
     [projectId],
   );
 
+  async function refreshDashboardStore() {
+    await loadDashboard({ force: true, silent: true });
+  }
+
   const [activeTaskId, setActiveTaskId] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedColumnId, setSelectedColumnId] = useState("");
@@ -236,7 +241,7 @@ export default function Board({ workspaceId, projectId }) {
       });
       return data?.task;
     },
-    onSuccess: (task) => {
+    onSuccess: async (task) => {
       queryClient.setQueryData(boardQueryKey, (current) => {
         if (!current || !task) return current;
         const nextColumns = (current.columns || []).map((column) => {
@@ -245,7 +250,7 @@ export default function Board({ workspaceId, projectId }) {
         });
         return { ...current, columns: normalizeColumns(nextColumns) };
       });
-      queryClient.invalidateQueries({ queryKey: boardQueryKey });
+      await refreshDashboardStore();
       setCreateOpen(false);
       toast.success("Task created");
     },
@@ -300,7 +305,7 @@ export default function Board({ workspaceId, projectId }) {
       }
       toast.error(error?.message || "Failed to move task");
     },
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       const data = result?.moveData;
       queryClient.setQueryData(boardQueryKey, (current) => {
         if (!current) return current;
@@ -309,6 +314,7 @@ export default function Board({ workspaceId, projectId }) {
           columns: normalizeColumns(data?.columns || current.columns || []),
         };
       });
+      await refreshDashboardStore();
 
       if (result?.statusSyncError) {
         toast.error(
@@ -316,9 +322,6 @@ export default function Board({ workspaceId, projectId }) {
             "Task moved, but status sync failed",
         );
       }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: boardQueryKey });
     },
   });
 
@@ -338,7 +341,7 @@ export default function Board({ workspaceId, projectId }) {
         throw error;
       }
     },
-    onSuccess: (updatedTask) => {
+    onSuccess: async (updatedTask) => {
       queryClient.setQueryData(boardQueryKey, (current) => {
         if (!current || !updatedTask?.id) return current;
         const nextColumns = (current.columns || []).map((column) => ({
@@ -349,7 +352,7 @@ export default function Board({ workspaceId, projectId }) {
         }));
         return { ...current, columns: normalizeColumns(nextColumns) };
       });
-      queryClient.invalidateQueries({ queryKey: boardQueryKey });
+      await refreshDashboardStore();
       toast.success("Task updated");
       setSelectedTaskId("");
     },
