@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { signIn } from "next-auth/react";
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 
 const loginSchema = z.object({
   email: z.email("Please enter a valid email address"),
@@ -19,6 +20,9 @@ const loginSchema = z.object({
 });
 
 function LoginForm() {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+
   const {
     register,
     handleSubmit,
@@ -77,6 +81,7 @@ function LoginForm() {
       email: data.email,
       password: data.password,
       redirect: false,
+      callbackUrl,
     });
 
     if (result?.error) {
@@ -95,7 +100,7 @@ function LoginForm() {
       return;
     }
 
-    window.location.href = "/dashboard";
+    window.location.href = result?.url || callbackUrl;
   };
 
   return (
@@ -133,21 +138,21 @@ function LoginForm() {
       <div className="flex items-center justify-between gap-3">
         <Label
           htmlFor="remember"
-          className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-300"
+          className="inline-flex cursor-pointer items-center gap-2 text-slate-600 dark:text-slate-300"
         >
-          <Checkbox id="remember" {...register("remember")} />
+          <Checkbox id="remember" className="cursor-pointer" {...register("remember")} />
           Remember me
         </Label>
         <Link
           href="/forgot-password"
-          className="text-sm text-cyan-600 transition-colors hover:text-cyan-700 dark:text-cyan-300 dark:hover:text-cyan-200"
+          className="cursor-pointer text-sm text-cyan-600 transition-colors hover:text-cyan-700 dark:text-cyan-300 dark:hover:text-cyan-200"
         >
           Forgot password?
         </Link>
       </div>
       <Button
         type="submit"
-        className="w-full"
+        className="w-full cursor-pointer"
         disabled={isSubmitting || !!lockUntil}
       >
         {lockUntil
@@ -159,8 +164,8 @@ function LoginForm() {
       <p className="text-center text-sm text-slate-600 dark:text-slate-300">
         New to Zyplo?{" "}
         <Link
-          href="/register"
-          className="text-cyan-600 transition-colors hover:text-cyan-700 dark:text-cyan-300 dark:hover:text-cyan-200"
+          href={`/register?callbackUrl=${encodeURIComponent(callbackUrl)}`}
+          className="cursor-pointer text-cyan-600 transition-colors hover:text-cyan-700 dark:text-cyan-300 dark:hover:text-cyan-200"
         >
           Create an account
         </Link>

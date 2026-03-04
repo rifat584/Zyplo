@@ -3,25 +3,29 @@ import { Chrome, Github } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { useSearchParams } from "next/navigation";
 
 function SocialButtons() {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-2.5">
         <Button
-          onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
+          onClick={() => signIn("github", { callbackUrl })}
           type="button"
           variant="outline"
-          className="w-full text-slate-700 dark:text-slate-200"
+          className="w-full cursor-pointer text-slate-700 dark:text-slate-200"
         >
           <Github className="size-4" /> GitHub
         </Button>
 
         <Button
-          onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+          onClick={() => signIn("google", { callbackUrl })}
           type="button"
           variant="outline"
-          className="w-full text-slate-700 dark:text-slate-200"
+          className="w-full cursor-pointer text-slate-700 dark:text-slate-200"
         >
           <Chrome className="size-4" /> Google
         </Button>
