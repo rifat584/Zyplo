@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useMockStore, loadDashboard } from "@/components/dashboard/mockStore";
 import { 
   CheckCircle2, 
@@ -48,6 +48,57 @@ const PRIORITIES = [
   { value: "P4", label: "Low", icon: ArrowDown, color: "text-slate-500", bg: "bg-slate-50 dark:bg-slate-500/10" },
 ];
 
+const normalizeStatusKey = (value) =>
+  String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z]/g, "");
+
+const getStatusFromColumnName = (columnName, fallback = "") => {
+  const normalized = normalizeStatusKey(columnName);
+
+  if (normalized === "todo" || normalized === "backlog") return "todo";
+  if (normalized === "inprogress" || normalized === "doing") return "inprogress";
+  if (normalized === "inreview" || normalized === "review") return "inreview";
+  if (normalized === "done" || normalized === "completed") return "done";
+  return normalizeStatusKey(fallback);
+};
+
+const findColumnByStatus = (columns = [], status = "") => {
+  const target = normalizeStatusKey(status);
+  if (!target) return null;
+  return (
+    columns.find(
+      (column) =>
+        normalizeStatusKey(getStatusFromColumnName(column.name, "")) === target,
+    ) || null
+  );
+};
+
+async function fetchJson(url, options = {}) {
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
+    cache: "no-store",
+  });
+
+  const text = await response.text();
+  let data = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    data = text ? { message: text } : null;
+  }
+
+  if (!response.ok) {
+    throw new Error(data?.error || data?.message || "Request failed");
+  }
+
+  return data;
+}
+
 export default function TaskListView() {
   const params = useParams();
   const router = useRouter(); // Added router for redirecting
@@ -74,6 +125,7 @@ export default function TaskListView() {
   
   // Local state to simulate instant UI updates while backend saves
   const [localEdits, setLocalEdits] = useState({});
+  const boardColumnsCacheRef = useRef(new Map());
 
   // --- DERIVED DATA ---
   const workspaceTasks = allTasks.filter((t) => t.workspaceId === workspaceId);
@@ -105,7 +157,17 @@ export default function TaskListView() {
   };
 
   // ACTUAL BACKEND PATCH
-  const handleInlineEdit = async (taskId, field, value) => {
+  const handleInlineEdit = async (task, field, value) => {
+    const taskId = String(task?.id || "");
+    if (!taskId) return;
+
+    const currentValue = String(task?.[field] || "");
+    const nextValue = String(value || "");
+    if (currentValue === nextValue) {
+      setActiveDropdown(null);
+      return;
+    }
+
     // 1. Optimistically update UI instantly
     setLocalEdits(prev => ({
       ...prev,
@@ -115,19 +177,66 @@ export default function TaskListView() {
 
     // 2. Send to Backend
     try {
-      const token = localStorage.getItem("token") || ""; 
-      await fetch(`http://localhost:5000/dashboard/tasks/${taskId}`, {
-        method: "PATCH",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}` 
-        },
-        body: JSON.stringify({ [field]: value })
-      });
+      if (field === "status") {
+        const projectId = String(task?.projectId || "");
+        const sourceColumnId = String(task?.columnId || "");
+
+        if (projectId && sourceColumnId) {
+          let columns = boardColumnsCacheRef.current.get(projectId);
+          if (!columns) {
+            const boardData = await fetchJson(`/api/dashboard/boards/${projectId}`);
+            columns = boardData?.columns || [];
+            boardColumnsCacheRef.current.set(projectId, columns);
+          }
+
+          const destinationColumn = findColumnByStatus(columns, value);
+          if (
+            destinationColumn?.id &&
+            String(destinationColumn.id) !== sourceColumnId
+          ) {
+            const moveData = await fetchJson(`/api/dashboard/tasks/${taskId}/move`, {
+              method: "PATCH",
+              body: JSON.stringify({
+                sourceColumnId,
+                destinationColumnId: String(destinationColumn.id),
+                newOrder: Array.isArray(destinationColumn.tasks)
+                  ? destinationColumn.tasks.length
+                  : 0,
+                status: value,
+              }),
+            });
+
+            if (Array.isArray(moveData?.columns)) {
+              boardColumnsCacheRef.current.set(projectId, moveData.columns);
+            }
+          }
+        }
+      }
+
+      try {
+        await fetchJson(`/api/dashboard/tasks/${taskId}`, {
+          method: "PATCH",
+          body: JSON.stringify({ [field]: value }),
+        });
+      } catch (error) {
+        // Some backend variants return "Task not found" even when update succeeds.
+        if (error?.message !== "Task not found") {
+          throw error;
+        }
+      }
       // Refresh global store in background to ensure perfect sync
       loadDashboard({ force: true }).catch(() => {});
     } catch (err) {
       console.error("Failed to update task", err);
+      setLocalEdits((prev) => {
+        const current = { ...(prev[taskId] || {}) };
+        delete current[field];
+        if (!Object.keys(current).length) {
+          const { [taskId]: _omit, ...rest } = prev;
+          return rest;
+        }
+        return { ...prev, [taskId]: current };
+      });
     }
   };
 
@@ -268,7 +377,7 @@ export default function TaskListView() {
                           {STATUSES.map(s => (
                             <button 
                               key={s.value}
-                              onClick={() => handleInlineEdit(task.id, 'status', s.value)}
+                              onClick={() => handleInlineEdit(task, 'status', s.value)}
                               className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
                             >
                               <s.icon size={14} className={s.color} />
@@ -297,7 +406,7 @@ export default function TaskListView() {
                           {PRIORITIES.map(p => (
                             <button 
                               key={p.value}
-                              onClick={() => handleInlineEdit(task.id, 'priority', p.value)}
+                              onClick={() => handleInlineEdit(task, 'priority', p.value)}
                               className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
                             >
                               <p.icon size={14} className={p.color} />
