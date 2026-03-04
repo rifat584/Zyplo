@@ -1,6 +1,7 @@
 import Logo from "@/components/Shared/Logo/Logo";
 import Link from "next/link";
-import { FaFacebookF, FaLinkedinIn, FaTwitter, FaGithub } from "react-icons/fa";
+import { FaFacebookF, FaLinkedinIn,  FaGithub } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 
 export default function Footer() {
   return (
@@ -34,12 +35,12 @@ export default function Footer() {
   </Link>
 
   <Link
-    href="https://twitter.com"
+    href="https://x.com"
     target="_blank"
     rel="noopener noreferrer"
     className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition"
   >
-    <FaTwitter size={14} />
+    <FaXTwitter size={14} />
   </Link>
 
   <Link

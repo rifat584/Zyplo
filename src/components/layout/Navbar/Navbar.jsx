@@ -7,6 +7,7 @@ import { Search, Menu, X, ChevronDown, Sun, Moon } from "lucide-react";
 import ResourcesMenu from "./ResourcesMenu/ResourcesMenu";
 import { useTheme } from "@/Context/ThemeContext";
 import Logo from "@/components/Shared/Logo/Logo";
+import { useSession } from "next-auth/react";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,7 +15,8 @@ const Navbar = () => {
   const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false);
   const pathname = usePathname();
   const dropdownRef = useRef(null);
-
+  const session = useSession();
+  const isAuthenticated = session.status;
   // Theme state
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -120,12 +122,20 @@ const Navbar = () => {
           </button>
 
           <div className="hidden md:flex items-center gap-4">
-            <Link href="/login" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-secondary">
+            {
+              !isAuthenticated? <>
+              <Link href="/login" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-secondary">
               Sign in
             </Link>
             <Link href="/register" className="flex items-center justify-center rounded-lg bg-linear-to-br from-indigo-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-indigo-500/40 active:scale-95">
               Get started
+            </Link></>
+            :
+            <Link href={"/dashboard"}>
+            Dashboard
             </Link>
+            }
+            
           </div>
 
           {/* Mobile Toggle */}

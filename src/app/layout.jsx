@@ -1,9 +1,10 @@
 import Navbar from "@/components/layout/Navbar/Navbar";
 import "./globals.css";
 import ThemeProviders from "@/Context/ThemeProviders";
-import Footer from "@/components/layout/footer/Footer";
+import Footer from "@/components/layout/Footer/Footer";
 
 import { Poppins, Playfair_Display, Creepster } from "next/font/google";
+import NextAuthProvider from "@/Provider/NextAuthProvider";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -31,10 +32,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="h-full">
-      <body
-        className={`${poppins.className} ${poppins.variable} ${playfair.variable} ${creepster.variable} min-h-screen bg-white text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100`}
-      >
-        <ThemeProviders>{children}</ThemeProviders>
+      <body className={`${poppins.className} ${poppins.variable} ${playfair.variable} ${creepster.variable} min-h-screen bg-white text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100`}>
+        <NextAuthProvider>
+          <ThemeProviders>
+        {children}
+        </ThemeProviders>
+        </NextAuthProvider>
       </body>
     </html>
   );
