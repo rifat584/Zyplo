@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { id: "board", label: "Board", href: (id) => `/dashboard/w/${id}/board` },
   { id: "list", label: "list", href: (id) => `/dashboard/w/${id}/list` },
   { id: "members", label: "Invite Users", href: (id) => `/dashboard/w/${id}/members` },
+  { id: "calender", label: "Calender", href: (id) => `/dashboard/w/${id}/calender` },
 ];
 
 export default function WorkspaceLayout({ children }) {
