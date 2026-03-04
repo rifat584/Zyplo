@@ -154,6 +154,9 @@ export default function TaskListView() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [activeDropdown, setActiveDropdown] = useState(null);
+  
+  // NEW: State to track which bulk action menu is open
+  const [bulkDropdown, setBulkDropdown] = useState(null); 
 
   const [displayMenuOpen, setDisplayMenuOpen] = useState(false);
   const [visibleCols, setVisibleCols] = useState({
@@ -163,6 +166,7 @@ export default function TaskListView() {
     reporter: true,
     updated: true,
     dueDate: true,
+    createdAt: true,
   });
 
   const [localEdits, setLocalEdits] = useState({});
@@ -333,6 +337,34 @@ export default function TaskListView() {
     }
   };
 
+  // --- NEW: Bulk Handlers ---
+  const handleBulkStatus = async (statusValue) => {
+    setBulkDropdown(null);
+    const ids = Array.from(selectedIds);
+    setSelectedIds(new Set()); // Clear selection instantly for snappy UI
+    
+    // Process them sequentially to reuse your existing perfect logic
+    for (const id of ids) {
+      const task = workspaceTasks.find((t) => t.id === id);
+      if (task) {
+        await handleInlinePatch(task, { status: statusValue });
+      }
+    }
+  };
+
+  const handleBulkAssign = async (assigneeId, assigneeName) => {
+    setBulkDropdown(null);
+    const ids = Array.from(selectedIds);
+    setSelectedIds(new Set()); // Clear selection instantly for snappy UI
+    
+    for (const id of ids) {
+      const task = workspaceTasks.find((t) => t.id === id);
+      if (task) {
+        await handleInlinePatch(task, { assigneeId, assigneeName });
+      }
+    }
+  };
+
   return (
     <div className="relative rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#0B0F19] overflow-hidden min-h-150">
       <div className="flex flex-col border-b border-slate-200 dark:border-white/10">
@@ -439,6 +471,9 @@ export default function TaskListView() {
               {visibleCols.updated && (
                 <th className="px-4 py-3 font-medium">Updated</th>
               )}
+              {visibleCols.createdAt && (
+                <th className="px-4 py-3 font-medium">Created At</th>
+              )}
               {visibleCols.dueDate && (
                 <th className="px-4 py-3 font-medium">Due Date</th>
               )}
@@ -447,7 +482,6 @@ export default function TaskListView() {
 
           <tbody className="divide-y divide-slate-200 dark:divide-white/10">
             {filteredTasks.map((task) => {
-              // FIX: Now matching the raw string directly without adding hyphens
               const rawStatus = (task.status || "todo")
                 .toLowerCase()
                 .replace(/\s+/g, "");
@@ -688,7 +722,14 @@ export default function TaskListView() {
                   {/* Updated Date */}
                   {visibleCols.updated && (
                     <td className="px-4 py-4 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
-                      {formatDate(task.updatedAt)}
+                      {formatDate(task.updatedAt || task.createdAt)}
+                    </td>
+                  )}
+
+                  {/* Created At */}
+                  {visibleCols.createdAt && (
+                    <td className="px-4 py-4 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
+                      {formatDate(task.createdAt)}
                     </td>
                   )}
 
@@ -778,12 +819,71 @@ export default function TaskListView() {
           </div>
 
           <div className="flex gap-1">
-            <button className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10 transition-colors">
-              <Circle size={16} /> Set Status
-            </button>
-            <button className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10 transition-colors">
-              <UserPlus size={16} /> Assign
-            </button>
+            
+            {/* BULK ACTION: Set Status */}
+            <div className="relative">
+              {bulkDropdown === "status" && (
+                <div className="fixed inset-0 z-10" onClick={() => setBulkDropdown(null)} />
+              )}
+              <button 
+                onClick={() => setBulkDropdown(bulkDropdown === "status" ? null : "status")}
+                className="relative z-20 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10 transition-colors"
+              >
+                <Circle size={16} /> Set Status
+              </button>
+              
+              {bulkDropdown === "status" && (
+                <div className="absolute bottom-full mb-2 left-0 z-30 w-40 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                  {STATUSES.map((s) => (
+                    <button
+                      key={s.value}
+                      onClick={() => handleBulkStatus(s.value)}
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
+                    >
+                      <s.icon size={14} className={s.color} />
+                      <span className="text-slate-700 dark:text-slate-300">{s.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* BULK ACTION: Assign */}
+            <div className="relative">
+              {bulkDropdown === "assign" && (
+                <div className="fixed inset-0 z-10" onClick={() => setBulkDropdown(null)} />
+              )}
+              <button 
+                onClick={() => setBulkDropdown(bulkDropdown === "assign" ? null : "assign")}
+                className="relative z-20 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10 transition-colors"
+              >
+                <UserPlus size={16} /> Assign
+              </button>
+              
+              {bulkDropdown === "assign" && (
+                <div className="absolute bottom-full mb-2 left-0 z-30 w-48 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                  <button
+                    onClick={() => handleBulkAssign("", "Unassigned")}
+                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
+                  >
+                    <span className="text-slate-700 dark:text-slate-300">Unassigned</span>
+                  </button>
+                  {workspaceMembers.map((member) => (
+                    <button
+                      key={member.id}
+                      onClick={() => handleBulkAssign(member.id || "", member.name || member.email || "Unknown")}
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
+                    >
+                      <span className="text-slate-700 dark:text-slate-300">
+                        {member.name || member.email || "Unknown"}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* BULK ACTION: Delete Placeholder */}
             <button className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10 transition-colors">
               <Trash2 size={16} /> Delete
             </button>
