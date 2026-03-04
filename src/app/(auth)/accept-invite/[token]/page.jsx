@@ -26,7 +26,7 @@ function AcceptInvitePage() {
         </p>
       </div>
 
-    <div className="grid gap-2 sm:grid-cols-2">
+      <div className="grid gap-2 sm:grid-cols-2">
         <Button type="button" className="w-full">
           Accept invite
         </Button>
