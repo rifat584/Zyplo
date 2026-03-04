@@ -7,16 +7,21 @@ import { Search, Menu, X, ChevronDown, Sun, Moon } from "lucide-react";
 import ResourcesMenu from "./ResourcesMenu/ResourcesMenu";
 import { useTheme } from "@/Context/ThemeContext";
 import Logo from "@/components/Shared/Logo/Logo";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react"; // Added signOut
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false); // Added profile dropdown state
+  
   const pathname = usePathname();
   const dropdownRef = useRef(null);
+  const profileRef = useRef(null); // Added ref for profile dropdown
+  
   const session = useSession();
-  const isAuthenticated = session.status;
+  const isAuthenticated = session.status === "authenticated"; // Corrected auth check
+  
   // Theme state
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -32,11 +37,14 @@ const Navbar = () => {
     return `${baseStyles} text-gray-600 dark:text-gray-300 hover:text-secondary hover:border dark:hover:text-secondary transition-colors`;
   };
 
-  // Close mega menu on outside click
+  // Close mega menu and profile menu on outside click
   useEffect(() => {
     const handler = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setResourcesOpen(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -51,6 +59,7 @@ const Navbar = () => {
   const closeAllMobile = () => {
     setIsOpen(false);
     setMobileResourcesOpen(false);
+    setProfileOpen(false);
   };
 
   const toggleTheme = () => {
@@ -122,20 +131,54 @@ const Navbar = () => {
           </button>
 
           <div className="hidden md:flex items-center gap-4">
-            {
-              !isAuthenticated? <>
-              <Link href="/login" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-secondary">
-              Sign in
-            </Link>
-            <Link href="/register" className="flex items-center justify-center rounded-lg bg-linear-to-br from-indigo-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-indigo-500/40 active:scale-95">
-              Get started
-            </Link></>
-            :
-            <Link href={"/dashboard"}>
-            Dashboard
-            </Link>
-            }
-            
+            {!isAuthenticated ? (
+              <>
+                <Link href="/login" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-secondary">
+                  Sign in
+                </Link>
+                <Link href="/register" className="flex items-center justify-center rounded-lg bg-linear-to-br from-indigo-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-indigo-500/40 active:scale-95">
+                  Get started
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href={"/dashboard"} className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-secondary">
+                  Dashboard
+                </Link>
+                
+                {/* --- Profile Dropdown --- */}
+                <div className="relative" ref={profileRef}>
+                  <button 
+                    onClick={() => setProfileOpen(!profileOpen)}
+                    className="flex items-center gap-2 outline-none"
+                  >
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 hover:ring-2 hover:ring-indigo-500/50 transition-all cursor-pointer">
+                      {(session.data?.user?.name?.charAt(0) || "U").toUpperCase()}
+                    </div>
+                  </button>
+
+                  {profileOpen ? (
+                    <div className="absolute right-0 top-12 z-30 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg dark:border-white/10 dark:bg-slate-900">
+                      <div className="mb-2 border-b border-slate-200 pb-2 px-2 dark:border-white/10">
+                        <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+                          {session.data?.user?.name || "User"}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                          {session.data?.user?.email || ""}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => signOut({ callbackUrl: "/login" })}
+                        className="w-full rounded-lg px-2 py-2 text-left text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
+                      >
+                        Sign out
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              </>
+            )}
           </div>
 
           {/* Mobile Toggle */}
@@ -186,23 +229,58 @@ const Navbar = () => {
               Search...
             </button>
 
-            {/* Sign in */}
-            <Link
-              href="/login"
-              onClick={closeAllMobile}
-              className="flex w-full items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-            >
-              Sign in
-            </Link>
-
-            {/* Get started */}
-            <Link
-              href="/register"
-              onClick={closeAllMobile}
-              className="flex w-full items-center justify-center rounded-lg bg-linear-to-br from-indigo-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-indigo-500/40 active:scale-95"
-            >
-              Get started
-            </Link>
+            {!isAuthenticated ? (
+              <>
+                <Link
+                  href="/login"
+                  onClick={closeAllMobile}
+                  className="flex w-full items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={closeAllMobile}
+                  className="flex w-full items-center justify-center rounded-lg bg-linear-to-br from-indigo-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-indigo-500/40 active:scale-95"
+                >
+                  Get started
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/dashboard"
+                  onClick={closeAllMobile}
+                  className="flex w-full items-center justify-center rounded-lg border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 py-2 text-sm font-medium text-indigo-700 dark:text-indigo-300"
+                >
+                  Dashboard
+                </Link>
+                
+                {/* Mobile User Info & Logout */}
+                <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-800/50">
+                  <div className="mb-3 border-b border-slate-200 pb-3 dark:border-white/10 flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+                      {(session.data?.user?.name?.charAt(0) || "U").toUpperCase()}
+                    </div>
+                    <div className="overflow-hidden">
+                      <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+                        {session.data?.user?.name || "User"}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                        {session.data?.user?.email || ""}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => signOut({ callbackUrl: "/login" })}
+                    className="w-full rounded-lg py-2 text-center text-sm font-medium text-rose-600 hover:bg-rose-100 dark:text-rose-400 dark:hover:bg-rose-500/10 transition-colors"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
