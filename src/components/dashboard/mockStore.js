@@ -61,37 +61,38 @@ export function useMockStore(selector) {
 }
 
 export async function loadDashboard(options = {}) {
-  void options;
+  const force = Boolean(options?.force);
+  const silent = Boolean(options?.silent);
 
-  if (state.loading && pendingLoad) return pendingLoad;
+  if (state.loading && pendingLoad) {
+    if (!force) return pendingLoad;
+    try {
+      await pendingLoad;
+    } catch {
+      // ignore and continue with forced reload
+    }
+  }
 
-  setState({ loading: true });
-  pendingLoad = (async () => {
+  if (!silent) setState({ loading: true });
+  const loadPromise = (async () => {
     try {
       const data = await request("/api/dashboard/bootstrap");
-      const nextWorkspaces = Array.isArray(data?.workspaces) ? data.workspaces : [];
-      const shouldPreserveExisting =
-        state.loaded &&
-        Array.isArray(state.workspaces) &&
-        state.workspaces.length > 0 &&
-        nextWorkspaces.length === 0;
-
-      if (shouldPreserveExisting) {
-        setState({ loaded: true, loading: false });
-        return;
-      }
-
-      setState({ ...data, loaded: true, loading: false });
+      const nextState = { ...data, loaded: true };
+      if (!silent) nextState.loading = false;
+      setState(nextState);
     } catch (error) {
-      setState({ loaded: true, loading: false });
+      const nextState = { loaded: true };
+      if (!silent) nextState.loading = false;
+      setState(nextState);
       throw error;
     }
   })();
+  pendingLoad = loadPromise;
 
   try {
-    await pendingLoad;
+    await loadPromise;
   } finally {
-    pendingLoad = null;
+    if (pendingLoad === loadPromise) pendingLoad = null;
   }
 }
 
@@ -102,6 +103,18 @@ export async function createWorkspace(name, memberEmails = []) {
   });
   await loadDashboard({ force: true });
   return data.workspace;
+}
+
+export async function deleteWorkspace(workspaceId) {
+  await request(`/api/dashboard/workspaces/${workspaceId}`, {
+    method: "DELETE",
+  });
+  setState({
+    workspaces: state.workspaces.filter((workspace) => workspace.id !== workspaceId),
+    projects: state.projects.filter((project) => project.workspaceId !== workspaceId),
+    tasks: state.tasks.filter((task) => task.workspaceId !== workspaceId),
+  });
+  await loadDashboard({ force: true });
 }
 
 export async function createProject(workspaceId, name, key = "") {

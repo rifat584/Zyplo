@@ -83,6 +83,7 @@ export async function proxyDashboard(path, { method = "GET", user, body } = {}) 
   }
 
   try {
+    const target = `${base}${path}`;
     const response = await fetch(`${base}${path}`, {
       method,
       headers: {
@@ -104,7 +105,13 @@ export async function proxyDashboard(path, { method = "GET", user, body } = {}) 
       data = text ? { message: text } : null;
     }
     return Response.json(data, { status: response.status });
-  } catch {
-    return Response.json({ error: "Dashboard backend is unavailable" }, { status: 502 });
+  } catch (error) {
+    return Response.json(
+      {
+        error: "Dashboard backend is unavailable",
+        detail: String(error?.message || "Unknown fetch error"),
+      },
+      { status: 502 }
+    );
   }
 }
