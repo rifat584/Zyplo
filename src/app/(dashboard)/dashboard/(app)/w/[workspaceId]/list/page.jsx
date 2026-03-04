@@ -13,7 +13,6 @@ import {
   ArrowRight,
   ArrowDown,
   Calendar,
-  MoreHorizontal,
   Eye,
   Search,
   Filter,
@@ -145,7 +144,12 @@ export default function TaskListView() {
   const workspaceId =
     typeof params.workspaceId === "string" ? params.workspaceId : "";
 
-  const allTasks = useMockStore((state) => state.tasks || []);
+  const { allTasks, workspaceMembers } = useMockStore((state) => ({
+    allTasks: state.tasks || [],
+    workspaceMembers:
+      (state.workspaces || []).find((workspace) => workspace.id === workspaceId)
+        ?.members || [],
+  }));
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState(new Set());
@@ -163,6 +167,7 @@ export default function TaskListView() {
 
   const [localEdits, setLocalEdits] = useState({});
   const boardColumnsCacheRef = useRef(new Map());
+  const [inlineEdit, setInlineEdit] = useState(null);
 
   const workspaceTasks = allTasks.filter((t) => t.workspaceId === workspaceId);
 
@@ -191,29 +196,55 @@ export default function TaskListView() {
     setVisibleCols((prev) => ({ ...prev, [col]: !prev[col] }));
   };
 
-  const handleInlineEdit = async (task, field, value) => {
+  const rollbackLocalPatch = (taskId, patch) => {
+    const keys = Object.keys(patch || {});
+    if (!keys.length) return;
+
+    setLocalEdits((prev) => {
+      const current = { ...(prev[taskId] || {}) };
+      keys.forEach((key) => delete current[key]);
+
+      if (!Object.keys(current).length) {
+        const { [taskId]: _omit, ...rest } = prev;
+        return rest;
+      }
+
+      return { ...prev, [taskId]: current };
+    });
+  };
+
+  const handleInlinePatch = async (task, patch) => {
     const taskId = String(task?.id || "");
     if (!taskId) return;
 
-    const currentValue = String(task?.[field] || "");
-    const nextValue = String(value || "");
-    if (currentValue === nextValue) {
+    const nextPatch = Object.entries(patch || {}).reduce(
+      (acc, [key, value]) => {
+        const currentValue = String(task?.[key] || "");
+        const nextValue = String(value || "");
+        if (currentValue !== nextValue) acc[key] = value;
+        return acc;
+      },
+      {},
+    );
+
+    if (!Object.keys(nextPatch).length) {
       setActiveDropdown(null);
       return;
     }
+    const updatedAt = new Date().toISOString();
+    const patchWithUpdatedAt = { ...nextPatch, updatedAt };
 
     setLocalEdits((prev) => ({
       ...prev,
       [taskId]: {
         ...(prev[taskId] || {}),
-        [field]: value,
-        updatedAt: new Date().toISOString(),
+        ...patchWithUpdatedAt,
       },
     }));
     setActiveDropdown(null);
 
     try {
-      if (field === "status") {
+      if (typeof nextPatch.status === "string") {
         const projectId = String(task?.projectId || "");
         const sourceColumnId = String(task?.columnId || "");
 
@@ -227,7 +258,7 @@ export default function TaskListView() {
             boardColumnsCacheRef.current.set(projectId, columns);
           }
 
-          const destinationColumn = findColumnByStatus(columns, value);
+          const destinationColumn = findColumnByStatus(columns, nextPatch.status);
           if (
             destinationColumn?.id &&
             String(destinationColumn.id) !== sourceColumnId
@@ -242,7 +273,7 @@ export default function TaskListView() {
                   newOrder: Array.isArray(destinationColumn.tasks)
                     ? destinationColumn.tasks.length
                     : 0,
-                  status: value,
+                  status: nextPatch.status,
                 }),
               },
             );
@@ -257,7 +288,7 @@ export default function TaskListView() {
       try {
         await fetchJson(`/api/dashboard/tasks/${taskId}`, {
           method: "PATCH",
-          body: JSON.stringify({ [field]: value }),
+          body: JSON.stringify(patchWithUpdatedAt),
         });
       } catch (error) {
         if (error?.message !== "Task not found") {
@@ -267,15 +298,38 @@ export default function TaskListView() {
       loadDashboard({ force: true }).catch(() => {});
     } catch (err) {
       console.error("Failed to update task", err);
-      setLocalEdits((prev) => {
-        const current = { ...(prev[taskId] || {}) };
-        delete current[field];
-        if (!Object.keys(current).length) {
-          const { [taskId]: _omit, ...rest } = prev;
-          return rest;
-        }
-        return { ...prev, [taskId]: current };
-      });
+      rollbackLocalPatch(taskId, patchWithUpdatedAt);
+    }
+  };
+
+  const handleInlineEdit = async (task, field, value) => {
+    await handleInlinePatch(task, { [field]: value });
+  };
+
+  const openInlineEdit = (task, field, value = "") => {
+    setActiveDropdown(null);
+    setInlineEdit({
+      taskId: String(task?.id || ""),
+      field,
+      value: String(value || ""),
+    });
+  };
+
+  const commitInlineEdit = async (task) => {
+    if (!inlineEdit || String(task?.id || "") !== inlineEdit.taskId) return;
+
+    const { field, value } = inlineEdit;
+    setInlineEdit(null);
+
+    if (field === "title") {
+      const nextTitle = String(value || "").trim();
+      if (!nextTitle) return;
+      await handleInlinePatch(task, { title: nextTitle });
+      return;
+    }
+
+    if (field === "dueDate") {
+      await handleInlinePatch(task, { dueDate: String(value || "") });
     }
   };
 
@@ -418,7 +472,39 @@ export default function TaskListView() {
                   </td>
 
                   <td className="px-4 py-4 font-medium text-slate-900 dark:text-slate-100">
-                    {task.title}
+                    {inlineEdit?.taskId === task.id &&
+                    inlineEdit?.field === "title" ? (
+                      <input
+                        autoFocus
+                        value={inlineEdit.value}
+                        onChange={(event) =>
+                          setInlineEdit((prev) =>
+                            prev
+                              ? { ...prev, value: event.target.value }
+                              : prev,
+                          )
+                        }
+                        onBlur={() => commitInlineEdit(task)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter") {
+                            event.preventDefault();
+                            commitInlineEdit(task);
+                          }
+                          if (event.key === "Escape") {
+                            setInlineEdit(null);
+                          }
+                        }}
+                        className="h-8 w-full rounded-md border border-slate-300 bg-white px-2 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100"
+                      />
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => openInlineEdit(task, "title", task.title)}
+                        className="w-full text-left hover:underline"
+                      >
+                        {task.title}
+                      </button>
+                    )}
                     {task.projectName && (
                       <div className="mt-0.5 text-xs font-normal text-slate-500">
                         {task.projectName}
@@ -521,8 +607,24 @@ export default function TaskListView() {
 
                   {/* Assignee */}
                   {visibleCols.assignee && (
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
+                    <td className="px-4 py-4 relative">
+                      {activeDropdown === `assignee-${task.id}` && (
+                        <div
+                          className="fixed inset-0 z-10"
+                          onClick={() => setActiveDropdown(null)}
+                        />
+                      )}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveDropdown(
+                            activeDropdown === `assignee-${task.id}`
+                              ? null
+                              : `assignee-${task.id}`,
+                          )
+                        }
+                        className="relative z-20 flex w-full items-center gap-2 rounded-md px-2 py-1 -ml-2 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                      >
                         <div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
                           {task.assigneeName
                             ? task.assigneeName.charAt(0).toUpperCase()
@@ -531,7 +633,46 @@ export default function TaskListView() {
                         <span className="truncate max-w-25">
                           {task.assigneeName || "Unassigned"}
                         </span>
-                      </div>
+                      </button>
+
+                      {activeDropdown === `assignee-${task.id}` && (
+                        <div className="absolute top-10 left-4 z-30 w-48 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleInlinePatch(task, {
+                                assigneeId: "",
+                                assigneeName: "Unassigned",
+                              })
+                            }
+                            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
+                          >
+                            <span className="text-slate-700 dark:text-slate-300">
+                              Unassigned
+                            </span>
+                          </button>
+                          {workspaceMembers.map((member) => (
+                            <button
+                              type="button"
+                              key={member.id}
+                              onClick={() =>
+                                handleInlinePatch(task, {
+                                  assigneeId: member.id || "",
+                                  assigneeName:
+                                    member.name ||
+                                    member.email ||
+                                    "Unassigned",
+                                })
+                              }
+                              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
+                            >
+                              <span className="text-slate-700 dark:text-slate-300">
+                                {member.name || member.email || "Unknown"}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </td>
                   )}
 
@@ -554,12 +695,51 @@ export default function TaskListView() {
                   {/* Due Date */}
                   {visibleCols.dueDate && (
                     <td className="px-4 py-4 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
-                      {task.dueDate ? (
-                        <span className="flex items-center gap-1.5">
-                          <Calendar size={12} /> {formatDate(task.dueDate)}
-                        </span>
+                      {inlineEdit?.taskId === task.id &&
+                      inlineEdit?.field === "dueDate" ? (
+                        <input
+                          autoFocus
+                          type="date"
+                          value={inlineEdit.value}
+                          onChange={(event) =>
+                            setInlineEdit((prev) =>
+                              prev
+                                ? { ...prev, value: event.target.value }
+                                : prev,
+                            )
+                          }
+                          onBlur={() => commitInlineEdit(task)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") {
+                              event.preventDefault();
+                              commitInlineEdit(task);
+                            }
+                            if (event.key === "Escape") {
+                              setInlineEdit(null);
+                            }
+                          }}
+                          className="h-8 rounded-md border border-slate-300 bg-white px-2 text-xs outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100"
+                        />
                       ) : (
-                        "--"
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openInlineEdit(
+                              task,
+                              "dueDate",
+                              task.dueDate ? String(task.dueDate).slice(0, 10) : "",
+                            )
+                          }
+                          className="flex items-center gap-1.5 rounded-md px-1 py-0.5 hover:bg-slate-100 dark:hover:bg-white/5"
+                        >
+                          {task.dueDate ? (
+                            <>
+                              <Calendar size={12} /> {formatDate(task.dueDate)}
+                            </>
+                          ) : (
+                            "--"
+                          )}
+                        </button>
                       )}
                     </td>
                   )}
