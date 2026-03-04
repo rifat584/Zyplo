@@ -67,7 +67,7 @@ const PartnerMarquee = () => {
   return (
     <section className="bg-white dark:bg-[#0B0F19]">
       <MainContainer className="px-6 py-14 sm:py-16">
-        <h3 className="mb-8 text-center text-3xl font-bold text-foreground dark:text-gray-100 sm:text-4xl">
+        <h3 className="mb-8 text-center text-3xl font-bold text-foreground dark:text-gray-100 sm:text-5xl">
           Our Partners
         </h3>
 

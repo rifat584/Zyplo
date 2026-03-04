@@ -15,7 +15,7 @@ export default function Automation() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
             Smart Workflow Automation
           </h2>
           <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
