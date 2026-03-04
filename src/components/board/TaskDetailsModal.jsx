@@ -79,6 +79,7 @@ export default function TaskDetailsModal({
     if (exists) return BASE_STATUS_OPTIONS;
     return [...BASE_STATUS_OPTIONS, { value: current, label: current }];
   }, [form.status]);
+  const updatedAtValue = task?.updatedAt || task?.createdAt;
 
   if (!open || !task) return null;
 
@@ -87,27 +88,33 @@ export default function TaskDetailsModal({
       <button
         type="button"
         onClick={() => (submitting ? null : onClose())}
-        className="absolute inset-0 bg-slate-950/45"
+        className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px]"
         aria-label="Close task details modal"
       />
 
-      <div className="absolute left-1/2 top-1/2 w-[94vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-slate-900">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
-              Task Details
-            </p>
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-              {task.title || "Untitled Task"}
-            </h2>
+      <div className="absolute left-1/2 top-1/2 w-[95vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-900">
+        <div className="border-b border-slate-200 bg-slate-50/70 px-5 py-4 dark:border-white/10 dark:bg-slate-800/30">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                Task Overview
+              </p>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                {task.title || "Untitled Task"}
+              </h2>
+            </div>
+            <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300">
+              {task.projectName || "Unknown Project"}
+            </span>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Created: {formatDateTime(task.createdAt)}
-          </p>
+          <div className="mt-3 grid gap-2 text-xs text-slate-500 dark:text-slate-400 sm:grid-cols-2">
+            <p>Created: {formatDateTime(task.createdAt)}</p>
+            <p>Updated: {formatDateTime(updatedAtValue)}</p>
+          </div>
         </div>
 
         <form
-          className="mt-4 space-y-3"
+          className="space-y-4 p-5"
           onSubmit={(event) => {
             event.preventDefault();
             if (!form.title.trim() || submitting) return;
@@ -121,98 +128,152 @@ export default function TaskDetailsModal({
             });
           }}
         >
-          <input
-            value={form.title}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, title: event.target.value }))
-            }
-            placeholder="Task title"
-            className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-cyan-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-            required
-          />
-
-          <textarea
-            rows={5}
-            value={form.description}
-            onChange={(event) =>
-              setForm((prev) => ({ ...prev, description: event.target.value }))
-            }
-            placeholder="Description"
-            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-cyan-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-          />
-
-          <div className="grid gap-2 sm:grid-cols-2">
-            <select
-              value={form.assigneeId}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, assigneeId: event.target.value }))
-              }
-              className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-cyan-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+          <div className="space-y-1.5">
+            <label
+              htmlFor="task-details-title"
+              className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
             >
-              <option value="">Unassigned</option>
-              {members.map((member) => (
-                <option key={member.id} value={member.id}>
-                  {member.name}
-                </option>
-              ))}
-            </select>
-
+              Task Title
+            </label>
             <input
-              type="date"
-              value={form.dueDate}
+              id="task-details-title"
+              value={form.title}
               onChange={(event) =>
-                setForm((prev) => ({ ...prev, dueDate: event.target.value }))
+                setForm((prev) => ({ ...prev, title: event.target.value }))
               }
-              className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-cyan-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              placeholder="Enter a clear task title"
+              className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              required
             />
-
-            <select
-              value={form.priority}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, priority: event.target.value }))
-              }
-              className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-cyan-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-            >
-              {PRIORITY_OPTIONS.map((item) => (
-                <option key={item.value} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={form.status}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, status: event.target.value }))
-              }
-              className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-cyan-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-            >
-              {statusOptions.map((item) => (
-                <option key={item.value} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
           </div>
 
-          <div className="rounded-xl border border-slate-200 p-3 text-xs text-slate-600 dark:border-white/10 dark:text-slate-300">
+          <div className="space-y-1.5">
+            <label
+              htmlFor="task-details-description"
+              className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+            >
+              Description
+            </label>
+            <textarea
+              id="task-details-description"
+              rows={5}
+              value={form.description}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, description: event.target.value }))
+              }
+              placeholder="Add details, acceptance criteria, or important context"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+            />
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <label
+                htmlFor="task-details-assignee"
+                className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+              >
+                Assignee
+              </label>
+              <select
+                id="task-details-assignee"
+                value={form.assigneeId}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, assigneeId: event.target.value }))
+                }
+                className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              >
+                <option value="">Unassigned</option>
+                {members.map((member) => (
+                  <option key={member.id} value={member.id}>
+                    {member.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label
+                htmlFor="task-details-due-date"
+                className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+              >
+                Due Date
+              </label>
+              <input
+                id="task-details-due-date"
+                type="date"
+                value={form.dueDate}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, dueDate: event.target.value }))
+                }
+                className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label
+                htmlFor="task-details-priority"
+                className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+              >
+                Priority
+              </label>
+              <select
+                id="task-details-priority"
+                value={form.priority}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, priority: event.target.value }))
+                }
+                className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              >
+                {PRIORITY_OPTIONS.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label
+                htmlFor="task-details-status"
+                className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+              >
+                Status
+              </label>
+              <select
+                id="task-details-status"
+                value={form.status}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, status: event.target.value }))
+                }
+                className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              >
+                {statusOptions.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-xs text-slate-600 dark:border-white/10 dark:bg-slate-800/30 dark:text-slate-300">
             <p>Task ID: {task.id}</p>
             <p>Project: {task.projectName || "Unknown Project"}</p>
           </div>
 
-          <div className="flex justify-end gap-2 pt-1">
+          <div className="flex justify-end gap-2 border-t border-slate-200 pt-4 dark:border-white/10">
             <button
               type="button"
               onClick={onClose}
               disabled={submitting}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 disabled:opacity-50 dark:border-white/10 dark:text-slate-200"
+              className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:opacity-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!form.title.trim() || submitting}
-              className="rounded-lg bg-indigo-500 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
+              className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-600 disabled:opacity-50"
             >
               {submitting ? "Saving..." : "Save Changes"}
             </button>
