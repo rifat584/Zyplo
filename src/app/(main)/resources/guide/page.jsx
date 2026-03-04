@@ -23,7 +23,7 @@ export default function GuidePage() {
               {/* ✅ Anchor for parent section */}
               <div id={section.id} className="h-1 scroll-mt-24" />
 
-              <div className="rounded-3xl border border-base-300 bg-base-100 p-8 md:p-10 shadow-sm">
+              <div className="rounded-3xl bg-base-100 p-8 md:p-10 shadow-xl dark:shadow-gray-500">
                 <h2 className="text-3xl md:text-4xl font-semibold mb-6">
                   {section.title}
                 </h2>
@@ -32,7 +32,7 @@ export default function GuidePage() {
                   <img
                     src={section.image}
                     alt={section.title}
-                    className="w-full rounded-2xl border border-base-300 shadow my-6"
+                    className="w-full rounded-2xl shadow my-6"
                   />
                 )}
 
@@ -44,7 +44,7 @@ export default function GuidePage() {
 
                 {section.subsections?.map((sub) => (
                   <div key={sub.id} id={sub.id} className="mt-12">
-                    <div className="rounded-2xl border border-base-300 bg-base-200/40 p-6 md:p-8">
+                    <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-base-200/40 p-6 md:p-8">
                       <h3 className="text-2xl font-semibold mb-4">
                         {sub.title}
                       </h3>
@@ -53,7 +53,7 @@ export default function GuidePage() {
                         <img
                           src={sub.image}
                           alt={sub.title}
-                          className="w-full rounded-xl border border-base-300 shadow my-4"
+                          className="w-full rounded-xl shadow my-4"
                         />
                       )}
 

@@ -8,7 +8,7 @@ export default function Logo({
     return (
         <div className={`flex items-center gap-2 ${className}`}>
             <Image
-                src="/logo.png"
+                src="/logo1.png"
                 alt="Zyplo Logo"
                 width={size}
                 height={size}
