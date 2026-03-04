@@ -163,6 +163,7 @@ export default function TaskListView() {
     reporter: true,
     updated: true,
     dueDate: true,
+    createdAt: true,
   });
 
   const [localEdits, setLocalEdits] = useState({});
@@ -439,6 +440,9 @@ export default function TaskListView() {
               {visibleCols.updated && (
                 <th className="px-4 py-3 font-medium">Updated</th>
               )}
+              {visibleCols.createdAt && (
+                <th className="px-4 py-3 font-medium">Created At</th>
+              )}
               {visibleCols.dueDate && (
                 <th className="px-4 py-3 font-medium">Due Date</th>
               )}
@@ -692,6 +696,13 @@ export default function TaskListView() {
                     </td>
                   )}
 
+                  {/* Created At */}
+                  {visibleCols.updated && (
+                    <td className="px-4 py-4 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
+                      {formatDate(task.createdAt)}
+                    </td>
+                  )}
+
                   {/* Due Date */}
                   {visibleCols.dueDate && (
                     <td className="px-4 py-4 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
@@ -791,7 +802,7 @@ export default function TaskListView() {
 
           <button
             onClick={() => setSelectedIds(new Set())}
-            className="ml-2 rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10 dark:hover:text-slate-300"
+            className="ml-2 rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:border-white/10 dark:hover:text-slate-300"
           >
             <X size={16} />
           </button>
