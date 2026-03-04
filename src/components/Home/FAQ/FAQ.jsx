@@ -50,7 +50,7 @@ export default function FAQ() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl font-bold mb-4 text-gray-900 dark:text-white">
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 md:mb-8 text-gray-900 dark:text-white">
             Frequently Asked Questions
           </h2>
           <p className="text-gray-600 dark:text-gray-400">

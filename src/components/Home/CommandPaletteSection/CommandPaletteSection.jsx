@@ -148,7 +148,7 @@ export default function CommandPaletteSection() {
                             <Command className="h-4 w-4" />
                             Command Palette
                         </span>
-                        <h2 className="mt-4 text-3xl font-heading font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+                        <h2 className="mt-4 text-3xl font-heading font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
   Work at the{" "}
   <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-cyan-500">
     speed of thought

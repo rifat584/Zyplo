@@ -30,7 +30,7 @@ export default function Stats() {
           viewport={{ once: true, margin: "-100px" }}
           className="mb-16 text-center"
         >
-          <h2 className="text-4xl font-heading font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+          <h2 className="text-3xl font-heading font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
             Zyplo by the{" "}
             <span className="relative inline-block text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-cyan-500 dark:from-indigo-400 dark:to-cyan-300">
               Numbers
