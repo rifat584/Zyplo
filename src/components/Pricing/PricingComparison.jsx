@@ -15,11 +15,11 @@ export default function PricingComparison({ categories }) {
   return (
     <section id="compare-plans" className="py-10 sm:py-14">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="mb-5">
-          <h2 className="text-3xl font-heading font-semibold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl">
+        <div className="mb-5 text-center">
+          <h2 className="text-center text-5xl font-heading font-semibold tracking-tight text-slate-900 dark:text-slate-100">
             Compare plans in detail
           </h2>
-          <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 sm:text-base">
+          <p className="mx-auto mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-300 sm:text-base">
             Feature groups are organized for quick scanning across planning, collaboration, and security needs.
           </p>
         </div>

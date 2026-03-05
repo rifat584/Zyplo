@@ -18,6 +18,7 @@ export default function WorkspaceMembersPage() {
   const session = useSession();
   const [invites, setInvites] = useState([]);
   const [members, setMembers] = useState([]);
+  const [latestInviteLink, setLatestInviteLink] = useState("");
 
   const {
     register,
@@ -57,8 +58,19 @@ export default function WorkspaceMembersPage() {
     }
 
     toast.success(result?.message || "Invite created!");
+    setLatestInviteLink(result?.inviteLink || "");
     reset({ email: "", role: "member" });
     await fetchInvites();
+  };
+
+  const handleCopyLatestInvite = async () => {
+    if (!latestInviteLink) return;
+    try {
+      await navigator.clipboard.writeText(latestInviteLink);
+      toast.success("Invite link copied");
+    } catch {
+      toast.error("Could not copy link");
+    }
   };
 
   useEffect(() => {
@@ -126,6 +138,24 @@ export default function WorkspaceMembersPage() {
       >
         Send invite
       </button>
+
+      {latestInviteLink ? (
+        <div className="space-y-2 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-800/30">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Latest Invite Link
+          </p>
+          <p className="break-all text-xs text-slate-700 dark:text-slate-200">
+            {latestInviteLink}
+          </p>
+          <button
+            type="button"
+            onClick={handleCopyLatestInvite}
+            className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 dark:border-white/20 dark:text-slate-200 dark:hover:bg-white/10"
+          >
+            Copy link
+          </button>
+        </div>
+      ) : null}
 
       <div className="space-y-3">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
