@@ -13,7 +13,7 @@ export default function PricingHero() {
       <div className="pointer-events-none absolute inset-0 backdrop-blur-[1.5px]" />
 
       <div className="relative mx-auto max-w-6xl px-6 text-center">
-        <h1 className="mx-auto max-w-4xl text-4xl font-heading font-semibold tracking-tight text-slate-900 dark:text-slate-100 sm:text-5xl lg:text-6xl">
+        <h1 className="mx-auto max-w-4xl text-5xl font-heading font-semibold tracking-tight text-slate-900 dark:text-slate-100">
           Simple pricing, built to scale.
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-slate-600 dark:text-slate-300">

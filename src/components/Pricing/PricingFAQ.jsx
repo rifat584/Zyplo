@@ -9,7 +9,7 @@ export default function PricingFAQ({ faqs }) {
   return (
     <section className="py-10 sm:py-14">
       <div className="mx-auto max-w-4xl px-6">
-        <h2 className="text-center text-3xl font-heading font-semibold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl">
+        <h2 className="text-center text-5xl font-heading font-semibold tracking-tight text-slate-900 dark:text-slate-100">
           Answers before you commit
         </h2>
         <p className="mx-auto mt-2 max-w-2xl text-center text-sm text-slate-600 dark:text-slate-300 sm:text-base">

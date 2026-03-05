@@ -25,7 +25,7 @@ function PasswordField({ id, label, placeholder, error, registration }) {
         <button
           type="button"
           onClick={() => setVisible((prev) => !prev)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-slate-500 transition-colors hover:text-cyan-600 dark:text-slate-400 dark:hover:text-cyan-300"
+          className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer rounded-md p-1 text-slate-500 transition-colors hover:text-cyan-600 dark:text-slate-400 dark:hover:text-cyan-300"
           aria-label={visible ? "Hide password" : "Show password"}
         >
           {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}

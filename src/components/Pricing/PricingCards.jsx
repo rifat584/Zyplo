@@ -8,13 +8,13 @@ export default function PricingCards({ plans, yearly, onBillingChange }) {
   return (
     <section id="pricing-cards" className="py-10 sm:py-14">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div className="text-center sm:text-left">
-            <h2 className="text-2xl font-heading font-semibold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl">
+        <div className="flex flex-col items-center gap-5 text-center">
+          <div>
+            <h2 className="text-center text-5xl font-heading font-semibold tracking-tight text-slate-900 dark:text-slate-100">
               Choose your plan
             </h2>
           </div>
-          <div className="mx-auto inline-flex w-full max-w-70 items-center rounded-xl border border-slate-300 bg-white/80 p-1 dark:border-slate-700 dark:bg-slate-900 sm:mx-0 sm:w-auto sm:max-w-none">
+          <div className="mx-auto inline-flex w-full max-w-70 items-center rounded-xl border border-slate-300 bg-white/80 p-1 dark:border-slate-700 dark:bg-slate-900 sm:w-auto sm:max-w-none">
             <button
               type="button"
               onClick={() => onBillingChange(false)}
@@ -36,7 +36,7 @@ export default function PricingCards({ plans, yearly, onBillingChange }) {
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-3">
           {plans.map((plan, index) => {
             const price = yearly ? plan.yearlyPrice : plan.monthlyPrice;
 

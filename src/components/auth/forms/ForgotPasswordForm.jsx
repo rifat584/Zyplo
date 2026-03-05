@@ -39,13 +39,13 @@ function ForgotPasswordForm() {
         {errors.email ? <p className="text-xs text-red-500">{errors.email.message}</p> : null}
       </div>
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
+      <Button type="submit" className="w-full cursor-pointer" disabled={isSubmitting}>
         {isSubmitting ? "Sending reset link..." : "Send reset link"}
       </Button>
 
       <p className="text-center text-sm text-slate-600 dark:text-slate-300">
         Remember your password?{" "}
-        <Link href="/login" className="text-cyan-600 transition-colors hover:text-cyan-700 dark:text-cyan-300 dark:hover:text-cyan-200">
+        <Link href="/login" className="cursor-pointer text-cyan-600 transition-colors hover:text-cyan-700 dark:text-cyan-300 dark:hover:text-cyan-200">
           Back to sign in
         </Link>
       </p>
