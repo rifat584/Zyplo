@@ -69,18 +69,6 @@ export async function loadDashboard(options = {}) {
   pendingLoad = (async () => {
     try {
       const data = await request("/api/dashboard/bootstrap");
-      const nextWorkspaces = Array.isArray(data?.workspaces) ? data.workspaces : [];
-      const shouldPreserveExisting =
-        state.loaded &&
-        Array.isArray(state.workspaces) &&
-        state.workspaces.length > 0 &&
-        nextWorkspaces.length === 0;
-
-      if (shouldPreserveExisting) {
-        setState({ loaded: true, loading: false });
-        return;
-      }
-
       setState({ ...data, loaded: true, loading: false });
     } catch (error) {
       setState({ loaded: true, loading: false });
@@ -102,6 +90,18 @@ export async function createWorkspace(name, memberEmails = []) {
   });
   await loadDashboard({ force: true });
   return data.workspace;
+}
+
+export async function deleteWorkspace(workspaceId) {
+  await request(`/api/dashboard/workspaces/${workspaceId}`, {
+    method: "DELETE",
+  });
+  setState({
+    workspaces: state.workspaces.filter((workspace) => workspace.id !== workspaceId),
+    projects: state.projects.filter((project) => project.workspaceId !== workspaceId),
+    tasks: state.tasks.filter((task) => task.workspaceId !== workspaceId),
+  });
+  await loadDashboard({ force: true });
 }
 
 export async function createProject(workspaceId, name, key = "") {

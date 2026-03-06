@@ -1,6 +1,7 @@
 import Logo from "@/components/Shared/Logo/Logo";
 import Link from "next/link";
-import { FaFacebookF, FaLinkedinIn, FaTwitter, FaGithub } from "react-icons/fa";
+import { FaFacebookF, FaLinkedinIn, FaGithub } from "react-icons/fa";
+import { RiTwitterXLine } from "react-icons/ri";
 
 export default function Footer() {
   return (
@@ -39,7 +40,7 @@ export default function Footer() {
     rel="noopener noreferrer"
     className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition"
   >
-    <FaTwitter size={14} />
+    <RiTwitterXLine size={14} />
   </Link>
 
   <Link
