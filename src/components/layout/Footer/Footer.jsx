@@ -42,7 +42,7 @@ export default function Footer() {
     rel="noopener noreferrer"
     className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition"
   >
-    <RiTwitterXLine size={14} />
+  
     <FaXTwitter size={14} />
   </Link>
 
