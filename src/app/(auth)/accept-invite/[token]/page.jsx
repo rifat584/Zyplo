@@ -11,6 +11,7 @@ function AcceptInvitePage() {
   const params = useParams();
   const token = typeof params?.token === "string" ? params.token : "";
   const session = useSession();
+  console.log(session);
   const router = useRouter();
   const [workspace, setWorkspace] = useState(null);
   const [loadingInvite, setLoadingInvite] = useState(true);
@@ -78,7 +79,7 @@ function AcceptInvitePage() {
         );
       }
 
-      const data = { token, email: freshSession?.user?.email };
+      const data = { token, email: freshSession?.user?.email, id: freshSession?.user?.id };
       const submitData = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/invites/${choice}`,
         {
