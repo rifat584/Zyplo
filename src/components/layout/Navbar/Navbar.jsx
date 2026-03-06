@@ -142,11 +142,7 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <Link href={"/dashboard"} className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-secondary">
-                  Dashboard
-                </Link>
-                
-                {/* --- Profile Dropdown --- */}
+                {/* --- Profile Dropdown (Desktop) --- */}
                 <div className="relative" ref={profileRef}>
                   <button 
                     onClick={() => setProfileOpen(!profileOpen)}
@@ -167,13 +163,25 @@ const Navbar = () => {
                           {session.data?.user?.email || ""}
                         </p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => signOut({ callbackUrl: "/login" })}
-                        className="w-full rounded-lg px-2 py-2 text-left text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
-                      >
-                        Sign out
-                      </button>
+                      
+                      <div className="flex flex-col gap-1">
+                        {/* Moved Dashboard Link inside the dropdown */}
+                        <Link
+                          href="/dashboard"
+                          onClick={() => setProfileOpen(false)}
+                          className="w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5 transition-colors"
+                        >
+                          Dashboard
+                        </Link>
+                        
+                        <button
+                          type="button"
+                          onClick={() => signOut({ callbackUrl: "/login" })}
+                          className="w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 transition-colors"
+                        >
+                          Sign out
+                        </button>
+                      </div>
                     </div>
                   ) : null}
                 </div>
@@ -248,6 +256,7 @@ const Navbar = () => {
               </>
             ) : (
               <>
+                {/* Dashboard (Mobile) */}
                 <Link
                   href="/dashboard"
                   onClick={closeAllMobile}
