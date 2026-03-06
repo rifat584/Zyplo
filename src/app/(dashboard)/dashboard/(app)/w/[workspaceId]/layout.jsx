@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { id: "overview", label: "Overview", href: (id) => `/dashboard/w/${id}` },
   { id: "timeline", label: "Timeline", href: (id) => `/dashboard/w/${id}/timeline` },
   { id: "board", label: "Board", href: (id) => `/dashboard/w/${id}/board` },
+  { id: "calender", label: "Calender", href: (id) => `/dashboard/w/${id}/calender` },
   { id: "list", label: "list", href: (id) => `/dashboard/w/${id}/list` },
   { id: "members", label: "Invite Users", href: (id) => `/dashboard/w/${id}/members` },
 ];

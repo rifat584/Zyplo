@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 const registerSchema = z
@@ -29,6 +29,9 @@ const registerSchema = z
   });
 
 function RegisterForm() {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+
   const {
     register,
     handleSubmit,
@@ -75,7 +78,7 @@ function RegisterForm() {
       email: data.email,
       password: data.password,
       redirect: false,
-      callbackUrl: "/dashboard",
+      callbackUrl,
     });
 
     if (loginRes?.error) {
@@ -86,7 +89,7 @@ function RegisterForm() {
     toast.success("Account created 🎉 Redirecting...");
 
     setTimeout(() => {
-      router.push("/dashboard");
+      router.push(loginRes?.url || callbackUrl);
     }, 1200);
   };
 
@@ -136,9 +139,9 @@ function RegisterForm() {
       <div className="space-y-1">
         <Label
           htmlFor="acceptTerms"
-          className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-300"
+          className="inline-flex cursor-pointer items-center gap-2 text-slate-600 dark:text-slate-300"
         >
-          <Checkbox id="acceptTerms" {...register("acceptTerms")} />I agree to
+          <Checkbox id="acceptTerms" className="cursor-pointer" {...register("acceptTerms")} />I agree to
           the terms and privacy policy
         </Label>
         {errors.acceptTerms ? (
@@ -146,15 +149,15 @@ function RegisterForm() {
         ) : null}
       </div>
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
+      <Button type="submit" className="w-full cursor-pointer" disabled={isSubmitting}>
         {isSubmitting ? "Creating account..." : "Create account"}
       </Button>
 
       <p className="text-center text-sm text-slate-600 dark:text-slate-300">
         Already have an account?{" "}
         <Link
-          href="/login"
-          className="text-cyan-600 transition-colors hover:text-cyan-700 dark:text-cyan-300 dark:hover:text-cyan-200"
+          href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
+          className="cursor-pointer text-cyan-600 transition-colors hover:text-cyan-700 dark:text-cyan-300 dark:hover:text-cyan-200"
         >
           Sign in
         </Link>

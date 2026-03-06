@@ -100,7 +100,7 @@ export default function Testimonials() {
     return (
         <section className="bg-white py-20 dark:bg-[#0B0f19]">
             <div className="mx-auto max-w-7xl px-6">
-                <h2 className="text-center text-3xl font-bold text-gray-900 dark:text-gray-100">
+                <h2 className="text-center text-3xl md:text-5xl font-bold text-gray-900 dark:text-gray-100">
                     Loved by modern teams
                 </h2>
                 <p className="mt-3 text-center text-gray-600 dark:text-gray-400">

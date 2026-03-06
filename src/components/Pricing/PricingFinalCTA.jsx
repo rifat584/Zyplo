@@ -9,17 +9,17 @@ export default function PricingFinalCTA() {
           <div className="pointer-events-none absolute -left-12 top-1/2 h-44 w-44 -translate-y-1/2 rounded-full bg-indigo-500/15 blur-3xl dark:bg-indigo-400/20" />
           <div className="pointer-events-none absolute -right-10 top-2 h-40 w-40 rounded-full bg-cyan-400/18 blur-3xl dark:bg-cyan-400/20" />
 
-          <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h2 className="text-2xl font-heading font-semibold tracking-tight text-slate-900 dark:text-slate-100 sm:text-3xl">
+          <div className="relative flex flex-col gap-4">
+            <div className="text-center">
+              <h2 className="text-center text-5xl font-heading font-semibold tracking-tight text-slate-900 dark:text-slate-100">
                 Ready to run a calmer, faster execution cycle?
               </h2>
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+              <p className="mx-auto mt-2 max-w-2xl text-sm text-slate-600 dark:text-slate-300">
                 Start with Team in minutes, or work with us on a Studio rollout for your org.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:justify-end">
+            <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:justify-center">
               <StarBorder
                 as={Link}
                 href="/login"

@@ -13,7 +13,12 @@ function sortTasks(tasks = []) {
   return [...tasks].sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
 }
 
-export default function Column({ column, onCreateTask, disabled = false }) {
+export default function Column({
+  column,
+  onCreateTask,
+  onTaskClick,
+  disabled = false,
+}) {
   const { setNodeRef, isOver } = useDroppable({
     id: `column-${column.id}`,
     data: {
@@ -53,11 +58,16 @@ export default function Column({ column, onCreateTask, disabled = false }) {
           isOver ? "bg-cyan-50 dark:bg-cyan-500/10" : ""
         }`}
       >
-        <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
-          {tasks.map((task) => (
-            <TaskCard key={task.id} task={task} columnId={column.id} />
-          ))}
-        </SortableContext>
+          <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
+            {tasks.map((task) => (
+              <TaskCard
+                key={task.id}
+                task={task}
+                columnId={column.id}
+                onClick={() => onTaskClick?.(task)}
+              />
+            ))}
+          </SortableContext>
 
         {tasks.length === 0 ? (
           <div className="rounded-lg border border-dashed border-slate-300 p-3 text-center text-xs text-slate-500 dark:border-white/15 dark:text-slate-400">

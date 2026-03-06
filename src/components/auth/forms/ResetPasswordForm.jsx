@@ -53,13 +53,13 @@ function ResetPasswordForm() {
         error={errors.confirmPassword?.message}
       />
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
+      <Button type="submit" className="w-full cursor-pointer" disabled={isSubmitting}>
         {isSubmitting ? "Resetting password..." : "Reset password"}
       </Button>
 
       <p className="text-center text-sm text-slate-600 dark:text-slate-300">
         Return to{" "}
-        <Link href="/login" className="text-cyan-600 transition-colors hover:text-cyan-700 dark:text-cyan-300 dark:hover:text-cyan-200">
+        <Link href="/login" className="cursor-pointer text-cyan-600 transition-colors hover:text-cyan-700 dark:text-cyan-300 dark:hover:text-cyan-200">
           sign in
         </Link>
       </p>
