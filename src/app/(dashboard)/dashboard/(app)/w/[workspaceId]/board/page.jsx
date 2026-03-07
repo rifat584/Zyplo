@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Trash2 } from "lucide-react";
+import Swal from "sweetalert2";
 import Board from "@/components/board/Board";
 import {
   createProject,
@@ -42,7 +44,9 @@ export default function WorkspaceBoardPage() {
   const [projectName, setProjectName] = useState("");
   const [projectKey, setProjectKey] = useState("");
   const [creatingProject, setCreatingProject] = useState(false);
+  const [deletingProject, setDeletingProject] = useState(false);
   const [createError, setCreateError] = useState("");
+  const [deleteError, setDeleteError] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   const { loaded, loading, projects } = useMockStore((state) => ({
@@ -144,6 +148,57 @@ export default function WorkspaceBoardPage() {
     }
   }
 
+  async function handleDeleteProject() {
+    if (!selectedProjectId || deletingProject) return;
+    const selectedProject = workspaceProjects.find(
+      (project) => project.id === selectedProjectId,
+    );
+    if (!selectedProject) return;
+
+    const result = await Swal.fire({
+      title: "Delete project?",
+      text: `Delete "${selectedProject.name}" and all related tasks/board data?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+      background: "#0f172a",
+      color: "#e2e8f0",
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#334155",
+    });
+    if (!result.isConfirmed) return;
+
+    try {
+      setDeleteError("");
+      setDeletingProject(true);
+      const response = await fetch(`/api/dashboard/projects/${selectedProjectId}`, {
+        method: "DELETE",
+      });
+      const text = await response.text();
+      let data = null;
+      try {
+        data = text ? JSON.parse(text) : null;
+      } catch {
+        data = text ? { message: text } : null;
+      }
+
+      if (!response.ok) {
+        throw new Error(data?.error || data?.message || "Failed to delete project");
+      }
+
+      setSelectedProjectId((current) =>
+        current === selectedProjectId ? "" : current,
+      );
+      await loadDashboard({ force: true });
+    } catch (error) {
+      setDeleteError(error?.message || "Failed to delete project");
+    } finally {
+      setDeletingProject(false);
+    }
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <section className="mb-4 flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
@@ -161,7 +216,7 @@ export default function WorkspaceBoardPage() {
             <select
               value={selectedProjectId}
               onChange={(event) => setSelectedProjectId(event.target.value)}
-              disabled={!workspaceProjects.length}
+              disabled={!workspaceProjects.length || deletingProject}
               className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-cyan-300 disabled:opacity-60 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
             >
               {workspaceProjects.length ? (
@@ -179,14 +234,30 @@ export default function WorkspaceBoardPage() {
             type="button"
             onClick={() => {
               setCreateError("");
+              setDeleteError("");
               setShowCreateForm((current) => !current);
             }}
             className="inline-flex items-center h-10 rounded-lg bg-indigo-500 px-3 text-sm font-medium text-white hover:bg-indigo-600"
           >
             {showCreateForm ? "Cancel" : "New Project"}
           </button>
+          <button
+            type="button"
+            onClick={handleDeleteProject}
+            disabled={!selectedProjectId || deletingProject}
+            className="inline-flex h-10 items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 text-sm font-medium text-rose-700 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20"
+          >
+            <Trash2 className="size-4" />
+            {deletingProject ? "Deleting..." : "Delete Project"}
+          </button>
         </div>
       </section>
+
+      {deleteError ? (
+        <p className="mb-4 text-sm text-rose-600 dark:text-rose-400">
+          {deleteError}
+        </p>
+      ) : null}
 
       {showCreateForm || !workspaceProjects.length ? (
         <section className="mb-4 rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900">

@@ -69,12 +69,15 @@ export default function TaskDetailsModal({
   task,
   members = [],
   submitting = false,
+  deleting = false,
   onClose,
   onSubmit,
+  onDelete,
 }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
+  const isBusy = submitting || deleting;
 
   useEffect(() => {
     if (!open || !task) return;
@@ -94,11 +97,13 @@ export default function TaskDetailsModal({
 
     function onKeyDown(event) {
       if (event.key === "Escape" && !submitting && !isUploading) onClose();
+      if (event.key === "Escape" && !isBusy) onClose();
     }
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose, open, submitting, isUploading]);
+  }, [isBusy, onClose, open]);
 
   const statusOptions = useMemo(() => {
     const current = String(form.status || "");
@@ -109,6 +114,7 @@ export default function TaskDetailsModal({
   }, [form.status]);
   
   const updatedAtValue = task?.updatedAt || task?.createdAt;
+  const updatedAtValue = task?.updatedAt;
 
   // --- CLOUDINARY UPLOAD HANDLER ---
   const handleFileUpload = async (event) => {
@@ -177,6 +183,7 @@ export default function TaskDetailsModal({
       <button
         type="button"
         onClick={() => (submitting || isUploading ? null : onClose())}
+        onClick={() => (isBusy ? null : onClose())}
         className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px]"
         aria-label="Close task details modal"
       />
@@ -220,6 +227,84 @@ export default function TaskDetailsModal({
               });
             }}
           >
+        <form
+          className="space-y-4 p-5"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!form.title.trim() || isBusy) return;
+            onSubmit({
+              title: form.title.trim(),
+              description: form.description.trim(),
+              assigneeId: form.assigneeId,
+              dueDate: form.dueDate,
+              priority: form.priority,
+              status: form.status,
+            });
+          }}
+        >
+          <div className="space-y-1.5">
+            <label
+              htmlFor="task-details-title"
+              className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+            >
+              Task Title
+            </label>
+            <input
+              id="task-details-title"
+              value={form.title}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, title: event.target.value }))
+              }
+              placeholder="Enter a clear task title"
+              className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              required
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label
+              htmlFor="task-details-description"
+              className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+            >
+              Description
+            </label>
+            <textarea
+              id="task-details-description"
+              rows={5}
+              value={form.description}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, description: event.target.value }))
+              }
+              placeholder="Add details, acceptance criteria, or important context"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+            />
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5">
+              <label
+                htmlFor="task-details-assignee"
+                className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+              >
+                Assignee
+              </label>
+              <select
+                id="task-details-assignee"
+                value={form.assigneeId}
+                onChange={(event) =>
+                  setForm((prev) => ({ ...prev, assigneeId: event.target.value }))
+                }
+                className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              >
+                <option value="">Unassigned</option>
+                {members.map((member) => (
+                  <option key={member.id} value={member.id}>
+                    {member.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div className="space-y-1.5">
               <label
                 htmlFor="task-details-title"
@@ -404,6 +489,21 @@ export default function TaskDetailsModal({
               type="button"
               onClick={onClose}
               disabled={submitting || isUploading}
+          <div className="flex items-center justify-between gap-2 border-t border-slate-200 pt-4 dark:border-white/10">
+            <button
+              type="button"
+              onClick={() => onDelete?.(task)}
+              disabled={isBusy || !onDelete}
+              className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-100 disabled:opacity-50 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20"
+            >
+              {deleting ? "Deleting..." : "Delete Task"}
+            </button>
+
+            <div className="flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isBusy}
               className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:opacity-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
             >
               Cancel
@@ -412,10 +512,12 @@ export default function TaskDetailsModal({
               type="submit"
               form="task-details-form"
               disabled={!form.title.trim() || submitting || isUploading}
+              disabled={!form.title.trim() || isBusy}
               className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-600 disabled:opacity-50"
             >
               {submitting ? "Saving..." : "Save Changes"}
             </button>
+            </div>
           </div>
         </div>
       </div>
