@@ -17,6 +17,10 @@ function AcceptInvitePage() {
   const [loadingInvite, setLoadingInvite] = useState(true);
   const [inviteError, setInviteError] = useState("");
   const [actionLoading, setActionLoading] = useState("");
+  const workspaceLabel = workspace?.workspaceName || workspace?.workspace || "this workspace";
+  const expiryLabel = workspace?.expiresAt
+    ? new Date(workspace.expiresAt).toLocaleString()
+    : "Not available";
 
   useEffect(() => {
     if (!token) {
@@ -144,7 +148,7 @@ function AcceptInvitePage() {
   return (
     <AuthCard
       title="Accept invite"
-      subtitle="Review your invite details before continuing."
+      subtitle={`Review your invite details before joining ${workspaceLabel}.`}
     >
       <BackToHomeLink />
 
@@ -178,7 +182,7 @@ function AcceptInvitePage() {
             </p>
             <p className="text-slate-700 dark:text-slate-200">
               Workspace:{" "}
-              <span className="font-semibold">{workspace?.workspace}</span>
+              <span className="font-semibold">{workspaceLabel}</span>
             </p>
             <p className="text-slate-700 dark:text-slate-200">
               Role: <span className="font-semibold">{workspace?.role}</span>
@@ -189,7 +193,7 @@ function AcceptInvitePage() {
             <p className="text-slate-700 dark:text-slate-200">
               Expiry:{" "}
               <span className="font-semibold text-red-400 dark:text-red-300">
-                {workspace?.expiresAt?.split("T")[0] || ""}
+                {expiryLabel}
               </span>
             </p>
           </div>
