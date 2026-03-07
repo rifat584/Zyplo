@@ -334,7 +334,6 @@ export default function Board({ workspaceId, projectId }) {
         });
         return data?.task || { id: taskId, ...patch };
       } catch (error) {
-        // Some backend variants return "Task not found" even when update succeeds.
         if (error?.message === "Task not found") {
           return { id: taskId, ...patch };
         }
@@ -407,6 +406,7 @@ export default function Board({ workspaceId, projectId }) {
       dueDate: values.dueDate || "",
       priority: values.priority || "P2",
       status: getStatusFromColumnName(selectedColumn.name, "todo") || "todo",
+      attachments: values.attachments || [], // <--- FIXED: Sent attachments!
     });
   }
 
@@ -549,6 +549,7 @@ export default function Board({ workspaceId, projectId }) {
         dueDate: values.dueDate,
         assigneeId: values.assigneeId,
         assigneeName,
+        attachments: values.attachments || [], // <--- FIXED: Sent attachments!
       },
     });
   }
