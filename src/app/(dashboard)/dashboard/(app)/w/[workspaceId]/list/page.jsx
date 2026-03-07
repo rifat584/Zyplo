@@ -246,14 +246,11 @@ export default function TaskListView() {
       setActiveDropdown(null);
       return;
     }
-    const updatedAt = new Date().toISOString();
-    const patchWithUpdatedAt = { ...nextPatch, updatedAt };
-
     setLocalEdits((prev) => ({
       ...prev,
       [taskId]: {
         ...(prev[taskId] || {}),
-        ...patchWithUpdatedAt,
+        ...nextPatch,
       },
     }));
     setActiveDropdown(null);
@@ -306,7 +303,7 @@ export default function TaskListView() {
       try {
         await fetchJson(`/api/dashboard/tasks/${taskId}`, {
           method: "PATCH",
-          body: JSON.stringify(patchWithUpdatedAt),
+          body: JSON.stringify(nextPatch),
         });
       } catch (error) {
         if (error?.message !== "Task not found") {
@@ -316,7 +313,7 @@ export default function TaskListView() {
       loadDashboard({ force: true }).catch(() => {});
     } catch (err) {
       console.error("Failed to update task", err);
-      rollbackLocalPatch(taskId, patchWithUpdatedAt);
+      rollbackLocalPatch(taskId, nextPatch);
     }
   };
 
@@ -577,7 +574,7 @@ export default function TaskListView() {
                 <th className="px-4 py-3 font-medium">Reporter</th>
               )}
               {visibleCols.updated && (
-                <th className="px-4 py-3 font-medium">Updated</th>
+                <th className="px-4 py-3 font-medium">Updated AT</th>
               )}
               {visibleCols.createdAt && (
                 <th className="px-4 py-3 font-medium">Created At</th>
@@ -831,7 +828,7 @@ export default function TaskListView() {
                   {/* Updated Date */}
                   {visibleCols.updated && (
                     <td className="px-4 py-4 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
-                      {formatDate(task.updatedAt || task.createdAt)}
+                      {formatDate(task.updatedAt)}
                     </td>
                   )}
 
@@ -907,7 +904,11 @@ export default function TaskListView() {
                     >
                       <Trash2
                         size={14}
-                        className={deletingIds.has(String(task.id)) ? "animate-pulse" : ""}
+                        className={
+                          deletingIds.has(String(task.id))
+                            ? "animate-pulse"
+                            : ""
+                        }
                       />
                     </button>
                   </td>

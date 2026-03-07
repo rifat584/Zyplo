@@ -82,7 +82,7 @@ export default function TaskDetailsModal({
     if (exists) return BASE_STATUS_OPTIONS;
     return [...BASE_STATUS_OPTIONS, { value: current, label: current }];
   }, [form.status]);
-  const updatedAtValue = task?.updatedAt || task?.createdAt;
+  const updatedAtValue = task?.updatedAt;
 
   if (!open || !task) return null;
 
