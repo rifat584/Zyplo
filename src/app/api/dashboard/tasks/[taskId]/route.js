@@ -14,3 +14,15 @@ export async function PATCH(request, { params }) {
     body,
   });
 }
+
+export async function DELETE(_request, { params }) {
+  const { user, error } = await requireSessionUser();
+  if (error) return error;
+
+  const resolvedParams = await params;
+  const taskId = resolvedParams?.taskId;
+  return proxyDashboard(`/dashboard/tasks/${taskId}`, {
+    method: "DELETE",
+    user,
+  });
+}
