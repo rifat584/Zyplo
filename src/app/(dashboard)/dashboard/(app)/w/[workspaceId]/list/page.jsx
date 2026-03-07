@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useState, useMemo, useRef } from "react";
 import { useMockStore, loadDashboard } from "@/components/dashboard/mockStore";
 import CreateTaskLauncher from "@/components/dashboard/CreateTaskLauncher";
+import Swal from "sweetalert2";
 import {
   CheckCircle2,
   Circle,
@@ -58,28 +59,28 @@ const STATUSES = [
 
 const PRIORITIES = [
   {
-    value: "P1",
-    label: "Urgent",
+    value: "P0",
+    label: "Critical",
     icon: AlertCircle,
     color: "text-red-500",
     bg: "bg-red-50 dark:bg-red-500/10",
   },
   {
-    value: "P2",
+    value: "P1",
     label: "High",
     icon: ArrowUp,
     color: "text-orange-500",
     bg: "bg-orange-50 dark:bg-orange-500/10",
   },
   {
-    value: "P3",
+    value: "P2",
     label: "Medium",
     icon: ArrowRight,
     color: "text-yellow-600 dark:text-yellow-400",
     bg: "bg-yellow-50 dark:bg-yellow-500/10",
   },
   {
-    value: "P4",
+    value: "P3",
     label: "Low",
     icon: ArrowDown,
     color: "text-slate-500",
@@ -154,9 +155,9 @@ export default function TaskListView() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [activeDropdown, setActiveDropdown] = useState(null);
-  
+
   // NEW: State to track which bulk action menu is open
-  const [bulkDropdown, setBulkDropdown] = useState(null); 
+  const [bulkDropdown, setBulkDropdown] = useState(null);
 
   const [displayMenuOpen, setDisplayMenuOpen] = useState(false);
   const [visibleCols, setVisibleCols] = useState({
@@ -172,8 +173,18 @@ export default function TaskListView() {
   const [localEdits, setLocalEdits] = useState({});
   const boardColumnsCacheRef = useRef(new Map());
   const [inlineEdit, setInlineEdit] = useState(null);
+  const [deletingIds, setDeletingIds] = useState(new Set());
 
   const workspaceTasks = allTasks.filter((t) => t.workspaceId === workspaceId);
+  const actionColSpan =
+    3 +
+    Number(visibleCols.status) +
+    Number(visibleCols.priority) +
+    Number(visibleCols.assignee) +
+    Number(visibleCols.reporter) +
+    Number(visibleCols.updated) +
+    Number(visibleCols.createdAt) +
+    Number(visibleCols.dueDate);
 
   const filteredTasks = useMemo(() => {
     return workspaceTasks
@@ -262,7 +273,10 @@ export default function TaskListView() {
             boardColumnsCacheRef.current.set(projectId, columns);
           }
 
-          const destinationColumn = findColumnByStatus(columns, nextPatch.status);
+          const destinationColumn = findColumnByStatus(
+            columns,
+            nextPatch.status,
+          );
           if (
             destinationColumn?.id &&
             String(destinationColumn.id) !== sourceColumnId
@@ -310,6 +324,100 @@ export default function TaskListView() {
     await handleInlinePatch(task, { [field]: value });
   };
 
+  const deleteTasks = async (ids = []) => {
+    const uniqueIds = [...new Set(ids.map((id) => String(id || "")))].filter(
+      Boolean,
+    );
+    if (!uniqueIds.length) return;
+
+    const targets = workspaceTasks.filter((task) =>
+      uniqueIds.includes(task.id),
+    );
+    const singleTask = targets.length === 1 ? targets[0] : null;
+
+    const result = await Swal.fire({
+      title: singleTask ? "Delete task?" : "Delete selected tasks?",
+      text: singleTask
+        ? `Delete "${singleTask.title}"? This cannot be undone.`
+        : `Delete ${uniqueIds.length} selected tasks? This cannot be undone.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+      background: "#0f172a",
+      color: "#e2e8f0",
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#334155",
+    });
+
+    if (!result.isConfirmed) return;
+
+    setDeletingIds((prev) => {
+      const next = new Set(prev);
+      uniqueIds.forEach((id) => next.add(id));
+      return next;
+    });
+
+    try {
+      await Promise.all(
+        uniqueIds.map((taskId) =>
+          fetchJson(`/api/dashboard/tasks/${taskId}`, { method: "DELETE" }),
+        ),
+      );
+
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        uniqueIds.forEach((id) => next.delete(id));
+        return next;
+      });
+      setLocalEdits((prev) => {
+        const next = { ...prev };
+        uniqueIds.forEach((id) => delete next[id]);
+        return next;
+      });
+      await loadDashboard({ force: true });
+
+      await Swal.fire({
+        title: "Deleted",
+        text:
+          uniqueIds.length === 1
+            ? "Task deleted successfully."
+            : `${uniqueIds.length} tasks deleted successfully.`,
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+        background: "#0f172a",
+        color: "#e2e8f0",
+      });
+    } catch (error) {
+      await Swal.fire({
+        title: "Delete failed",
+        text: error?.message || "Failed to delete task",
+        icon: "error",
+        confirmButtonColor: "#dc2626",
+        background: "#0f172a",
+        color: "#e2e8f0",
+      });
+    } finally {
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        uniqueIds.forEach((id) => next.delete(id));
+        return next;
+      });
+    }
+  };
+
+  const handleDeleteSingleTask = async (taskId) => {
+    if (!taskId || deletingIds.has(String(taskId))) return;
+    await deleteTasks([taskId]);
+  };
+
+  const handleDeleteSelectedTasks = async () => {
+    if (!selectedIds.size) return;
+    await deleteTasks(Array.from(selectedIds));
+  };
+
   const openInlineEdit = (task, field, value = "") => {
     setActiveDropdown(null);
     setInlineEdit({
@@ -342,7 +450,7 @@ export default function TaskListView() {
     setBulkDropdown(null);
     const ids = Array.from(selectedIds);
     setSelectedIds(new Set()); // Clear selection instantly for snappy UI
-    
+
     // Process them sequentially to reuse your existing perfect logic
     for (const id of ids) {
       const task = workspaceTasks.find((t) => t.id === id);
@@ -356,7 +464,7 @@ export default function TaskListView() {
     setBulkDropdown(null);
     const ids = Array.from(selectedIds);
     setSelectedIds(new Set()); // Clear selection instantly for snappy UI
-    
+
     for (const id of ids) {
       const task = workspaceTasks.find((t) => t.id === id);
       if (task) {
@@ -441,7 +549,7 @@ export default function TaskListView() {
 
       {/* === INTERACTIVE DATA GRID === */}
       <div className="overflow-x-auto pb-32 min-h-100">
-        <table className="w-full text-left text-sm text-slate-600 dark:text-slate-400">
+        <table className="min-w-[1280px] w-full text-left text-sm text-slate-600 dark:text-slate-400">
           <thead className="border-b border-slate-200 bg-slate-50/50 text-xs uppercase tracking-wider text-slate-500 dark:border-white/10 dark:bg-slate-800/50 dark:text-slate-400">
             <tr>
               <th className="px-6 py-3 font-medium w-10">
@@ -477,6 +585,7 @@ export default function TaskListView() {
               {visibleCols.dueDate && (
                 <th className="px-4 py-3 font-medium">Due Date</th>
               )}
+              <th className="px-4 py-3 font-medium">Action</th>
             </tr>
           </thead>
 
@@ -533,7 +642,9 @@ export default function TaskListView() {
                     ) : (
                       <button
                         type="button"
-                        onClick={() => openInlineEdit(task, "title", task.title)}
+                        onClick={() =>
+                          openInlineEdit(task, "title", task.title)
+                        }
                         className="w-full text-left hover:underline"
                       >
                         {task.title}
@@ -693,9 +804,7 @@ export default function TaskListView() {
                                 handleInlinePatch(task, {
                                   assigneeId: member.id || "",
                                   assigneeName:
-                                    member.name ||
-                                    member.email ||
-                                    "Unassigned",
+                                    member.name || member.email || "Unassigned",
                                 })
                               }
                               className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
@@ -768,7 +877,9 @@ export default function TaskListView() {
                             openInlineEdit(
                               task,
                               "dueDate",
-                              task.dueDate ? String(task.dueDate).slice(0, 10) : "",
+                              task.dueDate
+                                ? String(task.dueDate).slice(0, 10)
+                                : "",
                             )
                           }
                           className="flex items-center gap-1.5 rounded-md px-1 py-0.5 hover:bg-slate-100 dark:hover:bg-white/5"
@@ -784,6 +895,22 @@ export default function TaskListView() {
                       )}
                     </td>
                   )}
+
+                  <td className="px-4 py-4">
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteSingleTask(task.id)}
+                      disabled={deletingIds.has(String(task.id))}
+                      aria-label="Delete task"
+                      title="Delete task"
+                      className="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 p-2 text-red-600 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
+                    >
+                      <Trash2
+                        size={14}
+                        className={deletingIds.has(String(task.id)) ? "animate-pulse" : ""}
+                      />
+                    </button>
+                  </td>
                 </tr>
               );
             })}
@@ -791,7 +918,10 @@ export default function TaskListView() {
             {/* Show message if empty */}
             {filteredTasks.length === 0 && (
               <tr>
-                <td colSpan="9" className="py-12 text-center text-slate-500">
+                <td
+                  colSpan={actionColSpan}
+                  className="py-12 text-center text-slate-500"
+                >
                   No tasks match your search.
                 </td>
               </tr>
@@ -819,19 +949,23 @@ export default function TaskListView() {
           </div>
 
           <div className="flex gap-1">
-            
             {/* BULK ACTION: Set Status */}
             <div className="relative">
               {bulkDropdown === "status" && (
-                <div className="fixed inset-0 z-10" onClick={() => setBulkDropdown(null)} />
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setBulkDropdown(null)}
+                />
               )}
-              <button 
-                onClick={() => setBulkDropdown(bulkDropdown === "status" ? null : "status")}
+              <button
+                onClick={() =>
+                  setBulkDropdown(bulkDropdown === "status" ? null : "status")
+                }
                 className="relative z-20 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10 transition-colors"
               >
                 <Circle size={16} /> Set Status
               </button>
-              
+
               {bulkDropdown === "status" && (
                 <div className="absolute bottom-full mb-2 left-0 z-30 w-40 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
                   {STATUSES.map((s) => (
@@ -841,7 +975,9 @@ export default function TaskListView() {
                       className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
                     >
                       <s.icon size={14} className={s.color} />
-                      <span className="text-slate-700 dark:text-slate-300">{s.label}</span>
+                      <span className="text-slate-700 dark:text-slate-300">
+                        {s.label}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -851,27 +987,39 @@ export default function TaskListView() {
             {/* BULK ACTION: Assign */}
             <div className="relative">
               {bulkDropdown === "assign" && (
-                <div className="fixed inset-0 z-10" onClick={() => setBulkDropdown(null)} />
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setBulkDropdown(null)}
+                />
               )}
-              <button 
-                onClick={() => setBulkDropdown(bulkDropdown === "assign" ? null : "assign")}
+              <button
+                onClick={() =>
+                  setBulkDropdown(bulkDropdown === "assign" ? null : "assign")
+                }
                 className="relative z-20 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10 transition-colors"
               >
                 <UserPlus size={16} /> Assign
               </button>
-              
+
               {bulkDropdown === "assign" && (
                 <div className="absolute bottom-full mb-2 left-0 z-30 w-48 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
                   <button
                     onClick={() => handleBulkAssign("", "Unassigned")}
                     className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
                   >
-                    <span className="text-slate-700 dark:text-slate-300">Unassigned</span>
+                    <span className="text-slate-700 dark:text-slate-300">
+                      Unassigned
+                    </span>
                   </button>
                   {workspaceMembers.map((member) => (
                     <button
                       key={member.id}
-                      onClick={() => handleBulkAssign(member.id || "", member.name || member.email || "Unknown")}
+                      onClick={() =>
+                        handleBulkAssign(
+                          member.id || "",
+                          member.name || member.email || "Unknown",
+                        )
+                      }
                       className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
                     >
                       <span className="text-slate-700 dark:text-slate-300">
@@ -884,8 +1032,19 @@ export default function TaskListView() {
             </div>
 
             {/* BULK ACTION: Delete Placeholder */}
-            <button className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10 transition-colors">
-              <Trash2 size={16} /> Delete
+            <button
+              onClick={handleDeleteSelectedTasks}
+              disabled={
+                !selectedIds.size ||
+                Array.from(selectedIds).some((id) =>
+                  deletingIds.has(String(id)),
+                )
+              }
+              aria-label="Delete selected tasks"
+              title="Delete selected tasks"
+              className="flex items-center justify-center rounded-lg p-2 text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-500/10 transition-colors"
+            >
+              <Trash2 size={16} />
             </button>
           </div>
 

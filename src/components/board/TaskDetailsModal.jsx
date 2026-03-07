@@ -44,10 +44,13 @@ export default function TaskDetailsModal({
   task,
   members = [],
   submitting = false,
+  deleting = false,
   onClose,
   onSubmit,
+  onDelete,
 }) {
   const [form, setForm] = useState(EMPTY_FORM);
+  const isBusy = submitting || deleting;
 
   useEffect(() => {
     if (!open || !task) return;
@@ -65,12 +68,12 @@ export default function TaskDetailsModal({
     if (!open) return undefined;
 
     function onKeyDown(event) {
-      if (event.key === "Escape" && !submitting) onClose();
+      if (event.key === "Escape" && !isBusy) onClose();
     }
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onClose, open, submitting]);
+  }, [isBusy, onClose, open]);
 
   const statusOptions = useMemo(() => {
     const current = String(form.status || "");
@@ -87,7 +90,7 @@ export default function TaskDetailsModal({
     <div className="fixed inset-0 z-50">
       <button
         type="button"
-        onClick={() => (submitting ? null : onClose())}
+        onClick={() => (isBusy ? null : onClose())}
         className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px]"
         aria-label="Close task details modal"
       />
@@ -117,7 +120,7 @@ export default function TaskDetailsModal({
           className="space-y-4 p-5"
           onSubmit={(event) => {
             event.preventDefault();
-            if (!form.title.trim() || submitting) return;
+            if (!form.title.trim() || isBusy) return;
             onSubmit({
               title: form.title.trim(),
               description: form.description.trim(),
@@ -261,22 +264,33 @@ export default function TaskDetailsModal({
             <p>Project: {task.projectName || "Unknown Project"}</p>
           </div>
 
-          <div className="flex justify-end gap-2 border-t border-slate-200 pt-4 dark:border-white/10">
+          <div className="flex items-center justify-between gap-2 border-t border-slate-200 pt-4 dark:border-white/10">
+            <button
+              type="button"
+              onClick={() => onDelete?.(task)}
+              disabled={isBusy || !onDelete}
+              className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-100 disabled:opacity-50 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20"
+            >
+              {deleting ? "Deleting..." : "Delete Task"}
+            </button>
+
+            <div className="flex items-center justify-end gap-2">
             <button
               type="button"
               onClick={onClose}
-              disabled={submitting}
+              disabled={isBusy}
               className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:opacity-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={!form.title.trim() || submitting}
+              disabled={!form.title.trim() || isBusy}
               className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-600 disabled:opacity-50"
             >
               {submitting ? "Saving..." : "Save Changes"}
             </button>
+            </div>
           </div>
         </form>
       </div>

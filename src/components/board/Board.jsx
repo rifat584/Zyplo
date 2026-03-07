@@ -11,6 +11,7 @@ import {
 } from "@dnd-kit/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RefreshCw, Plus } from "lucide-react";
+import Swal from "sweetalert2";
 import { toast } from "sonner";
 import { loadDashboard } from "@/components/dashboard/mockStore";
 import Column from "./Column";
@@ -361,6 +362,31 @@ export default function Board({ workspaceId, projectId }) {
     },
   });
 
+  const deleteTaskMutation = useMutation({
+    mutationFn: async (taskId) => {
+      await fetchJson(`/api/dashboard/tasks/${taskId}`, {
+        method: "DELETE",
+      });
+      return taskId;
+    },
+    onSuccess: async (taskId) => {
+      queryClient.setQueryData(boardQueryKey, (current) => {
+        if (!current) return current;
+        const nextColumns = (current.columns || []).map((column) => ({
+          ...column,
+          tasks: (column.tasks || []).filter((task) => task.id !== taskId),
+        }));
+        return { ...current, columns: normalizeColumns(nextColumns) };
+      });
+      setSelectedTaskId("");
+      await refreshDashboardStore();
+      toast.success("Task deleted");
+    },
+    onError: (error) => {
+      toast.error(error?.message || "Failed to delete task");
+    },
+  });
+
   const boardData = boardQuery.data || { board: null, columns: [] };
   const columns = boardData.columns || [];
   const selectedColumn =
@@ -553,6 +579,26 @@ export default function Board({ workspaceId, projectId }) {
     });
   }
 
+  async function handleTaskDelete() {
+    if (!selectedTask?.id || deleteTaskMutation.isPending) return;
+    const result = await Swal.fire({
+      title: "Delete task?",
+      text: `Delete "${selectedTask.title || "Untitled Task"}"?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+      background: "#0f172a",
+      color: "#e2e8f0",
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#334155",
+    });
+    if (!result.isConfirmed) return;
+
+    deleteTaskMutation.mutate(selectedTask.id);
+  }
+
   if (boardQuery.isLoading) {
     return (
       <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900">
@@ -656,8 +702,10 @@ export default function Board({ workspaceId, projectId }) {
         task={selectedTask}
         members={membersQuery.data || []}
         submitting={updateTaskMutation.isPending}
+        deleting={deleteTaskMutation.isPending}
         onClose={closeTaskDetails}
         onSubmit={handleTaskUpdate}
+        onDelete={handleTaskDelete}
       />
     </>
   );
