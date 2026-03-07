@@ -2,6 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { Paperclip } from "lucide-react"; // Import Paperclip icon
 
 const PRIORITY_STYLES = {
   P0: "bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300",
@@ -39,7 +40,16 @@ function CardBody({ task }) {
 
       <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-slate-500 dark:text-slate-400">
         <span className="truncate">{task.assigneeName || "Unassigned"}</span>
-        <span className="whitespace-nowrap">{formatDueDate(task.dueDate)}</span>
+        
+        <div className="flex items-center gap-2">
+          {/* Show paperclip if attachments exist */}
+          {task.attachments?.length > 0 && (
+            <span className="flex items-center gap-1 font-medium">
+              <Paperclip size={12} /> {task.attachments.length}
+            </span>
+          )}
+          <span className="whitespace-nowrap">{formatDueDate(task.dueDate)}</span>
+        </div>
       </div>
     </>
   );
