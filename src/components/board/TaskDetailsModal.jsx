@@ -17,6 +17,9 @@ import {
   Image as ImageIcon,
   Film,
   X,
+  Download,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 const PRIORITY_OPTIONS = [
@@ -40,7 +43,7 @@ const EMPTY_FORM = {
   dueDate: "",
   priority: "P2",
   status: "todo",
-  attachments: [], // New field for attachments
+  attachments: [], 
 };
 
 function toDateInputValue(value) {
@@ -57,11 +60,18 @@ function formatDateTime(value) {
   return date.toLocaleString();
 }
 
-// Helper to pick the right icon for the file type
 const getFileIcon = (type) => {
   if (type.startsWith("image/")) return <ImageIcon size={14} />;
   if (type.startsWith("video/")) return <Film size={14} />;
   return <FileText size={14} />;
+};
+
+// Helper to force Cloudinary to download the file instead of opening it in a new tab
+const getDownloadUrl = (url) => {
+  if (url && url.includes("cloudinary.com") && url.includes("/upload/")) {
+    return url.replace("/upload/", "/upload/fl_attachment/");
+  }
+  return url;
 };
 
 export default function TaskDetailsModal({
@@ -76,11 +86,14 @@ export default function TaskDetailsModal({
 }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [isUploading, setIsUploading] = useState(false);
+  const [isAttachmentsOpen, setIsAttachmentsOpen] = useState(true);
   const fileInputRef = useRef(null);
-  const isBusy = submitting || deleting;
+  const isBusy = submitting || deleting || isUploading;
 
   useEffect(() => {
     if (!open || !task) return;
+    const taskAttachments = Array.isArray(task.attachments) ? task.attachments : [];
+    
     setForm({
       title: String(task.title || ""),
       description: String(task.description || ""),
@@ -88,22 +101,23 @@ export default function TaskDetailsModal({
       dueDate: toDateInputValue(task.dueDate),
       priority: String(task.priority || "P2").toUpperCase(),
       status: String(task.status || "todo"),
-      attachments: Array.isArray(task.attachments) ? task.attachments : [],
+      attachments: taskAttachments,
     });
+
+    // Auto-open attachments if there are any
+    setIsAttachmentsOpen(taskAttachments.length > 0);
   }, [open, task]);
 
   useEffect(() => {
     if (!open) return undefined;
 
     function onKeyDown(event) {
-      if (event.key === "Escape" && !submitting && !isUploading) onClose();
       if (event.key === "Escape" && !isBusy) onClose();
     }
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onClose, open, submitting, isUploading]);
-  }, [isBusy, onClose, open]);
+  }, [onClose, open, isBusy]);
 
   const statusOptions = useMemo(() => {
     const current = String(form.status || "");
@@ -114,14 +128,12 @@ export default function TaskDetailsModal({
   }, [form.status]);
   
   const updatedAtValue = task?.updatedAt || task?.createdAt;
-  const updatedAtValue = task?.updatedAt;
 
   // --- CLOUDINARY UPLOAD HANDLER ---
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    // 1. Strict File Type Validation
     const validTypes = ["image/", "video/", "application/pdf"];
     const isValid = validTypes.some((type) => file.type.startsWith(type));
 
@@ -132,11 +144,10 @@ export default function TaskDetailsModal({
     }
 
     setIsUploading(true);
+    setIsAttachmentsOpen(true); // Open panel when uploading
     const formData = new FormData();
     formData.append("file", file);
     
-    // REPLACE THESE WITH YOUR CLOUDINARY CREDENTIALS
-    // Create an "Unsigned" preset in Cloudinary Settings -> Upload
     const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_PRESET || "YOUR_UNSIGNED_PRESET_NAME"; 
     const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "YOUR_CLOUD_NAME";
     
@@ -182,7 +193,6 @@ export default function TaskDetailsModal({
     <div className="fixed inset-0 z-50">
       <button
         type="button"
-        onClick={() => (submitting || isUploading ? null : onClose())}
         onClick={() => (isBusy ? null : onClose())}
         className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px]"
         aria-label="Close task details modal"
@@ -212,10 +222,10 @@ export default function TaskDetailsModal({
         <div className="overflow-y-auto p-5 custom-scrollbar">
           <form
             id="task-details-form"
-            className="space-y-4"
+            className="space-y-5"
             onSubmit={(event) => {
               event.preventDefault();
-              if (!form.title.trim() || submitting || isUploading) return;
+              if (!form.title.trim() || isBusy) return;
               onSubmit({
                 title: form.title.trim(),
                 description: form.description.trim(),
@@ -223,88 +233,10 @@ export default function TaskDetailsModal({
                 dueDate: form.dueDate,
                 priority: form.priority,
                 status: form.status,
-                attachments: form.attachments, // Sending attachments to backend
+                attachments: form.attachments,
               });
             }}
           >
-        <form
-          className="space-y-4 p-5"
-          onSubmit={(event) => {
-            event.preventDefault();
-            if (!form.title.trim() || isBusy) return;
-            onSubmit({
-              title: form.title.trim(),
-              description: form.description.trim(),
-              assigneeId: form.assigneeId,
-              dueDate: form.dueDate,
-              priority: form.priority,
-              status: form.status,
-            });
-          }}
-        >
-          <div className="space-y-1.5">
-            <label
-              htmlFor="task-details-title"
-              className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-            >
-              Task Title
-            </label>
-            <input
-              id="task-details-title"
-              value={form.title}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, title: event.target.value }))
-              }
-              placeholder="Enter a clear task title"
-              className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-              required
-            />
-          </div>
-
-          <div className="space-y-1.5">
-            <label
-              htmlFor="task-details-description"
-              className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-            >
-              Description
-            </label>
-            <textarea
-              id="task-details-description"
-              rows={5}
-              value={form.description}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, description: event.target.value }))
-              }
-              placeholder="Add details, acceptance criteria, or important context"
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-            />
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <label
-                htmlFor="task-details-assignee"
-                className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-              >
-                Assignee
-              </label>
-              <select
-                id="task-details-assignee"
-                value={form.assigneeId}
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, assigneeId: event.target.value }))
-                }
-                className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-              >
-                <option value="">Unassigned</option>
-                {members.map((member) => (
-                  <option key={member.id} value={member.id}>
-                    {member.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
             <div className="space-y-1.5">
               <label
                 htmlFor="task-details-title"
@@ -333,7 +265,7 @@ export default function TaskDetailsModal({
               </label>
               <textarea
                 id="task-details-description"
-                rows={5}
+                rows={4}
                 value={form.description}
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, description: event.target.value }))
@@ -343,14 +275,19 @@ export default function TaskDetailsModal({
               />
             </div>
 
-            {/* --- ATTACHMENTS SECTION --- */}
-            <div className="space-y-2">
+            {/* --- ATTACHMENTS COLLAPSIBLE SECTION --- */}
+            <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                  Attachments
-                </label>
+                <button
+                  type="button"
+                  onClick={() => setIsAttachmentsOpen(!isAttachmentsOpen)}
+                  className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600 transition-colors hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400"
+                >
+                  <Paperclip size={14} />
+                  Attachments {form.attachments.length > 0 && `(${form.attachments.length})`}
+                  {isAttachmentsOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                </button>
                 
-                {/* Hidden input */}
                 <input 
                   type="file" 
                   ref={fileInputRef}
@@ -370,21 +307,53 @@ export default function TaskDetailsModal({
                 </button>
               </div>
 
-              {form.attachments.length > 0 && (
-                <div className="grid gap-2 sm:grid-cols-2 mt-2">
+              {isAttachmentsOpen && form.attachments.length > 0 && (
+                <div className="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
                   {form.attachments.map((file, idx) => (
-                    <div key={idx} className="flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2 dark:border-white/10 dark:bg-slate-800/50">
-                      <a href={file.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 truncate hover:underline text-sm text-slate-700 dark:text-slate-300">
-                        {getFileIcon(file.type)}
-                        <span className="truncate">{file.name}</span>
-                      </a>
-                      <button
-                        type="button"
-                        onClick={() => removeAttachment(idx)}
-                        className="text-slate-400 hover:text-rose-500 shrink-0"
-                      >
-                        <X size={14} />
-                      </button>
+                    <div key={idx} className="group relative flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md dark:border-white/10 dark:bg-slate-900">
+                      
+                      {/* Preview Area */}
+                      <div className="relative h-28 w-full bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-white/10">
+                        {file.type.startsWith("image/") ? (
+                          <img src={file.url} alt={file.name} className="h-full w-full object-cover" />
+                        ) : file.type.startsWith("video/") ? (
+                          <video src={file.url} className="h-full w-full object-cover" muted preload="metadata" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center">
+                            <FileText size={32} className="text-slate-400 dark:text-slate-500" />
+                          </div>
+                        )}
+                        
+                        {/* Hover Overlay with Delete */}
+                        <div className="absolute inset-0 bg-slate-900/60 opacity-0 transition-opacity duration-200 group-hover:opacity-100 flex items-center justify-center">
+                          <button
+                            type="button"
+                            onClick={() => removeAttachment(idx)}
+                            className="rounded-full bg-rose-500 p-2 text-white shadow-lg transition-transform hover:scale-110 hover:bg-rose-600"
+                            title="Remove attachment"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* File Info Footer */}
+                      <div className="flex items-center justify-between p-2.5">
+                        <div className="flex flex-1 items-center gap-2 truncate pr-2">
+                          <span className="text-slate-500">{getFileIcon(file.type)}</span>
+                          <span className="truncate text-xs font-medium text-slate-700 dark:text-slate-300" title={file.name}>
+                            {file.name}
+                          </span>
+                        </div>
+                        <a
+                          href={getDownloadUrl(file.url)}
+                          download={file.name}
+                          className="flex shrink-0 items-center justify-center rounded bg-slate-100 p-1.5 text-slate-500 transition hover:bg-indigo-50 hover:text-indigo-600 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-indigo-500/20 dark:hover:text-indigo-300"
+                          title="Download file"
+                        >
+                          <Download size={14} />
+                        </a>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -484,12 +453,7 @@ export default function TaskDetailsModal({
         </div>
 
         <div className="border-t border-slate-200 bg-slate-50 px-5 py-4 dark:border-white/10 dark:bg-slate-800/30 shrink-0">
-          <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={submitting || isUploading}
-          <div className="flex items-center justify-between gap-2 border-t border-slate-200 pt-4 dark:border-white/10">
+          <div className="flex items-center justify-between gap-2">
             <button
               type="button"
               onClick={() => onDelete?.(task)}
@@ -500,23 +464,22 @@ export default function TaskDetailsModal({
             </button>
 
             <div className="flex items-center justify-end gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isBusy}
-              className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:opacity-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              form="task-details-form"
-              disabled={!form.title.trim() || submitting || isUploading}
-              disabled={!form.title.trim() || isBusy}
-              className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-600 disabled:opacity-50"
-            >
-              {submitting ? "Saving..." : "Save Changes"}
-            </button>
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isBusy}
+                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:opacity-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="task-details-form"
+                disabled={!form.title.trim() || isBusy}
+                className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-600 disabled:opacity-50"
+              >
+                {submitting ? "Saving..." : "Save Changes"}
+              </button>
             </div>
           </div>
         </div>
