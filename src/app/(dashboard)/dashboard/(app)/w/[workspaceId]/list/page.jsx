@@ -93,6 +93,18 @@ const normalizeStatusKey = (value) =>
     .toLowerCase()
     .replace(/[^a-z]/g, "");
 
+const toDateKey = (value) => {
+  if (!value) return "";
+  const raw = String(value).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(raw)) return raw.slice(0, 10);
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
+
 const getStatusFromColumnName = (columnName, fallback = "") => {
   const normalized = normalizeStatusKey(columnName);
 
@@ -160,6 +172,7 @@ export default function TaskListView() {
   const [bulkDropdown, setBulkDropdown] = useState(null);
 
   const [displayMenuOpen, setDisplayMenuOpen] = useState(false);
+  const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
   const [visibleCols, setVisibleCols] = useState({
     status: true,
     priority: true,
@@ -174,6 +187,16 @@ export default function TaskListView() {
   const boardColumnsCacheRef = useRef(new Map());
   const [inlineEdit, setInlineEdit] = useState(null);
   const [deletingIds, setDeletingIds] = useState(new Set());
+  const [columnFilters, setColumnFilters] = useState({
+    taskName: "",
+    status: "all",
+    priority: "all",
+    assigneeId: "all",
+    reporter: "",
+    updatedAt: "",
+    createdAt: "",
+    dueDate: "",
+  });
 
   const workspaceTasks = allTasks.filter((t) => t.workspaceId === workspaceId);
   const actionColSpan =
@@ -189,8 +212,62 @@ export default function TaskListView() {
   const filteredTasks = useMemo(() => {
     return workspaceTasks
       .map((t) => ({ ...t, ...(localEdits[t.id] || {}) }))
-      .filter((t) => t.title.toLowerCase().includes(searchQuery.toLowerCase()));
-  }, [workspaceTasks, searchQuery, localEdits]);
+      .filter((t) => {
+        const bySearch = String(t.title || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
+        if (!bySearch) return false;
+
+        const byTaskName = columnFilters.taskName
+          ? String(t.title || "")
+              .toLowerCase()
+              .includes(columnFilters.taskName.toLowerCase())
+          : true;
+        if (!byTaskName) return false;
+
+        const byStatus =
+          columnFilters.status === "all"
+            ? true
+            : normalizeStatusKey(t.status || "todo") ===
+              normalizeStatusKey(columnFilters.status);
+        if (!byStatus) return false;
+
+        const byPriority =
+          columnFilters.priority === "all"
+            ? true
+            : String(t.priority || "") === columnFilters.priority;
+        if (!byPriority) return false;
+
+        const byAssignee =
+          columnFilters.assigneeId === "all"
+            ? true
+            : String(t.assigneeId || "") === columnFilters.assigneeId;
+        if (!byAssignee) return false;
+
+        const byReporter = columnFilters.reporter
+          ? String(t.reporterName || "Admin")
+              .toLowerCase()
+              .includes(columnFilters.reporter.toLowerCase())
+          : true;
+        if (!byReporter) return false;
+
+        const byUpdatedAt = columnFilters.updatedAt
+          ? toDateKey(t.updatedAt) === columnFilters.updatedAt
+          : true;
+        if (!byUpdatedAt) return false;
+
+        const byCreatedAt = columnFilters.createdAt
+          ? toDateKey(t.createdAt) === columnFilters.createdAt
+          : true;
+        if (!byCreatedAt) return false;
+
+        const byDueDate = columnFilters.dueDate
+          ? toDateKey(t.dueDate) === columnFilters.dueDate
+          : true;
+
+        return byDueDate;
+      });
+  }, [workspaceTasks, searchQuery, localEdits, columnFilters]);
 
   const toggleSelectAll = () => {
     if (selectedIds.size === filteredTasks.length) {
@@ -540,6 +617,179 @@ export default function TaskListView() {
               buttonClassName="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-600"
               label="Create Task"
             />
+          </div>
+        </div>
+
+        <div className="border-t border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/20">
+          <div className="flex flex-wrap gap-2">
+            <input
+              type="text"
+              value={columnFilters.taskName}
+              onChange={(event) =>
+                setColumnFilters((prev) => ({
+                  ...prev,
+                  taskName: event.target.value,
+                }))
+              }
+              placeholder="Task Name"
+              className="h-10 min-w-[170px] rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+            />
+
+            {visibleCols.status && (
+              <select
+                value={columnFilters.status}
+                onChange={(event) =>
+                  setColumnFilters((prev) => ({
+                    ...prev,
+                    status: event.target.value,
+                  }))
+                }
+                className="h-10 min-w-[130px] rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              >
+                <option value="all">Status</option>
+                <option value="todo">To Do</option>
+                <option value="inprogress">In Progress</option>
+                <option value="inreview">In Review</option>
+                <option value="done">Done</option>
+              </select>
+            )}
+
+            {visibleCols.priority && (
+              <select
+                value={columnFilters.priority}
+                onChange={(event) =>
+                  setColumnFilters((prev) => ({
+                    ...prev,
+                    priority: event.target.value,
+                  }))
+                }
+                className="h-10 min-w-[110px] rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              >
+                <option value="all">Priority</option>
+                <option value="P0">P0</option>
+                <option value="P1">P1</option>
+                <option value="P2">P2</option>
+                <option value="P3">P3</option>
+              </select>
+            )}
+
+            {visibleCols.assignee && (
+              <select
+                value={columnFilters.assigneeId}
+                onChange={(event) =>
+                  setColumnFilters((prev) => ({
+                    ...prev,
+                    assigneeId: event.target.value,
+                  }))
+                }
+                className="h-10 min-w-[150px] rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              >
+                <option value="all">Assignee</option>
+                {workspaceMembers.map((member) => (
+                  <option key={member.id} value={member.id}>
+                    {member.name || member.email || "Member"}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setMoreFiltersOpen((prev) => !prev)}
+                className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+              >
+                <Filter className="size-4" />
+                More filters
+              </button>
+
+              {moreFiltersOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setMoreFiltersOpen(false)}
+                  />
+                  <div className="absolute right-0 top-11 z-50 w-[320px] space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                    {visibleCols.reporter && (
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                          Reporter
+                        </label>
+                        <input
+                          type="text"
+                          value={columnFilters.reporter}
+                          onChange={(event) =>
+                            setColumnFilters((prev) => ({
+                              ...prev,
+                              reporter: event.target.value,
+                            }))
+                          }
+                          placeholder="Filter by reporter"
+                          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        />
+                      </div>
+                    )}
+
+                    {visibleCols.updated && (
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                          Updated At
+                        </label>
+                        <input
+                          type="date"
+                          value={columnFilters.updatedAt}
+                          onChange={(event) =>
+                            setColumnFilters((prev) => ({
+                              ...prev,
+                              updatedAt: event.target.value,
+                            }))
+                          }
+                          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        />
+                      </div>
+                    )}
+
+                    {visibleCols.createdAt && (
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                          Created At
+                        </label>
+                        <input
+                          type="date"
+                          value={columnFilters.createdAt}
+                          onChange={(event) =>
+                            setColumnFilters((prev) => ({
+                              ...prev,
+                              createdAt: event.target.value,
+                            }))
+                          }
+                          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        />
+                      </div>
+                    )}
+
+                    {visibleCols.dueDate && (
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                          Due Date
+                        </label>
+                        <input
+                          type="date"
+                          value={columnFilters.dueDate}
+                          onChange={(event) =>
+                            setColumnFilters((prev) => ({
+                              ...prev,
+                              dueDate: event.target.value,
+                            }))
+                          }
+                          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
