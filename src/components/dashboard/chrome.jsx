@@ -5,8 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import {
+  Bell,
   BriefcaseBusiness,
   Building2,
+  CheckCheck,
   ChevronLeft,
   Ellipsis,
   Cpu,
@@ -27,7 +29,11 @@ import { toast } from "sonner";
 import { useTheme } from "@/Context/ThemeContext";
 import { Avatar } from "./ui";
 import Logo from "../Shared/Logo/Logo";
-import { deleteWorkspace, useMockStore } from "./mockStore";
+import {
+  deleteWorkspace,
+  markAllNotificationsRead,
+  useMockStore,
+} from "./mockStore";
 
 const SIDEBAR_KEY = "dashboard.sidebarCollapsed";
 
@@ -88,6 +94,108 @@ function AvatarMenu() {
           >
             Sign out
           </button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function formatNotificationTime(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function NotificationsMenu() {
+  const notifications = useMockStore((state) => state.notifications || []);
+  const unreadCount = notifications.filter((item) => !item.read).length;
+  const [open, setOpen] = useState(false);
+  const [markingAllRead, setMarkingAllRead] = useState(false);
+  const rootRef = useRef(null);
+
+  useEffect(() => {
+    function onPointerDown(event) {
+      if (rootRef.current && !rootRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, []);
+
+  return (
+    <div ref={rootRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="relative rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-900"
+        aria-label="Open notifications"
+      >
+        <Bell className="size-4" />
+        {unreadCount > 0 ? (
+          <span className="absolute -right-1 -top-1 inline-flex min-w-[18px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-semibold text-white">
+            {unreadCount > 99 ? "99+" : unreadCount}
+          </span>
+        ) : null}
+      </button>
+
+      {open ? (
+        <div className="absolute right-0 top-11 z-40 w-[92vw] max-w-sm overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-white/10 dark:bg-slate-900">
+          <div className="flex items-center justify-between border-b border-slate-200 px-3 py-2 dark:border-white/10">
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              Notifications
+            </p>
+            <button
+              type="button"
+              disabled={markingAllRead || unreadCount === 0}
+              onClick={async () => {
+                try {
+                  setMarkingAllRead(true);
+                  await markAllNotificationsRead();
+                } catch (error) {
+                  toast.error(error?.message || "Failed to mark notifications");
+                } finally {
+                  setMarkingAllRead(false);
+                }
+              }}
+              className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+              <CheckCheck className="size-3.5" />
+              Mark all read
+            </button>
+          </div>
+          <div className="max-h-80 overflow-y-auto p-2">
+            {notifications.length ? (
+              notifications.map((item) => (
+                <div
+                  key={item.id}
+                  className={`mb-1 rounded-lg border px-3 py-2 last:mb-0 ${
+                    item.read
+                      ? "border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900"
+                      : "border-indigo-200 bg-indigo-50 dark:border-indigo-500/40 dark:bg-indigo-500/10"
+                  }`}
+                >
+                  <p className="text-sm text-slate-800 dark:text-slate-100">
+                    {item.text || "Notification"}
+                  </p>
+                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                    {formatNotificationTime(item.createdAt)}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p className="px-2 py-4 text-sm text-slate-500 dark:text-slate-400">
+                No notifications yet.
+              </p>
+            )}
+          </div>
         </div>
       ) : null}
     </div>
@@ -379,6 +487,7 @@ function Topbar({ onOpenSidebar }) {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <NotificationsMenu />
           {mounted ? (
             <button
               type="button"
