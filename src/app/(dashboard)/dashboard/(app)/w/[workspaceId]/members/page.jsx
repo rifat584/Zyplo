@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -13,9 +12,22 @@ const inviteSchema = z.object({
   role: z.enum(["admin", "member"]),
 });
 
+function getInviteManagementError(status, payload, fallback) {
+  const message = String(payload?.message || payload?.error || "").trim();
+
+  if (status === 401) return "Please sign in again to manage workspace invites.";
+  if (status === 403) return message || "You do not have permission to manage invites in this workspace.";
+  if (status === 404) return message || "The workspace or invite could not be found.";
+  if (status === 409) return message || "This invite could not be completed because of a conflict.";
+  if (status === 400) return message || "The invite request is invalid.";
+  if (status === 502) return "The server could not be reached. Please try again shortly.";
+  if (status >= 500) return "A server error occurred while managing invites.";
+
+  return message || fallback;
+}
+
 export default function WorkspaceMembersPage() {
   const { workspaceId } = useParams();
-  const session = useSession();
   const [invites, setInvites] = useState([]);
   const [members, setMembers] = useState([]);
 
@@ -30,29 +42,39 @@ export default function WorkspaceMembersPage() {
   });
 
   async function fetchInvites() {
-    const getInvites = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/workspaces/${workspaceId}/invites`
-    );
+    const getInvites = await fetch(`/api/workspaces/${workspaceId}/invites`);
     const res = await getInvites.json();
+    if (!getInvites.ok || !res?.ok) {
+      throw new Error(
+        getInviteManagementError(
+          getInvites.status,
+          res,
+          "Failed to load invites.",
+        ),
+      );
+    }
     setInvites(res?.invites || []);
     setMembers(res?.workspace?.members || []);
   }
 
   const onSubmit = async ({ email, role }) => {
-    const sendData = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/workspaces/${workspaceId}/invites`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, role }),
-      }
-    );
+    const sendData = await fetch(`/api/workspaces/${workspaceId}/invites`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, role }),
+    });
     const result = await sendData.json();
 
     if (!sendData.ok || !result?.ok) {
-      toast.error(result?.message || "Failed to send invite");
+      toast.error(
+        getInviteManagementError(
+          sendData.status,
+          result,
+          "Failed to send invite.",
+        ),
+      );
       return;
     }
 
@@ -63,25 +85,27 @@ export default function WorkspaceMembersPage() {
 
   useEffect(() => {
     if (!workspaceId) return;
-    fetchInvites().catch(() => {
-      toast.error("Failed to load invites");
+    fetchInvites().catch((error) => {
+      toast.error(String(error?.message || "Failed to load invites."));
     });
   }, [workspaceId]);
 
-  const handleDelete = async (inviteId, email) => {
+  const handleDelete = async (inviteId) => {
     const deleteInvite = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/workspaces/${workspaceId}/invites/${inviteId}`,
+      `/api/workspaces/${workspaceId}/invites/${inviteId}`,
       {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
       }
     );
     const res = await deleteInvite.json();
     if (!deleteInvite.ok || !res?.ok) {
-      toast.error(res?.message || "Delete failed");
+      toast.error(
+        getInviteManagementError(
+          deleteInvite.status,
+          res,
+          "Could not delete invite.",
+        ),
+      );
       return;
     }
     toast.success("Invite Deleted");
@@ -194,9 +218,7 @@ export default function WorkspaceMembersPage() {
 
               <div className="flex items-center gap-2 sm:justify-end">
                 <button
-                  onClick={() =>
-                    handleDelete(invite._id, session?.data?.user?.email)
-                  }
+                  onClick={() => handleDelete(invite._id)}
                   disabled={!invite?._id}
                   className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-100 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300"
                 >
