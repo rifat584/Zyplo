@@ -176,7 +176,7 @@ export default function WorkspaceCalenderPage() {
   const taskMap = useMemo(() => {
     const map = new Map();
     filteredTasks.forEach((task) => {
-      const sourceDate = task.createdAt || task.dueDate;
+      const sourceDate = task.dueDate || task.createdAt;
       const parsed = sourceDate ? new Date(sourceDate) : null;
       if (!parsed || Number.isNaN(parsed.getTime())) return;
       const key = toDateInputValue(parsed);
