@@ -2,11 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { useMockStore } from "@/components/dashboard/mockStore";
+import { useMockStore, useWorkspaceAccess } from "@/components/dashboard/mockStore";
 
 export default function WorkspaceSettingsPage() {
   const params = useParams();
   const workspaceId = typeof params.workspaceId === "string" ? params.workspaceId : "";
+  const { isAdmin } = useWorkspaceAccess(workspaceId);
   const workspaces = useMockStore((state) => state.workspaces || []);
   const workspace = useMemo(
     () => workspaces.find((item) => item.id === workspaceId) || null,
@@ -14,6 +15,19 @@ export default function WorkspaceSettingsPage() {
   );
 
   const [name, setName] = useState(workspace?.name || "");
+
+  if (!isAdmin) {
+    return (
+      <section className="space-y-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">
+          Workspace Settings
+        </h2>
+        <p className="text-sm text-amber-700 dark:text-amber-300">
+          You do not have access to workspace settings.
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900">

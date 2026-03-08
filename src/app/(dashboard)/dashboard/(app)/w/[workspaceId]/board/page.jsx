@@ -11,6 +11,7 @@ import {
   createProject,
   loadDashboard,
   useMockStore,
+  useWorkspaceAccess,
 } from "@/components/dashboard/mockStore";
 
 const PROJECT_SELECTION_KEY_PREFIX = "dashboard.selectedProject.";
@@ -48,6 +49,7 @@ export default function WorkspaceBoardPage() {
   const [createError, setCreateError] = useState("");
   const [deleteError, setDeleteError] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const { isAdmin } = useWorkspaceAccess(workspaceId);
 
   const { loaded, loading, projects } = useMockStore((state) => ({
     loaded: state.loaded,
@@ -132,6 +134,10 @@ export default function WorkspaceBoardPage() {
   async function handleCreateProject() {
     const name = projectName.trim();
     if (!name || !workspaceId) return;
+    if (!isAdmin) {
+      setCreateError("Only workspace admins can create projects.");
+      return;
+    }
 
     try {
       setCreateError("");
@@ -150,6 +156,10 @@ export default function WorkspaceBoardPage() {
 
   async function handleDeleteProject() {
     if (!selectedProjectId || deletingProject) return;
+    if (!isAdmin) {
+      setDeleteError("Only workspace admins can delete projects.");
+      return;
+    }
     const selectedProject = workspaceProjects.find(
       (project) => project.id === selectedProjectId,
     );
@@ -230,26 +240,30 @@ export default function WorkspaceBoardPage() {
               )}
             </select>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              setCreateError("");
-              setDeleteError("");
-              setShowCreateForm((current) => !current);
-            }}
-            className="inline-flex items-center h-10 rounded-lg bg-indigo-500 px-3 text-sm font-medium text-white hover:bg-indigo-600"
-          >
-            {showCreateForm ? "Cancel" : "New Project"}
-          </button>
-          <button
-            type="button"
-            onClick={handleDeleteProject}
-            disabled={!selectedProjectId || deletingProject}
-            className="inline-flex h-10 items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 text-sm font-medium text-rose-700 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20"
-          >
-            <Trash2 className="size-4" />
-            {deletingProject ? "Deleting..." : "Delete Project"}
-          </button>
+          {isAdmin ? (
+            <>
+              <button
+                type="button"
+                onClick={() => {
+                  setCreateError("");
+                  setDeleteError("");
+                  setShowCreateForm((current) => !current);
+                }}
+                className="inline-flex items-center h-10 rounded-lg bg-indigo-500 px-3 text-sm font-medium text-white hover:bg-indigo-600"
+              >
+                {showCreateForm ? "Cancel" : "New Project"}
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteProject}
+                disabled={!selectedProjectId || deletingProject}
+                className="inline-flex h-10 items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 text-sm font-medium text-rose-700 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20"
+              >
+                <Trash2 className="size-4" />
+                {deletingProject ? "Deleting..." : "Delete Project"}
+              </button>
+            </>
+          ) : null}
         </div>
       </section>
 
@@ -259,7 +273,7 @@ export default function WorkspaceBoardPage() {
         </p>
       ) : null}
 
-      {showCreateForm || !workspaceProjects.length ? (
+      {(isAdmin && showCreateForm) || (isAdmin && !workspaceProjects.length) ? (
         <section className="mb-4 rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
             Create Project
@@ -303,7 +317,9 @@ export default function WorkspaceBoardPage() {
             No Project Found
           </h2>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-            Create a project first, then open the board.
+            {isAdmin
+              ? "Create a project first, then open the board."
+              : "No project is available in this workspace yet."}
           </p>
           <div className="mt-4">
             <Link

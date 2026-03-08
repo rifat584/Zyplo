@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { loadDashboard, useMockStore } from "@/components/dashboard/mockStore";
+import { loadDashboard, useMockStore, useWorkspaceAccess } from "@/components/dashboard/mockStore";
 
 const NAV_ITEMS = [
   { id: "overview", label: "Overview", href: (id) => `/dashboard/w/${id}` },
@@ -20,11 +20,16 @@ export default function WorkspaceLayout({ children }) {
   const pathname = usePathname();
   const workspaceId = typeof params.workspaceId === "string" ? params.workspaceId : "";
   const [moreOpen, setMoreOpen] = useState(false);
+  const { isAdmin } = useWorkspaceAccess(workspaceId);
 
   const workspaces = useMockStore((state) => state.workspaces || []);
   const workspace = useMemo(
     () => workspaces.find((item) => item.id === workspaceId) || null,
     [workspaces, workspaceId]
+  );
+  const visibleNavItems = useMemo(
+    () => NAV_ITEMS.filter((item) => (item.id === "members" ? isAdmin : true)),
+    [isAdmin],
   );
 
   useEffect(() => {
@@ -35,8 +40,8 @@ export default function WorkspaceLayout({ children }) {
     setMoreOpen(false);
   }, [pathname]);
 
-  const primaryItems = NAV_ITEMS.slice(0, 3);
-  const moreItems = NAV_ITEMS.slice(3);
+  const primaryItems = visibleNavItems.slice(0, 3);
+  const moreItems = visibleNavItems.slice(3);
   const isMoreActive = moreItems.some((item) => pathname === item.href(workspaceId));
 
   return (
@@ -48,7 +53,7 @@ export default function WorkspaceLayout({ children }) {
         </h1>
 
         <div className="mt-4 hidden flex-wrap items-center gap-2 border-b border-slate-200 pb-1 dark:border-white/10 md:flex">
-          {NAV_ITEMS.map((item) => {
+          {visibleNavItems.map((item) => {
             const href = item.href(workspaceId);
             const active = pathname === href;
             return (

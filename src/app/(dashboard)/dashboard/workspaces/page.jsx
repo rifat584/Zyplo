@@ -25,16 +25,18 @@ import {
   deleteWorkspace,
   getState,
   loadDashboard,
+  resolveWorkspaceRole,
   useMockStore,
 } from "@/components/dashboard/mockStore";
 
 export default function WorkspacesPage() {
   const router = useRouter();
   const { status } = useSession();
-  const { loaded, loading, workspaces } = useMockStore((state) => ({
+  const { loaded, loading, workspaces, currentUser } = useMockStore((state) => ({
     loaded: state.loaded,
     loading: state.loading,
     workspaces: state.workspaces,
+    currentUser: state.currentUser,
   }));
 
   const [onboardingOpen, setOnboardingOpen] = useState(false);
@@ -201,6 +203,10 @@ export default function WorkspacesPage() {
                 key={workspace.id}
                 className="group relative rounded-xl border border-slate-200 px-3 py-3 text-left hover:bg-slate-50 dark:border-white/10 dark:hover:bg-slate-800/40"
               >
+                {(() => {
+                  const isAdmin = resolveWorkspaceRole(workspace, currentUser) === "admin";
+                  return (
+                    <>
                 <button
                   type="button"
                   onClick={() => router.push(`/dashboard/w/${workspace.id}`)}
@@ -254,41 +260,48 @@ export default function WorkspacesPage() {
                       <Star className="size-4" />
                       Add to starred
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMenuOpenFor("");
-                        router.push(`/dashboard/w/${workspace.id}/members`);
-                      }}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
-                    >
-                      <UserPlus className="size-4" />
-                      Add people
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMenuOpenFor("");
-                        router.push(`/dashboard/w/${workspace.id}/settings`);
-                      }}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
-                    >
-                      <Settings className="size-4" />
-                      Workspace settings
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMenuOpenFor("");
-                        setConfirmDeleteId(workspace.id);
-                      }}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10"
-                    >
-                      <Trash2 className="size-4" />
-                      Delete workspace
-                    </button>
+                    {isAdmin ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMenuOpenFor("");
+                            router.push(`/dashboard/w/${workspace.id}/members`);
+                          }}
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                        >
+                          <UserPlus className="size-4" />
+                          Add people
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMenuOpenFor("");
+                            router.push(`/dashboard/w/${workspace.id}/settings`);
+                          }}
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                        >
+                          <Settings className="size-4" />
+                          Workspace settings
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMenuOpenFor("");
+                            setConfirmDeleteId(workspace.id);
+                          }}
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10"
+                        >
+                          <Trash2 className="size-4" />
+                          Delete workspace
+                        </button>
+                      </>
+                    ) : null}
                   </div>
                 ) : null}
+                    </>
+                  );
+                })()}
               </div>
             ))}
             {!sortedWorkspaces.length ? (
