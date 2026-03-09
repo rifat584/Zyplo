@@ -187,8 +187,6 @@ function GlobalTimerControl() {
     return () => clearInterval(tick);
   }, [activeTimer]);
 
-  if (!activeTimer && !loading) return null;
-
   const startMs = activeTimer?.startTime ? new Date(activeTimer.startTime).getTime() : null;
   const baseDuration = Number(activeTimer?.duration || 0);
   const liveDuration =
@@ -197,20 +195,21 @@ function GlobalTimerControl() {
       : baseDuration;
   const activeTask =
     tasks.find((task) => String(task.id) === String(activeTimer?.taskId || "")) || null;
+  const hasActiveTimer = Boolean(activeTimer?.id);
 
   return (
     <div className="flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-2 py-1.5 dark:border-indigo-400/30 dark:bg-indigo-500/10">
       <span className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-700 dark:text-indigo-200">
         <Timer className="size-3.5" />
-        {loading && !activeTimer ? "Checking..." : formatElapsed(liveDuration)}
+        {loading && !hasActiveTimer ? "Checking..." : hasActiveTimer ? formatElapsed(liveDuration) : "No timer"}
       </span>
       <span className="hidden max-w-36 truncate text-xs text-slate-700 sm:inline dark:text-slate-200">
-        {activeTask?.title || "Active timer"}
+        {activeTask?.title || "No active task"}
       </span>
       <button
         type="button"
         onClick={async () => {
-          if (!activeTimer?.id || stopping) return;
+          if (!hasActiveTimer || stopping) return;
           try {
             setStopping(true);
             const response = await fetch(`/api/dashboard/time/${activeTimer.id}/stop`, {
@@ -235,10 +234,10 @@ function GlobalTimerControl() {
             setStopping(false);
           }
         }}
-        disabled={stopping || loading || !activeTimer?.id}
+        disabled={stopping || loading || !hasActiveTimer}
         className="rounded-md bg-rose-600 px-2 py-1 text-[11px] font-medium text-white hover:bg-rose-700 disabled:opacity-50"
       >
-        {stopping ? "Stopping..." : "Stop"}
+        {stopping ? "Stopping..." : hasActiveTimer ? "Stop" : "Stop"}
       </button>
     </div>
   );
