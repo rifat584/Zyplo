@@ -76,10 +76,56 @@ function minutesToSeconds(value) {
   return Math.floor(minutes * 60);
 }
 
-function secondsToMinutes(value) {
-  const seconds = Number(value);
-  if (!Number.isFinite(seconds) || seconds < 0) return 0;
-  return Math.round(seconds / 60);
+function parseEstimateToSeconds(rawValue) {
+  const raw = String(rawValue || "").trim().toLowerCase();
+  if (!raw) return 0;
+
+  // Backward-compatible: plain number means minutes.
+  if (/^\d+(\.\d+)?$/.test(raw)) {
+    return minutesToSeconds(raw);
+  }
+
+  // Supports hh:mm:ss or mm:ss.
+  if (/^\d+:\d{1,2}(:\d{1,2})?$/.test(raw)) {
+    const parts = raw.split(":").map((part) => Number(part));
+    if (parts.some((part) => Number.isNaN(part) || part < 0)) return 0;
+    if (parts.length === 2) {
+      const [minutes, seconds] = parts;
+      return Math.floor(minutes * 60 + seconds);
+    }
+    const [hours, minutes, seconds] = parts;
+    return Math.floor(hours * 3600 + minutes * 60 + seconds);
+  }
+
+  // Supports "1h 30m 20s", "90m", "5400s", and compact variants like "1h30m".
+  const unitRegex = /(\d+(?:\.\d+)?)\s*([hms])/g;
+  let total = 0;
+  let matched = false;
+  let token = unitRegex.exec(raw);
+  while (token) {
+    matched = true;
+    const amount = Number(token[1]);
+    const unit = token[2];
+    if (unit === "h") total += amount * 3600;
+    if (unit === "m") total += amount * 60;
+    if (unit === "s") total += amount;
+    token = unitRegex.exec(raw);
+  }
+
+  return matched ? Math.floor(total) : 0;
+}
+
+function formatEstimateInput(secondsValue) {
+  const seconds = Math.max(0, Math.floor(Number(secondsValue) || 0));
+  if (!seconds) return "";
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  const parts = [];
+  if (h) parts.push(`${h}h`);
+  if (m) parts.push(`${m}m`);
+  if (s || !parts.length) parts.push(`${s}s`);
+  return parts.join(" ");
 }
 
 function formatDurationHMS(value) {
@@ -125,6 +171,7 @@ export default function TaskDetailsModal({
     endTime: "",
     description: "",
   });
+  const [isManualEntryOpen, setIsManualEntryOpen] = useState(true);
   const [isTimeTrackingOpen, setIsTimeTrackingOpen] = useState(false);
   const [timePanelInitialized, setTimePanelInitialized] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -145,13 +192,14 @@ export default function TaskDetailsModal({
       status: String(task.status || "todo"),
       estimatedTime:
         task.estimatedTime !== undefined && task.estimatedTime !== null
-          ? String(secondsToMinutes(task.estimatedTime))
+          ? formatEstimateInput(task.estimatedTime)
           : "",
       attachments: taskAttachments,
     });
 
     // Auto-open attachments if there are any
     setIsAttachmentsOpen(taskAttachments.length > 0);
+    setIsManualEntryOpen(true);
     setIsTimeTrackingOpen(false);
     setTimePanelInitialized(false);
   }, [open, task]);
@@ -334,7 +382,7 @@ export default function TaskDetailsModal({
                 dueDate: form.dueDate,
                 priority: form.priority,
                 status: form.status,
-                estimatedTime: minutesToSeconds(form.estimatedTime),
+                estimatedTime: parseEstimateToSeconds(form.estimatedTime),
                 attachments: form.attachments,
               });
             }}
@@ -497,34 +545,59 @@ export default function TaskDetailsModal({
                         htmlFor="task-details-estimated-time"
                         className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
                       >
-                        Estimate (mins)
+                        Estimate (h / m / s)
                       </label>
-                      <input
-                        id="task-details-estimated-time"
-                        type="number"
-                        min="0"
-                        value={form.estimatedTime}
-                        onChange={(event) =>
-                          setForm((prev) => ({
-                            ...prev,
-                            estimatedTime: event.target.value,
-                          }))
-                        }
-                        placeholder="0"
-                        className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                      />
+                      <div className="overflow-x-auto rounded-xl">
+                        <input
+                          id="task-details-estimated-time"
+                          type="text"
+                          value={form.estimatedTime}
+                          onChange={(event) =>
+                            setForm((prev) => ({
+                              ...prev,
+                              estimatedTime: event.target.value,
+                            }))
+                          }
+                          placeholder="e.g. 1h 30m, 90m, 5400s, 01:30:00"
+                          className="h-10 min-w-[360px] w-full whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        />
+                      </div>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                        You can type `h/m/s` (example: `1h 20m 30s`) or `hh:mm:ss`.
+                        If you enter only a number, it is treated as minutes.
+                      </p>
                     </div>
 
                     <div className="space-y-2 sm:col-span-2">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                          Manual Time Entry
-                        </p>
-                        <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
-                          Add a past work session by selecting the start and end time.
-                        </p>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsManualEntryOpen((prev) => !prev)}
+                        className="flex w-full items-start justify-between gap-2 rounded-lg border border-transparent px-1 py-0.5 text-left hover:border-slate-200 hover:bg-slate-50 dark:hover:border-white/10 dark:hover:bg-slate-800/40"
+                      >
+                        <span>
+                          <span className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                            Manual Time Entry
+                          </span>
+                          <span className="mt-0.5 block text-[11px] text-slate-500 dark:text-slate-400">
+                            Add a past work session by selecting the start and end time.
+                          </span>
+                        </span>
+                        <span className="mt-1 text-slate-500 dark:text-slate-300">
+                          <ChevronDown
+                            size={14}
+                            className={`transition-transform duration-300 ${isManualEntryOpen ? "rotate-180" : "rotate-0"}`}
+                          />
+                        </span>
+                      </button>
 
+                      <div
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                          isManualEntryOpen
+                            ? "max-h-[420px] opacity-100"
+                            : "max-h-0 opacity-0"
+                        }`}
+                        aria-hidden={!isManualEntryOpen}
+                      >
                       <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-slate-900">
                         <div className="grid gap-3 sm:grid-cols-2">
                           <div className="space-y-1">
@@ -666,6 +739,7 @@ export default function TaskDetailsModal({
                             </button>
                           </div>
                         </div>
+                      </div>
                       </div>
                     </div>
                   </div>
