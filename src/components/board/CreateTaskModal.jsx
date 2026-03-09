@@ -8,6 +8,7 @@ const INITIAL_FORM = {
   assigneeId: "",
   dueDate: "",
   priority: "P2",
+  estimatedTime: "",
 };
 
 function formatDateTime(value) {
@@ -15,6 +16,12 @@ function formatDateTime(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleString();
+}
+
+function minutesToSeconds(value) {
+  const minutes = Number(value);
+  if (!Number.isFinite(minutes) || minutes < 0) return 0;
+  return Math.floor(minutes * 60);
 }
 
 export default function CreateTaskModal({
@@ -87,6 +94,7 @@ export default function CreateTaskModal({
               assigneeId: form.assigneeId,
               dueDate: form.dueDate,
               priority: form.priority,
+              estimatedTime: minutesToSeconds(form.estimatedTime),
             });
           }}
         >
@@ -128,7 +136,7 @@ export default function CreateTaskModal({
             />
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-4">
             <div className="space-y-1.5">
               <label
                 htmlFor="create-task-assignee"
@@ -191,6 +199,28 @@ export default function CreateTaskModal({
                 <option value="P2">P2 (Medium)</option>
                 <option value="P3">P3 (Low)</option>
               </select>
+            </div>
+            <div className="space-y-1.5">
+              <label
+                htmlFor="create-task-estimated-time"
+                className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+              >
+                Estimate (mins)
+              </label>
+              <input
+                id="create-task-estimated-time"
+                type="number"
+                min="0"
+                value={form.estimatedTime}
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    estimatedTime: event.target.value,
+                  }))
+                }
+                placeholder="0"
+                className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              />
             </div>
           </div>
 

@@ -43,6 +43,7 @@ const EMPTY_FORM = {
   dueDate: "",
   priority: "P2",
   status: "todo",
+  estimatedTime: "",
   attachments: [], 
 };
 
@@ -58,6 +59,27 @@ function formatDateTime(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleString();
+}
+
+function safeJsonParse(text, fallback) {
+  if (!text) return fallback;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return fallback;
+  }
+}
+
+function minutesToSeconds(value) {
+  const minutes = Number(value);
+  if (!Number.isFinite(minutes) || minutes < 0) return 0;
+  return Math.floor(minutes * 60);
+}
+
+function secondsToMinutes(value) {
+  const seconds = Number(value);
+  if (!Number.isFinite(seconds) || seconds < 0) return 0;
+  return Math.round(seconds / 60);
 }
 
 const getFileIcon = (type) => {
@@ -85,10 +107,20 @@ export default function TaskDetailsModal({
   onDelete,
 }) {
   const [form, setForm] = useState(EMPTY_FORM);
+  const [timerBusy, setTimerBusy] = useState(false);
+  const [manualBusy, setManualBusy] = useState(false);
+  const [timeSummary, setTimeSummary] = useState(null);
+  const [timeLogs, setTimeLogs] = useState([]);
+  const [activeTimer, setActiveTimer] = useState(null);
+  const [manualForm, setManualForm] = useState({
+    startTime: "",
+    endTime: "",
+    description: "",
+  });
   const [isUploading, setIsUploading] = useState(false);
   const [isAttachmentsOpen, setIsAttachmentsOpen] = useState(true);
   const fileInputRef = useRef(null);
-  const isBusy = submitting || deleting || isUploading;
+  const isBusy = submitting || deleting || isUploading || timerBusy || manualBusy;
 
   useEffect(() => {
     if (!open || !task) return;
@@ -101,12 +133,56 @@ export default function TaskDetailsModal({
       dueDate: toDateInputValue(task.dueDate),
       priority: String(task.priority || "P2").toUpperCase(),
       status: String(task.status || "todo"),
+      estimatedTime:
+        task.estimatedTime !== undefined && task.estimatedTime !== null
+          ? String(secondsToMinutes(task.estimatedTime))
+          : "",
       attachments: taskAttachments,
     });
 
     // Auto-open attachments if there are any
     setIsAttachmentsOpen(taskAttachments.length > 0);
   }, [open, task]);
+
+  useEffect(() => {
+    if (!open || !task?.id) return;
+    let alive = true;
+
+    async function fetchTimeData() {
+      try {
+        const [summaryRes, logsRes, activeRes] = await Promise.all([
+          fetch(`/api/dashboard/tasks/${task.id}/time-summary`, { cache: "no-store" }),
+          fetch(`/api/dashboard/tasks/${task.id}/time`, { cache: "no-store" }),
+          fetch(`/api/dashboard/time/active`, { cache: "no-store" }),
+        ]);
+
+        const summaryText = await summaryRes.text();
+        const logsText = await logsRes.text();
+        const activeText = await activeRes.text();
+
+        const summaryData = safeJsonParse(summaryText, null);
+        const logsData = safeJsonParse(logsText, []);
+        const activeData = safeJsonParse(activeText, null);
+
+        if (!alive) return;
+        if (summaryRes.ok) setTimeSummary(summaryData);
+        if (logsRes.ok) setTimeLogs(Array.isArray(logsData) ? logsData : []);
+        if (activeRes.ok) setActiveTimer(activeData?.activeTimer || null);
+      } catch {
+        if (!alive) return;
+      }
+    }
+
+    fetchTimeData();
+    function onTimerUpdated() {
+      fetchTimeData().catch(() => {});
+    }
+    window.addEventListener("zyplo-timer-updated", onTimerUpdated);
+    return () => {
+      alive = false;
+      window.removeEventListener("zyplo-timer-updated", onTimerUpdated);
+    };
+  }, [open, task?.id]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -128,6 +204,10 @@ export default function TaskDetailsModal({
   }, [form.status]);
   
   const updatedAtValue = task?.updatedAt || task?.createdAt;
+  const hasOtherActiveTimer =
+    activeTimer &&
+    String(activeTimer.taskId || "") &&
+    String(activeTimer.taskId) !== String(task?.id || "");
 
   // --- CLOUDINARY UPLOAD HANDLER ---
   const handleFileUpload = async (event) => {
@@ -233,10 +313,312 @@ export default function TaskDetailsModal({
                 dueDate: form.dueDate,
                 priority: form.priority,
                 status: form.status,
+                estimatedTime: minutesToSeconds(form.estimatedTime),
                 attachments: form.attachments,
               });
             }}
           >
+            <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                    Time Tracking
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    {timeSummary
+                      ? `Estimated ${secondsToMinutes(timeSummary.estimated)}m · Spent ${secondsToMinutes(timeSummary.spent)}m · Remaining ${secondsToMinutes(timeSummary.remaining)}m`
+                      : "No time tracked yet"}
+                  </p>
+                  {hasOtherActiveTimer ? (
+                    <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                      Another task has an active timer. Stop it to start this one.
+                    </p>
+                  ) : null}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {activeTimer && activeTimer.taskId === String(task.id) ? (
+                    <button
+                      type="button"
+                      disabled={isBusy}
+                      onClick={async () => {
+                        if (!activeTimer?.id) return;
+                        setTimerBusy(true);
+                        try {
+                          const response = await fetch(
+                            `/api/dashboard/time/${activeTimer.id}/stop`,
+                            {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({}),
+                            },
+                          );
+                          if (!response.ok) {
+                            const text = await response.text();
+                            const data = safeJsonParse(text, null);
+                            throw new Error(
+                              data?.error || data?.message || "Failed to stop timer",
+                            );
+                          }
+                          const summaryRes = await fetch(
+                            `/api/dashboard/tasks/${task.id}/time-summary`,
+                            { cache: "no-store" },
+                          );
+                          const logsRes = await fetch(
+                            `/api/dashboard/tasks/${task.id}/time`,
+                            { cache: "no-store" },
+                          );
+                          const activeRes = await fetch(`/api/dashboard/time/active`, {
+                            cache: "no-store",
+                          });
+                          const summaryText = await summaryRes.text();
+                          const logsText = await logsRes.text();
+                          const activeText = await activeRes.text();
+                          if (summaryRes.ok) {
+                            setTimeSummary(safeJsonParse(summaryText, null));
+                          }
+                          if (logsRes.ok) {
+                            const data = safeJsonParse(logsText, []);
+                            setTimeLogs(Array.isArray(data) ? data : []);
+                          }
+                          if (activeRes.ok) {
+                            const data = safeJsonParse(activeText, null);
+                            setActiveTimer(data?.activeTimer || null);
+                          }
+                          if (typeof window !== "undefined") {
+                            window.dispatchEvent(new CustomEvent("zyplo-timer-updated"));
+                          }
+                        } catch (error) {
+                          console.error(error);
+                          alert(error?.message || "Failed to stop timer");
+                        } finally {
+                          setTimerBusy(false);
+                        }
+                      }}
+                      className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-100 disabled:opacity-50 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300"
+                    >
+                      Stop timer
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={isBusy || hasOtherActiveTimer}
+                      onClick={async () => {
+                        setTimerBusy(true);
+                        try {
+                          const response = await fetch(
+                            `/api/dashboard/tasks/${task.id}/time/start`,
+                            {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({}),
+                            },
+                          );
+                          if (!response.ok) {
+                            const text = await response.text();
+                            const data = safeJsonParse(text, null);
+                            throw new Error(
+                              data?.error || data?.message || "Failed to start timer",
+                            );
+                          }
+                          const activeRes = await fetch(`/api/dashboard/time/active`, {
+                            cache: "no-store",
+                          });
+                          const activeText = await activeRes.text();
+                          if (activeRes.ok) {
+                            const data = safeJsonParse(activeText, null);
+                            setActiveTimer(data?.activeTimer || null);
+                          }
+                          if (typeof window !== "undefined") {
+                            window.dispatchEvent(new CustomEvent("zyplo-timer-updated"));
+                          }
+                        } catch (error) {
+                          console.error(error);
+                          alert(error?.message || "Failed to start timer");
+                        } finally {
+                          setTimerBusy(false);
+                        }
+                      }}
+                      className="rounded-lg bg-indigo-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-indigo-600 disabled:opacity-50"
+                    >
+                      Start timer
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="task-details-estimated-time"
+                    className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+                  >
+                    Estimate (mins)
+                  </label>
+                  <input
+                    id="task-details-estimated-time"
+                    type="number"
+                    min="0"
+                    value={form.estimatedTime}
+                    onChange={(event) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        estimatedTime: event.target.value,
+                      }))
+                    }
+                    placeholder="0"
+                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                  />
+                </div>
+
+                <div className="space-y-1.5 sm:col-span-2">
+                  <label
+                    htmlFor="task-details-timer-description"
+                    className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+                  >
+                    Manual Log
+                  </label>
+                  <div className="grid gap-2 sm:grid-cols-3">
+                    <input
+                      type="datetime-local"
+                      value={manualForm.startTime}
+                      onChange={(event) =>
+                        setManualForm((prev) => ({
+                          ...prev,
+                          startTime: event.target.value,
+                        }))
+                      }
+                      className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-xs text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                    />
+                    <input
+                      type="datetime-local"
+                      value={manualForm.endTime}
+                      onChange={(event) =>
+                        setManualForm((prev) => ({
+                          ...prev,
+                          endTime: event.target.value,
+                        }))
+                      }
+                      className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-xs text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={manualForm.description}
+                        onChange={(event) =>
+                          setManualForm((prev) => ({
+                            ...prev,
+                            description: event.target.value,
+                          }))
+                        }
+                        placeholder="Notes"
+                        className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-xs text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                      />
+                      <button
+                        type="button"
+                        disabled={
+                          isBusy ||
+                          !manualForm.startTime ||
+                          !manualForm.endTime
+                        }
+                        onClick={async () => {
+                          if (!manualForm.startTime || !manualForm.endTime) return;
+                          setManualBusy(true);
+                          try {
+                            const response = await fetch(
+                              `/api/dashboard/tasks/${task.id}/time/manual`,
+                              {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                  startTime: manualForm.startTime,
+                                  endTime: manualForm.endTime,
+                                  description: manualForm.description,
+                                }),
+                              },
+                            );
+                            const text = await response.text();
+                            const data = safeJsonParse(text, null);
+                            if (!response.ok) {
+                              throw new Error(
+                                data?.error ||
+                                  data?.message ||
+                                  "Failed to save manual time",
+                              );
+                            }
+                            setManualForm({
+                              startTime: "",
+                              endTime: "",
+                              description: "",
+                            });
+                            const summaryRes = await fetch(
+                              `/api/dashboard/tasks/${task.id}/time-summary`,
+                              { cache: "no-store" },
+                            );
+                            const logsRes = await fetch(
+                              `/api/dashboard/tasks/${task.id}/time`,
+                              { cache: "no-store" },
+                            );
+                            const summaryText = await summaryRes.text();
+                            const logsText = await logsRes.text();
+                            if (summaryRes.ok) {
+                              setTimeSummary(
+                                safeJsonParse(summaryText, null),
+                              );
+                            }
+                            if (logsRes.ok) {
+                              const logs = safeJsonParse(logsText, []);
+                              setTimeLogs(Array.isArray(logs) ? logs : []);
+                            }
+                            if (typeof window !== "undefined") {
+                              window.dispatchEvent(new CustomEvent("zyplo-timer-updated"));
+                            }
+                          } catch (error) {
+                            console.error(error);
+                            alert(error?.message || "Failed to save manual time");
+                          } finally {
+                            setManualBusy(false);
+                          }
+                        }}
+                        className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50 dark:bg-white/10 dark:text-slate-100 dark:hover:bg-white/20"
+                      >
+                        Add
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {timeLogs.length ? (
+                <div className="mt-4 space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                    Recent Logs
+                  </p>
+                  <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                    {timeLogs.slice(0, 5).map((log) => (
+                      <div
+                        key={log.id}
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-white/10 dark:bg-slate-900"
+                      >
+                        <span>
+                          {log.startTime ? new Date(log.startTime).toLocaleString() : "Unknown"}{" "}
+                          -{" "}
+                          {log.endTime ? new Date(log.endTime).toLocaleString() : "Running"}
+                        </span>
+                        <span className="font-semibold">
+                          {Math.round((log.duration || 0) / 60)}m
+                        </span>
+                        {log.description ? (
+                          <span className="w-full text-[11px] text-slate-500 dark:text-slate-400">
+                            {log.description}
+                          </span>
+                        ) : null}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </div>
             <div className="space-y-1.5">
               <label
                 htmlFor="task-details-title"
