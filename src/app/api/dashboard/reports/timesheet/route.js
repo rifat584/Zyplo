@@ -1,5 +1,5 @@
-import { requireSessionUser } from "../../../_auth";
-import { proxyDashboard } from "../../../_backend";
+import { proxyDashboard } from "../../_backend";
+import { requireSessionUser } from "../../_auth";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
