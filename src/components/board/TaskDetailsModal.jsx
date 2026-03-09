@@ -82,6 +82,14 @@ function secondsToMinutes(value) {
   return Math.round(seconds / 60);
 }
 
+function formatDurationHMS(value) {
+  const totalSeconds = Math.max(0, Math.floor(Number(value) || 0));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${hours}h ${minutes}m ${seconds}s`;
+}
+
 const getFileIcon = (type) => {
   if (type.startsWith("image/")) return <ImageIcon size={14} />;
   if (type.startsWith("video/")) return <Film size={14} />;
@@ -117,6 +125,8 @@ export default function TaskDetailsModal({
     endTime: "",
     description: "",
   });
+  const [isTimeTrackingOpen, setIsTimeTrackingOpen] = useState(false);
+  const [timePanelInitialized, setTimePanelInitialized] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isAttachmentsOpen, setIsAttachmentsOpen] = useState(true);
   const fileInputRef = useRef(null);
@@ -142,6 +152,8 @@ export default function TaskDetailsModal({
 
     // Auto-open attachments if there are any
     setIsAttachmentsOpen(taskAttachments.length > 0);
+    setIsTimeTrackingOpen(false);
+    setTimePanelInitialized(false);
   }, [open, task]);
 
   useEffect(() => {
@@ -168,6 +180,15 @@ export default function TaskDetailsModal({
         if (summaryRes.ok) setTimeSummary(summaryData);
         if (logsRes.ok) setTimeLogs(Array.isArray(logsData) ? logsData : []);
         if (activeRes.ok) setActiveTimer(activeData?.activeTimer || null);
+        if (!timePanelInitialized) {
+          const hasEstimate = Number(summaryData?.estimated || 0) > 0;
+          const hasSpent = Number(summaryData?.spent || 0) > 0;
+          const hasLogs = Array.isArray(logsData) && logsData.length > 0;
+          const runningThisTask =
+            String(activeData?.activeTimer?.taskId || "") === String(task.id || "");
+          setIsTimeTrackingOpen(hasEstimate || hasSpent || hasLogs || runningThisTask);
+          setTimePanelInitialized(true);
+        }
       } catch {
         if (!alive) return;
       }
@@ -182,7 +203,7 @@ export default function TaskDetailsModal({
       alive = false;
       window.removeEventListener("zyplo-timer-updated", onTimerUpdated);
     };
-  }, [open, task?.id]);
+  }, [open, task?.id, timePanelInitialized]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -319,22 +340,37 @@ export default function TaskDetailsModal({
             }}
           >
             <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                    Time Tracking
-                  </p>
-                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                    {timeSummary
-                      ? `Estimated ${secondsToMinutes(timeSummary.estimated)}m · Spent ${secondsToMinutes(timeSummary.spent)}m · Remaining ${secondsToMinutes(timeSummary.remaining)}m`
-                      : "No time tracked yet"}
-                  </p>
-                  {hasOtherActiveTimer ? (
-                    <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
-                      Another task has an active timer. Stop it to start this one.
-                    </p>
-                  ) : null}
-                </div>
+              <div className="flex items-start justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsTimeTrackingOpen((prev) => !prev)}
+                  className="flex min-w-0 flex-1 items-start gap-2 text-left"
+                >
+                  <span className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+                    <Clock size={12} />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                      Time Tracking
+                    </span>
+                    <span className="mt-1 block truncate text-xs text-slate-500 dark:text-slate-400">
+                      {timeSummary
+                        ? `Estimated ${formatDurationHMS(timeSummary.estimated)} | Spent ${formatDurationHMS(timeSummary.spent)} | Remaining ${formatDurationHMS(timeSummary.remaining)}`
+                        : "No time tracked yet"}
+                    </span>
+                    {hasOtherActiveTimer ? (
+                      <span className="mt-1 block text-xs text-amber-600 dark:text-amber-400">
+                        Another task has an active timer. Stop it to start this one.
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="mt-0.5 shrink-0 text-slate-500 dark:text-slate-300">
+                    <ChevronDown
+                      size={14}
+                      className={`transition-transform duration-300 ${isTimeTrackingOpen ? "rotate-180" : "rotate-0"}`}
+                    />
+                  </span>
+                </button>
 
                 <div className="flex items-center gap-2">
                   {activeTimer && activeTimer.taskId === String(task.id) ? (
@@ -447,177 +483,223 @@ export default function TaskDetailsModal({
                 </div>
               </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                <div className="space-y-1.5">
-                  <label
-                    htmlFor="task-details-estimated-time"
-                    className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-                  >
-                    Estimate (mins)
-                  </label>
-                  <input
-                    id="task-details-estimated-time"
-                    type="number"
-                    min="0"
-                    value={form.estimatedTime}
-                    onChange={(event) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        estimatedTime: event.target.value,
-                      }))
-                    }
-                    placeholder="0"
-                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                  />
-                </div>
-
-                <div className="space-y-1.5 sm:col-span-2">
-                  <label
-                    htmlFor="task-details-timer-description"
-                    className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-                  >
-                    Manual Log
-                  </label>
-                  <div className="grid gap-2 sm:grid-cols-3">
-                    <input
-                      type="datetime-local"
-                      value={manualForm.startTime}
-                      onChange={(event) =>
-                        setManualForm((prev) => ({
-                          ...prev,
-                          startTime: event.target.value,
-                        }))
-                      }
-                      className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-xs text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                    />
-                    <input
-                      type="datetime-local"
-                      value={manualForm.endTime}
-                      onChange={(event) =>
-                        setManualForm((prev) => ({
-                          ...prev,
-                          endTime: event.target.value,
-                        }))
-                      }
-                      className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-xs text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                    />
-                    <div className="flex gap-2">
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                  isTimeTrackingOpen
+                    ? "max-h-[800px] opacity-100"
+                    : "max-h-0 opacity-0"
+                }`}
+                aria-hidden={!isTimeTrackingOpen}
+              >
+                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                    <div className="space-y-1.5">
+                      <label
+                        htmlFor="task-details-estimated-time"
+                        className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+                      >
+                        Estimate (mins)
+                      </label>
                       <input
-                        type="text"
-                        value={manualForm.description}
+                        id="task-details-estimated-time"
+                        type="number"
+                        min="0"
+                        value={form.estimatedTime}
                         onChange={(event) =>
-                          setManualForm((prev) => ({
+                          setForm((prev) => ({
                             ...prev,
-                            description: event.target.value,
+                            estimatedTime: event.target.value,
                           }))
                         }
-                        placeholder="Notes"
-                        className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-xs text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        placeholder="0"
+                        className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                       />
-                      <button
-                        type="button"
-                        disabled={
-                          isBusy ||
-                          !manualForm.startTime ||
-                          !manualForm.endTime
-                        }
-                        onClick={async () => {
-                          if (!manualForm.startTime || !manualForm.endTime) return;
-                          setManualBusy(true);
-                          try {
-                            const response = await fetch(
-                              `/api/dashboard/tasks/${task.id}/time/manual`,
-                              {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                  startTime: manualForm.startTime,
-                                  endTime: manualForm.endTime,
-                                  description: manualForm.description,
-                                }),
-                              },
-                            );
-                            const text = await response.text();
-                            const data = safeJsonParse(text, null);
-                            if (!response.ok) {
-                              throw new Error(
-                                data?.error ||
-                                  data?.message ||
-                                  "Failed to save manual time",
-                              );
-                            }
-                            setManualForm({
-                              startTime: "",
-                              endTime: "",
-                              description: "",
-                            });
-                            const summaryRes = await fetch(
-                              `/api/dashboard/tasks/${task.id}/time-summary`,
-                              { cache: "no-store" },
-                            );
-                            const logsRes = await fetch(
-                              `/api/dashboard/tasks/${task.id}/time`,
-                              { cache: "no-store" },
-                            );
-                            const summaryText = await summaryRes.text();
-                            const logsText = await logsRes.text();
-                            if (summaryRes.ok) {
-                              setTimeSummary(
-                                safeJsonParse(summaryText, null),
-                              );
-                            }
-                            if (logsRes.ok) {
-                              const logs = safeJsonParse(logsText, []);
-                              setTimeLogs(Array.isArray(logs) ? logs : []);
-                            }
-                            if (typeof window !== "undefined") {
-                              window.dispatchEvent(new CustomEvent("zyplo-timer-updated"));
-                            }
-                          } catch (error) {
-                            console.error(error);
-                            alert(error?.message || "Failed to save manual time");
-                          } finally {
-                            setManualBusy(false);
-                          }
-                        }}
-                        className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50 dark:bg-white/10 dark:text-slate-100 dark:hover:bg-white/20"
-                      >
-                        Add
-                      </button>
+                    </div>
+
+                    <div className="space-y-2 sm:col-span-2">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                          Manual Time Entry
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                          Add a past work session by selecting the start and end time.
+                        </p>
+                      </div>
+
+                      <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-slate-900">
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div className="space-y-1">
+                            <label
+                              htmlFor="task-details-manual-start-time"
+                              className="text-[11px] font-medium text-slate-600 dark:text-slate-300"
+                            >
+                              Start time
+                            </label>
+                            <input
+                              id="task-details-manual-start-time"
+                              type="datetime-local"
+                              value={manualForm.startTime}
+                              onChange={(event) =>
+                                setManualForm((prev) => ({
+                                  ...prev,
+                                  startTime: event.target.value,
+                                }))
+                              }
+                              className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                            />
+                          </div>
+
+                          <div className="space-y-1">
+                            <label
+                              htmlFor="task-details-manual-end-time"
+                              className="text-[11px] font-medium text-slate-600 dark:text-slate-300"
+                            >
+                              End time
+                            </label>
+                            <input
+                              id="task-details-manual-end-time"
+                              type="datetime-local"
+                              value={manualForm.endTime}
+                              onChange={(event) =>
+                                setManualForm((prev) => ({
+                                  ...prev,
+                                  endTime: event.target.value,
+                                }))
+                              }
+                              className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="mt-3 flex gap-2">
+                          <div className="flex-1 space-y-1">
+                            <label
+                              htmlFor="task-details-manual-note"
+                              className="text-[11px] font-medium text-slate-600 dark:text-slate-300"
+                            >
+                              Work note (optional)
+                            </label>
+                            <input
+                              id="task-details-manual-note"
+                              type="text"
+                              value={manualForm.description}
+                              onChange={(event) =>
+                                setManualForm((prev) => ({
+                                  ...prev,
+                                  description: event.target.value,
+                                }))
+                              }
+                              placeholder="What did you work on?"
+                              className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                            />
+                          </div>
+
+                          <div className="mt-[18px]">
+                            <button
+                              type="button"
+                              disabled={
+                                isBusy ||
+                                !manualForm.startTime ||
+                                !manualForm.endTime
+                              }
+                              onClick={async () => {
+                                if (!manualForm.startTime || !manualForm.endTime) return;
+                                setManualBusy(true);
+                                try {
+                                  const response = await fetch(
+                                    `/api/dashboard/tasks/${task.id}/time/manual`,
+                                    {
+                                      method: "POST",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({
+                                        startTime: manualForm.startTime,
+                                        endTime: manualForm.endTime,
+                                        description: manualForm.description,
+                                      }),
+                                    },
+                                  );
+                                  const text = await response.text();
+                                  const data = safeJsonParse(text, null);
+                                  if (!response.ok) {
+                                    throw new Error(
+                                      data?.error ||
+                                        data?.message ||
+                                        "Failed to save manual time",
+                                    );
+                                  }
+                                  setManualForm({
+                                    startTime: "",
+                                    endTime: "",
+                                    description: "",
+                                  });
+                                  const summaryRes = await fetch(
+                                    `/api/dashboard/tasks/${task.id}/time-summary`,
+                                    { cache: "no-store" },
+                                  );
+                                  const logsRes = await fetch(
+                                    `/api/dashboard/tasks/${task.id}/time`,
+                                    { cache: "no-store" },
+                                  );
+                                  const summaryText = await summaryRes.text();
+                                  const logsText = await logsRes.text();
+                                  if (summaryRes.ok) {
+                                    setTimeSummary(
+                                      safeJsonParse(summaryText, null),
+                                    );
+                                  }
+                                  if (logsRes.ok) {
+                                    const logs = safeJsonParse(logsText, []);
+                                    setTimeLogs(Array.isArray(logs) ? logs : []);
+                                  }
+                                  if (typeof window !== "undefined") {
+                                    window.dispatchEvent(new CustomEvent("zyplo-timer-updated"));
+                                  }
+                                } catch (error) {
+                                  console.error(error);
+                                  alert(error?.message || "Failed to save manual time");
+                                } finally {
+                                  setManualBusy(false);
+                                }
+                              }}
+                              className="h-10 rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50 dark:bg-white/10 dark:text-slate-100 dark:hover:bg-white/20"
+                            >
+                              Save log
+                            </button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
 
-              {timeLogs.length ? (
-                <div className="mt-4 space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                    Recent Logs
-                  </p>
-                  <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
-                    {timeLogs.slice(0, 5).map((log) => (
-                      <div
-                        key={log.id}
-                        className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-white/10 dark:bg-slate-900"
-                      >
-                        <span>
-                          {log.startTime ? new Date(log.startTime).toLocaleString() : "Unknown"}{" "}
-                          -{" "}
-                          {log.endTime ? new Date(log.endTime).toLocaleString() : "Running"}
-                        </span>
-                        <span className="font-semibold">
-                          {Math.round((log.duration || 0) / 60)}m
-                        </span>
-                        {log.description ? (
-                          <span className="w-full text-[11px] text-slate-500 dark:text-slate-400">
-                            {log.description}
-                          </span>
-                        ) : null}
+                  {timeLogs.length ? (
+                    <div className="mt-4 space-y-2">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                        Recent Logs
+                      </p>
+                      <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                        {timeLogs.slice(0, 5).map((log) => (
+                          <div
+                            key={log.id}
+                            className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-white/10 dark:bg-slate-900"
+                          >
+                            <span>
+                              {log.startTime ? new Date(log.startTime).toLocaleString() : "Unknown"}{" "}
+                              -{" "}
+                              {log.endTime ? new Date(log.endTime).toLocaleString() : "Running"}
+                            </span>
+                            <span className="font-semibold">
+                              {formatDurationHMS(log.duration)}
+                            </span>
+                            {log.description ? (
+                              <span className="w-full text-[11px] text-slate-500 dark:text-slate-400">
+                                {log.description}
+                              </span>
+                            ) : null}
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
+                    </div>
+                  ) : null}
+              </div>
             </div>
             <div className="space-y-1.5">
               <label
@@ -869,3 +951,5 @@ export default function TaskDetailsModal({
     </div>
   );
 }
+
+
