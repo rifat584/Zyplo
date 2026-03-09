@@ -171,6 +171,7 @@ export default function CreateTaskLauncher({
         dueDate: values.dueDate || "",
         priority: values.priority || "P2",
         status: getStatusFromColumnName(target.columnName, "todo"),
+        estimatedTime: values.estimatedTime || 0,
       };
 
       const data = await fetchJson("/api/dashboard/tasks", {

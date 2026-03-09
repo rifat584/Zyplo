@@ -432,6 +432,7 @@ export default function Board({ workspaceId, projectId }) {
       dueDate: values.dueDate || "",
       priority: values.priority || "P2",
       status: getStatusFromColumnName(selectedColumn.name, "todo") || "todo",
+      estimatedTime: values.estimatedTime || 0,
       attachments: values.attachments || [], // <--- FIXED: Sent attachments!
     });
   }
@@ -575,6 +576,7 @@ export default function Board({ workspaceId, projectId }) {
         dueDate: values.dueDate,
         assigneeId: values.assigneeId,
         assigneeName,
+        estimatedTime: values.estimatedTime,
         attachments: values.attachments || [], // <--- FIXED: Sent attachments!
       },
     });

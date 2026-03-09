@@ -22,6 +22,7 @@ import {
   Settings,
   Star,
   Sun,
+  Timer,
   Trash2,
   UserPlus,
 } from "lucide-react";
@@ -31,6 +32,7 @@ import { Avatar } from "./ui";
 import Logo from "../Shared/Logo/Logo";
 import {
   deleteWorkspace,
+  loadDashboard,
   markAllNotificationsRead,
   resolveWorkspaceRole,
   useMockStore,
@@ -112,6 +114,133 @@ function formatNotificationTime(value) {
     hour: "numeric",
     minute: "2-digit",
   }).format(date);
+}
+
+function parseJsonSafe(text, fallback = null) {
+  if (!text) return fallback;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return fallback;
+  }
+}
+
+function formatElapsed(seconds) {
+  const safe = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0;
+  const h = Math.floor(safe / 3600);
+  const m = Math.floor((safe % 3600) / 60);
+  const s = safe % 60;
+  if (h > 0) return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+function GlobalTimerControl() {
+  const pathname = usePathname();
+  const tasks = useMockStore((state) => state.tasks || []);
+  const [activeTimer, setActiveTimer] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [stopping, setStopping] = useState(false);
+  const [nowMs, setNowMs] = useState(Date.now());
+
+  async function fetchActiveTimer() {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/dashboard/time/active", {
+        method: "GET",
+        cache: "no-store",
+      });
+      const text = await response.text();
+      const data = parseJsonSafe(text, null);
+      if (!response.ok) {
+        throw new Error(data?.error || data?.message || "Failed to fetch active timer");
+      }
+      setActiveTimer(data?.activeTimer || null);
+    } catch {
+      setActiveTimer(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchActiveTimer().catch(() => {});
+  }, [pathname]);
+
+  useEffect(() => {
+    function onTimerUpdated() {
+      fetchActiveTimer().catch(() => {});
+    }
+    window.addEventListener("zyplo-timer-updated", onTimerUpdated);
+    return () => window.removeEventListener("zyplo-timer-updated", onTimerUpdated);
+  }, []);
+
+  useEffect(() => {
+    const poll = setInterval(() => {
+      fetchActiveTimer().catch(() => {});
+    }, 30000);
+    return () => clearInterval(poll);
+  }, []);
+
+  useEffect(() => {
+    if (!activeTimer) return;
+    const tick = setInterval(() => setNowMs(Date.now()), 1000);
+    return () => clearInterval(tick);
+  }, [activeTimer]);
+
+  const startMs = activeTimer?.startTime ? new Date(activeTimer.startTime).getTime() : null;
+  const baseDuration = Number(activeTimer?.duration || 0);
+  const liveDuration =
+    startMs && Number.isFinite(startMs)
+      ? Math.max(baseDuration, baseDuration + Math.floor((nowMs - startMs) / 1000))
+      : baseDuration;
+  const activeTask =
+    tasks.find((task) => String(task.id) === String(activeTimer?.taskId || "")) || null;
+  const hasActiveTimer = Boolean(activeTimer?.id);
+
+  return (
+    <div className="flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-2 py-1.5 dark:border-indigo-400/30 dark:bg-indigo-500/10">
+      <span className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-700 dark:text-indigo-200">
+        <Timer className="size-3.5" />
+        {loading && !hasActiveTimer ? "Checking..." : hasActiveTimer ? formatElapsed(liveDuration) : "No timer"}
+      </span>
+      <span className="hidden max-w-36 truncate text-xs text-slate-700 sm:inline dark:text-slate-200">
+        {activeTask?.title || "No active task"}
+      </span>
+      <button
+        type="button"
+        onClick={async () => {
+          if (!hasActiveTimer || stopping) return;
+          try {
+            setStopping(true);
+            const response = await fetch(`/api/dashboard/time/${activeTimer.id}/stop`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({}),
+            });
+            const text = await response.text();
+            const data = parseJsonSafe(text, null);
+            if (!response.ok) {
+              throw new Error(data?.error || data?.message || "Failed to stop timer");
+            }
+            setActiveTimer(null);
+            toast.success("Timer stopped");
+            loadDashboard({ force: true, silent: true }).catch(() => {});
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new CustomEvent("zyplo-timer-updated"));
+            }
+          } catch (error) {
+            toast.error(error?.message || "Failed to stop timer");
+          } finally {
+            setStopping(false);
+          }
+        }}
+        disabled={stopping || loading || !hasActiveTimer}
+        className="rounded-md bg-rose-600 px-2 py-1 text-[11px] font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+      >
+        {stopping ? "Stopping..." : hasActiveTimer ? "Stop" : "Stop"}
+      </button>
+    </div>
+  );
 }
 
 function NotificationsMenu() {
@@ -497,6 +626,7 @@ function Topbar({ onOpenSidebar }) {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <GlobalTimerControl />
           <NotificationsMenu />
           {mounted ? (
             <button

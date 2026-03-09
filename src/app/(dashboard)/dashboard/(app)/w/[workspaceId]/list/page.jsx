@@ -5,6 +5,7 @@ import { useState, useMemo, useRef } from "react";
 import { useMockStore, loadDashboard } from "@/components/dashboard/mockStore";
 import CreateTaskLauncher from "@/components/dashboard/CreateTaskLauncher";
 import Swal from "sweetalert2";
+import TaskDetailsModal from "@/components/board/TaskDetailsModal";
 import {
   CheckCircle2,
   Circle,
@@ -167,6 +168,9 @@ export default function TaskListView() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [updateBusy, setUpdateBusy] = useState(false);
+  const [deleteBusy, setDeleteBusy] = useState(false);
 
   // NEW: State to track which bulk action menu is open
   const [bulkDropdown, setBulkDropdown] = useState(null);
@@ -492,6 +496,28 @@ export default function TaskListView() {
     await deleteTasks(Array.from(selectedIds));
   };
 
+  const handleModalUpdate = async (values) => {
+    if (!selectedTask?.id) return;
+    try {
+      setUpdateBusy(true);
+      await handleInlinePatch(selectedTask, values);
+      setSelectedTask(null);
+    } finally {
+      setUpdateBusy(false);
+    }
+  };
+
+  const handleModalDelete = async (task) => {
+    if (!task?.id) return;
+    try {
+      setDeleteBusy(true);
+      await handleDeleteSingleTask(task.id);
+      setSelectedTask(null);
+    } finally {
+      setDeleteBusy(false);
+    }
+  };
+
   const openInlineEdit = (task, field, value = "") => {
     setActiveDropdown(null);
     setInlineEdit({
@@ -548,7 +574,8 @@ export default function TaskListView() {
   };
 
   return (
-    <div className="relative rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#0B0F19] overflow-hidden min-h-150">
+    <>
+      <div className="relative rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#0B0F19] overflow-hidden min-h-150">
       <div className="flex flex-col border-b border-slate-200 dark:border-white/10">
         <div className="px-6 py-4">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
@@ -632,7 +659,7 @@ export default function TaskListView() {
                 }))
               }
               placeholder="Task Name"
-              className="h-10 min-w-[170px] rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 min-w-42.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
             />
 
             {visibleCols.status && (
@@ -644,7 +671,7 @@ export default function TaskListView() {
                     status: event.target.value,
                   }))
                 }
-                className="h-10 min-w-[130px] rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                className="h-10 min-w-32.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
               >
                 <option value="all">Status</option>
                 <option value="todo">To Do</option>
@@ -663,7 +690,7 @@ export default function TaskListView() {
                     priority: event.target.value,
                   }))
                 }
-                className="h-10 min-w-[110px] rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                className="h-10 min-w-27.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
               >
                 <option value="all">Priority</option>
                 <option value="P0">P0</option>
@@ -682,7 +709,7 @@ export default function TaskListView() {
                     assigneeId: event.target.value,
                   }))
                 }
-                className="h-10 min-w-[150px] rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                className="h-10 min-w-37.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
               >
                 <option value="all">Assignee</option>
                 {workspaceMembers.map((member) => (
@@ -796,7 +823,7 @@ export default function TaskListView() {
 
       {/* === INTERACTIVE DATA GRID === */}
       <div className="overflow-x-auto pb-32 min-h-100">
-        <table className="min-w-[1280px] w-full text-left text-sm text-slate-600 dark:text-slate-400">
+        <table className="min-w-7xl w-full text-left text-sm text-slate-600 dark:text-slate-400">
           <thead className="border-b border-slate-200 bg-slate-50/50 text-xs uppercase tracking-wider text-slate-500 dark:border-white/10 dark:bg-slate-800/50 dark:text-slate-400">
             <tr>
               <th className="px-6 py-3 font-medium w-10">
@@ -1144,23 +1171,34 @@ export default function TaskListView() {
                   )}
 
                   <td className="px-4 py-4">
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteSingleTask(task.id)}
-                      disabled={deletingIds.has(String(task.id))}
-                      aria-label="Delete task"
-                      title="Delete task"
-                      className="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 p-2 text-red-600 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
-                    >
-                      <Trash2
-                        size={14}
-                        className={
-                          deletingIds.has(String(task.id))
-                            ? "animate-pulse"
-                            : ""
-                        }
-                      />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedTask(task)}
+                        aria-label="Open task details"
+                        title="Open task details"
+                        className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-100 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-white/10"
+                      >
+                        <Eye size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteSingleTask(task.id)}
+                        disabled={deletingIds.has(String(task.id))}
+                        aria-label="Delete task"
+                        title="Delete task"
+                        className="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 p-2 text-red-600 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
+                      >
+                        <Trash2
+                          size={14}
+                          className={
+                            deletingIds.has(String(task.id))
+                              ? "animate-pulse"
+                              : ""
+                          }
+                        />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );
@@ -1308,5 +1346,20 @@ export default function TaskListView() {
         </div>
       </div>
     </div>
+
+    <TaskDetailsModal
+      open={Boolean(selectedTask)}
+      task={selectedTask}
+      members={workspaceMembers}
+      submitting={updateBusy}
+      deleting={deleteBusy}
+      onClose={() => {
+        if (updateBusy || deleteBusy) return;
+        setSelectedTask(null);
+      }}
+      onSubmit={handleModalUpdate}
+      onDelete={handleModalDelete}
+    />
+    </>
   );
 }
