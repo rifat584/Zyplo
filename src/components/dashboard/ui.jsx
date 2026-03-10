@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 
-export function Avatar({ name, className }) {
+export function Avatar({ name, className, src = "" }) {
   const letters = (name || "")
     .split(" ")
     .filter(Boolean)
@@ -14,11 +14,20 @@ export function Avatar({ name, className }) {
   return (
     <div
       className={cn(
-        "flex size-8 items-center justify-center rounded-full border border-white bg-gradient-to-br from-indigo-500 to-cyan-500 text-xs font-semibold text-white",
+        "flex size-8 items-center justify-center overflow-hidden rounded-full border border-white bg-gradient-to-br from-indigo-500 to-cyan-500 text-xs font-semibold text-white",
         className
       )}
     >
-      {letters || "U"}
+      {src ? (
+        <img
+          src={src}
+          alt={name || "User avatar"}
+          className="h-full w-full object-cover"
+          referrerPolicy="no-referrer"
+        />
+      ) : (
+        letters || "U"
+      )}
     </div>
   );
 }
