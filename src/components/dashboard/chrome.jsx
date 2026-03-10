@@ -18,6 +18,7 @@ import {
   Menu,
   Moon,
   PenTool,
+  UserCircle2,
   Rocket,
   Settings,
   Star,
@@ -70,25 +71,42 @@ function useSidebarState() {
 function AvatarMenu() {
   const [open, setOpen] = useState(false);
   const { data: session } = useSession();
+  const currentUser = useMockStore((state) => state.currentUser || null);
+  const rootRef = useRef(null);
+
+  useEffect(() => {
+    function onPointerDown(event) {
+      if (rootRef.current && !rootRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, []);
+
+  const displayName = currentUser?.name || session?.user?.name || "User";
+  const displayEmail = currentUser?.email || session?.user?.email || "";
+  const displayAvatarUrl = currentUser?.avatarUrl || session?.user?.image || "";
 
   return (
-    <div className="relative">
+    <div ref={rootRef} className="relative">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="rounded-full p-0.5 ring-2 ring-transparent transition hover:ring-cyan-200 dark:hover:ring-cyan-500/40"
       >
-        <Avatar name={session?.user?.name || "User"} />
+        <Avatar name={displayName} src={displayAvatarUrl} />
       </button>
 
       {open ? (
         <div className="absolute right-0 top-11 z-30 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg dark:border-white/10 dark:bg-slate-900">
           <div className="mb-2 border-b border-slate-200 pb-2 dark:border-white/10">
             <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
-              {session?.user?.name || "User"}
+              {displayName}
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              {session?.user?.email || ""}
+              {displayEmail}
             </p>
           </div>
           <button
@@ -132,6 +150,25 @@ function formatElapsed(seconds) {
   const s = safe % 60;
   if (h > 0) return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+const PROFILE_COMPLETION_FIELDS = [
+  "name",
+  "phone",
+  "roleTitle",
+  "company",
+  "location",
+  "website",
+  "avatarUrl",
+  "bio",
+];
+
+function computeProfileCompletion(user) {
+  if (!user) return 0;
+  const completed = PROFILE_COMPLETION_FIELDS.filter((key) =>
+    String(user?.[key] || "").trim(),
+  ).length;
+  return Math.round((completed / PROFILE_COMPLETION_FIELDS.length) * 100);
 }
 
 function GlobalTimerControl() {
@@ -391,6 +428,22 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     </Link>
   );
 
+  const profileItem = (
+    <Link
+      href="/dashboard/profile"
+      onClick={onCloseMobile}
+      className={`group flex items-center rounded-xl transition ${
+        pathname === "/dashboard/profile"
+          ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
+          : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+      } ${effectiveCollapsed ? "size-10 justify-center" : "gap-2 px-3 py-2"}`}
+      title={effectiveCollapsed ? "Profile" : undefined}
+    >
+      <UserCircle2 className="size-4 shrink-0" />
+      {!effectiveCollapsed ? <span className="text-sm">Profile</span> : null}
+    </Link>
+  );
+
   const workspaceItems = (
     <div className={`mt-3 space-y-1 ${effectiveCollapsed ? "flex flex-col items-center" : ""}`}>
       {!effectiveCollapsed ? (
@@ -522,6 +575,9 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         {rootItem}
       </div>
       {workspaceItems}
+      <div className={`${effectiveCollapsed ? "mt-auto flex justify-center pt-3" : "mt-auto pt-3"}`}>
+        {profileItem}
+      </div>
     </div>
   );
 
@@ -650,6 +706,32 @@ function Topbar({ onOpenSidebar }) {
 
 export function AppShell({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { currentUser, loaded } = useMockStore((state) => ({
+    currentUser: state.currentUser || null,
+    loaded: Boolean(state.loaded),
+  }));
+
+  useEffect(() => {
+    loadDashboard({ force: true, silent: true }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!loaded || !currentUser?.id) return;
+
+    const completion = computeProfileCompletion(currentUser);
+    const key = `dashboard.profile.nudge.${currentUser.id}`;
+
+    if (completion >= 100) {
+      if (typeof window !== "undefined") window.sessionStorage.removeItem(key);
+      return;
+    }
+
+    if (typeof window === "undefined") return;
+    if (window.sessionStorage.getItem(key) === "1") return;
+
+    toast.info("Complete your profile to unlock a better dashboard experience.");
+    window.sessionStorage.setItem(key, "1");
+  }, [loaded, currentUser]);
 
   return (
     <div className="flex min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
