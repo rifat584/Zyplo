@@ -7,6 +7,20 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+function getInviteErrorMessage(status, payload, fallback) {
+  const message = String(payload?.message || payload?.error || "").trim();
+
+  if (status === 401) return "Please sign in to continue with this invitation.";
+  if (status === 403) return message || "This account cannot use this invitation.";
+  if (status === 404) return message || "This invitation link is invalid or no longer exists.";
+  if (status === 409) return message || "This invitation has already been used.";
+  if (status === 400) return message || "This invitation is invalid or has expired.";
+  if (status === 502) return "The server could not be reached. Please try again shortly.";
+  if (status >= 500) return "A server error occurred while processing this invitation.";
+
+  return message || fallback;
+}
+
 function AcceptInvitePage() {
   const params = useParams();
   const token = typeof params?.token === "string" ? params.token : "";
@@ -16,6 +30,10 @@ function AcceptInvitePage() {
   const [loadingInvite, setLoadingInvite] = useState(true);
   const [inviteError, setInviteError] = useState("");
   const [actionLoading, setActionLoading] = useState("");
+  const workspaceLabel = workspace?.workspaceName || workspace?.workspace || "this workspace";
+  const expiryLabel = workspace?.expiresAt
+    ? new Date(workspace.expiresAt).toLocaleString()
+    : "Not available";
 
   useEffect(() => {
     if (!token) {
@@ -30,21 +48,17 @@ function AcceptInvitePage() {
         setLoadingInvite(true);
         setInviteError("");
 
-        const data = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/invites/${token}`,
-        );
+        const data = await fetch(`/api/invites/${token}`);
         const res = await data.json();
 
         if (!data.ok || !res?.ok) {
-          if (data.status === 404) {
-            setInviteError("This invitation link is invalid.");
-          } else if (data.status === 409) {
-            setInviteError(res?.message || "This invitation has already been used.");
-          } else if (data.status === 400) {
-            setInviteError(res?.message || "This invitation has expired.");
-          } else {
-            setInviteError(res?.message || "Could not load invitation details.");
-          }
+          setInviteError(
+            getInviteErrorMessage(
+              data.status,
+              res,
+              "Could not load invitation details.",
+            ),
+          );
           setWorkspace(null);
           return;
         }
@@ -78,43 +92,31 @@ function AcceptInvitePage() {
         );
       }
 
-      const data = { token, email: freshSession?.user?.email };
-      const submitData = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/invites/${choice}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
+      const submitData = await fetch(`/api/invites/${choice}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ token }),
+      });
       const result = await submitData.json();
 
       if (!submitData.ok || !result?.ok) {
-        const message = String(result?.message || "");
+        const message = getInviteErrorMessage(
+          submitData.status,
+          result,
+          "Failed to process invitation.",
+        );
 
-        if (submitData.status === 404 || message.toLowerCase().includes("invite not found")) {
+        if (
+          submitData.status === 404 ||
+          message.toLowerCase().includes("no longer exists")
+        ) {
           router.push("/");
           return;
         }
 
-        if (submitData.status === 403) {
-          toast.error(message || "This account does not match the invited email.");
-          return;
-        }
-
-        if (submitData.status === 400) {
-          toast.error(message || "Invitation is invalid or expired.");
-          return;
-        }
-
-        if (submitData.status === 409) {
-          toast.error(message || "Invitation has already been used.");
-          return;
-        }
-
-        toast.error(message || "Failed to process invitation.");
+        toast.error(message);
         return;
       }
 
@@ -143,7 +145,7 @@ function AcceptInvitePage() {
   return (
     <AuthCard
       title="Accept invite"
-      subtitle="Review your invite details before continuing."
+      subtitle={`Review your invite details before joining ${workspaceLabel}.`}
     >
       <BackToHomeLink />
 
@@ -177,7 +179,7 @@ function AcceptInvitePage() {
             </p>
             <p className="text-slate-700 dark:text-slate-200">
               Workspace:{" "}
-              <span className="font-semibold">{workspace?.workspace}</span>
+              <span className="font-semibold">{workspaceLabel}</span>
             </p>
             <p className="text-slate-700 dark:text-slate-200">
               Role: <span className="font-semibold">{workspace?.role}</span>
@@ -188,7 +190,7 @@ function AcceptInvitePage() {
             <p className="text-slate-700 dark:text-slate-200">
               Expiry:{" "}
               <span className="font-semibold text-red-400 dark:text-red-300">
-                {workspace?.expiresAt?.split("T")[0] || ""}
+                {expiryLabel}
               </span>
             </p>
           </div>

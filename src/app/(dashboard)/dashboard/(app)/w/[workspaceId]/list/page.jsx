@@ -4,6 +4,8 @@ import { useParams } from "next/navigation";
 import { useState, useMemo, useRef } from "react";
 import { useMockStore, loadDashboard } from "@/components/dashboard/mockStore";
 import CreateTaskLauncher from "@/components/dashboard/CreateTaskLauncher";
+import Swal from "sweetalert2";
+import TaskDetailsModal from "@/components/board/TaskDetailsModal";
 import {
   CheckCircle2,
   Circle,
@@ -58,28 +60,28 @@ const STATUSES = [
 
 const PRIORITIES = [
   {
-    value: "P1",
-    label: "Urgent",
+    value: "P0",
+    label: "Critical",
     icon: AlertCircle,
     color: "text-red-500",
     bg: "bg-red-50 dark:bg-red-500/10",
   },
   {
-    value: "P2",
+    value: "P1",
     label: "High",
     icon: ArrowUp,
     color: "text-orange-500",
     bg: "bg-orange-50 dark:bg-orange-500/10",
   },
   {
-    value: "P3",
+    value: "P2",
     label: "Medium",
     icon: ArrowRight,
     color: "text-yellow-600 dark:text-yellow-400",
     bg: "bg-yellow-50 dark:bg-yellow-500/10",
   },
   {
-    value: "P4",
+    value: "P3",
     label: "Low",
     icon: ArrowDown,
     color: "text-slate-500",
@@ -91,6 +93,18 @@ const normalizeStatusKey = (value) =>
   String(value || "")
     .toLowerCase()
     .replace(/[^a-z]/g, "");
+
+const toDateKey = (value) => {
+  if (!value) return "";
+  const raw = String(value).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(raw)) return raw.slice(0, 10);
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
 
 const getStatusFromColumnName = (columnName, fallback = "") => {
   const normalized = normalizeStatusKey(columnName);
@@ -154,11 +168,15 @@ export default function TaskListView() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [activeDropdown, setActiveDropdown] = useState(null);
-  
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [updateBusy, setUpdateBusy] = useState(false);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+
   // NEW: State to track which bulk action menu is open
-  const [bulkDropdown, setBulkDropdown] = useState(null); 
+  const [bulkDropdown, setBulkDropdown] = useState(null);
 
   const [displayMenuOpen, setDisplayMenuOpen] = useState(false);
+  const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
   const [visibleCols, setVisibleCols] = useState({
     status: true,
     priority: true,
@@ -172,14 +190,88 @@ export default function TaskListView() {
   const [localEdits, setLocalEdits] = useState({});
   const boardColumnsCacheRef = useRef(new Map());
   const [inlineEdit, setInlineEdit] = useState(null);
+  const [deletingIds, setDeletingIds] = useState(new Set());
+  const [columnFilters, setColumnFilters] = useState({
+    taskName: "",
+    status: "all",
+    priority: "all",
+    assigneeId: "all",
+    reporter: "",
+    updatedAt: "",
+    createdAt: "",
+    dueDate: "",
+  });
 
   const workspaceTasks = allTasks.filter((t) => t.workspaceId === workspaceId);
+  const actionColSpan =
+    3 +
+    Number(visibleCols.status) +
+    Number(visibleCols.priority) +
+    Number(visibleCols.assignee) +
+    Number(visibleCols.reporter) +
+    Number(visibleCols.updated) +
+    Number(visibleCols.createdAt) +
+    Number(visibleCols.dueDate);
 
   const filteredTasks = useMemo(() => {
     return workspaceTasks
       .map((t) => ({ ...t, ...(localEdits[t.id] || {}) }))
-      .filter((t) => t.title.toLowerCase().includes(searchQuery.toLowerCase()));
-  }, [workspaceTasks, searchQuery, localEdits]);
+      .filter((t) => {
+        const bySearch = String(t.title || "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
+        if (!bySearch) return false;
+
+        const byTaskName = columnFilters.taskName
+          ? String(t.title || "")
+              .toLowerCase()
+              .includes(columnFilters.taskName.toLowerCase())
+          : true;
+        if (!byTaskName) return false;
+
+        const byStatus =
+          columnFilters.status === "all"
+            ? true
+            : normalizeStatusKey(t.status || "todo") ===
+              normalizeStatusKey(columnFilters.status);
+        if (!byStatus) return false;
+
+        const byPriority =
+          columnFilters.priority === "all"
+            ? true
+            : String(t.priority || "") === columnFilters.priority;
+        if (!byPriority) return false;
+
+        const byAssignee =
+          columnFilters.assigneeId === "all"
+            ? true
+            : String(t.assigneeId || "") === columnFilters.assigneeId;
+        if (!byAssignee) return false;
+
+        const byReporter = columnFilters.reporter
+          ? String(t.reporterName || "Admin")
+              .toLowerCase()
+              .includes(columnFilters.reporter.toLowerCase())
+          : true;
+        if (!byReporter) return false;
+
+        const byUpdatedAt = columnFilters.updatedAt
+          ? toDateKey(t.updatedAt) === columnFilters.updatedAt
+          : true;
+        if (!byUpdatedAt) return false;
+
+        const byCreatedAt = columnFilters.createdAt
+          ? toDateKey(t.createdAt) === columnFilters.createdAt
+          : true;
+        if (!byCreatedAt) return false;
+
+        const byDueDate = columnFilters.dueDate
+          ? toDateKey(t.dueDate) === columnFilters.dueDate
+          : true;
+
+        return byDueDate;
+      });
+  }, [workspaceTasks, searchQuery, localEdits, columnFilters]);
 
   const toggleSelectAll = () => {
     if (selectedIds.size === filteredTasks.length) {
@@ -235,14 +327,11 @@ export default function TaskListView() {
       setActiveDropdown(null);
       return;
     }
-    const updatedAt = new Date().toISOString();
-    const patchWithUpdatedAt = { ...nextPatch, updatedAt };
-
     setLocalEdits((prev) => ({
       ...prev,
       [taskId]: {
         ...(prev[taskId] || {}),
-        ...patchWithUpdatedAt,
+        ...nextPatch,
       },
     }));
     setActiveDropdown(null);
@@ -262,7 +351,10 @@ export default function TaskListView() {
             boardColumnsCacheRef.current.set(projectId, columns);
           }
 
-          const destinationColumn = findColumnByStatus(columns, nextPatch.status);
+          const destinationColumn = findColumnByStatus(
+            columns,
+            nextPatch.status,
+          );
           if (
             destinationColumn?.id &&
             String(destinationColumn.id) !== sourceColumnId
@@ -292,7 +384,7 @@ export default function TaskListView() {
       try {
         await fetchJson(`/api/dashboard/tasks/${taskId}`, {
           method: "PATCH",
-          body: JSON.stringify(patchWithUpdatedAt),
+          body: JSON.stringify(nextPatch),
         });
       } catch (error) {
         if (error?.message !== "Task not found") {
@@ -302,12 +394,128 @@ export default function TaskListView() {
       loadDashboard({ force: true }).catch(() => {});
     } catch (err) {
       console.error("Failed to update task", err);
-      rollbackLocalPatch(taskId, patchWithUpdatedAt);
+      rollbackLocalPatch(taskId, nextPatch);
     }
   };
 
   const handleInlineEdit = async (task, field, value) => {
     await handleInlinePatch(task, { [field]: value });
+  };
+
+  const deleteTasks = async (ids = []) => {
+    const uniqueIds = [...new Set(ids.map((id) => String(id || "")))].filter(
+      Boolean,
+    );
+    if (!uniqueIds.length) return;
+
+    const targets = workspaceTasks.filter((task) =>
+      uniqueIds.includes(task.id),
+    );
+    const singleTask = targets.length === 1 ? targets[0] : null;
+
+    const result = await Swal.fire({
+      title: singleTask ? "Delete task?" : "Delete selected tasks?",
+      text: singleTask
+        ? `Delete "${singleTask.title}"? This cannot be undone.`
+        : `Delete ${uniqueIds.length} selected tasks? This cannot be undone.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+      background: "#0f172a",
+      color: "#e2e8f0",
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#334155",
+    });
+
+    if (!result.isConfirmed) return;
+
+    setDeletingIds((prev) => {
+      const next = new Set(prev);
+      uniqueIds.forEach((id) => next.add(id));
+      return next;
+    });
+
+    try {
+      await Promise.all(
+        uniqueIds.map((taskId) =>
+          fetchJson(`/api/dashboard/tasks/${taskId}`, { method: "DELETE" }),
+        ),
+      );
+
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        uniqueIds.forEach((id) => next.delete(id));
+        return next;
+      });
+      setLocalEdits((prev) => {
+        const next = { ...prev };
+        uniqueIds.forEach((id) => delete next[id]);
+        return next;
+      });
+      await loadDashboard({ force: true });
+
+      await Swal.fire({
+        title: "Deleted",
+        text:
+          uniqueIds.length === 1
+            ? "Task deleted successfully."
+            : `${uniqueIds.length} tasks deleted successfully.`,
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+        background: "#0f172a",
+        color: "#e2e8f0",
+      });
+    } catch (error) {
+      await Swal.fire({
+        title: "Delete failed",
+        text: error?.message || "Failed to delete task",
+        icon: "error",
+        confirmButtonColor: "#dc2626",
+        background: "#0f172a",
+        color: "#e2e8f0",
+      });
+    } finally {
+      setDeletingIds((prev) => {
+        const next = new Set(prev);
+        uniqueIds.forEach((id) => next.delete(id));
+        return next;
+      });
+    }
+  };
+
+  const handleDeleteSingleTask = async (taskId) => {
+    if (!taskId || deletingIds.has(String(taskId))) return;
+    await deleteTasks([taskId]);
+  };
+
+  const handleDeleteSelectedTasks = async () => {
+    if (!selectedIds.size) return;
+    await deleteTasks(Array.from(selectedIds));
+  };
+
+  const handleModalUpdate = async (values) => {
+    if (!selectedTask?.id) return;
+    try {
+      setUpdateBusy(true);
+      await handleInlinePatch(selectedTask, values);
+      setSelectedTask(null);
+    } finally {
+      setUpdateBusy(false);
+    }
+  };
+
+  const handleModalDelete = async (task) => {
+    if (!task?.id) return;
+    try {
+      setDeleteBusy(true);
+      await handleDeleteSingleTask(task.id);
+      setSelectedTask(null);
+    } finally {
+      setDeleteBusy(false);
+    }
   };
 
   const openInlineEdit = (task, field, value = "") => {
@@ -342,7 +550,7 @@ export default function TaskListView() {
     setBulkDropdown(null);
     const ids = Array.from(selectedIds);
     setSelectedIds(new Set()); // Clear selection instantly for snappy UI
-    
+
     // Process them sequentially to reuse your existing perfect logic
     for (const id of ids) {
       const task = workspaceTasks.find((t) => t.id === id);
@@ -356,7 +564,7 @@ export default function TaskListView() {
     setBulkDropdown(null);
     const ids = Array.from(selectedIds);
     setSelectedIds(new Set()); // Clear selection instantly for snappy UI
-    
+
     for (const id of ids) {
       const task = workspaceTasks.find((t) => t.id === id);
       if (task) {
@@ -366,7 +574,8 @@ export default function TaskListView() {
   };
 
   return (
-    <div className="relative rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#0B0F19] overflow-hidden min-h-150">
+    <>
+      <div className="relative rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#0B0F19] overflow-hidden min-h-150">
       <div className="flex flex-col border-b border-slate-200 dark:border-white/10">
         <div className="px-6 py-4">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
@@ -437,11 +646,184 @@ export default function TaskListView() {
             />
           </div>
         </div>
+
+        <div className="border-t border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/20">
+          <div className="flex flex-wrap gap-2">
+            <input
+              type="text"
+              value={columnFilters.taskName}
+              onChange={(event) =>
+                setColumnFilters((prev) => ({
+                  ...prev,
+                  taskName: event.target.value,
+                }))
+              }
+              placeholder="Task Name"
+              className="h-10 min-w-42.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+            />
+
+            {visibleCols.status && (
+              <select
+                value={columnFilters.status}
+                onChange={(event) =>
+                  setColumnFilters((prev) => ({
+                    ...prev,
+                    status: event.target.value,
+                  }))
+                }
+                className="h-10 min-w-32.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              >
+                <option value="all">Status</option>
+                <option value="todo">To Do</option>
+                <option value="inprogress">In Progress</option>
+                <option value="inreview">In Review</option>
+                <option value="done">Done</option>
+              </select>
+            )}
+
+            {visibleCols.priority && (
+              <select
+                value={columnFilters.priority}
+                onChange={(event) =>
+                  setColumnFilters((prev) => ({
+                    ...prev,
+                    priority: event.target.value,
+                  }))
+                }
+                className="h-10 min-w-27.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              >
+                <option value="all">Priority</option>
+                <option value="P0">P0</option>
+                <option value="P1">P1</option>
+                <option value="P2">P2</option>
+                <option value="P3">P3</option>
+              </select>
+            )}
+
+            {visibleCols.assignee && (
+              <select
+                value={columnFilters.assigneeId}
+                onChange={(event) =>
+                  setColumnFilters((prev) => ({
+                    ...prev,
+                    assigneeId: event.target.value,
+                  }))
+                }
+                className="h-10 min-w-37.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              >
+                <option value="all">Assignee</option>
+                {workspaceMembers.map((member) => (
+                  <option key={member.id} value={member.id}>
+                    {member.name || member.email || "Member"}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setMoreFiltersOpen((prev) => !prev)}
+                className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+              >
+                <Filter className="size-4" />
+                More filters
+              </button>
+
+              {moreFiltersOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setMoreFiltersOpen(false)}
+                  />
+                  <div className="absolute right-0 top-11 z-50 w-[320px] space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                    {visibleCols.reporter && (
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                          Reporter
+                        </label>
+                        <input
+                          type="text"
+                          value={columnFilters.reporter}
+                          onChange={(event) =>
+                            setColumnFilters((prev) => ({
+                              ...prev,
+                              reporter: event.target.value,
+                            }))
+                          }
+                          placeholder="Filter by reporter"
+                          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        />
+                      </div>
+                    )}
+
+                    {visibleCols.updated && (
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                          Updated At
+                        </label>
+                        <input
+                          type="date"
+                          value={columnFilters.updatedAt}
+                          onChange={(event) =>
+                            setColumnFilters((prev) => ({
+                              ...prev,
+                              updatedAt: event.target.value,
+                            }))
+                          }
+                          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        />
+                      </div>
+                    )}
+
+                    {visibleCols.createdAt && (
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                          Created At
+                        </label>
+                        <input
+                          type="date"
+                          value={columnFilters.createdAt}
+                          onChange={(event) =>
+                            setColumnFilters((prev) => ({
+                              ...prev,
+                              createdAt: event.target.value,
+                            }))
+                          }
+                          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        />
+                      </div>
+                    )}
+
+                    {visibleCols.dueDate && (
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                          Due Date
+                        </label>
+                        <input
+                          type="date"
+                          value={columnFilters.dueDate}
+                          onChange={(event) =>
+                            setColumnFilters((prev) => ({
+                              ...prev,
+                              dueDate: event.target.value,
+                            }))
+                          }
+                          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* === INTERACTIVE DATA GRID === */}
       <div className="overflow-x-auto pb-32 min-h-100">
-        <table className="w-full text-left text-sm text-slate-600 dark:text-slate-400">
+        <table className="min-w-7xl w-full text-left text-sm text-slate-600 dark:text-slate-400">
           <thead className="border-b border-slate-200 bg-slate-50/50 text-xs uppercase tracking-wider text-slate-500 dark:border-white/10 dark:bg-slate-800/50 dark:text-slate-400">
             <tr>
               <th className="px-6 py-3 font-medium w-10">
@@ -469,7 +851,7 @@ export default function TaskListView() {
                 <th className="px-4 py-3 font-medium">Reporter</th>
               )}
               {visibleCols.updated && (
-                <th className="px-4 py-3 font-medium">Updated</th>
+                <th className="px-4 py-3 font-medium">Updated AT</th>
               )}
               {visibleCols.createdAt && (
                 <th className="px-4 py-3 font-medium">Created At</th>
@@ -477,6 +859,7 @@ export default function TaskListView() {
               {visibleCols.dueDate && (
                 <th className="px-4 py-3 font-medium">Due Date</th>
               )}
+              <th className="px-4 py-3 font-medium">Action</th>
             </tr>
           </thead>
 
@@ -533,7 +916,9 @@ export default function TaskListView() {
                     ) : (
                       <button
                         type="button"
-                        onClick={() => openInlineEdit(task, "title", task.title)}
+                        onClick={() =>
+                          openInlineEdit(task, "title", task.title)
+                        }
                         className="w-full text-left hover:underline"
                       >
                         {task.title}
@@ -693,9 +1078,7 @@ export default function TaskListView() {
                                 handleInlinePatch(task, {
                                   assigneeId: member.id || "",
                                   assigneeName:
-                                    member.name ||
-                                    member.email ||
-                                    "Unassigned",
+                                    member.name || member.email || "Unassigned",
                                 })
                               }
                               className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
@@ -722,7 +1105,7 @@ export default function TaskListView() {
                   {/* Updated Date */}
                   {visibleCols.updated && (
                     <td className="px-4 py-4 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
-                      {formatDate(task.updatedAt || task.createdAt)}
+                      {formatDate(task.updatedAt)}
                     </td>
                   )}
 
@@ -768,7 +1151,9 @@ export default function TaskListView() {
                             openInlineEdit(
                               task,
                               "dueDate",
-                              task.dueDate ? String(task.dueDate).slice(0, 10) : "",
+                              task.dueDate
+                                ? String(task.dueDate).slice(0, 10)
+                                : "",
                             )
                           }
                           className="flex items-center gap-1.5 rounded-md px-1 py-0.5 hover:bg-slate-100 dark:hover:bg-white/5"
@@ -784,6 +1169,37 @@ export default function TaskListView() {
                       )}
                     </td>
                   )}
+
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedTask(task)}
+                        aria-label="Open task details"
+                        title="Open task details"
+                        className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-100 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-white/10"
+                      >
+                        <Eye size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteSingleTask(task.id)}
+                        disabled={deletingIds.has(String(task.id))}
+                        aria-label="Delete task"
+                        title="Delete task"
+                        className="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 p-2 text-red-600 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
+                      >
+                        <Trash2
+                          size={14}
+                          className={
+                            deletingIds.has(String(task.id))
+                              ? "animate-pulse"
+                              : ""
+                          }
+                        />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               );
             })}
@@ -791,7 +1207,10 @@ export default function TaskListView() {
             {/* Show message if empty */}
             {filteredTasks.length === 0 && (
               <tr>
-                <td colSpan="9" className="py-12 text-center text-slate-500">
+                <td
+                  colSpan={actionColSpan}
+                  className="py-12 text-center text-slate-500"
+                >
                   No tasks match your search.
                 </td>
               </tr>
@@ -819,19 +1238,23 @@ export default function TaskListView() {
           </div>
 
           <div className="flex gap-1">
-            
             {/* BULK ACTION: Set Status */}
             <div className="relative">
               {bulkDropdown === "status" && (
-                <div className="fixed inset-0 z-10" onClick={() => setBulkDropdown(null)} />
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setBulkDropdown(null)}
+                />
               )}
-              <button 
-                onClick={() => setBulkDropdown(bulkDropdown === "status" ? null : "status")}
+              <button
+                onClick={() =>
+                  setBulkDropdown(bulkDropdown === "status" ? null : "status")
+                }
                 className="relative z-20 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10 transition-colors"
               >
                 <Circle size={16} /> Set Status
               </button>
-              
+
               {bulkDropdown === "status" && (
                 <div className="absolute bottom-full mb-2 left-0 z-30 w-40 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
                   {STATUSES.map((s) => (
@@ -841,7 +1264,9 @@ export default function TaskListView() {
                       className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
                     >
                       <s.icon size={14} className={s.color} />
-                      <span className="text-slate-700 dark:text-slate-300">{s.label}</span>
+                      <span className="text-slate-700 dark:text-slate-300">
+                        {s.label}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -851,27 +1276,39 @@ export default function TaskListView() {
             {/* BULK ACTION: Assign */}
             <div className="relative">
               {bulkDropdown === "assign" && (
-                <div className="fixed inset-0 z-10" onClick={() => setBulkDropdown(null)} />
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setBulkDropdown(null)}
+                />
               )}
-              <button 
-                onClick={() => setBulkDropdown(bulkDropdown === "assign" ? null : "assign")}
+              <button
+                onClick={() =>
+                  setBulkDropdown(bulkDropdown === "assign" ? null : "assign")
+                }
                 className="relative z-20 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10 transition-colors"
               >
                 <UserPlus size={16} /> Assign
               </button>
-              
+
               {bulkDropdown === "assign" && (
                 <div className="absolute bottom-full mb-2 left-0 z-30 w-48 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
                   <button
                     onClick={() => handleBulkAssign("", "Unassigned")}
                     className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
                   >
-                    <span className="text-slate-700 dark:text-slate-300">Unassigned</span>
+                    <span className="text-slate-700 dark:text-slate-300">
+                      Unassigned
+                    </span>
                   </button>
                   {workspaceMembers.map((member) => (
                     <button
                       key={member.id}
-                      onClick={() => handleBulkAssign(member.id || "", member.name || member.email || "Unknown")}
+                      onClick={() =>
+                        handleBulkAssign(
+                          member.id || "",
+                          member.name || member.email || "Unknown",
+                        )
+                      }
                       className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
                     >
                       <span className="text-slate-700 dark:text-slate-300">
@@ -884,8 +1321,19 @@ export default function TaskListView() {
             </div>
 
             {/* BULK ACTION: Delete Placeholder */}
-            <button className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10 transition-colors">
-              <Trash2 size={16} /> Delete
+            <button
+              onClick={handleDeleteSelectedTasks}
+              disabled={
+                !selectedIds.size ||
+                Array.from(selectedIds).some((id) =>
+                  deletingIds.has(String(id)),
+                )
+              }
+              aria-label="Delete selected tasks"
+              title="Delete selected tasks"
+              className="flex items-center justify-center rounded-lg p-2 text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-500/10 transition-colors"
+            >
+              <Trash2 size={16} />
             </button>
           </div>
 
@@ -898,5 +1346,20 @@ export default function TaskListView() {
         </div>
       </div>
     </div>
+
+    <TaskDetailsModal
+      open={Boolean(selectedTask)}
+      task={selectedTask}
+      members={workspaceMembers}
+      submitting={updateBusy}
+      deleting={deleteBusy}
+      onClose={() => {
+        if (updateBusy || deleteBusy) return;
+        setSelectedTask(null);
+      }}
+      onSubmit={handleModalUpdate}
+      onDelete={handleModalDelete}
+    />
+    </>
   );
 }

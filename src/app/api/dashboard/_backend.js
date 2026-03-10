@@ -66,33 +66,39 @@ export async function proxyDashboard(path, { method = "GET", user, body } = {}) 
     return Response.json(
       {
         error:
-          "Dashboard backend URL is missing. Set BASE_URL or NEXT_PUBLIC_BACKEND_URL in frontend env.",
+          "Backend service is not configured. Set BASE_URL or NEXT_PUBLIC_BACKEND_URL in frontend env.",
       },
       { status: 500 }
     );
   }
 
-  const normalizedUser = {
-    ...user,
-    id: normalizeUserId(user?.id || user?.sub),
+  const normalizedUser = user
+    ? {
+        ...user,
+        id: normalizeUserId(user?.id || user?.sub),
+      }
+    : null;
+
+  const token = normalizedUser ? signDashboardToken(normalizedUser) : null;
+  if (normalizedUser && !token) {
+    return Response.json({ error: "Server authentication is not configured correctly." }, { status: 500 });
+  }
+
+  const headers = {
+    "Content-Type": "application/json",
   };
 
-  const token = signDashboardToken(normalizedUser);
-  if (!token) {
-    return Response.json({ error: "NEXTAUTH_SECRET is missing for dashboard proxy auth" }, { status: 500 });
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+    headers["x-user-id"] = normalizedUser.id;
+    headers["x-user-email"] = String(normalizedUser?.email || "");
+    headers["x-user-name"] = String(normalizedUser?.name || "User");
   }
 
   try {
-    const target = `${base}${path}`;
     const response = await fetch(`${base}${path}`, {
       method,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-        "x-user-id": normalizedUser.id,
-        "x-user-email": String(normalizedUser?.email || ""),
-        "x-user-name": String(normalizedUser?.name || "User"),
-      },
+      headers,
       body: body ? JSON.stringify(body) : undefined,
       cache: "no-store",
     });
@@ -108,7 +114,7 @@ export async function proxyDashboard(path, { method = "GET", user, body } = {}) 
   } catch (error) {
     return Response.json(
       {
-        error: "Dashboard backend is unavailable",
+        error: "Backend service is unavailable right now.",
         detail: String(error?.message || "Unknown fetch error"),
       },
       { status: 502 }

@@ -5,8 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import {
+  Bell,
   BriefcaseBusiness,
   Building2,
+  CheckCheck,
   ChevronLeft,
   Ellipsis,
   Cpu,
@@ -20,6 +22,7 @@ import {
   Settings,
   Star,
   Sun,
+  Timer,
   Trash2,
   UserPlus,
 } from "lucide-react";
@@ -27,7 +30,14 @@ import { toast } from "sonner";
 import { useTheme } from "@/Context/ThemeContext";
 import { Avatar } from "./ui";
 import Logo from "../Shared/Logo/Logo";
-import { deleteWorkspace, useMockStore } from "./mockStore";
+import {
+  deleteWorkspace,
+  loadDashboard,
+  markAllNotificationsRead,
+  resolveWorkspaceRole,
+  useMockStore,
+} from "./mockStore";
+
 
 const SIDEBAR_KEY = "dashboard.sidebarCollapsed";
 
@@ -94,12 +104,244 @@ function AvatarMenu() {
   );
 }
 
+function formatNotificationTime(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function parseJsonSafe(text, fallback = null) {
+  if (!text) return fallback;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return fallback;
+  }
+}
+
+function formatElapsed(seconds) {
+  const safe = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0;
+  const h = Math.floor(safe / 3600);
+  const m = Math.floor((safe % 3600) / 60);
+  const s = safe % 60;
+  if (h > 0) return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+function GlobalTimerControl() {
+  const pathname = usePathname();
+  const tasks = useMockStore((state) => state.tasks || []);
+  const [activeTimer, setActiveTimer] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [stopping, setStopping] = useState(false);
+  const [nowMs, setNowMs] = useState(Date.now());
+
+  async function fetchActiveTimer() {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/dashboard/time/active", {
+        method: "GET",
+        cache: "no-store",
+      });
+      const text = await response.text();
+      const data = parseJsonSafe(text, null);
+      if (!response.ok) {
+        throw new Error(data?.error || data?.message || "Failed to fetch active timer");
+      }
+      setActiveTimer(data?.activeTimer || null);
+    } catch {
+      setActiveTimer(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchActiveTimer().catch(() => {});
+  }, [pathname]);
+
+  useEffect(() => {
+    function onTimerUpdated() {
+      fetchActiveTimer().catch(() => {});
+    }
+    window.addEventListener("zyplo-timer-updated", onTimerUpdated);
+    return () => window.removeEventListener("zyplo-timer-updated", onTimerUpdated);
+  }, []);
+
+  useEffect(() => {
+    const poll = setInterval(() => {
+      fetchActiveTimer().catch(() => {});
+    }, 30000);
+    return () => clearInterval(poll);
+  }, []);
+
+  useEffect(() => {
+    if (!activeTimer) return;
+    const tick = setInterval(() => setNowMs(Date.now()), 1000);
+    return () => clearInterval(tick);
+  }, [activeTimer]);
+
+  const startMs = activeTimer?.startTime ? new Date(activeTimer.startTime).getTime() : null;
+  const baseDuration = Number(activeTimer?.duration || 0);
+  const liveDuration =
+    startMs && Number.isFinite(startMs)
+      ? Math.max(baseDuration, baseDuration + Math.floor((nowMs - startMs) / 1000))
+      : baseDuration;
+  const activeTask =
+    tasks.find((task) => String(task.id) === String(activeTimer?.taskId || "")) || null;
+  const hasActiveTimer = Boolean(activeTimer?.id);
+
+  return (
+    <div className="flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-2 py-1.5 dark:border-indigo-400/30 dark:bg-indigo-500/10">
+      <span className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-700 dark:text-indigo-200">
+        <Timer className="size-3.5" />
+        {loading && !hasActiveTimer ? "Checking..." : hasActiveTimer ? formatElapsed(liveDuration) : "No timer"}
+      </span>
+      <span className="hidden max-w-36 truncate text-xs text-slate-700 sm:inline dark:text-slate-200">
+        {activeTask?.title || "No active task"}
+      </span>
+      <button
+        type="button"
+        onClick={async () => {
+          if (!hasActiveTimer || stopping) return;
+          try {
+            setStopping(true);
+            const response = await fetch(`/api/dashboard/time/${activeTimer.id}/stop`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({}),
+            });
+            const text = await response.text();
+            const data = parseJsonSafe(text, null);
+            if (!response.ok) {
+              throw new Error(data?.error || data?.message || "Failed to stop timer");
+            }
+            setActiveTimer(null);
+            toast.success("Timer stopped");
+            loadDashboard({ force: true, silent: true }).catch(() => {});
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new CustomEvent("zyplo-timer-updated"));
+            }
+          } catch (error) {
+            toast.error(error?.message || "Failed to stop timer");
+          } finally {
+            setStopping(false);
+          }
+        }}
+        disabled={stopping || loading || !hasActiveTimer}
+        className="rounded-md bg-rose-600 px-2 py-1 text-[11px] font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+      >
+        {stopping ? "Stopping..." : hasActiveTimer ? "Stop" : "Stop"}
+      </button>
+    </div>
+  );
+}
+
+function NotificationsMenu() {
+  const notifications = useMockStore((state) => state.notifications || []);
+  const unreadCount = notifications.filter((item) => !item.read).length;
+  const [open, setOpen] = useState(false);
+  const [markingAllRead, setMarkingAllRead] = useState(false);
+  const rootRef = useRef(null);
+
+  useEffect(() => {
+    function onPointerDown(event) {
+      if (rootRef.current && !rootRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, []);
+
+  return (
+    <div ref={rootRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="relative rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-900"
+        aria-label="Open notifications"
+      >
+        <Bell className="size-4" />
+        {unreadCount > 0 ? (
+          <span className="absolute -right-1 -top-1 inline-flex min-w-[18px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-semibold text-white">
+            {unreadCount > 99 ? "99+" : unreadCount}
+          </span>
+        ) : null}
+      </button>
+
+      {open ? (
+        <div className="absolute right-0 top-11 z-40 w-[92vw] max-w-sm overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-white/10 dark:bg-slate-900">
+          <div className="flex items-center justify-between border-b border-slate-200 px-3 py-2 dark:border-white/10">
+            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              Notifications
+            </p>
+            <button
+              type="button"
+              disabled={markingAllRead || unreadCount === 0}
+              onClick={async () => {
+                try {
+                  setMarkingAllRead(true);
+                  await markAllNotificationsRead();
+                } catch (error) {
+                  toast.error(error?.message || "Failed to mark notifications");
+                } finally {
+                  setMarkingAllRead(false);
+                }
+              }}
+              className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+              <CheckCheck className="size-3.5" />
+              Mark all read
+            </button>
+          </div>
+          <div className="max-h-80 overflow-y-auto p-2">
+            {notifications.length ? (
+              notifications.map((item) => (
+                <div
+                  key={item.id}
+                  className={`mb-1 rounded-lg border px-3 py-2 last:mb-0 ${
+                    item.read
+                      ? "border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900"
+                      : "border-indigo-200 bg-indigo-50 dark:border-indigo-500/40 dark:bg-indigo-500/10"
+                  }`}
+                >
+                  <p className="text-sm text-slate-800 dark:text-slate-100">
+                    {item.text || "Notification"}
+                  </p>
+                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                    {formatNotificationTime(item.createdAt)}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p className="px-2 py-4 text-sm text-slate-500 dark:text-slate-400">
+                No notifications yet.
+              </p>
+            )}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function AppSidebar({ mobileOpen, onCloseMobile }) {
   const router = useRouter();
   const pathname = usePathname();
   const { collapsed, toggle } = useSidebarState();
   const effectiveCollapsed = mobileOpen ? true : collapsed;
-  const workspaces = useMockStore((state) => state.workspaces || []);
+  const { workspaces, currentUser } = useMockStore((state) => ({
+    workspaces: state.workspaces || [],
+    currentUser: state.currentUser || null,
+  }));
   const [actionsOpenFor, setActionsOpenFor] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState("");
   const [deleting, setDeleting] = useState(false);
@@ -157,6 +399,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         </p>
       ) : null}
       {workspaces.map((workspace) => {
+        const isAdmin = resolveWorkspaceRole(workspace, currentUser) === "admin";
         const { Icon, color } = pickWorkspaceIcon(workspace);
         const href = `/dashboard/w/${workspace.id}`;
         const active = pathname === href || pathname.startsWith(`${href}/`);
@@ -208,39 +451,43 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                   <Star className="size-4" />
                   Add to starred
                 </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActionsOpenFor("");
-                    router.push(`/dashboard/w/${workspace.id}/members`);
-                  }}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
-                >
-                  <UserPlus className="size-4" />
-                  Add people
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActionsOpenFor("");
-                    router.push(`/dashboard/w/${workspace.id}/settings`);
-                  }}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
-                >
-                  <Settings className="size-4" />
-                  Workspace settings
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActionsOpenFor("");
-                    setConfirmDeleteId(workspace.id);
-                  }}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10"
-                >
-                  <Trash2 className="size-4" />
-                  Delete workspace
-                </button>
+                {isAdmin ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActionsOpenFor("");
+                        router.push(`/dashboard/w/${workspace.id}/members`);
+                      }}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                    >
+                      <UserPlus className="size-4" />
+                      Add people
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActionsOpenFor("");
+                        router.push(`/dashboard/w/${workspace.id}/settings`);
+                      }}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                    >
+                      <Settings className="size-4" />
+                      Workspace settings
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActionsOpenFor("");
+                        setConfirmDeleteId(workspace.id);
+                      }}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10"
+                    >
+                      <Trash2 className="size-4" />
+                      Delete workspace
+                    </button>
+                  </>
+                ) : null}
               </div>
             ) : null}
           </div>
@@ -379,6 +626,8 @@ function Topbar({ onOpenSidebar }) {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <GlobalTimerControl />
+          <NotificationsMenu />
           {mounted ? (
             <button
               type="button"

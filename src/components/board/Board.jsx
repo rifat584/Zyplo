@@ -11,6 +11,7 @@ import {
 } from "@dnd-kit/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RefreshCw, Plus } from "lucide-react";
+import Swal from "sweetalert2";
 import { toast } from "sonner";
 import { loadDashboard } from "@/components/dashboard/mockStore";
 import Column from "./Column";
@@ -334,7 +335,6 @@ export default function Board({ workspaceId, projectId }) {
         });
         return data?.task || { id: taskId, ...patch };
       } catch (error) {
-        // Some backend variants return "Task not found" even when update succeeds.
         if (error?.message === "Task not found") {
           return { id: taskId, ...patch };
         }
@@ -358,6 +358,31 @@ export default function Board({ workspaceId, projectId }) {
     },
     onError: (error) => {
       toast.error(error?.message || "Failed to update task");
+    },
+  });
+
+  const deleteTaskMutation = useMutation({
+    mutationFn: async (taskId) => {
+      await fetchJson(`/api/dashboard/tasks/${taskId}`, {
+        method: "DELETE",
+      });
+      return taskId;
+    },
+    onSuccess: async (taskId) => {
+      queryClient.setQueryData(boardQueryKey, (current) => {
+        if (!current) return current;
+        const nextColumns = (current.columns || []).map((column) => ({
+          ...column,
+          tasks: (column.tasks || []).filter((task) => task.id !== taskId),
+        }));
+        return { ...current, columns: normalizeColumns(nextColumns) };
+      });
+      setSelectedTaskId("");
+      await refreshDashboardStore();
+      toast.success("Task deleted");
+    },
+    onError: (error) => {
+      toast.error(error?.message || "Failed to delete task");
     },
   });
 
@@ -407,6 +432,8 @@ export default function Board({ workspaceId, projectId }) {
       dueDate: values.dueDate || "",
       priority: values.priority || "P2",
       status: getStatusFromColumnName(selectedColumn.name, "todo") || "todo",
+      estimatedTime: values.estimatedTime || 0,
+      attachments: values.attachments || [], // <--- FIXED: Sent attachments!
     });
   }
 
@@ -549,8 +576,30 @@ export default function Board({ workspaceId, projectId }) {
         dueDate: values.dueDate,
         assigneeId: values.assigneeId,
         assigneeName,
+        estimatedTime: values.estimatedTime,
+        attachments: values.attachments || [], // <--- FIXED: Sent attachments!
       },
     });
+  }
+
+  async function handleTaskDelete() {
+    if (!selectedTask?.id || deleteTaskMutation.isPending) return;
+    const result = await Swal.fire({
+      title: "Delete task?",
+      text: `Delete "${selectedTask.title || "Untitled Task"}"?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+      background: "#0f172a",
+      color: "#e2e8f0",
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#334155",
+    });
+    if (!result.isConfirmed) return;
+
+    deleteTaskMutation.mutate(selectedTask.id);
   }
 
   if (boardQuery.isLoading) {
@@ -656,8 +705,10 @@ export default function Board({ workspaceId, projectId }) {
         task={selectedTask}
         members={membersQuery.data || []}
         submitting={updateTaskMutation.isPending}
+        deleting={deleteTaskMutation.isPending}
         onClose={closeTaskDetails}
         onSubmit={handleTaskUpdate}
+        onDelete={handleTaskDelete}
       />
     </>
   );

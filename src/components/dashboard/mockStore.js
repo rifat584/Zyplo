@@ -2,6 +2,12 @@
 
 import { useSyncExternalStore } from "react";
 
+function normalizeEmail(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase();
+}
+
 let state = {
   currentUser: null,
   workspaces: [],
@@ -169,6 +175,35 @@ export async function markAllNotificationsRead() {
 
 export function getWorkspaceById(workspaceId) {
   return state.workspaces.find((workspace) => workspace.id === workspaceId) || null;
+}
+
+export function resolveWorkspaceRole(workspace, user) {
+  const userId = String(user?.id || "");
+  const userEmail = normalizeEmail(user?.email);
+
+  const member = (workspace?.members || []).find((item) => {
+    const memberUserId = String(item?.userId || item?.id || "");
+    const memberEmail = normalizeEmail(item?.email);
+
+    return (userId && memberUserId === userId) || (userEmail && memberEmail === userEmail);
+  });
+
+  return String(member?.role || "").toLowerCase();
+}
+
+export function useWorkspaceAccess(workspaceId) {
+  return useMockStore((state) => {
+    const workspace = (state.workspaces || []).find((item) => item.id === workspaceId) || null;
+    const currentUser = state.currentUser || null;
+    const role = resolveWorkspaceRole(workspace, currentUser);
+
+    return {
+      workspace,
+      currentUser,
+      role,
+      isAdmin: role === "admin",
+    };
+  });
 }
 
 export function getWorkspaceMembers(workspaceId) {
