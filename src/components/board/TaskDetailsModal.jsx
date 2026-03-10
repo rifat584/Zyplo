@@ -1,34 +1,21 @@
+
 "use client";
 
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import {
   CheckCircle2,
-  Circle,
-  Clock,
-  AlertCircle,
-  ArrowUp,
-  ArrowRight,
-  ArrowDown,
-  Calendar,
-  Eye,
   Paperclip,
   Loader2,
   FileText,
   Image as ImageIcon,
   Film,
   X,
-  Download,
-  ChevronDown,
-  ChevronUp,
+  MessageSquare,
+  Send,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 
-const PRIORITY_OPTIONS = [
-  { value: "P0", label: "P0 (Critical)" },
-  { value: "P1", label: "P1 (High)" },
-  { value: "P2", label: "P2 (Medium)" },
-  { value: "P3", label: "P3 (Low)" },
-];
-
+// --- Constants ---
 const BASE_STATUS_OPTIONS = [
   { value: "todo", label: "To Do" },
   { value: "inprogress", label: "In Progress" },
@@ -43,35 +30,30 @@ const EMPTY_FORM = {
   dueDate: "",
   priority: "P2",
   status: "todo",
-  attachments: [], 
+  attachments: [],
 };
 
-function toDateInputValue(value) {
+// --- Helpers ---
+const toDateInputValue = (value) => {
   if (!value) return "";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toISOString().slice(0, 10);
-}
+  return Number.isNaN(date.getTime()) ? "" : date.toISOString().slice(0, 10);
+};
 
-function formatDateTime(value) {
+const formatDateTime = (value) => {
   if (!value) return "Unknown";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString();
-}
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+};
 
 const getFileIcon = (type) => {
   if (type.startsWith("image/")) return <ImageIcon size={14} />;
   if (type.startsWith("video/")) return <Film size={14} />;
   return <FileText size={14} />;
-};
-
-// Helper to force Cloudinary to download the file instead of opening it in a new tab
-const getDownloadUrl = (url) => {
-  if (url && url.includes("cloudinary.com") && url.includes("/upload/")) {
-    return url.replace("/upload/", "/upload/fl_attachment/");
-  }
-  return url;
 };
 
 export default function TaskDetailsModal({
@@ -84,16 +66,39 @@ export default function TaskDetailsModal({
   onSubmit,
   onDelete,
 }) {
+  const { data: session } = useSession();
+  const [isMounted, setIsMounted] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
   const [isUploading, setIsUploading] = useState(false);
-  const [isAttachmentsOpen, setIsAttachmentsOpen] = useState(true);
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState([]);
+
   const fileInputRef = useRef(null);
   const isBusy = submitting || deleting || isUploading;
 
+  useEffect(() => { setIsMounted(true); }, []);
+
+  // --- Fetch Comments ---
+  const fetchComments = useCallback(async () => {
+    if (!open || !task?.id) return;
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/dashboard/comments/${task.id}`
+      );
+      if (response.ok) {
+        const res = await response.json();
+        setComments(Array.isArray(res) ? res : []);
+      }
+    } catch (error) {
+      console.error("Fetch Comments Error:", error);
+    }
+  }, [open, task?.id]);
+
+  useEffect(() => { fetchComments(); }, [fetchComments]);
+
+  // --- Initialize Form ---
   useEffect(() => {
     if (!open || !task) return;
-    const taskAttachments = Array.isArray(task.attachments) ? task.attachments : [];
-    
     setForm({
       title: String(task.title || ""),
       description: String(task.description || ""),
@@ -101,386 +106,180 @@ export default function TaskDetailsModal({
       dueDate: toDateInputValue(task.dueDate),
       priority: String(task.priority || "P2").toUpperCase(),
       status: String(task.status || "todo"),
-      attachments: taskAttachments,
+      attachments: Array.isArray(task.attachments) ? task.attachments : [],
     });
-
-    // Auto-open attachments if there are any
-    setIsAttachmentsOpen(taskAttachments.length > 0);
   }, [open, task]);
 
-  useEffect(() => {
-    if (!open) return undefined;
+  // --- Add Comment ---
+  const handleAddComment = async (e) => {
+    e.preventDefault();
+    const trimmed = comment.trim();
+    if (!trimmed || !task?.id) return;
 
-    function onKeyDown(event) {
-      if (event.key === "Escape" && !isBusy) onClose();
-    }
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onClose, open, isBusy]);
-
-  const statusOptions = useMemo(() => {
-    const current = String(form.status || "");
-    if (!current) return BASE_STATUS_OPTIONS;
-    const exists = BASE_STATUS_OPTIONS.some((item) => item.value === current);
-    if (exists) return BASE_STATUS_OPTIONS;
-    return [...BASE_STATUS_OPTIONS, { value: current, label: current }];
-  }, [form.status]);
-  
-  const updatedAtValue = task?.updatedAt || task?.createdAt;
-
-  // --- CLOUDINARY UPLOAD HANDLER ---
-  const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const validTypes = ["image/", "video/", "application/pdf"];
-    const isValid = validTypes.some((type) => file.type.startsWith(type));
-
-    if (!isValid) {
-      alert("Invalid file type. Only images, videos, and PDFs are allowed.");
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      return;
-    }
-
-    setIsUploading(true);
-    setIsAttachmentsOpen(true); // Open panel when uploading
-    const formData = new FormData();
-    formData.append("file", file);
-    
-    const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_PRESET || "YOUR_UNSIGNED_PRESET_NAME"; 
-    const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "YOUR_CLOUD_NAME";
-    
-    formData.append("upload_preset", UPLOAD_PRESET);
+    const commentPayload = {
+      text: trimmed,
+      author: session?.user?.name || "User",
+    };
 
     try {
-      const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`, {
-        method: "POST",
-        body: formData,
-      });
-      const data = await response.json();
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/dashboard/${task.id}/comments`,
+        {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${session?.accessToken}` // Prevent 401
+          },
+          body: JSON.stringify(commentPayload),
+        }
+      );
 
-      if (data.secure_url) {
-        setForm((prev) => ({
-          ...prev,
-          attachments: [
-            ...prev.attachments,
-            { url: data.secure_url, name: file.name, type: file.type },
-          ],
-        }));
-      } else {
-        throw new Error(data.error?.message || "Upload failed");
+      if (response.ok) {
+        setComment("");
+        fetchComments(); // Refresh list
       }
     } catch (error) {
-      console.error("Upload error:", error);
-      alert("Failed to upload file. Check console for details.");
+      console.error("Add Comment Error:", error);
+    }
+  };
+
+  // --- File Upload ---
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setIsUploading(true);
+    
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_PRESET);
+
+    try {
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/auto/upload`,
+        { method: "POST", body: formData }
+      );
+      const data = await res.json();
+      if (data.secure_url) {
+        setForm(prev => ({
+          ...prev,
+          attachments: [...prev.attachments, { url: data.secure_url, name: file.name, type: file.type }],
+        }));
+      }
+    } catch (err) {
+      console.error("Upload Error:", err);
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
-  const removeAttachment = (indexToRemove) => {
-    setForm((prev) => ({
-      ...prev,
-      attachments: prev.attachments.filter((_, idx) => idx !== indexToRemove),
-    }));
-  };
+  const statusOptions = useMemo(() => {
+    const current = String(form.status || "");
+    const exists = BASE_STATUS_OPTIONS.some((item) => item.value === current);
+    return exists ? BASE_STATUS_OPTIONS : [...BASE_STATUS_OPTIONS, { value: current, label: current }];
+  }, [form.status]);
 
-  if (!open || !task) return null;
+  if (!isMounted || !open || !task) return null;
 
   return (
-    <div className="fixed inset-0 z-50">
-      <button
-        type="button"
-        onClick={() => (isBusy ? null : onClose())}
-        className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px]"
-        aria-label="Close task details modal"
-      />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px]" onClick={() => !isBusy && onClose()} />
 
-      <div className="absolute left-1/2 top-1/2 w-[95vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-900 flex flex-col max-h-[90vh]">
-        <div className="border-b border-slate-200 bg-slate-50/70 px-5 py-4 dark:border-white/10 dark:bg-slate-800/30 shrink-0">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Task Overview
-              </p>
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                {task.title || "Untitled Task"}
-              </h2>
-            </div>
-            <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300">
-              {task.projectName || "Unknown Project"}
-            </span>
+      <div className="relative w-full max-w-3xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-900 flex flex-col max-h-[90vh]">
+        {/* Header */}
+        <div className="border-b border-slate-200 bg-slate-50/70 px-5 py-4 dark:border-white/10 dark:bg-slate-800/30 flex justify-between items-center">
+          <div>
+            <p className="text-[10px] uppercase font-bold text-slate-500">Task Details</p>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">{task.title || "Untitled"}</h2>
           </div>
-          <div className="mt-3 grid gap-2 text-xs text-slate-500 dark:text-slate-400 sm:grid-cols-2">
-            <p>Created: {formatDateTime(task.createdAt)}</p>
-            <p>Updated: {formatDateTime(updatedAtValue)}</p>
-          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600"><X size={20} /></button>
         </div>
 
-        <div className="overflow-y-auto p-5 custom-scrollbar">
-          <form
-            id="task-details-form"
-            className="space-y-5"
-            onSubmit={(event) => {
-              event.preventDefault();
-              if (!form.title.trim() || isBusy) return;
-              onSubmit({
-                title: form.title.trim(),
-                description: form.description.trim(),
-                assigneeId: form.assigneeId,
-                dueDate: form.dueDate,
-                priority: form.priority,
-                status: form.status,
-                attachments: form.attachments,
-              });
-            }}
-          >
-            <div className="space-y-1.5">
-              <label
-                htmlFor="task-details-title"
-                className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-              >
-                Task Title
-              </label>
-              <input
-                id="task-details-title"
-                value={form.title}
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, title: event.target.value }))
-                }
-                placeholder="Enter a clear task title"
-                className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                required
-              />
+        {/* Body */}
+        <div className="overflow-y-auto p-6 space-y-6 custom-scrollbar">
+          <form id="task-form" className="space-y-4" onSubmit={(e) => { e.preventDefault(); onSubmit(form); }}>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 uppercase">Title</label>
+              <input value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="w-full rounded-xl border p-2.5 text-sm dark:bg-slate-800 dark:border-white/10" required />
             </div>
 
-            <div className="space-y-1.5">
-              <label
-                htmlFor="task-details-description"
-                className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-              >
-                Description
-              </label>
-              <textarea
-                id="task-details-description"
-                rows={4}
-                value={form.description}
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, description: event.target.value }))
-                }
-                placeholder="Add details, acceptance criteria, or important context"
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-              />
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-500 uppercase">Description</label>
+              <textarea rows={3} value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="w-full rounded-xl border p-2.5 text-sm dark:bg-slate-800 dark:border-white/10 resize-none" />
             </div>
 
-            {/* --- ATTACHMENTS COLLAPSIBLE SECTION --- */}
-            <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
-              <div className="flex items-center justify-between">
-                <button
-                  type="button"
-                  onClick={() => setIsAttachmentsOpen(!isAttachmentsOpen)}
-                  className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600 transition-colors hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400"
-                >
-                  <Paperclip size={14} />
-                  Attachments {form.attachments.length > 0 && `(${form.attachments.length})`}
-                  {isAttachmentsOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            {/* Attachments Section */}
+            <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:bg-slate-800/20">
+              <div className="flex justify-between items-center mb-3">
+                <h4 className="text-xs font-bold uppercase text-slate-500 flex items-center gap-2"><Paperclip size={14}/> Attachments</h4>
+                <button type="button" onClick={() => fileInputRef.current.click()} className="text-xs font-bold text-indigo-600">
+                  {isUploading ? <Loader2 className="animate-spin" size={14}/> : "+ Upload"}
                 </button>
-                
-                <input 
-                  type="file" 
-                  ref={fileInputRef}
-                  onChange={handleFileUpload}
-                  accept="image/*,video/*,application/pdf"
-                  className="hidden" 
-                />
-                
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
-                  className="flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700 disabled:opacity-50 dark:text-indigo-400 dark:hover:text-indigo-300"
-                >
-                  {isUploading ? <Loader2 size={14} className="animate-spin" /> : <Paperclip size={14} />}
-                  {isUploading ? "Uploading..." : "Add File"}
-                </button>
+                <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" />
               </div>
-
-              {isAttachmentsOpen && form.attachments.length > 0 && (
-                <div className="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-                  {form.attachments.map((file, idx) => (
-                    <div key={idx} className="group relative flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md dark:border-white/10 dark:bg-slate-900">
-                      
-                      {/* Preview Area */}
-                      <div className="relative h-28 w-full bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-white/10">
-                        {file.type.startsWith("image/") ? (
-                          <img src={file.url} alt={file.name} className="h-full w-full object-cover" />
-                        ) : file.type.startsWith("video/") ? (
-                          <video src={file.url} className="h-full w-full object-cover" muted preload="metadata" />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center">
-                            <FileText size={32} className="text-slate-400 dark:text-slate-500" />
-                          </div>
-                        )}
-                        
-                        {/* Hover Overlay with Delete */}
-                        <div className="absolute inset-0 bg-slate-900/60 opacity-0 transition-opacity duration-200 group-hover:opacity-100 flex items-center justify-center">
-                          <button
-                            type="button"
-                            onClick={() => removeAttachment(idx)}
-                            className="rounded-full bg-rose-500 p-2 text-white shadow-lg transition-transform hover:scale-110 hover:bg-rose-600"
-                            title="Remove attachment"
-                          >
-                            <X size={16} />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* File Info Footer */}
-                      <div className="flex items-center justify-between p-2.5">
-                        <div className="flex flex-1 items-center gap-2 truncate pr-2">
-                          <span className="text-slate-500">{getFileIcon(file.type)}</span>
-                          <span className="truncate text-xs font-medium text-slate-700 dark:text-slate-300" title={file.name}>
-                            {file.name}
-                          </span>
-                        </div>
-                        <a
-                          href={getDownloadUrl(file.url)}
-                          download={file.name}
-                          className="flex shrink-0 items-center justify-center rounded bg-slate-100 p-1.5 text-slate-500 transition hover:bg-indigo-50 hover:text-indigo-600 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-indigo-500/20 dark:hover:text-indigo-300"
-                          title="Download file"
-                        >
-                          <Download size={14} />
-                        </a>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="grid grid-cols-2 gap-2">
+                {form.attachments.map((file, i) => (
+                  <div key={i} className="flex items-center justify-between bg-white p-2 rounded border dark:bg-slate-900 dark:border-white/5">
+                    <div className="flex items-center gap-2 truncate text-xs">{getFileIcon(file.type)} {file.name}</div>
+                    <button type="button" onClick={() => setForm({...form, attachments: form.attachments.filter((_, idx) => idx !== i)})}><X size={14}/></button>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2 pt-2">
-              <div className="space-y-1.5">
-                <label
-                  htmlFor="task-details-assignee"
-                  className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-                >
-                  Assignee
-                </label>
-                <select
-                  id="task-details-assignee"
-                  value={form.assigneeId}
-                  onChange={(event) =>
-                    setForm((prev) => ({ ...prev, assigneeId: event.target.value }))
-                  }
-                  className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                >
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500">Assignee</label>
+                <select value={form.assigneeId} onChange={e => setForm({...form, assigneeId: e.target.value})} className="w-full rounded-xl border p-2 text-sm dark:bg-slate-800">
                   <option value="">Unassigned</option>
-                  {members.map((member) => (
-                    <option key={member.id} value={member.id}>
-                      {member.name}
-                    </option>
-                  ))}
+                  {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                 </select>
               </div>
-
-              <div className="space-y-1.5">
-                <label
-                  htmlFor="task-details-due-date"
-                  className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-                >
-                  Due Date
-                </label>
-                <input
-                  id="task-details-due-date"
-                  type="date"
-                  value={form.dueDate}
-                  onChange={(event) =>
-                    setForm((prev) => ({ ...prev, dueDate: event.target.value }))
-                  }
-                  className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label
-                  htmlFor="task-details-priority"
-                  className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-                >
-                  Priority
-                </label>
-                <select
-                  id="task-details-priority"
-                  value={form.priority}
-                  onChange={(event) =>
-                    setForm((prev) => ({ ...prev, priority: event.target.value }))
-                  }
-                  className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                >
-                  {PRIORITY_OPTIONS.map((item) => (
-                    <option key={item.value} value={item.value}>
-                      {item.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label
-                  htmlFor="task-details-status"
-                  className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-                >
-                  Status
-                </label>
-                <select
-                  id="task-details-status"
-                  value={form.status}
-                  onChange={(event) =>
-                    setForm((prev) => ({ ...prev, status: event.target.value }))
-                  }
-                  className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                >
-                  {statusOptions.map((item) => (
-                    <option key={item.value} value={item.value}>
-                      {item.label}
-                    </option>
-                  ))}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-500">Status</label>
+                <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} className="w-full rounded-xl border p-2 text-sm dark:bg-slate-800">
+                  {statusOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </div>
             </div>
           </form>
+
+          {/* Comments Section */}
+          <div className="pt-6 border-t dark:border-white/5">
+            <h3 className="text-xs font-bold uppercase text-slate-500 mb-4 flex items-center gap-2"><MessageSquare size={14}/> Activity</h3>
+            <div className="flex gap-3 mb-6">
+              <div className="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center text-white text-xs font-bold">{session?.user?.name?.slice(0,2)}</div>
+              <div className="flex-1 space-y-2">
+                <textarea value={comment} onChange={e => setComment(e.target.value)} placeholder="Add a comment..." className="w-full rounded-xl border p-3 text-sm dark:bg-slate-800/50 min-h-[80px] resize-none" />
+                <button onClick={handleAddComment} disabled={!comment.trim()} className="bg-indigo-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold disabled:opacity-50 flex items-center gap-2"><Send size={12}/> Post</button>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {comments.map((c, i) => (
+                <div key={i} className="flex gap-3">
+                  <div className="h-8 w-8 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-[10px] font-bold">{c.author?.slice(0,2)}</div>
+                  <div className="flex-1 bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl rounded-tl-none">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs font-bold">{c.author}</span>
+                      <span className="text-[10px] text-slate-400">{formatDateTime(c.createdAt)}</span>
+                    </div>
+                    <p className="text-sm text-slate-600 dark:text-slate-300">{c.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <div className="border-t border-slate-200 bg-slate-50 px-5 py-4 dark:border-white/10 dark:bg-slate-800/30 shrink-0">
-          <div className="flex items-center justify-between gap-2">
-            <button
-              type="button"
-              onClick={() => onDelete?.(task)}
-              disabled={isBusy || !onDelete}
-              className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-100 disabled:opacity-50 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20"
-            >
-              {deleting ? "Deleting..." : "Delete Task"}
+        {/* Footer */}
+        <div className="border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-white/10 dark:bg-slate-800/50 flex justify-between items-center">
+          <button onClick={() => onDelete?.(task)} className="text-sm font-bold text-rose-500 disabled:opacity-50" disabled={isBusy}>Delete Task</button>
+          <div className="flex gap-3">
+            <button onClick={onClose} className="text-sm font-bold text-slate-500">Cancel</button>
+            <button type="submit" form="task-form" className="bg-slate-900 text-white px-6 py-2 rounded-xl text-sm font-bold dark:bg-indigo-600 disabled:opacity-50" disabled={isBusy || !form.title.trim()}>
+              {submitting ? "Saving..." : "Save Changes"}
             </button>
-
-            <div className="flex items-center justify-end gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={isBusy}
-                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:opacity-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                form="task-details-form"
-                disabled={!form.title.trim() || isBusy}
-                className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-600 disabled:opacity-50"
-              >
-                {submitting ? "Saving..." : "Save Changes"}
-              </button>
-            </div>
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Paperclip } from "lucide-react"; // Import Paperclip icon
+import { Paperclip } from "lucide-react"; 
 
 const PRIORITY_STYLES = {
   P0: "bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300",
