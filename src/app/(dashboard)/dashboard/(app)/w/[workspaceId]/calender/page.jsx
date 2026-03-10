@@ -49,6 +49,12 @@ function toDateInputValue(date) {
   return `${y}-${m}-${d}`;
 }
 
+function minutesToSeconds(value) {
+  const minutes = Number(value);
+  if (!Number.isFinite(minutes) || minutes < 0) return 0;
+  return Math.floor(minutes * 60);
+}
+
 function normalizeStatus(status) {
   const s = String(status || "todo").toLowerCase().replace(/\s+/g, "");
   if (s === "inprogress") return "In Progress";
@@ -152,6 +158,7 @@ export default function WorkspaceCalenderPage() {
     dueDate: "",
     priority: "P2",
     status: "todo",
+    estimatedTime: "",
   });
 
   const filteredTasks = useMemo(() => {
@@ -176,7 +183,7 @@ export default function WorkspaceCalenderPage() {
   const taskMap = useMemo(() => {
     const map = new Map();
     filteredTasks.forEach((task) => {
-      const sourceDate = task.createdAt || task.dueDate;
+      const sourceDate = task.dueDate || task.createdAt;
       const parsed = sourceDate ? new Date(sourceDate) : null;
       if (!parsed || Number.isNaN(parsed.getTime())) return;
       const key = toDateInputValue(parsed);
@@ -218,6 +225,7 @@ export default function WorkspaceCalenderPage() {
       dueDate: dateKey,
       priority: "P2",
       status: "todo",
+      estimatedTime: "",
     });
     setCreateOpen(true);
   }
@@ -293,6 +301,7 @@ export default function WorkspaceCalenderPage() {
           dueDate: form.dueDate || "",
           priority: form.priority || "P2",
           status: resolvedTarget.status,
+          estimatedTime: minutesToSeconds(form.estimatedTime),
         })
       });
 
@@ -678,7 +687,7 @@ export default function WorkspaceCalenderPage() {
                 </div>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-3 sm:grid-cols-4">
                 <div>
                   <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
                     Due Date
@@ -725,6 +734,24 @@ export default function WorkspaceCalenderPage() {
                     <option value="inreview">In Review</option>
                     <option value="done">Done</option>
                   </select>
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                    Estimate (mins)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={form.estimatedTime}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        estimatedTime: e.target.value,
+                      }))
+                    }
+                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                    placeholder="0"
+                  />
                 </div>
               </div>
 
