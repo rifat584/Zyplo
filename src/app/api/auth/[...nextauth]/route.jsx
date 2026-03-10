@@ -49,8 +49,11 @@ export const authOptions = {
         password: {},
       },
       async authorize(credentials) {
+        // Fallback ensures it works locally even if env var is missing
+        const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+        
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/login`,
+          `${baseUrl}/auth/login`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -58,13 +61,24 @@ export const authOptions = {
           },
         );
 
-        const user = await res.json();
+        // SAFELY parse JSON to prevent the "<!DOCTYPE html>" crash
+        const text = await res.text();
+        let user = null;
+        try {
+          user = text ? JSON.parse(text) : null;
+        } catch (error) {
+          throw new Error(
+            JSON.stringify({
+              message: "Cannot reach the backend server. Please check your connection.",
+            })
+          );
+        }
 
         if (!res.ok) {
           throw new Error(
             JSON.stringify({
-              message: user.message,
-              lockUntil: user.lockUntil || null,
+              message: user?.message || "Login failed",
+              lockUntil: user?.lockUntil || null,
             }),
           );
         }
@@ -93,18 +107,24 @@ export const authOptions = {
     // 🔹 Runs after OAuth login
     async signIn({ user, account }) {
       if (account.provider !== "credentials") {
-        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/oauth`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: user.name,
-            email: user.email,
-            image: user.image,
-            provider: account.provider,
-            providerId: account.providerAccountId,
-            role: "admin",
-          }),
-        });
+        const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+        
+        try {
+          await fetch(`${baseUrl}/auth/oauth`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: user.name,
+              email: user.email,
+              image: user.image,
+              provider: account.provider,
+              providerId: account.providerAccountId,
+              role: "admin",
+            }),
+          });
+        } catch (error) {
+          console.error("Failed to sync OAuth user with backend:", error);
+        }
       }
       user.id = normalizeId(user?.id || user?._id);
       return true;
