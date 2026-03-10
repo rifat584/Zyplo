@@ -59,9 +59,29 @@ export default function CommandPalette() {
     tasks: state.tasks || [],
   }));
 
-  const currentWorkspaceId = params?.workspaceId || workspaces[0]?.id;
+  // Context awareness: If we are in a workspace, prioritize it. 
+  // Otherwise, use all workspaces (global mode).
+  const currentWorkspaceId = params?.workspaceId;
   const currentWorkspace = workspaces.find(w => w.id === currentWorkspaceId);
-  const members = currentWorkspace?.members || [];
+  const isGlobalMode = !currentWorkspaceId;
+
+  // Combine members from all workspaces if in global mode, otherwise just current workspace
+  const members = useMemo(() => {
+    if (!isGlobalMode && currentWorkspace) return currentWorkspace.members || [];
+    
+    // Global mode: unique members across all workspaces
+    const allMembers = [];
+    const seen = new Set();
+    workspaces.forEach(w => {
+      (w.members || []).forEach(m => {
+        if (!seen.has(m.id)) {
+          seen.add(m.id);
+          allMembers.push(m);
+        }
+      });
+    });
+    return allMembers;
+  }, [isGlobalMode, currentWorkspace, workspaces]);
 
   // --- Keyboard Listeners ---
   useEffect(() => {
@@ -95,11 +115,10 @@ export default function CommandPalette() {
     }
   };
 
-  // --- Fuzzy Match Logic (The Secret Sauce) ---
+  // --- Fuzzy Match Logic ---
   const fuzzyMatch = (targetText, searchQuery) => {
     if (!searchQuery) return true;
     const target = String(targetText).toLowerCase();
-    // Split search query by space, ensure EVERY word matches somewhere
     const searchWords = searchQuery.toLowerCase().trim().split(/\s+/);
     return searchWords.every(word => target.includes(word));
   };
@@ -108,6 +127,10 @@ export default function CommandPalette() {
   const commands = useMemo(() => {
     const list = [];
     const q = query.trim();
+
+    // Determine the scope of tasks/projects based on route
+    const scopeTasks = isGlobalMode ? tasks : tasks.filter(t => t.workspaceId === currentWorkspaceId);
+    const scopeProjects = isGlobalMode ? projects : projects.filter(p => p.workspaceId === currentWorkspaceId);
 
     // ==========================================
     // VIEW: ROOT (Main Menu)
@@ -176,48 +199,62 @@ export default function CommandPalette() {
         });
       });
 
-      // 3. Navigation
-      const navs = [
-        { name: "Board", icon: LayoutDashboard, path: "board" },
-        { name: "List", icon: List, path: "list" },
-        { name: "Calendar", icon: CalendarDays, path: "calender" },
-        { name: "Timeline", icon: Clock, path: "timeline" },
-      ];
-      navs.filter(n => fuzzyMatch(`go to navigate view ${n.name}`, q)).forEach(n => {
-        list.push({
-          id: `nav-${n.path}`,
-          group: "Navigation",
-          icon: <n.icon className="size-4 text-slate-500" />,
-          label: `Go to ${n.name}`,
-          action: () => { router.push(`/dashboard/w/${currentWorkspaceId}/${n.path}`); setOpen(false); }
+      // 3. Navigation (Only show if we are IN a workspace)
+      if (!isGlobalMode) {
+        const navs = [
+          { name: "Board", icon: LayoutDashboard, path: "board" },
+          { name: "List", icon: List, path: "list" },
+          { name: "Calendar", icon: CalendarDays, path: "calender" },
+          { name: "Timeline", icon: Clock, path: "timeline" },
+        ];
+        navs.filter(n => fuzzyMatch(`go to navigate view ${n.name}`, q)).forEach(n => {
+          list.push({
+            id: `nav-${n.path}`,
+            group: "Navigation",
+            icon: <n.icon className="size-4 text-slate-500" />,
+            label: `Go to ${n.name}`,
+            action: () => { router.push(`/dashboard/w/${currentWorkspaceId}/${n.path}`); setOpen(false); }
+          });
         });
-      });
+      }
 
       // 4. Go to Project
-      const activeProjects = projects.filter(p => p.workspaceId === currentWorkspaceId);
-      activeProjects.filter(p => fuzzyMatch(`go to open project ${p.name}`, q)).slice(0, 5).forEach(p => {
+      scopeProjects.filter(p => fuzzyMatch(`go to open project ${p.name}`, q)).slice(0, 5).forEach(p => {
         list.push({
           id: `proj-${p.id}`,
           group: "Projects",
           icon: <Folder className="size-4 text-sky-500" />,
           label: `Open Project: ${p.name}`,
+          subtitle: isGlobalMode ? (workspaces.find(w => w.id === p.workspaceId)?.name || "Workspace") : "",
           action: () => {
-            localStorage.setItem(`dashboard.selectedProject.${currentWorkspaceId}`, p.id);
-            router.push(`/dashboard/w/${currentWorkspaceId}/board`);
+            localStorage.setItem(`dashboard.selectedProject.${p.workspaceId}`, p.id);
+            router.push(`/dashboard/w/${p.workspaceId}/board`);
             setOpen(false);
           },
         });
       });
 
-      // 5. Manage Tasks Directly
-      const activeTasks = tasks.filter(t => t.workspaceId === currentWorkspaceId);
-      activeTasks.filter(t => fuzzyMatch(`task edit ${t.title}`, q)).slice(0, 8).forEach(t => {
+      // 5. Workspaces
+      if (!query || "switch workspace".includes(q.toLowerCase())) {
+        workspaces.filter(w => fuzzyMatch(w.name, q)).slice(0, 3).forEach(w => {
+          list.push({
+            id: `ws-${w.id}`,
+            group: "Workspaces",
+            icon: <Building2 className="size-4 text-emerald-500" />,
+            label: `Switch to Workspace: ${w.name}`,
+            action: () => { router.push(`/dashboard/w/${w.id}`); setOpen(false); }
+          });
+        });
+      }
+
+      // 6. Manage Tasks Directly
+      scopeTasks.filter(t => fuzzyMatch(`task edit ${t.title} ${t.status}`, q)).slice(0, 8).forEach(t => {
         list.push({
           id: `task-${t.id}`,
           group: "Manage Specific Tasks",
           icon: <CheckCircle2 className="size-4 text-slate-400" />,
           label: t.title,
-          subtitle: t.projectName || "No Project",
+          subtitle: `${t.projectName || "No Project"} (${t.status || "todo"})`,
           action: () => {
             setView({ type: "task", task: t });
             setQuery("");
@@ -268,8 +305,7 @@ export default function CommandPalette() {
     // VIEW: TARGET SELECTION (Applying Global Action)
     // ==========================================
     if (view.type === "select_task") {
-      const activeTasks = tasks.filter(t => t.workspaceId === currentWorkspaceId);
-      activeTasks.filter(t => fuzzyMatch(t.title, q)).forEach(t => {
+      scopeTasks.filter(t => fuzzyMatch(t.title, q)).forEach(t => {
         list.push({
           id: `apply-${t.id}`,
           group: `Select a task to apply changes`,
@@ -285,20 +321,20 @@ export default function CommandPalette() {
     // VIEW: CREATE TASK (Pick Project)
     // ==========================================
     if (view.type === "create") {
-      const activeProjects = projects.filter(p => p.workspaceId === currentWorkspaceId);
-      activeProjects.filter(p => fuzzyMatch(p.name, q)).forEach(p => {
+      scopeProjects.filter(p => fuzzyMatch(p.name, q)).forEach(p => {
         list.push({
           id: `create-in-${p.id}`,
           group: "Select Project for new task",
           icon: <Folder className="size-4 text-indigo-500" />,
           label: p.name,
-          action: () => executeTaskCreate(p.id, view.title),
+          subtitle: isGlobalMode ? (workspaces.find(w => w.id === p.workspaceId)?.name || "Workspace") : "",
+          action: () => executeTaskCreate(p.id, p.workspaceId, view.title),
         });
       });
     }
 
     return list;
-  }, [query, view, tasks, projects, workspaces, members, currentWorkspaceId, router]);
+  }, [query, view, tasks, projects, workspaces, members, currentWorkspaceId, isGlobalMode, router]);
 
 
   // --- Action Executors ---
@@ -337,13 +373,14 @@ export default function CommandPalette() {
       
       toast.success("Task updated instantly");
       loadDashboard({ force: true, silent: true });
+      window.dispatchEvent(new CustomEvent("zyplo-refresh-board")); 
       setOpen(false);
     } catch (err) {
-      // Ignore fake Mongo Driver V6 return errors
       if(err?.message !== "Task not found") toast.error(err.message || "Update failed");
       else {
          toast.success("Task updated instantly");
          loadDashboard({ force: true, silent: true });
+         window.dispatchEvent(new CustomEvent("zyplo-refresh-board")); 
          setOpen(false);
       }
     } finally {
@@ -351,7 +388,7 @@ export default function CommandPalette() {
     }
   };
 
-  const executeTaskCreate = async (projectId, title) => {
+  const executeTaskCreate = async (projectId, targetWorkspaceId, title) => {
     setIsProcessing(true);
     try {
       const boardData = await fetchJson(`/api/dashboard/boards/${projectId}`);
@@ -363,7 +400,7 @@ export default function CommandPalette() {
       await fetchJson("/api/dashboard/tasks", {
         method: "POST",
         body: JSON.stringify({
-          workspaceId: currentWorkspaceId,
+          workspaceId: targetWorkspaceId, // Use the correct workspace ID globally
           projectId,
           boardId: String(boardData.board.id),
           columnId: String(todoCol.id),
@@ -374,6 +411,7 @@ export default function CommandPalette() {
       });
       toast.success(`Task created!`);
       loadDashboard({ force: true, silent: true });
+      window.dispatchEvent(new CustomEvent("zyplo-refresh-board")); 
       setOpen(false);
     } catch(err) {
       toast.error(err.message || "Creation failed");
@@ -498,7 +536,6 @@ export default function CommandPalette() {
                         onMouseEnter={() => setSelectedIndex(currentIndex)}
                         onClick={cmd.action}
                         ref={(el) => {
-                          // Keep selected item in scroll view
                           if (isSelected && el) el.scrollIntoView({ block: "nearest" });
                         }}
                         className={`group flex cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 text-sm transition-colors ${
@@ -520,7 +557,7 @@ export default function CommandPalette() {
                         </div>
                         {isSelected && (
                           <span className="flex shrink-0 items-center gap-1 text-[11px] font-semibold text-indigo-500 dark:text-indigo-400">
-                            {view.type === "root" && !cmd.id.includes("nav") && !cmd.id.includes("proj") ? (
+                            {view.type === "root" && !cmd.id.includes("nav") && !cmd.id.includes("proj") && !cmd.id.includes("ws") ? (
                                <>Select <CornerDownLeft className="size-3 ml-0.5" /></>
                             ) : (
                                <>Execute <CornerDownLeft className="size-3 ml-0.5" /></>
