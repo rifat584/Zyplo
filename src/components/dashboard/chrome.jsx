@@ -38,7 +38,6 @@ import {
   useMockStore,
 } from "./mockStore";
 
-
 const SIDEBAR_KEY = "dashboard.sidebarCollapsed";
 
 function useSidebarState() {
@@ -197,48 +196,64 @@ function GlobalTimerControl() {
     tasks.find((task) => String(task.id) === String(activeTimer?.taskId || "")) || null;
   const hasActiveTimer = Boolean(activeTimer?.id);
 
+  const containerClasses = hasActiveTimer 
+    ? "border-indigo-200 bg-indigo-50 dark:border-indigo-400/30 dark:bg-indigo-500/10" 
+    : "border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-slate-800/50";
+
+  const textClasses = hasActiveTimer
+    ? "text-indigo-700 dark:text-indigo-200"
+    : "text-slate-500 dark:text-slate-400";
+
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-2 py-1.5 dark:border-indigo-400/30 dark:bg-indigo-500/10">
-      <span className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-700 dark:text-indigo-200">
-        <Timer className="size-3.5" />
-        {loading && !hasActiveTimer ? "Checking..." : hasActiveTimer ? formatElapsed(liveDuration) : "No timer"}
+    <div className={`flex items-center gap-1.5 sm:gap-2 rounded-lg border px-1.5 sm:px-2 py-1 sm:py-1.5 ${containerClasses}`}>
+      <span className={`inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold ${textClasses}`}>
+        <Timer className="size-3.5 sm:size-4 shrink-0" />
+        
+        <span className={hasActiveTimer ? "" : "hidden sm:inline"}>
+          {loading && !hasActiveTimer ? "..." : hasActiveTimer ? formatElapsed(liveDuration) : "No timer"}
+        </span>
       </span>
-      <span className="hidden max-w-36 truncate text-xs text-slate-700 sm:inline dark:text-slate-200">
-        {activeTask?.title || "No active task"}
-      </span>
-      <button
-        type="button"
-        onClick={async () => {
-          if (!hasActiveTimer || stopping) return;
-          try {
-            setStopping(true);
-            const response = await fetch(`/api/dashboard/time/${activeTimer.id}/stop`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({}),
-            });
-            const text = await response.text();
-            const data = parseJsonSafe(text, null);
-            if (!response.ok) {
-              throw new Error(data?.error || data?.message || "Failed to stop timer");
-            }
-            setActiveTimer(null);
-            toast.success("Timer stopped");
-            loadDashboard({ force: true, silent: true }).catch(() => {});
-            if (typeof window !== "undefined") {
-              window.dispatchEvent(new CustomEvent("zyplo-timer-updated"));
-            }
-          } catch (error) {
-            toast.error(error?.message || "Failed to stop timer");
-          } finally {
-            setStopping(false);
-          }
-        }}
-        disabled={stopping || loading || !hasActiveTimer}
-        className="rounded-md bg-rose-600 px-2 py-1 text-[11px] font-medium text-white hover:bg-rose-700 disabled:opacity-50"
-      >
-        {stopping ? "Stopping..." : hasActiveTimer ? "Stop" : "Stop"}
-      </button>
+
+      {hasActiveTimer && (
+        <>
+          <span className="hidden max-w-20 truncate text-[11px] text-slate-700 md:max-w-36 md:inline dark:text-slate-200">
+            {activeTask?.title || "No task"}
+          </span>
+          <button
+            type="button"
+            onClick={async () => {
+              if (!hasActiveTimer || stopping) return;
+              try {
+                setStopping(true);
+                const response = await fetch(`/api/dashboard/time/${activeTimer.id}/stop`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({}),
+                });
+                const text = await response.text();
+                const data = parseJsonSafe(text, null);
+                if (!response.ok) {
+                  throw new Error(data?.error || data?.message || "Failed to stop timer");
+                }
+                setActiveTimer(null);
+                toast.success("Timer stopped");
+                loadDashboard({ force: true, silent: true }).catch(() => {});
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("zyplo-timer-updated"));
+                }
+              } catch (error) {
+                toast.error(error?.message || "Failed to stop timer");
+              } finally {
+                setStopping(false);
+              }
+            }}
+            disabled={stopping || loading}
+            className="rounded-md bg-rose-600 px-1.5 py-0.5 sm:px-2 sm:py-1 text-[10px] sm:text-[11px] font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+          >
+            {stopping ? "..." : "Stop"}
+          </button>
+        </>
+      )}
     </div>
   );
 }
@@ -266,7 +281,7 @@ function NotificationsMenu() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="relative rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-900"
+        className="relative rounded-lg border border-slate-200 p-1.5 sm:p-2 text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-900"
         aria-label="Open notifications"
       >
         <Bell className="size-4" />
@@ -606,33 +621,35 @@ function Topbar({ onOpenSidebar }) {
   useEffect(() => setMounted(true), []);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur dark:border-white/10 dark:bg-slate-950/80 lg:px-7">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
+    <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 px-3 py-3 sm:px-4 backdrop-blur dark:border-white/10 dark:bg-slate-950/80 lg:px-7">
+      <div className="flex items-center justify-between gap-2 sm:gap-3">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <button
             type="button"
             onClick={onOpenSidebar}
-            className="rounded-lg border border-slate-200 p-2 text-slate-600 md:hidden dark:border-white/10 dark:text-slate-300"
+            className="shrink-0 rounded-lg border border-slate-200 p-1.5 sm:p-2 text-slate-600 md:hidden dark:border-white/10 dark:text-slate-300"
           >
-            <Menu className="size-4" />
+            <Menu className="size-4 sm:size-5" />
           </button>
-          <div>
-            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
               Workspace
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            {/* Hide subtitle on mobile so it doesn't push the right side off screen */}
+            <p className="hidden truncate text-xs text-slate-500 sm:block dark:text-slate-400">
               Overview, timeline, board, and members.
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <GlobalTimerControl />
           <NotificationsMenu />
           {mounted ? (
             <button
               type="button"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-900"
+              className="rounded-lg border border-slate-200 p-1.5 sm:p-2 text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-900"
             >
               {theme === "dark" ? (
                 <Sun className="size-4 text-cyan-400" />
