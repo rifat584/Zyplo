@@ -173,6 +173,14 @@ export async function markAllNotificationsRead() {
   await loadDashboard({ force: true });
 }
 
+export async function refreshNotifications() {
+  const data = await request("/api/dashboard/bootstrap");
+  setState({
+    notifications: Array.isArray(data?.notifications) ? data.notifications : [],
+  });
+  return state.notifications;
+}
+
 export async function updateProfile(patch) {
   const data = await request("/api/dashboard/profile", {
     method: "PATCH",

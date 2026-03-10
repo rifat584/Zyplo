@@ -35,6 +35,7 @@ import {
   deleteWorkspace,
   loadDashboard,
   markAllNotificationsRead,
+  refreshNotifications,
   resolveWorkspaceRole,
   useMockStore,
 } from "./mockStore";
@@ -714,6 +715,34 @@ export function AppShell({ children }) {
   useEffect(() => {
     loadDashboard({ force: true, silent: true }).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (!loaded || !currentUser?.id) return;
+
+    const poll = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      refreshNotifications().catch(() => {});
+    }, 8000);
+
+    return () => clearInterval(poll);
+  }, [loaded, currentUser?.id]);
+
+  useEffect(() => {
+    if (!loaded || !currentUser?.id) return;
+
+    const refreshNow = () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      refreshNotifications().catch(() => {});
+    };
+
+    window.addEventListener("focus", refreshNow);
+    document.addEventListener("visibilitychange", refreshNow);
+
+    return () => {
+      window.removeEventListener("focus", refreshNow);
+      document.removeEventListener("visibilitychange", refreshNow);
+    };
+  }, [loaded, currentUser?.id]);
 
   useEffect(() => {
     if (!loaded || !currentUser?.id) return;
