@@ -24,7 +24,16 @@ function CardBody({ task }) {
   return (
     <>
       <div className="flex items-start justify-between gap-2">
-        <p className="line-clamp-2 text-sm font-medium text-slate-900 dark:text-slate-100">{task.title}</p>
+        <div className="min-w-0">
+          <p className="line-clamp-2 text-sm font-medium text-slate-900 dark:text-slate-100">{task.title}</p>
+          {task?.taskRef ? (
+            <p className="mt-1">
+              <span className="rounded-md bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] font-medium text-slate-500 dark:bg-white/10 dark:text-slate-400">
+                {task.taskRef}
+              </span>
+            </p>
+          ) : null}
+        </div>
         <span
           className={`rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase ${
             PRIORITY_STYLES[priority] || PRIORITY_STYLES.P2
