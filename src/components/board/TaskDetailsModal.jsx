@@ -271,14 +271,17 @@ const [isGithubOpen, setIsGithubOpen] = useState(false);
 // Fetch Github Activites
 useEffect(() => {
   if (!open || !task?.id) return;
+  console.log("[GitHub] fetching activities for task:", task.id); // add this
 
   async function fetchGithubActivities() {
     try {
-      const res = await fetch(`/api/dashboard/tasks/${task.id}/activities`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/dashboard/tasks/${task.id}/activities`, {
         cache: "no-store",
       });
-      const text = await res.text();
-      const data = safeJsonParse(text, []);
+
+      const data = await res.json();
+      console.log(data);
+
       if (res.ok) {
         setGithubActivities(Array.isArray(data) ? data : []);
         setIsGithubOpen(data.length > 0);
@@ -364,7 +367,7 @@ useEffect(() => {
   };
 
   if (!open || !task) return null;
-
+console.log(task );
   return (
     <div className="fixed inset-0 z-50">
       <button
@@ -381,14 +384,23 @@ useEffect(() => {
               <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
                 Task Overview
               </p>
+              <div className="flex gap-4 items-center">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                 {task.title || "Untitled Task"}
               </h2>
+
+              {task?.taskRef && (
+      <span className="rounded-md bg-slate-100 px-2 py-0.5 font-mono text-xs font-medium text-slate-500 dark:bg-white/10 dark:text-slate-400">
+        {task?.taskRef}
+      </span>
+    )}
+              </div>
             </div>
             <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300">
               {task.projectName || "Unknown Project"}
             </span>
           </div>
+          
           <div className="mt-3 grid gap-2 text-xs text-slate-500 dark:text-slate-400 sm:grid-cols-2">
             <p>Created: {formatDateTime(task.createdAt)}</p>
             <p>Updated: {formatDateTime(updatedAtValue)}</p>
@@ -963,7 +975,7 @@ useEffect(() => {
                   <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
                     No GitHub activity yet. Mention{" "}
                     <span className="font-mono font-semibold text-slate-700 dark:text-slate-300">
-                      {task.taskRef || "task ref"}
+                      {task?.taskRef || "task ref"}
                     </span>{" "}
                     in a PR title or commit message.
                   </p>
