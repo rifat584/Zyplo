@@ -40,6 +40,7 @@ const PRIORITIES = [
   { value: "P2", label: "Medium", icon: ArrowRight, color: "text-yellow-600" },
   { value: "P3", label: "Low", icon: ArrowDown, color: "text-slate-500" },
 ];
+const FAB_POSITION_KEY = "dashboard.commandPalette.fabPosition";
 
 export default function CommandPalette() {
   const router = useRouter();
@@ -50,8 +51,14 @@ export default function CommandPalette() {
   const [view, setView] = useState({ type: "root" }); // root | task | select_task | create
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [fabPosition, setFabPosition] = useState(null);
+  const [isDraggingFab, setIsDraggingFab] = useState(false);
 
   const inputRef = useRef(null);
+  const fabRef = useRef(null);
+  const dragStateRef = useRef(null);
+  const suppressClickRef = useRef(false);
+  const dragRafRef = useRef(0);
 
   const { workspaces, projects, tasks } = useMockStore((state) => ({
     workspaces: state.workspaces || [],
@@ -102,6 +109,149 @@ export default function CommandPalette() {
       setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [open]);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(FAB_POSITION_KEY);
+      if (!saved) return;
+      const parsed = JSON.parse(saved);
+      if (typeof parsed?.x === "number" && typeof parsed?.y === "number") {
+        setFabPosition({ x: parsed.x, y: parsed.y });
+      }
+    } catch {
+      // no-op
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!fabPosition) return;
+    try {
+      localStorage.setItem(FAB_POSITION_KEY, JSON.stringify(fabPosition));
+    } catch {
+      // no-op
+    }
+  }, [fabPosition]);
+
+  useEffect(() => {
+    if (!fabPosition) return;
+
+    const onResize = () => {
+      const el = fabRef.current;
+      const width = el?.offsetWidth || 220;
+      const height = el?.offsetHeight || 44;
+      const maxX = Math.max(8, window.innerWidth - width - 8);
+      const maxY = Math.max(8, window.innerHeight - height - 8);
+
+      setFabPosition((prev) => {
+        if (!prev) return prev;
+        return {
+          x: Math.min(Math.max(prev.x, 8), maxX),
+          y: Math.min(Math.max(prev.y, 8), maxY),
+        };
+      });
+    };
+
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [fabPosition]);
+
+  const clampFabPosition = (x, y) => {
+    const el = fabRef.current;
+    const width = el?.offsetWidth || 220;
+    const height = el?.offsetHeight || 44;
+    const maxX = Math.max(8, window.innerWidth - width - 8);
+    const maxY = Math.max(8, window.innerHeight - height - 8);
+    return {
+      x: Math.min(Math.max(x, 8), maxX),
+      y: Math.min(Math.max(y, 8), maxY),
+    };
+  };
+
+  const handleFabPointerDown = (e) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    const el = fabRef.current;
+    if (!el) return;
+
+    const rect = el.getBoundingClientRect();
+    const startX = fabPosition?.x ?? rect.left;
+    const startY = fabPosition?.y ?? rect.top;
+
+    const start = clampFabPosition(startX, startY);
+
+    dragStateRef.current = {
+      pointerId: e.pointerId,
+      startClientX: e.clientX,
+      startClientY: e.clientY,
+      startX: start.x,
+      startY: start.y,
+      nextX: start.x,
+      nextY: start.y,
+      moved: false,
+    };
+
+    el.style.left = `${start.x}px`;
+    el.style.top = `${start.y}px`;
+    el.style.right = "auto";
+    el.style.bottom = "auto";
+
+    suppressClickRef.current = false;
+    setIsDraggingFab(true);
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+  };
+
+  const flushDragFrame = () => {
+    dragRafRef.current = 0;
+    const drag = dragStateRef.current;
+    const el = fabRef.current;
+    if (!drag || !el) return;
+    el.style.left = `${drag.nextX}px`;
+    el.style.top = `${drag.nextY}px`;
+    el.style.right = "auto";
+    el.style.bottom = "auto";
+  };
+
+  const handleFabPointerMove = (e) => {
+    const drag = dragStateRef.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+
+    const dx = e.clientX - drag.startClientX;
+    const dy = e.clientY - drag.startClientY;
+    if (!drag.moved && Math.abs(dx) + Math.abs(dy) > 4) {
+      drag.moved = true;
+      suppressClickRef.current = true;
+    }
+
+    const next = clampFabPosition(drag.startX + dx, drag.startY + dy);
+    drag.nextX = next.x;
+    drag.nextY = next.y;
+
+    if (!dragRafRef.current) {
+      dragRafRef.current = window.requestAnimationFrame(flushDragFrame);
+    }
+  };
+
+  const handleFabPointerUp = (e) => {
+    const drag = dragStateRef.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+
+    if (dragRafRef.current) {
+      window.cancelAnimationFrame(dragRafRef.current);
+      dragRafRef.current = 0;
+    }
+
+    setFabPosition({ x: drag.nextX, y: drag.nextY });
+    dragStateRef.current = null;
+    setIsDraggingFab(false);
+    e.currentTarget.releasePointerCapture?.(e.pointerId);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (dragRafRef.current) {
+        window.cancelAnimationFrame(dragRafRef.current);
+      }
+    };
+  }, []);
 
   const handleInputKeyDown = (e) => {
     if (e.key === "Backspace" && query === "" && view.type !== "root") {
@@ -429,9 +579,42 @@ export default function CommandPalette() {
       {/* --- FLOATING BUTTON --- */}
       {!open && (
         <button
-          onClick={() => setOpen(true)}
+          ref={fabRef}
+          onClick={() => {
+            if (suppressClickRef.current) {
+              suppressClickRef.current = false;
+              return;
+            }
+            setOpen(true);
+          }}
+          onPointerDown={handleFabPointerDown}
+          onPointerMove={handleFabPointerMove}
+          onPointerUp={handleFabPointerUp}
+          onPointerCancel={handleFabPointerUp}
           title="Open Command Palette"
-          className="fixed bottom-6 right-6 z-[90] flex items-center justify-center gap-2 rounded-full border border-slate-200/80 bg-white/90 p-3 text-xs font-bold uppercase tracking-widest text-slate-500 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-md transition-all hover:scale-105 hover:bg-white hover:text-slate-700 hover:shadow-[0_8px_30px_rgb(0,0,0,0.16)] sm:bottom-8 sm:right-8 sm:px-4 sm:py-2.5 dark:border-white/20 dark:bg-slate-900/80 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+          className={`fixed bottom-6 right-6 z-[90] flex items-center justify-center gap-2 rounded-full border border-slate-200/80 bg-white/90 p-3 text-xs font-bold uppercase tracking-widest text-slate-500 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-md transition-all hover:scale-105 hover:bg-white hover:text-slate-700 hover:shadow-[0_8px_30px_rgb(0,0,0,0.16)] sm:bottom-8 sm:right-8 sm:px-4 sm:py-2.5 dark:border-white/20 dark:bg-slate-900/80 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 ${isDraggingFab ? "cursor-grabbing select-none" : "cursor-grab"}`}
+          style={(() => {
+            const drag = dragStateRef.current;
+            if (drag) {
+              return {
+                left: `${drag.nextX}px`,
+                top: `${drag.nextY}px`,
+                right: "auto",
+                bottom: "auto",
+                touchAction: "none",
+              };
+            }
+            if (fabPosition) {
+              return {
+                left: `${fabPosition.x}px`,
+                top: `${fabPosition.y}px`,
+                right: "auto",
+                bottom: "auto",
+                touchAction: "none",
+              };
+            }
+            return { touchAction: "none" };
+          })()}
         >
           <Command className="size-5 sm:size-4" />
           <span className="hidden sm:inline">Press</span>
