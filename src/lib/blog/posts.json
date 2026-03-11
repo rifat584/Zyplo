@@ -1,0 +1,261 @@
+[
+  {
+    "id": "1",
+    "title": "How Zyplo Helps Dev Teams Ship Faster",
+    "excerpt": "From Kanban boards to the command palette, see how Zyplo removes friction from daily engineering workflow.",
+    "category": "Product",
+    "date": "2026-02-10",
+    "image": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=1200&auto=format&fit=crop",
+    "featured": true,
+    "author": {
+      "name": "Zyplo Team",
+      "role": "Product Engineering"
+    },
+    "readingTime": "8 min read",
+    "tags": ["productivity", "engineering", "workflow"],
+    "intro": "Shipping speed is rarely blocked by coding skill alone. Most delays come from context switching, unclear ownership, and weak handoffs. Zyplo is built to reduce those delays by making execution visible, consistent, and fast.",
+    "sections": [
+      {
+        "heading": "1. Start with one clear execution surface",
+        "paragraphs": [
+          "Many teams split planning, status updates, and assignments across multiple tools. That fragmentation creates ambiguity and rework.",
+          "In Zyplo, the board, task details, assignee ownership, and status movement live in one place. This lets teams focus on delivery instead of reconciliation."
+        ],
+        "bullets": [
+          "One source of truth for task state",
+          "Less time spent asking for updates",
+          "Cleaner handoff between contributors"
+        ]
+      },
+      {
+        "heading": "2. Make status changes meaningful",
+        "paragraphs": [
+          "A status should represent real progress, not motion. Teams that define clear entry and exit criteria per status ship with fewer surprises.",
+          "Zyplo supports board-driven movement plus explicit status in task data, so project state remains reliable in views and reports."
+        ]
+      },
+      {
+        "heading": "3. Reduce micro-friction with keyboard-first actions",
+        "paragraphs": [
+          "Small delays accumulate over a full week. Quick navigation and direct task actions through shortcut-friendly flows save meaningful time.",
+          "The command palette helps contributors jump, create, and update tasks without breaking flow."
+        ],
+        "bullets": [
+          "Fewer clicks to execute common actions",
+          "Faster context switching between projects",
+          "Higher consistency in routine updates"
+        ]
+      },
+      {
+        "heading": "4. Close the loop with notifications and activity",
+        "paragraphs": [
+          "Fast teams still fail when updates do not reach the right people. Assignment and status changes should notify relevant owners immediately.",
+          "Recent activity gives a timeline of who changed what and when, which improves accountability and debugging of process bottlenecks."
+        ]
+      }
+    ],
+    "conclusion": "Teams ship faster when operations are explicit and lightweight. Standardize your board, tighten status discipline, and reduce friction in daily actions. Zyplo is most effective when these behaviors are used consistently across the team."
+  },
+  {
+    "id": "2",
+    "title": "Remote Work: Building High-Trust Engineering Teams",
+    "excerpt": "Async-first workflows, clear ownership, and predictable rituals can help remote teams outperform colocated teams.",
+    "category": "Remote Work",
+    "date": "2026-01-28",
+    "image": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=1200&auto=format&fit=crop",
+    "featured": false,
+    "author": {
+      "name": "Nadia Rahman",
+      "role": "Operations Lead"
+    },
+    "readingTime": "9 min read",
+    "tags": ["remote-work", "leadership", "team-health"],
+    "intro": "Trust is the core system in remote engineering. Without it, every handoff becomes slow and every decision needs synchronous confirmation.",
+    "sections": [
+      {
+        "heading": "1. Define ownership at task level",
+        "paragraphs": [
+          "Unclear ownership is the fastest way to create remote delays. Every active task should have one primary assignee and one clear escalation path.",
+          "When ownership is visible, teammates can move in parallel without waiting for meetings."
+        ]
+      },
+      {
+        "heading": "2. Design for async handoff quality",
+        "paragraphs": [
+          "Handoffs should include next action, current blockers, and expected outcome. A task comment should be enough for the next person to continue work.",
+          "Teams that document decisions inside task context preserve momentum across time zones."
+        ],
+        "bullets": [
+          "Write concise status notes",
+          "Link relevant PRs and references",
+          "Record dependency blockers explicitly"
+        ]
+      },
+      {
+        "heading": "3. Use lightweight but strict rituals",
+        "paragraphs": [
+          "Remote teams need rhythm, not constant meetings. Weekly planning, short review loops, and disciplined end-of-day updates are often enough.",
+          "Rituals should improve visibility, not create calendar fatigue."
+        ]
+      },
+      {
+        "heading": "4. Improve trust with transparent activity",
+        "paragraphs": [
+          "People trust what they can observe. Activity history and clear status timelines reduce speculation and blame-driven communication.",
+          "When changes are visible and attributable, teams collaborate with less friction."
+        ]
+      }
+    ],
+    "conclusion": "Remote performance depends on system design. Clear ownership, strong handoffs, and transparent activity allow distributed teams to operate with confidence and speed."
+  },
+  {
+    "id": "3",
+    "title": "Designing a Better Kanban Workflow",
+    "excerpt": "A practical guide to structuring board columns, limits, and priority rules for real delivery teams.",
+    "category": "Workflow",
+    "date": "2026-01-12",
+    "image": "https://images.unsplash.com/photo-1553877522-43269d4ea984?q=80&w=1200&auto=format&fit=crop",
+    "featured": false,
+    "author": {
+      "name": "Arif Hossain",
+      "role": "Engineering Manager"
+    },
+    "readingTime": "10 min read",
+    "tags": ["kanban", "process", "delivery"],
+    "intro": "Most Kanban boards fail because they mirror every internal state, not because Kanban itself is weak. A high-performing board is simple, explicit, and consistently used.",
+    "sections": [
+      {
+        "heading": "1. Keep columns minimal",
+        "paragraphs": [
+          "Every additional status increases coordination overhead. Start with four stages and only add where there is repeatable business value.",
+          "If your team debates where a task belongs, the column definitions are too vague."
+        ],
+        "bullets": [
+          "To Do",
+          "In Progress",
+          "In Review",
+          "Done"
+        ]
+      },
+      {
+        "heading": "2. Define explicit movement rules",
+        "paragraphs": [
+          "A task should not enter review without acceptance criteria. A task should not be marked done without validation.",
+          "Document these rules once and reference them in onboarding."
+        ]
+      },
+      {
+        "heading": "3. Use priority as a policy, not decoration",
+        "paragraphs": [
+          "Priority labels are useful only when they drive decision-making. Align your team on what P1, P2, and P3 mean operationally.",
+          "Conflicting priorities should escalate quickly to project owners."
+        ]
+      },
+      {
+        "heading": "4. Monitor cycle health weekly",
+        "paragraphs": [
+          "Review aging tasks, repeat blockers, and frequent back-and-forth status movement. These signals reveal process debt early.",
+          "Use activity logs and board snapshots to identify where work is stalling."
+        ]
+      }
+    ],
+    "conclusion": "A better Kanban workflow is usually simpler than expected. Keep statuses lean, define movement rules, and inspect flow quality every week."
+  },
+  {
+    "id": "4",
+    "title": "Keyboard-First Productivity: Why It Matters",
+    "excerpt": "Small shortcuts compound into major output gains when engineering teams optimize for flow state.",
+    "category": "Productivity",
+    "date": "2025-12-30",
+    "image": "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop",
+    "featured": false,
+    "author": {
+      "name": "Mariam Akter",
+      "role": "Developer Experience"
+    },
+    "readingTime": "7 min read",
+    "tags": ["shortcuts", "focus", "developer-experience"],
+    "intro": "Productivity improvements often come from reducing tiny interruptions. Keyboard-first interaction helps protect focus and lowers switching cost.",
+    "sections": [
+      {
+        "heading": "1. Remove repeat navigation overhead",
+        "paragraphs": [
+          "Frequent route changes and pointer interactions create constant micro-pauses. Shortcut-based navigation recovers that time.",
+          "Command palette patterns are especially effective for high-frequency actions."
+        ]
+      },
+      {
+        "heading": "2. Keep decisions near execution context",
+        "paragraphs": [
+          "Context loss happens when users bounce between multiple panels for simple updates. Keep task actions close to task context.",
+          "Keyboard-friendly update flows reduce friction in status and assignment maintenance."
+        ]
+      },
+      {
+        "heading": "3. Standardize personal workflows",
+        "paragraphs": [
+          "Teams improve when individuals follow consistent execution loops. Define your own daily flow and repeat it.",
+          "For example: check notifications, update statuses, clear blockers, then start deep work."
+        ],
+        "bullets": [
+          "Morning triage in under 10 minutes",
+          "Midday review of active tasks",
+          "End-of-day status and handoff update"
+        ]
+      }
+    ],
+    "conclusion": "Keyboard-first habits do not replace strategy, but they reduce drag. In aggregate, those saved seconds turn into meaningful weekly output."
+  },
+  {
+    "id": "5",
+    "title": "From Backlog to Done: A Sprint Planning Playbook",
+    "excerpt": "A repeatable planning framework that keeps scope realistic and delivery commitments trustworthy.",
+    "category": "Agile",
+    "date": "2025-12-15",
+    "image": "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=1200&auto=format&fit=crop",
+    "featured": false,
+    "author": {
+      "name": "Siam Ahmed",
+      "role": "Delivery Manager"
+    },
+    "readingTime": "11 min read",
+    "tags": ["sprint-planning", "agile", "execution"],
+    "intro": "Planning fails when scope is overloaded and ownership is vague. A reliable sprint plan is narrow, explicit, and measurable.",
+    "sections": [
+      {
+        "heading": "1. Prepare backlog before planning day",
+        "paragraphs": [
+          "Refine backlog continuously so planning is decision-making, not cleanup. Tasks should already be scoped and understandable.",
+          "Unclear tasks should be deferred, not forced into sprint scope."
+        ]
+      },
+      {
+        "heading": "2. Plan around capacity, not optimism",
+        "paragraphs": [
+          "Use realistic team capacity and known constraints when selecting sprint items.",
+          "Avoid committing to stretch scope as baseline delivery."
+        ],
+        "bullets": [
+          "Account for meetings and support load",
+          "Reserve buffer for unknowns",
+          "Prioritize high-impact tasks first"
+        ]
+      },
+      {
+        "heading": "3. Make commitment criteria explicit",
+        "paragraphs": [
+          "Each planned task should include acceptance criteria and owner before sprint start.",
+          "Without completion criteria, done-state quality becomes inconsistent."
+        ]
+      },
+      {
+        "heading": "4. Track progress with early risk detection",
+        "paragraphs": [
+          "Use board movement, status stability, and blocker age to detect risk early in the sprint.",
+          "Escalate immediately when critical tasks stall, instead of waiting for sprint-end recovery."
+        ]
+      }
+    ],
+    "conclusion": "Good sprint planning is less about complexity and more about discipline. Keep scope grounded, ownership clear, and tracking signals honest."
+  }
+]
