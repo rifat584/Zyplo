@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import {
   CheckCircle2,
   Circle,
@@ -20,6 +21,8 @@ import {
   Download,
   ChevronDown,
   ChevronUp,
+  MessageSquare,
+  Send,
 } from "lucide-react";
 
 const PRIORITY_OPTIONS = [
@@ -160,6 +163,8 @@ export default function TaskDetailsModal({
   onSubmit,
   onDelete,
 }) {
+  const { data: session } = useSession(); // ADDED for Comments
+  
   const [form, setForm] = useState(EMPTY_FORM);
   const [timerBusy, setTimerBusy] = useState(false);
   const [manualBusy, setManualBusy] = useState(false);
@@ -180,6 +185,65 @@ export default function TaskDetailsModal({
 const [isGithubOpen, setIsGithubOpen] = useState(false);
   const fileInputRef = useRef(null);
   const isBusy = submitting || deleting || isUploading || timerBusy || manualBusy;
+
+  // ADDED: Comment States
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState([]);
+  const [isCommentsBusy, setIsCommentsBusy] = useState(false);
+
+  // ADDED: Fetch Comments
+  const fetchComments = useCallback(async () => {
+    if (!open || !task?.id) return;
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/dashboard/comments/${task.id}`
+      );
+      if (response.ok) {
+        const res = await response.json();
+        setComments(Array.isArray(res) ? res : []);
+      }
+    } catch (error) {
+      console.error("Fetch Comments Error:", error);
+    }
+  }, [open, task?.id]);
+
+  useEffect(() => {
+    fetchComments();
+  }, [fetchComments]);
+
+  // ADDED: Add Comment
+  const handleAddComment = async (e) => {
+    e.preventDefault();
+    const trimmed = comment.trim();
+    if (!trimmed || !task?.id || isCommentsBusy) return;
+
+    setIsCommentsBusy(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/dashboard/${task.id}/comments`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${session?.accessToken}`,
+          },
+          body: JSON.stringify({
+            text: trimmed,
+            author: session?.user?.name || "Anonymous",
+          }),
+        }
+      );
+
+      if (response.ok) {
+        setComment("");
+        fetchComments();
+      }
+    } catch (error) {
+      console.error("Add Comment Error:", error);
+    } finally {
+      setIsCommentsBusy(false);
+    }
+  };
 
   useEffect(() => {
     if (!open || !task) return;
@@ -1132,7 +1196,57 @@ useEffect(() => {
                 </select>
               </div>
             </div>
-            
+
+            {/* --- ADDED: ACTIVITY / COMMENTS SECTION --- */}
+            <div className="mt-8 border-t border-slate-200 pt-6 dark:border-white/10">
+              <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                <MessageSquare size={14} />
+                Activity & Comments
+              </h3>
+
+              <div className="mt-4 flex gap-3">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-500 text-[10px] font-bold text-white">
+                  {session?.user?.name?.slice(0, 2).toUpperCase() || "U"}
+                </div>
+                <div className="flex-1 space-y-2">
+                  <textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="Write a comment..."
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 p-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800/50 dark:text-slate-100"
+                    rows={2}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddComment}
+                    disabled={!comment.trim() || isCommentsBusy}
+                    className="flex items-center gap-2 rounded-lg bg-indigo-500 px-4 py-1.5 text-xs font-bold text-white transition hover:bg-indigo-600 disabled:opacity-50"
+                  >
+                    {isCommentsBusy ? <Loader2 size={12} className="animate-spin" /> : <Send size={12} />}
+                    Post Comment
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-4">
+                {comments.map((c, i) => (
+                  <div key={i} className="flex gap-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-200 text-[10px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                      {c.author?.slice(0, 2).toUpperCase()}
+                    </div>
+                    <div className="flex-1 rounded-xl rounded-tl-none bg-slate-50 p-3 dark:bg-slate-800/40">
+                      <div className="mb-1 flex items-center justify-between">
+                        <span className="text-xs font-bold text-slate-900 dark:text-slate-100">{c.author}</span>
+                        <span className="text-[10px] text-slate-400">{formatDateTime(c.createdAt)}</span>
+                      </div>
+                      <p className="text-sm text-slate-600 dark:text-slate-300">{c.text}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* --- END ACTIVITY / COMMENTS SECTION --- */}
+
           </form>
         </div>
 
@@ -1171,5 +1285,3 @@ useEffect(() => {
     </div>
   );
 }
-
-

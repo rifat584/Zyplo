@@ -59,17 +59,13 @@ export default function CommandPalette() {
     tasks: state.tasks || [],
   }));
 
-  // Context awareness: If we are in a workspace, prioritize it. 
-  // Otherwise, use all workspaces (global mode).
   const currentWorkspaceId = params?.workspaceId;
   const currentWorkspace = workspaces.find(w => w.id === currentWorkspaceId);
   const isGlobalMode = !currentWorkspaceId;
 
-  // Combine members from all workspaces if in global mode, otherwise just current workspace
   const members = useMemo(() => {
     if (!isGlobalMode && currentWorkspace) return currentWorkspace.members || [];
     
-    // Global mode: unique members across all workspaces
     const allMembers = [];
     const seen = new Set();
     workspaces.forEach(w => {
@@ -90,12 +86,14 @@ export default function CommandPalette() {
         e.preventDefault();
         setOpen((o) => !o);
       }
+      if (e.key === "Escape") {
+        setOpen(false);
+      }
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Reset state when opening
   useEffect(() => {
     if (open) {
       setQuery("");
@@ -105,7 +103,6 @@ export default function CommandPalette() {
     }
   }, [open]);
 
-  // Handle Backspace to go up a level
   const handleInputKeyDown = (e) => {
     if (e.key === "Backspace" && query === "" && view.type !== "root") {
       e.preventDefault();
@@ -115,7 +112,6 @@ export default function CommandPalette() {
     }
   };
 
-  // --- Fuzzy Match Logic ---
   const fuzzyMatch = (targetText, searchQuery) => {
     if (!searchQuery) return true;
     const target = String(targetText).toLowerCase();
@@ -123,21 +119,14 @@ export default function CommandPalette() {
     return searchWords.every(word => target.includes(word));
   };
 
-  // --- Dynamic Commands Builder ---
   const commands = useMemo(() => {
     const list = [];
     const q = query.trim();
 
-    // Determine the scope of tasks/projects based on route
     const scopeTasks = isGlobalMode ? tasks : tasks.filter(t => t.workspaceId === currentWorkspaceId);
     const scopeProjects = isGlobalMode ? projects : projects.filter(p => p.workspaceId === currentWorkspaceId);
 
-    // ==========================================
-    // VIEW: ROOT (Main Menu)
-    // ==========================================
     if (view.type === "root") {
-      
-      // 1. Create Action (Always available if typing)
       if (q.length > 0) {
         list.push({
           id: "create-task",
@@ -152,7 +141,6 @@ export default function CommandPalette() {
         });
       }
 
-      // 2. Quick Workflow Actions (Global Status, Priority, Assignee)
       STATUSES.filter(s => fuzzyMatch(`change set status ${s.label}`, q)).forEach(s => {
         list.push({
           id: `g-status-${s.value}`,
@@ -199,7 +187,6 @@ export default function CommandPalette() {
         });
       });
 
-      // 3. Navigation (Only show if we are IN a workspace)
       if (!isGlobalMode) {
         const navs = [
           { name: "Board", icon: LayoutDashboard, path: "board" },
@@ -218,7 +205,6 @@ export default function CommandPalette() {
         });
       }
 
-      // 4. Go to Project
       scopeProjects.filter(p => fuzzyMatch(`go to open project ${p.name}`, q)).slice(0, 5).forEach(p => {
         list.push({
           id: `proj-${p.id}`,
@@ -234,7 +220,6 @@ export default function CommandPalette() {
         });
       });
 
-      // 5. Workspaces
       if (!query || "switch workspace".includes(q.toLowerCase())) {
         workspaces.filter(w => fuzzyMatch(w.name, q)).slice(0, 3).forEach(w => {
           list.push({
@@ -247,7 +232,6 @@ export default function CommandPalette() {
         });
       }
 
-      // 6. Manage Tasks Directly
       scopeTasks.filter(t => fuzzyMatch(`task edit ${t.title} ${t.status}`, q)).slice(0, 8).forEach(t => {
         list.push({
           id: `task-${t.id}`,
@@ -264,9 +248,6 @@ export default function CommandPalette() {
       });
     }
 
-    // ==========================================
-    // VIEW: DRILL-DOWN INTO A SPECIFIC TASK
-    // ==========================================
     if (view.type === "task") {
       const task = view.task;
 
@@ -301,9 +282,6 @@ export default function CommandPalette() {
       });
     }
 
-    // ==========================================
-    // VIEW: TARGET SELECTION (Applying Global Action)
-    // ==========================================
     if (view.type === "select_task") {
       scopeTasks.filter(t => fuzzyMatch(t.title, q)).forEach(t => {
         list.push({
@@ -317,9 +295,6 @@ export default function CommandPalette() {
       });
     }
 
-    // ==========================================
-    // VIEW: CREATE TASK (Pick Project)
-    // ==========================================
     if (view.type === "create") {
       scopeProjects.filter(p => fuzzyMatch(p.name, q)).forEach(p => {
         list.push({
@@ -336,13 +311,10 @@ export default function CommandPalette() {
     return list;
   }, [query, view, tasks, projects, workspaces, members, currentWorkspaceId, isGlobalMode, router]);
 
-
-  // --- Action Executors ---
   const executeTaskUpdate = async (task, patch) => {
     setIsProcessing(true);
     try {
       if (patch.status && task.projectId) {
-        // Find exact columns to perform physical move
         const boardData = await fetchJson(`/api/dashboard/boards/${task.projectId}`);
         const columns = boardData?.columns || [];
         const destCol = columns.find(c => normalizeStatusKey(c.name) === normalizeStatusKey(patch.status));
@@ -400,7 +372,7 @@ export default function CommandPalette() {
       await fetchJson("/api/dashboard/tasks", {
         method: "POST",
         body: JSON.stringify({
-          workspaceId: targetWorkspaceId, // Use the correct workspace ID globally
+          workspaceId: targetWorkspaceId,
           projectId,
           boardId: String(boardData.board.id),
           columnId: String(todoCol.id),
@@ -420,7 +392,6 @@ export default function CommandPalette() {
     }
   };
 
-  // --- List Navigation ---
   useEffect(() => {
     const handleNavigation = (e) => {
       if (!open || commands.length === 0) return;
@@ -441,12 +412,9 @@ export default function CommandPalette() {
     return () => document.removeEventListener("keydown", handleNavigation);
   }, [open, commands, selectedIndex]);
 
-  // Reset index when search changes length
   useEffect(() => {
     setSelectedIndex(0);
   }, [commands.length]);
-
-  if (!open) return null;
 
   const groupedCommands = commands.reduce((acc, cmd) => {
     if (!acc[cmd.group]) acc[cmd.group] = [];
@@ -457,148 +425,174 @@ export default function CommandPalette() {
   let globalIndex = 0;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[15vh] sm:pt-[20vh]">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" 
-        onClick={() => setOpen(false)}
-      />
+    <>
+      {/* --- FLOATING BUTTON --- */}
+      {!open && (
+        <button
+          onClick={() => setOpen(true)}
+          title="Open Command Palette"
+          className="fixed bottom-6 right-6 z-[90] flex items-center justify-center gap-2 rounded-full border border-slate-200/80 bg-white/90 p-3 text-xs font-bold uppercase tracking-widest text-slate-500 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-md transition-all hover:scale-105 hover:bg-white hover:text-slate-700 hover:shadow-[0_8px_30px_rgb(0,0,0,0.16)] sm:bottom-8 sm:right-8 sm:px-4 sm:py-2.5 dark:border-white/20 dark:bg-slate-900/80 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+        >
+          <Command className="size-5 sm:size-4" />
+          <span className="hidden sm:inline">Press</span>
+          <span className="hidden rounded bg-slate-200/80 px-1.5 py-0.5 text-[10px] text-slate-700 sm:inline dark:bg-white/10 dark:text-slate-200">
+            Ctrl K
+          </span>
+          <span className="hidden sm:inline">to search</span>
+        </button>
+      )}
 
-      {/* Modal */}
-      <div className="relative w-full max-w-[640px] transform overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl transition-all dark:border-white/10 dark:bg-[#0B0F19] mx-4 flex flex-col max-h-[65vh]">
-        
-        {/* Input Area */}
-        <div className="flex items-center border-b border-slate-200 px-4 py-4 dark:border-white/10">
-          
-          {/* Breadcrumbs for Sub-menus */}
-          {view.type !== "root" ? (
-             <div className="flex shrink-0 items-center gap-2 mr-2">
-               <button 
-                 onClick={() => { setView({type: "root"}); setQuery(""); setSelectedIndex(0); }}
-                 className="flex h-6 items-center rounded bg-slate-100 px-2 text-xs font-medium text-slate-600 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-300 dark:hover:bg-white/20 transition-colors"
-               >
-                 Root
-               </button>
-               <span className="text-slate-300 dark:text-slate-600">/</span>
-               <div className="flex h-6 max-w-[160px] items-center rounded bg-indigo-50 px-2 text-xs font-medium text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300 truncate">
-                 {view.type === 'task' ? view.task.title : 
-                  view.type === 'create' ? 'Create Task' : view.actionLabel}
-               </div>
-             </div>
-          ) : (
-            <Search className="size-5 text-slate-400 shrink-0" />
-          )}
-          
-          <input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleInputKeyDown}
-            placeholder={
-              view.type === "root" ? "Search commands, tasks, or projects..." :
-              view.type === "task" ? "Type status, priority, or name..." :
-              view.type === "select_task" ? "Search for task to apply..." :
-              "Search project..."
-            }
-            className="ml-2 flex-1 bg-transparent text-[17px] text-slate-900 placeholder-slate-400 outline-none dark:text-slate-100 min-w-0"
-            disabled={isProcessing}
+      {/* --- COMMAND PALETTE MODAL --- */}
+      {open && (
+        <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[15vh] sm:pt-[20vh]">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" 
+            onClick={() => setOpen(false)}
           />
-          {isProcessing ? (
-            <div className="ml-3 h-4 w-4 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
-          ) : (
-            <div className="hidden sm:flex items-center gap-1 rounded-md bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400 uppercase tracking-wider">
-              ESC <span className="lowercase font-medium tracking-normal text-[11px]">to close</span>
-            </div>
-          )}
-        </div>
 
-        {/* Results Area */}
-        <div className="flex-1 overflow-y-auto p-2 scroll-smooth">
-          {commands.length === 0 ? (
-            <div className="py-14 text-center text-sm text-slate-500 dark:text-slate-400">
-              No results found for "{query}"
+          {/* Modal */}
+          <div className="relative w-full max-w-[640px] transform overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl transition-all dark:border-white/10 dark:bg-[#0B0F19] mx-4 flex flex-col max-h-[65vh]">
+            
+            {/* Input Area */}
+            <div className="flex items-center border-b border-slate-200 px-4 py-4 dark:border-white/10">
+              
+              {/* Breadcrumbs for Sub-menus */}
+              {view.type !== "root" ? (
+                 <div className="flex shrink-0 items-center gap-2 mr-2">
+                   <button 
+                     onClick={() => { setView({type: "root"}); setQuery(""); setSelectedIndex(0); }}
+                     className="flex h-6 items-center rounded bg-slate-100 px-2 text-xs font-medium text-slate-600 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-300 dark:hover:bg-white/20 transition-colors"
+                   >
+                     Root
+                   </button>
+                   <span className="text-slate-300 dark:text-slate-600">/</span>
+                   <div className="flex h-6 max-w-[160px] items-center rounded bg-indigo-50 px-2 text-xs font-medium text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300 truncate">
+                     {view.type === 'task' ? view.task.title : 
+                      view.type === 'create' ? 'Create Task' : view.actionLabel}
+                   </div>
+                 </div>
+              ) : (
+                <Search className="size-5 text-slate-400 shrink-0" />
+              )}
+              
+              <input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={handleInputKeyDown}
+                placeholder={
+                  view.type === "root" ? "Search commands, tasks, or projects..." :
+                  view.type === "task" ? "Type status, priority, or name..." :
+                  view.type === "select_task" ? "Search for task to apply..." :
+                  "Search project..."
+                }
+                className="ml-2 flex-1 bg-transparent text-[17px] text-slate-900 placeholder-slate-400 outline-none dark:text-slate-100 min-w-0"
+                disabled={isProcessing}
+              />
+              {isProcessing ? (
+                <div className="ml-3 h-4 w-4 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
+              ) : (
+                <button 
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-1 rounded-md bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400 uppercase tracking-wider hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                >
+                  ESC <span className="hidden sm:inline lowercase font-medium tracking-normal text-[11px]"> to close</span>
+                </button>
+              )}
             </div>
-          ) : (
-            Object.entries(groupedCommands).map(([group, items]) => (
-              <div key={group} className="mb-4 last:mb-1">
-                <div className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                  {group}
+
+            {/* Results Area */}
+            <div className="flex-1 overflow-y-auto p-2 scroll-smooth">
+              {commands.length === 0 ? (
+                <div className="py-14 text-center text-sm text-slate-500 dark:text-slate-400">
+                  No results found for "{query}"
                 </div>
-                <ul className="space-y-0.5">
-                  {items.map((cmd) => {
-                    const isSelected = globalIndex === selectedIndex;
-                    const currentIndex = globalIndex++;
+              ) : (
+                Object.entries(groupedCommands).map(([group, items]) => (
+                  <div key={group} className="mb-4 last:mb-1">
+                    <div className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                      {group}
+                    </div>
+                    <ul className="space-y-0.5">
+                      {items.map((cmd) => {
+                        const isSelected = globalIndex === selectedIndex;
+                        const currentIndex = globalIndex++;
 
-                    return (
-                      <li
-                        key={cmd.id}
-                        onMouseEnter={() => setSelectedIndex(currentIndex)}
-                        onClick={cmd.action}
-                        ref={(el) => {
-                          if (isSelected && el) el.scrollIntoView({ block: "nearest" });
-                        }}
-                        className={`group flex cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 text-sm transition-colors ${
-                          isSelected
-                            ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300"
-                            : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-white/5"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3 min-w-0">
-                          <div className={`flex size-6 shrink-0 items-center justify-center rounded-md ${isSelected ? "bg-white shadow-sm dark:bg-[#161b26]" : ""}`}>
-                            {cmd.icon}
-                          </div>
-                          <span className="truncate font-medium">{cmd.label}</span>
-                          {cmd.subtitle && (
-                            <span className="truncate text-xs text-slate-400 dark:text-slate-500 hidden sm:inline-block">
-                              — {cmd.subtitle}
-                            </span>
-                          )}
-                        </div>
-                        {isSelected && (
-                          <span className="flex shrink-0 items-center gap-1 text-[11px] font-semibold text-indigo-500 dark:text-indigo-400">
-                            {view.type === "root" && !cmd.id.includes("nav") && !cmd.id.includes("proj") && !cmd.id.includes("ws") ? (
-                               <>Select <CornerDownLeft className="size-3 ml-0.5" /></>
-                            ) : (
-                               <>Execute <CornerDownLeft className="size-3 ml-0.5" /></>
+                        return (
+                          <li
+                            key={cmd.id}
+                            onMouseEnter={() => setSelectedIndex(currentIndex)}
+                            onClick={cmd.action}
+                            ref={(el) => {
+                              // Keep selected item in scroll view
+                              if (isSelected && el) el.scrollIntoView({ block: "nearest" });
+                            }}
+                            className={`group flex cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 text-sm transition-colors ${
+                              isSelected
+                                ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300"
+                                : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-white/5"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className={`flex size-6 shrink-0 items-center justify-center rounded-md ${isSelected ? "bg-white shadow-sm dark:bg-[#161b26]" : ""}`}>
+                                {cmd.icon}
+                              </div>
+                              <span className="truncate font-medium">{cmd.label}</span>
+                              {cmd.subtitle && (
+                                <span className="truncate text-xs text-slate-400 dark:text-slate-500 hidden sm:inline-block">
+                                  — {cmd.subtitle}
+                                </span>
+                              )}
+                            </div>
+                            {isSelected && (
+                              <span className="flex shrink-0 items-center gap-1 text-[11px] font-semibold text-indigo-500 dark:text-indigo-400">
+                                {view.type === "root" && !cmd.id.includes("nav") && !cmd.id.includes("proj") && !cmd.id.includes("ws") ? (
+                                   <>Select <CornerDownLeft className="size-3 ml-0.5" /></>
+                                ) : (
+                                   <>Execute <CornerDownLeft className="size-3 ml-0.5" /></>
+                                )}
+                              </span>
                             )}
-                          </span>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                ))
+              )}
+            </div>
+            
+            {/* Footer */}
+            <div className="hidden sm:flex shrink-0 items-center justify-between border-t border-slate-200 bg-slate-50/50 px-4 py-3 text-[11px] text-slate-500 dark:border-white/10 dark:bg-[#050505]/50 dark:text-slate-400">
+              <div className="flex items-center gap-4">
+                 <div className="flex items-center gap-1.5">
+                   <div className="flex items-center gap-0.5">
+                     <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1 font-sans dark:border-white/10 dark:bg-slate-800 shadow-sm">↑</kbd>
+                     <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1 font-sans dark:border-white/10 dark:bg-slate-800 shadow-sm">↓</kbd>
+                   </div>
+                   <span>Navigate</span>
+                 </div>
+                 <div className="flex items-center gap-1.5">
+                   <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1.5 font-sans font-medium dark:border-white/10 dark:bg-slate-800 shadow-sm">↵</kbd>
+                   <span>Select</span>
+                 </div>
+                 {view.type !== "root" && (
+                    <div className="flex items-center gap-1.5">
+                      <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1.5 font-sans font-medium dark:border-white/10 dark:bg-slate-800 shadow-sm">Backspace</kbd>
+                      <span>Go back</span>
+                    </div>
+                 )}
               </div>
-            ))
-          )}
-        </div>
-        
-        {/* Footer */}
-        <div className="flex shrink-0 items-center justify-between border-t border-slate-200 bg-slate-50/50 px-4 py-3 text-[11px] text-slate-500 dark:border-white/10 dark:bg-[#050505]/50 dark:text-slate-400">
-          <div className="flex items-center gap-4">
-             <div className="flex items-center gap-1.5">
-               <div className="flex items-center gap-0.5">
-                 <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1 font-sans dark:border-white/10 dark:bg-slate-800 shadow-sm">↑</kbd>
-                 <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1 font-sans dark:border-white/10 dark:bg-slate-800 shadow-sm">↓</kbd>
-               </div>
-               <span>Navigate</span>
-             </div>
-             <div className="flex items-center gap-1.5">
-               <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1.5 font-sans font-medium dark:border-white/10 dark:bg-slate-800 shadow-sm">↵</kbd>
-               <span>Select</span>
-             </div>
-             {view.type !== "root" && (
-                <div className="flex items-center gap-1.5">
-                  <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1.5 font-sans font-medium dark:border-white/10 dark:bg-slate-800 shadow-sm">Backspace</kbd>
-                  <span>Go back</span>
-                </div>
-             )}
-          </div>
-          <div className="hidden sm:flex items-center gap-1.5 font-semibold text-slate-400 dark:text-slate-500">
-            <Command className="size-3" /> Zyplo OS
+              <div className="flex items-center gap-1.5 font-semibold text-slate-400 dark:text-slate-500">
+                <Command className="size-3" /> Zyplo OS
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }
