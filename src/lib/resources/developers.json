@@ -1,50 +1,108 @@
 [
-    {
-        "id": "intro",
-        "title": "Developers & Integrations",
+  {
+    "id": "developer-overview",
+    "title": "Developers and Integrations Overview",
+    "summary": "How engineering teams extend Zyplo.",
+    "assetInstruction": "Optional: add architecture visual at public/resources/developers-1.png.",
+    "body": [
+      "Zyplo supports integration-first workflows for engineering teams that automate task lifecycle and reporting.",
+      "Use API endpoints, webhooks, and internal tooling to connect Zyplo with your delivery stack.",
+      "Build integrations incrementally: start with read-only sync, then add controlled write operations."
+    ]
+  },
+  {
+    "id": "api-foundations",
+    "title": "API Foundations",
+    "summary": "Authentication, object model, and endpoint behavior.",
+    "subsections": [
+      {
+        "id": "authentication",
+        "title": "Authentication and Identity",
         "body": [
-            "Zyplo is built with developers in mind.",
-            "You can extend Zyplo using APIs and integrations."
+          "Use token-based auth for server-to-server calls and ensure token rotation practices are in place.",
+          "Always resolve user identity from trusted token claims instead of client-provided values.",
+          "For profile endpoints, protect immutable identity fields such as email unless explicit workflow allows change."
         ]
-    },
-    {
-        "id": "api",
-        "title": "Zyplo API",
+      },
+      {
+        "id": "resource-model",
+        "title": "Resource Model",
         "body": [
-            "Use the API to manage projects and tasks programmatically.",
-            "Authenticate using API keys or OAuth.",
-            "Build internal tools and automations on top of Zyplo."
+          "Core resources include users, workspaces, projects, boards, tasks, notifications, activities, invites, and time logs.",
+          "Maintain consistent ID handling across services, especially when converting string IDs to ObjectId values.",
+          "Use strict validation for route params and payloads to reduce silent data corruption."
         ]
-    },
-    {
-        "id": "webhooks",
-        "title": "Webhooks",
+      }
+    ]
+  },
+  {
+    "id": "webhooks-and-events",
+    "title": "Webhooks and Event Design",
+    "summary": "Designing event-driven automation.",
+    "subsections": [
+      {
+        "id": "event-contracts",
+        "title": "Event Contracts",
         "body": [
-            "Receive real-time updates when things change.",
-            "Trigger workflows in other tools.",
-            "Use webhooks for CI/CD or reporting pipelines."
+          "Define explicit event names and payload schemas for task_created, task_updated, task_status_changed, and task_deleted.",
+          "Include actor context, previous value, and next value for state transitions.",
+          "Add idempotency keys to webhook delivery payloads where retries are possible."
         ]
-    },
-    {
-        "id": "integrations",
-        "title": "Integrations",
-        "subsections": [
-            {
-                "id": "github",
-                "title": "GitHub Integration",
-                "body": [
-                    "Link commits to tasks.",
-                    "Automatically update task status from PRs."
-                ]
-            },
-            {
-                "id": "slack",
-                "title": "Slack Integration",
-                "body": [
-                    "Get task notifications in Slack.",
-                    "Create tasks directly from messages."
-                ]
-            }
+      },
+      {
+        "id": "delivery-reliability",
+        "title": "Delivery Reliability",
+        "body": [
+          "Retry transient webhook failures with exponential backoff.",
+          "Store delivery logs for observability and replay.",
+          "Set signature verification for incoming webhook receivers."
         ]
-    }
+      }
+    ]
+  },
+  {
+    "id": "integration-guides",
+    "title": "Integration Guides",
+    "summary": "Practical integration patterns.",
+    "subsections": [
+      {
+        "id": "github-integration",
+        "title": "GitHub Integration",
+        "body": [
+          "Link pull requests and commits to task IDs in commit messages.",
+          "Update task status on PR open, review request, merge, and close events.",
+          "Post deployment references back into task comments for release traceability."
+        ]
+      },
+      {
+        "id": "slack-integration",
+        "title": "Slack Integration",
+        "body": [
+          "Send targeted task alerts to project channels by status or due date triggers.",
+          "Allow quick task creation from message shortcuts.",
+          "Avoid channel noise by batching low-priority updates."
+        ]
+      },
+      {
+        "id": "internal-tools",
+        "title": "Internal Ops Tooling",
+        "body": [
+          "Build lightweight admin tools to audit workspace settings, stale tasks, and notification anomalies.",
+          "Use read models for analytics dashboards instead of heavy live queries against transactional collections.",
+          "Document internal scripts and ownership so tooling remains maintainable."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "performance-and-governance",
+    "title": "Performance and Governance",
+    "summary": "Operating integrations at scale.",
+    "body": [
+      "Index query-heavy fields such as userId, workspaceId, read, and createdAt for notification and activity workloads.",
+      "Normalize status values at write time to reduce duplicate event and notification generation.",
+      "Keep migration notes for schema changes in versioned docs so integration consumers can adapt safely.",
+      "Run regular payload and latency audits for endpoints used by dashboard bootstrap and live updates."
+    ]
+  }
 ]
