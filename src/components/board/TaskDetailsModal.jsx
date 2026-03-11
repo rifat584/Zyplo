@@ -176,6 +176,8 @@ export default function TaskDetailsModal({
   const [timePanelInitialized, setTimePanelInitialized] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isAttachmentsOpen, setIsAttachmentsOpen] = useState(true);
+  const [githubActivities, setGithubActivities] = useState([]);
+const [isGithubOpen, setIsGithubOpen] = useState(false);
   const fileInputRef = useRef(null);
   const isBusy = submitting || deleting || isUploading || timerBusy || manualBusy;
 
@@ -263,6 +265,31 @@ export default function TaskDetailsModal({
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onClose, open, isBusy]);
+
+
+
+// Fetch Github Activites
+useEffect(() => {
+  if (!open || !task?.id) return;
+
+  async function fetchGithubActivities() {
+    try {
+      const res = await fetch(`/api/dashboard/tasks/${task.id}/activities`, {
+        cache: "no-store",
+      });
+      const text = await res.text();
+      const data = safeJsonParse(text, []);
+      if (res.ok) {
+        setGithubActivities(Array.isArray(data) ? data : []);
+        setIsGithubOpen(data.length > 0);
+      }
+    } catch {
+      // silently fail — github activity is non-critical
+    }
+  }
+
+  fetchGithubActivities();
+}, [open, task?.id]);
 
   const statusOptions = useMemo(() => {
     const current = String(form.status || "");
@@ -898,6 +925,115 @@ export default function TaskDetailsModal({
               )}
             </div>
 
+
+            {/* GitHub Activity Section */}
+            <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
+              <button
+                type="button"
+                onClick={() => setIsGithubOpen((prev) => !prev)}
+                className="flex w-full items-center justify-between gap-2 text-left"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-slate-900 dark:bg-white/10">
+                    <svg viewBox="0 0 24 24" fill="white" className="size-3.5">
+                      <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12" />
+                    </svg>
+                  </span>
+                  <span className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                    GitHub Activity
+                    {githubActivities.length > 0 && (
+                      <span className="ml-1.5 rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] dark:bg-white/10">
+                        {githubActivities.length}
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <ChevronDown
+                  size={14}
+                  className={`text-slate-500 transition-transform duration-300 ${isGithubOpen ? "rotate-180" : "rotate-0"}`}
+                />
+              </button>
+
+              <div
+                className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                  isGithubOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
+                }`}
+              >
+                {githubActivities.length === 0 ? (
+                  <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+                    No GitHub activity yet. Mention{" "}
+                    <span className="font-mono font-semibold text-slate-700 dark:text-slate-300">
+                      {task.taskRef || "task ref"}
+                    </span>{" "}
+                    in a PR title or commit message.
+                  </p>
+                ) : (
+                  <div className="mt-4 space-y-2">
+                    {githubActivities.map((activity) => (
+                      <div
+                        key={activity._id}
+                        className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-slate-900"
+                      >
+                        {/* icon: commit vs PR */}
+                        <span className="mt-0.5 shrink-0 text-slate-400">
+                          {activity.action === "github_commit_pushed" ? (
+                            <svg viewBox="0 0 24 24" fill="currentColor" className="size-4">
+                              <path d="M17.718 8.004a6 6 0 0 0-11.436 0H2v2h4.282a6 6 0 0 0 11.436 0H22V8.004h-4.282zM12 14a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
+                            </svg>
+                          ) : (
+                            <svg viewBox="0 0 24 24" fill="currentColor" className="size-4">
+                              <path d="M7.177 3.073L9.573.677A.25.25 0 0 1 10 .854v4.792a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354zM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5zm-2.25.75a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25zM11 2.5h-1V4h1a1 1 0 0 1 1 1v5.628a2.251 2.251 0 1 0 1.5 0V5A2.5 2.5 0 0 0 11 2.5zm1 10.25a.75.75 0 1 1 1.5 0 .75.75 0 0 1-1.5 0z"/>
+                            </svg>
+                          )}
+                        </span>
+
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs text-slate-700 dark:text-slate-300">
+                            {activity.text}
+                          </p>
+                          <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                            {activity.meta?.pullRequestUrl && (
+                              <a
+                                href={activity.meta.pullRequestUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[11px] font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+                              >
+                                View PR #{activity.meta.pullRequestNumber}
+                              </a>
+                            )}
+                            {activity.meta?.commitUrl && (
+                              <a
+                                href={activity.meta.commitUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-mono text-[11px] font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+                              >
+                                {activity.meta.commitShort}
+                              </a>
+                            )}
+                            <span className="text-[11px] text-slate-400">
+                              {formatDateTime(activity.createdAt)}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* github avatar */}
+                        {activity.meta?.githubAvatarUrl && (
+                          <img
+                            src={activity.meta.githubAvatarUrl}
+                            alt={activity.meta.githubUsername}
+                            title={`@${activity.meta.githubUsername}`}
+                            className="size-6 shrink-0 rounded-full border border-slate-200 dark:border-white/10"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="grid gap-3 sm:grid-cols-2 pt-2">
               <div className="space-y-1.5">
                 <label
@@ -987,6 +1123,7 @@ export default function TaskDetailsModal({
                 </select>
               </div>
             </div>
+            
           </form>
         </div>
 
