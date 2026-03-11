@@ -271,7 +271,6 @@ const [isGithubOpen, setIsGithubOpen] = useState(false);
 // Fetch Github Activites
 useEffect(() => {
   if (!open || !task?.id) return;
-  console.log("[GitHub] fetching activities for task:", task.id); // add this
 
   async function fetchGithubActivities() {
     try {
@@ -280,7 +279,6 @@ useEffect(() => {
       });
 
       const data = await res.json();
-      console.log(data);
 
       if (res.ok) {
         setGithubActivities(Array.isArray(data) ? data : []);
@@ -367,7 +365,6 @@ useEffect(() => {
   };
 
   if (!open || !task) return null;
-console.log(task );
   return (
     <div className="fixed inset-0 z-50">
       <button
