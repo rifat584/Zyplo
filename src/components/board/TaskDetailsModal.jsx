@@ -182,7 +182,10 @@ export default function TaskDetailsModal({
   const [isUploading, setIsUploading] = useState(false);
   const [isAttachmentsOpen, setIsAttachmentsOpen] = useState(true);
   const [githubActivities, setGithubActivities] = useState([]);
-const [isGithubOpen, setIsGithubOpen] = useState(false);
+  const [isGithubOpen, setIsGithubOpen] = useState(false);
+  const [githubLoading, setGithubLoading] = useState(false);
+  const [githubError, setGithubError] = useState("");
+  const githubPanelInitRef = useRef(false);
   const fileInputRef = useRef(null);
   const isBusy = submitting || deleting || isUploading || timerBusy || manualBusy;
 
@@ -335,25 +338,48 @@ const [isGithubOpen, setIsGithubOpen] = useState(false);
 // Fetch Github Activites
 useEffect(() => {
   if (!open || !task?.id) return;
+  const controller = new AbortController();
+  githubPanelInitRef.current = false;
 
   async function fetchGithubActivities() {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/dashboard/tasks/${task.id}/activities`, {
+      setGithubLoading(true);
+      setGithubError("");
+      setGithubActivities([]);
+
+      const res = await fetch(`/api/dashboard/tasks/${task.id}/activities`, {
         cache: "no-store",
+        signal: controller.signal,
       });
 
-      const data = await res.json();
+      const text = await res.text();
+      const data = safeJsonParse(text, null);
 
-      if (res.ok) {
-        setGithubActivities(Array.isArray(data) ? data : []);
-        setIsGithubOpen(data.length > 0);
+      if (!res.ok) {
+        setGithubError(
+          String(data?.message || data?.error || "Failed to load GitHub activity."),
+        );
+        return;
       }
-    } catch {
-      // silently fail — github activity is non-critical
+
+      const list = Array.isArray(data) ? data : [];
+      setGithubActivities(list);
+      if (!githubPanelInitRef.current) {
+        setIsGithubOpen(list.length > 0);
+        githubPanelInitRef.current = true;
+      }
+    } catch (error) {
+      if (error?.name === "AbortError") return;
+      setGithubError("Could not load GitHub activity right now.");
+    } finally {
+      setGithubLoading(false);
     }
   }
 
   fetchGithubActivities();
+  return () => {
+    controller.abort();
+  };
 }, [open, task?.id]);
 
   const statusOptions = useMemo(() => {
@@ -1034,11 +1060,28 @@ useEffect(() => {
               >
                 {githubActivities.length === 0 ? (
                   <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
-                    No GitHub activity yet. Mention{" "}
-                    <span className="font-mono font-semibold text-slate-700 dark:text-slate-300">
-                      {task?.taskRef || "task ref"}
-                    </span>{" "}
-                    in a PR title or commit message.
+                    {githubLoading ? (
+                      <span className="inline-flex items-center gap-2">
+                        <Loader2 className="size-3.5 animate-spin" />
+                        Loading GitHub activity...
+                      </span>
+                    ) : githubError ? (
+                      githubError
+                    ) : (
+                      <>
+                        No GitHub activity yet.
+                        {task?.taskRef ? (
+                          <>
+                            {" "}
+                            Mention{" "}
+                            <span className="font-mono font-semibold text-slate-700 dark:text-slate-300">
+                              {task.taskRef}
+                            </span>{" "}
+                            in a PR title or commit message.
+                          </>
+                        ) : null}
+                      </>
+                    )}
                   </p>
                 ) : (
                   <div className="mt-4 space-y-2">
