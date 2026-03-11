@@ -48,45 +48,104 @@ export const authOptions = {
         email: {},
         password: {},
       },
+      // async authorize(credentials) {
+      //   // Fallback ensures it works locally even if env var is missing
+      //   const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+
+      //   const res = await fetch(
+      //     `${baseUrl}/auth/login`,
+      //     {
+      //       method: "POST",
+      //       headers: { "Content-Type": "application/json" },
+      //       body: JSON.stringify(credentials),
+      //     },
+      //   );
+
+      //   // SAFELY parse JSON to prevent the "<!DOCTYPE html>" crash
+      //   const text = await res.text();
+      //   let user = null;
+      //   try {
+      //     user = text ? JSON.parse(text) : null;
+      //   } catch (error) {
+      //     throw new Error(
+      //       JSON.stringify({
+      //         message: "Cannot reach the backend server. Please check your connection.",
+      //       })
+      //     );
+      //   }
+
+      //   if (!res.ok) {
+      //     throw new Error(
+      //       JSON.stringify({
+      //         message: user?.message || "Login failed",
+      //         lockUntil: user?.lockUntil || null,
+      //       }),
+      //     );
+      //   }
+
+      //   return {
+      //     ...user,
+      //     id: normalizeId(user?.id || user?._id),
+      //   };
+      // }
+
       async authorize(credentials) {
-        // Fallback ensures it works locally even if env var is missing
-        const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
-        
-        const res = await fetch(
-          `${baseUrl}/auth/login`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(credentials),
-          },
-        );
+        const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-        // SAFELY parse JSON to prevent the "<!DOCTYPE html>" crash
-        const text = await res.text();
-        let user = null;
-        try {
-          user = text ? JSON.parse(text) : null;
-        } catch (error) {
+        if (!baseUrl) {
           throw new Error(
             JSON.stringify({
-              message: "Cannot reach the backend server. Please check your connection.",
-            })
-          );
-        }
-
-        if (!res.ok) {
-          throw new Error(
-            JSON.stringify({
-              message: user?.message || "Login failed",
-              lockUntil: user?.lockUntil || null,
+              message: "Backend URL is not configured",
             }),
           );
         }
 
-        return {
-          ...user,
-          id: normalizeId(user?.id || user?._id),
-        };
+        const loginUrl = `${baseUrl}/auth/login`;
+
+        try {
+          const res = await fetch(loginUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(credentials),
+          });
+
+          const text = await res.text();
+
+          console.log("Login URL:", loginUrl);
+          console.log("Status:", res.status);
+          console.log("Raw response:", text);
+
+          let data = null;
+          try {
+            data = text ? JSON.parse(text) : null;
+          } catch {
+            throw new Error(
+              JSON.stringify({
+                message: "Backend returned invalid JSON",
+                status: res.status,
+                response: text.slice(0, 500),
+              }),
+            );
+          }
+
+          if (!res.ok) {
+            throw new Error(
+              JSON.stringify({
+                message: data?.message || "Login failed",
+                status: res.status,
+                lockUntil: data?.lockUntil || null,
+              }),
+            );
+          }
+
+          return {
+            ...data,
+            id: normalizeId(data?.id || data?._id),
+          };
+        } catch (error) {
+          console.error("Authorize error:", error);
+          throw error;
+        }
       },
     }),
 
@@ -107,8 +166,9 @@ export const authOptions = {
     // 🔹 Runs after OAuth login
     async signIn({ user, account }) {
       if (account.provider !== "credentials") {
-        const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
-        
+        const baseUrl =
+          process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+
         try {
           await fetch(`${baseUrl}/auth/oauth`, {
             method: "POST",
