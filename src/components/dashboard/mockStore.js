@@ -209,7 +209,10 @@ export function resolveWorkspaceRole(workspace, user) {
     return (userId && memberUserId === userId) || (userEmail && memberEmail === userEmail);
   });
 
-  return String(member?.role || "").toLowerCase();
+  // Some legacy workspaces store the workspace owner role as "owner".
+  // Treat it as admin for UI gating; backend remains the source of truth.
+  const role = String(member?.role || "").toLowerCase();
+  return role === "owner" ? "admin" : role;
 }
 
 export function useWorkspaceAccess(workspaceId) {

@@ -60,6 +60,28 @@ function getBackendBaseUrl() {
   return raw.replace(/\/+$/, "");
 }
 
+export function buildDashboardAuthHeaders(user) {
+  if (!user) return null;
+  const normalizedUser = {
+    ...user,
+    id: normalizeUserId(user?.id || user?.sub),
+  };
+
+  const token = signDashboardToken(normalizedUser);
+  if (!token) return null;
+
+  return {
+    Authorization: `Bearer ${token}`,
+    "x-user-id": normalizedUser.id,
+    "x-user-email": String(normalizedUser?.email || ""),
+    "x-user-name": String(normalizedUser?.name || "User"),
+  };
+}
+
+export function getDashboardBackendBaseUrl() {
+  return getBackendBaseUrl();
+}
+
 export async function proxyDashboard(path, { method = "GET", user, body } = {}) {
   const base = getBackendBaseUrl();
   if (!base) {
