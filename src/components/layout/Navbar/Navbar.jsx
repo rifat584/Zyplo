@@ -87,6 +87,7 @@ const Navbar = () => {
         <div className="hidden md:flex items-center gap-2 relative" ref={dropdownRef}>
           <Link href="/" className={getLinkClass("/")}>Home</Link>
           <Link href="/pricing" className={getLinkClass("/pricing")}>Pricing</Link>
+          <Link href="/blog" className={getLinkClass("/blog")}>Blog</Link>
 
           {/* Resources Button */}
           <button
@@ -209,6 +210,7 @@ const Navbar = () => {
           <div className="flex flex-col space-y-2">
             <Link href="/" onClick={closeAllMobile} className={getLinkClass("/")}>Home</Link>
             <Link href="/pricing" onClick={closeAllMobile} className={getLinkClass("/pricing")}>Pricing</Link>
+            <Link href="/blog" onClick={closeAllMobile} className={getLinkClass("/blog")}>Blog</Link>
 
             {/* Resources Toggle */}
             <button
