@@ -48,6 +48,12 @@ export default function ResourcesSidebar({ sections, open, onClose, title = "Con
     }, [active, sections]);
 
     useEffect(() => {
+        if (typeof open === "boolean") {
+            setOpenGroups((prev) => ({ ...prev, ["__mobile_root"]: open }));
+        }
+    }, [open]);
+
+    useEffect(() => {
         function handleClickOutside(e) {
             if (
                 openGroups["__mobile_root"] &&
@@ -178,7 +184,7 @@ export default function ResourcesSidebar({ sections, open, onClose, title = "Con
             {/* Desktop Sidebar */}
             <aside className="hidden lg:block sticky top-20 h-[calc(100vh-5rem)] w-64 shrink-0 overflow-y-auto bg-surface border-r border-gray-200 dark:border-none rounded-t-xl shadow-md">
                 <p className="mb-2 text-lg font-semibold text-primary p-4">
-                    Getting started with Zyplo
+                    {title}
                 </p>
                 <SidebarContent />
             </aside>
@@ -186,7 +192,7 @@ export default function ResourcesSidebar({ sections, open, onClose, title = "Con
             {/* Mobile Collapsible Sidebar */}
             <div
                 ref={mobileRef}
-                className="lg:hidden rounded-lg border border-border bg-base shadow-sm sticky top-22 z-40"
+                className="lg:hidden rounded-lg border border-border bg-base shadow-sm sticky top-[5.5rem] z-40"
             >
                 <button
                     onClick={() => toggleGroup("__mobile_root")}

@@ -1,59 +1,85 @@
 [
-    {
-        "id": "intro",
-        "title": "Remote Work with Zyplo",
+  {
+    "id": "remote-overview",
+    "title": "Remote Work with Zyplo",
+    "summary": "Operating distributed teams with clarity and speed.",
+    "assetInstruction": "Optional: add hero image at public/resources/remote-1.png.",
+    "body": [
+      "Zyplo is optimized for distributed execution where teammates work across locations and time zones.",
+      "The platform centralizes ownership, status, and communication so work stays visible without synchronous dependency.",
+      "Use this guide to design resilient async workflows and reduce coordination drag."
+    ]
+  },
+  {
+    "id": "team-setup",
+    "title": "Set Up a Remote Team Operating Model",
+    "summary": "Initial structure decisions that prevent chaos later.",
+    "subsections": [
+      {
+        "id": "timezone-planning",
+        "title": "Timezone Planning",
         "body": [
-            "Zyplo is built for distributed and hybrid teams.",
-            "This guide covers best practices for working remotely using Zyplo."
+          "Document overlap windows for each region and assign ownership coverage per project.",
+          "Use due dates with timezone awareness and avoid ambiguous day-only deadlines for critical tasks.",
+          "Plan review and handoff windows in advance for cross-region workflows."
         ]
-    },
-    {
-        "id": "team-setup",
-        "title": "Setting Up Your Remote Team",
+      },
+      {
+        "id": "role-clarity",
+        "title": "Role and Ownership Clarity",
         "body": [
-            "Create a workspace for your remote team.",
-            "Invite members across different time zones.",
-            "Define clear roles and responsibilities."
+          "Every active task should have one clear assignee and one clear assigner or lead.",
+          "Define escalation owners for blocked or overdue tasks.",
+          "Avoid shared ownership on execution tasks unless collaboration is explicitly structured."
         ]
-    },
-    {
-        "id": "async",
-        "title": "Async Collaboration",
-        "subsections": [
-            {
-                "id": "updates",
-                "title": "Status Updates",
-                "body": [
-                    "Use comments and activity logs to share progress.",
-                    "Avoid blocking teammates by documenting decisions."
-                ]
-            },
-            {
-                "id": "handoffs",
-                "title": "Work Handoffs",
-                "body": [
-                    "Move tasks across columns when your part is done.",
-                    "Mention teammates so they know what to do next."
-                ]
-            }
-        ]
-    },
-    {
-        "id": "meetings",
-        "title": "Meetings & Planning",
+      }
+    ]
+  },
+  {
+    "id": "async-collaboration",
+    "title": "Async Collaboration Practices",
+    "summary": "How to keep momentum without real-time meetings.",
+    "subsections": [
+      {
+        "id": "status-discipline",
+        "title": "Status Discipline",
         "body": [
-            "Use boards to plan sprints and milestones.",
-            "Keep meetings short and focused.",
-            "Track decisions in tasks instead of chat tools."
+          "Status updates should be timely and factual so teammates in other time zones can continue work confidently.",
+          "When changing status, include brief context in task comments if decision is non-obvious.",
+          "Prevent duplicate status values by normalizing keys before storing and notifying."
         ]
-    },
-    {
-        "id": "culture",
-        "title": "Building Remote Culture",
+      },
+      {
+        "id": "handoff-quality",
+        "title": "Handoff Quality",
         "body": [
-            "Celebrate wins using comments and reactions.",
-            "Encourage clear written communication.",
-            "Use transparency to build trust across the team."
+          "Before handoff, ensure task description includes next action, expected output, and blockers.",
+          "Use mentions only when action is required, not for passive updates.",
+          "Treat handoff notes as production artifacts, not temporary chat messages."
         ]
-    }
+      }
+    ]
+  },
+  {
+    "id": "rituals-and-meetings",
+    "title": "Rituals and Meetings",
+    "summary": "Minimal synchronous rituals with maximum value.",
+    "body": [
+      "Run short weekly planning and weekly review sessions instead of daily long meetings.",
+      "Use dashboard, board, and activity feed as the source of truth during rituals.",
+      "Capture decisions in tasks or project notes immediately after each meeting.",
+      "Track action items with due dates and owners so meetings produce measurable outcomes."
+    ]
+  },
+  {
+    "id": "remote-culture",
+    "title": "Healthy Remote Culture",
+    "summary": "Building trust and sustainable execution patterns.",
+    "body": [
+      "Celebrate shipped milestones and recognize high-quality collaboration publicly.",
+      "Use transparent task ownership and history to reduce blame-driven communication.",
+      "Encourage concise written updates that answer progress, blockers, and next step.",
+      "Review workload distribution monthly to prevent burnout on core contributors."
+    ]
+  }
 ]

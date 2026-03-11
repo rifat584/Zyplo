@@ -14,7 +14,7 @@ export default function ResourcesMenu({
         <>
             {/* Desktop Mega Menu */}
             {resourcesOpen && (
-                <div className="absolute top-14 -right-90 w-180 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl p-6 grid grid-cols-3 gap-6">
+                <div className="absolute top-14 -right-[22.5rem] w-[45rem] rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl p-6 grid grid-cols-3 gap-6">
                     <div className="col-span-2 grid grid-cols-2 gap-4">
                         {resources.map((item) => (
                             <Link

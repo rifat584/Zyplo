@@ -8,6 +8,7 @@ import ResourcesMenu from "./ResourcesMenu/ResourcesMenu";
 import { useTheme } from "@/Context/ThemeContext";
 import Logo from "@/components/Shared/Logo/Logo";
 import { useSession, signOut } from "next-auth/react"; // Added signOut
+import { resources } from "@/lib/resources/resources";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,6 +22,7 @@ const Navbar = () => {
   
   const session = useSession();
   const isAuthenticated = session.status === "authenticated"; // Corrected auth check
+  const [profile, setProfile] = useState(null);
   
   // Theme state
   const { theme, setTheme } = useTheme();
@@ -56,6 +58,31 @@ const Navbar = () => {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadProfile() {
+      if (!isAuthenticated) {
+        setProfile(null);
+        return;
+      }
+      try {
+        const res = await fetch("/api/dashboard/profile", { cache: "no-store" });
+        const text = await res.text();
+        const data = text ? JSON.parse(text) : null;
+        if (!res.ok || !data?.currentUser) return;
+        if (!cancelled) setProfile(data.currentUser);
+      } catch {
+        // keep session fallback
+      }
+    }
+
+    loadProfile();
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated]);
+
   const closeAllMobile = () => {
     setIsOpen(false);
     setMobileResourcesOpen(false);
@@ -66,14 +93,9 @@ const Navbar = () => {
     setTheme(theme === "light" ? "dark" : "light");
   };
 
-  const resources = [
-    { title: "Zyplo Guide", desc: "Learn how to use Zyplo step by step", href: "/resources/guide" },
-    { title: "Remote Work", desc: "Best practices for remote teams", href: "/resources/remote-work" },
-    { title: "Webinars", desc: "Productivity and workflow sessions", href: "/resources/webinars" },
-    { title: "Customer Stories", desc: "How teams use Zyplo", href: "/resources/customer-stories" },
-    { title: "Developers", desc: "Build and extend Zyplo", href: "/resources/developers" },
-    { title: "Help Center", desc: "FAQs and support resources", href: "/resources/help" },
-  ];
+  const displayName = profile?.name || session.data?.user?.name || "User";
+  const displayEmail = profile?.email || session.data?.user?.email || "";
+  const displayAvatarUrl = profile?.avatarUrl || session.data?.user?.image || "";
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-[#0F1629]/80 backdrop-blur-md transition-colors duration-300">
@@ -149,8 +171,12 @@ const Navbar = () => {
                     onClick={() => setProfileOpen(!profileOpen)}
                     className="flex items-center gap-2 outline-none"
                   >
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 hover:ring-2 hover:ring-indigo-500/50 transition-all cursor-pointer">
-                      {(session.data?.user?.name?.charAt(0) || "U").toUpperCase()}
+                    <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 hover:ring-2 hover:ring-indigo-500/50 transition-all cursor-pointer">
+                      {displayAvatarUrl ? (
+                        <img src={displayAvatarUrl} alt={displayName} className="h-full w-full object-cover" />
+                      ) : (
+                        <span>{(displayName?.charAt(0) || "U").toUpperCase()}</span>
+                      )}
                     </div>
                   </button>
 
@@ -158,10 +184,10 @@ const Navbar = () => {
                     <div className="absolute right-0 top-12 z-30 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg dark:border-white/10 dark:bg-slate-900">
                       <div className="mb-2 border-b border-slate-200 pb-2 px-2 dark:border-white/10">
                         <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
-                          {session.data?.user?.name || "User"}
+                          {displayName}
                         </p>
                         <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                          {session.data?.user?.email || ""}
+                          {displayEmail}
                         </p>
                       </div>
                       
@@ -270,15 +296,19 @@ const Navbar = () => {
                 {/* Mobile User Info & Logout */}
                 <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-800/50">
                   <div className="mb-3 border-b border-slate-200 pb-3 dark:border-white/10 flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
-                      {(session.data?.user?.name?.charAt(0) || "U").toUpperCase()}
+                    <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+                      {displayAvatarUrl ? (
+                        <img src={displayAvatarUrl} alt={displayName} className="h-full w-full object-cover" />
+                      ) : (
+                        <span>{(displayName?.charAt(0) || "U").toUpperCase()}</span>
+                      )}
                     </div>
                     <div className="overflow-hidden">
                       <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
-                        {session.data?.user?.name || "User"}
+                        {displayName}
                       </p>
                       <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                        {session.data?.user?.email || ""}
+                        {displayEmail}
                       </p>
                     </div>
                   </div>
