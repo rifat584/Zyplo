@@ -2,6 +2,7 @@
   {
     "id": "remote-overview",
     "title": "Remote Work with Zyplo",
+    "image": "/resources/remoteWork1.png",
     "summary": "Operating distributed teams with clarity and speed.",
     "assetInstruction": "Optional: add hero image at public/resources/remote-1.png.",
     "body": [
@@ -18,6 +19,7 @@
       {
         "id": "timezone-planning",
         "title": "Timezone Planning",
+        "image": "/resources/remoteWork2.png",
         "body": [
           "Document overlap windows for each region and assign ownership coverage per project.",
           "Use due dates with timezone awareness and avoid ambiguous day-only deadlines for critical tasks.",
@@ -27,6 +29,7 @@
       {
         "id": "role-clarity",
         "title": "Role and Ownership Clarity",
+        "image": "/resources/remoteWork3.png",
         "body": [
           "Every active task should have one clear assignee and one clear assigner or lead.",
           "Define escalation owners for blocked or overdue tasks.",
@@ -37,6 +40,7 @@
   },
   {
     "id": "async-collaboration",
+    "image": "/resources/remoteWork4.png",
     "title": "Async Collaboration Practices",
     "summary": "How to keep momentum without real-time meetings.",
     "subsections": [
