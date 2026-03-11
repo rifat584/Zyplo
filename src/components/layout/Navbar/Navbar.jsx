@@ -200,6 +200,13 @@ const Navbar = () => {
                         >
                           Dashboard
                         </Link>
+                        <Link
+                          href="/dashboard/profile"
+                          onClick={() => setProfileOpen(false)}
+                          className="w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5 transition-colors"
+                        >
+                          Profile
+                        </Link>
                         
                         <button
                           type="button"
@@ -227,7 +234,7 @@ const Navbar = () => {
       </div>
 
       {/* Gradient line */}
-      <div className="absolute bottom-0 left-0 h-[1px] w-full bg-gradient-to-r from-transparent via-indigo-500/30 dark:via-cyan-400/30 to-transparent" />
+      <div className="absolute bottom-0 left-0 h-px w-full bg-linear-to-r from-transparent via-indigo-500/30 dark:via-cyan-400/30 to-transparent" />
 
       {/* Mobile Menu */}
       {isOpen && (
@@ -291,6 +298,13 @@ const Navbar = () => {
                   className="flex w-full items-center justify-center rounded-lg border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 py-2 text-sm font-medium text-indigo-700 dark:text-indigo-300"
                 >
                   Dashboard
+                </Link>
+                <Link
+                  href="/dashboard/profile"
+                  onClick={closeAllMobile}
+                  className="flex w-full items-center justify-center rounded-lg border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 py-2 text-sm font-medium text-indigo-700 dark:text-indigo-300"
+                >
+                  Profile
                 </Link>
                 
                 {/* Mobile User Info & Logout */}
