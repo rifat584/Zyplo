@@ -18,6 +18,7 @@ import {
   Menu,
   Moon,
   PenTool,
+  UserCircle2,
   Rocket,
   Settings,
   Star,
@@ -34,10 +35,10 @@ import {
   deleteWorkspace,
   loadDashboard,
   markAllNotificationsRead,
+  refreshNotifications,
   resolveWorkspaceRole,
   useMockStore,
 } from "./mockStore";
-
 
 const SIDEBAR_KEY = "dashboard.sidebarCollapsed";
 
@@ -70,25 +71,42 @@ function useSidebarState() {
 function AvatarMenu() {
   const [open, setOpen] = useState(false);
   const { data: session } = useSession();
+  const currentUser = useMockStore((state) => state.currentUser || null);
+  const rootRef = useRef(null);
+
+  useEffect(() => {
+    function onPointerDown(event) {
+      if (rootRef.current && !rootRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", onPointerDown);
+    return () => document.removeEventListener("mousedown", onPointerDown);
+  }, []);
+
+  const displayName = currentUser?.name || session?.user?.name || "User";
+  const displayEmail = currentUser?.email || session?.user?.email || "";
+  const displayAvatarUrl = currentUser?.avatarUrl || session?.user?.image || "";
 
   return (
-    <div className="relative">
+    <div ref={rootRef} className="relative">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="rounded-full p-0.5 ring-2 ring-transparent transition hover:ring-cyan-200 dark:hover:ring-cyan-500/40"
       >
-        <Avatar name={session?.user?.name || "User"} />
+        <Avatar name={displayName} src={displayAvatarUrl} />
       </button>
 
       {open ? (
         <div className="absolute right-0 top-11 z-30 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg dark:border-white/10 dark:bg-slate-900">
           <div className="mb-2 border-b border-slate-200 pb-2 dark:border-white/10">
             <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
-              {session?.user?.name || "User"}
+              {displayName}
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              {session?.user?.email || ""}
+              {displayEmail}
             </p>
           </div>
           <button
@@ -132,6 +150,25 @@ function formatElapsed(seconds) {
   const s = safe % 60;
   if (h > 0) return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+const PROFILE_COMPLETION_FIELDS = [
+  "name",
+  "phone",
+  "roleTitle",
+  "company",
+  "location",
+  "website",
+  "avatarUrl",
+  "bio",
+];
+
+function computeProfileCompletion(user) {
+  if (!user) return 0;
+  const completed = PROFILE_COMPLETION_FIELDS.filter((key) =>
+    String(user?.[key] || "").trim(),
+  ).length;
+  return Math.round((completed / PROFILE_COMPLETION_FIELDS.length) * 100);
 }
 
 function GlobalTimerControl() {
@@ -197,48 +234,64 @@ function GlobalTimerControl() {
     tasks.find((task) => String(task.id) === String(activeTimer?.taskId || "")) || null;
   const hasActiveTimer = Boolean(activeTimer?.id);
 
+  const containerClasses = hasActiveTimer 
+    ? "border-indigo-200 bg-indigo-50 dark:border-indigo-400/30 dark:bg-indigo-500/10" 
+    : "border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-slate-800/50";
+
+  const textClasses = hasActiveTimer
+    ? "text-indigo-700 dark:text-indigo-200"
+    : "text-slate-500 dark:text-slate-400";
+
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-2 py-1.5 dark:border-indigo-400/30 dark:bg-indigo-500/10">
-      <span className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-700 dark:text-indigo-200">
-        <Timer className="size-3.5" />
-        {loading && !hasActiveTimer ? "Checking..." : hasActiveTimer ? formatElapsed(liveDuration) : "No timer"}
+    <div className={`flex items-center gap-1.5 sm:gap-2 rounded-lg border px-1.5 sm:px-2 py-1 sm:py-1.5 ${containerClasses}`}>
+      <span className={`inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold ${textClasses}`}>
+        <Timer className="size-3.5 sm:size-4 shrink-0" />
+        
+        <span className={hasActiveTimer ? "" : "hidden sm:inline"}>
+          {loading && !hasActiveTimer ? "..." : hasActiveTimer ? formatElapsed(liveDuration) : "No timer"}
+        </span>
       </span>
-      <span className="hidden max-w-36 truncate text-xs text-slate-700 sm:inline dark:text-slate-200">
-        {activeTask?.title || "No active task"}
-      </span>
-      <button
-        type="button"
-        onClick={async () => {
-          if (!hasActiveTimer || stopping) return;
-          try {
-            setStopping(true);
-            const response = await fetch(`/api/dashboard/time/${activeTimer.id}/stop`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({}),
-            });
-            const text = await response.text();
-            const data = parseJsonSafe(text, null);
-            if (!response.ok) {
-              throw new Error(data?.error || data?.message || "Failed to stop timer");
-            }
-            setActiveTimer(null);
-            toast.success("Timer stopped");
-            loadDashboard({ force: true, silent: true }).catch(() => {});
-            if (typeof window !== "undefined") {
-              window.dispatchEvent(new CustomEvent("zyplo-timer-updated"));
-            }
-          } catch (error) {
-            toast.error(error?.message || "Failed to stop timer");
-          } finally {
-            setStopping(false);
-          }
-        }}
-        disabled={stopping || loading || !hasActiveTimer}
-        className="rounded-md bg-rose-600 px-2 py-1 text-[11px] font-medium text-white hover:bg-rose-700 disabled:opacity-50"
-      >
-        {stopping ? "Stopping..." : hasActiveTimer ? "Stop" : "Stop"}
-      </button>
+
+      {hasActiveTimer && (
+        <>
+          <span className="hidden max-w-20 truncate text-[11px] text-slate-700 md:max-w-36 md:inline dark:text-slate-200">
+            {activeTask?.title || "No task"}
+          </span>
+          <button
+            type="button"
+            onClick={async () => {
+              if (!hasActiveTimer || stopping) return;
+              try {
+                setStopping(true);
+                const response = await fetch(`/api/dashboard/time/${activeTimer.id}/stop`, {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({}),
+                });
+                const text = await response.text();
+                const data = parseJsonSafe(text, null);
+                if (!response.ok) {
+                  throw new Error(data?.error || data?.message || "Failed to stop timer");
+                }
+                setActiveTimer(null);
+                toast.success("Timer stopped");
+                loadDashboard({ force: true, silent: true }).catch(() => {});
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("zyplo-timer-updated"));
+                }
+              } catch (error) {
+                toast.error(error?.message || "Failed to stop timer");
+              } finally {
+                setStopping(false);
+              }
+            }}
+            disabled={stopping || loading}
+            className="rounded-md bg-rose-600 px-1.5 py-0.5 sm:px-2 sm:py-1 text-[10px] sm:text-[11px] font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+          >
+            {stopping ? "..." : "Stop"}
+          </button>
+        </>
+      )}
     </div>
   );
 }
@@ -266,7 +319,7 @@ function NotificationsMenu() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="relative rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-900"
+        className="relative rounded-lg border border-slate-200 p-1.5 sm:p-2 text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-900"
         aria-label="Open notifications"
       >
         <Bell className="size-4" />
@@ -388,6 +441,22 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     >
       <Building2 className="size-4 shrink-0" />
       {!effectiveCollapsed ? <span className="text-sm">Workspaces</span> : null}
+    </Link>
+  );
+
+  const profileItem = (
+    <Link
+      href="/dashboard/profile"
+      onClick={onCloseMobile}
+      className={`group flex items-center rounded-xl transition ${
+        pathname === "/dashboard/profile"
+          ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
+          : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+      } ${effectiveCollapsed ? "size-10 justify-center" : "gap-2 px-3 py-2"}`}
+      title={effectiveCollapsed ? "Profile" : undefined}
+    >
+      <UserCircle2 className="size-4 shrink-0" />
+      {!effectiveCollapsed ? <span className="text-sm">Profile</span> : null}
     </Link>
   );
 
@@ -522,6 +591,9 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         {rootItem}
       </div>
       {workspaceItems}
+      <div className={`${effectiveCollapsed ? "mt-auto flex justify-center pt-3" : "mt-auto pt-3"}`}>
+        {profileItem}
+      </div>
     </div>
   );
 
@@ -606,33 +678,35 @@ function Topbar({ onOpenSidebar }) {
   useEffect(() => setMounted(true), []);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur dark:border-white/10 dark:bg-slate-950/80 lg:px-7">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
+    <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 px-3 py-3 sm:px-4 backdrop-blur dark:border-white/10 dark:bg-slate-950/80 lg:px-7">
+      <div className="flex items-center justify-between gap-2 sm:gap-3">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <button
             type="button"
             onClick={onOpenSidebar}
-            className="rounded-lg border border-slate-200 p-2 text-slate-600 md:hidden dark:border-white/10 dark:text-slate-300"
+            className="shrink-0 rounded-lg border border-slate-200 p-1.5 sm:p-2 text-slate-600 md:hidden dark:border-white/10 dark:text-slate-300"
           >
-            <Menu className="size-4" />
+            <Menu className="size-4 sm:size-5" />
           </button>
-          <div>
-            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
               Workspace
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            {/* Hide subtitle on mobile so it doesn't push the right side off screen */}
+            <p className="hidden truncate text-xs text-slate-500 sm:block dark:text-slate-400">
               Overview, timeline, board, and members.
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <GlobalTimerControl />
           <NotificationsMenu />
           {mounted ? (
             <button
               type="button"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="rounded-lg border border-slate-200 p-2 text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-900"
+              className="rounded-lg border border-slate-200 p-1.5 sm:p-2 text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-900"
             >
               {theme === "dark" ? (
                 <Sun className="size-4 text-cyan-400" />
@@ -650,6 +724,60 @@ function Topbar({ onOpenSidebar }) {
 
 export function AppShell({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { currentUser, loaded } = useMockStore((state) => ({
+    currentUser: state.currentUser || null,
+    loaded: Boolean(state.loaded),
+  }));
+
+  useEffect(() => {
+    loadDashboard({ force: true, silent: true }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!loaded || !currentUser?.id) return;
+
+    const poll = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      refreshNotifications().catch(() => {});
+    }, 8000);
+
+    return () => clearInterval(poll);
+  }, [loaded, currentUser?.id]);
+
+  useEffect(() => {
+    if (!loaded || !currentUser?.id) return;
+
+    const refreshNow = () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      refreshNotifications().catch(() => {});
+    };
+
+    window.addEventListener("focus", refreshNow);
+    document.addEventListener("visibilitychange", refreshNow);
+
+    return () => {
+      window.removeEventListener("focus", refreshNow);
+      document.removeEventListener("visibilitychange", refreshNow);
+    };
+  }, [loaded, currentUser?.id]);
+
+  useEffect(() => {
+    if (!loaded || !currentUser?.id) return;
+
+    const completion = computeProfileCompletion(currentUser);
+    const key = `dashboard.profile.nudge.${currentUser.id}`;
+
+    if (completion >= 100) {
+      if (typeof window !== "undefined") window.sessionStorage.removeItem(key);
+      return;
+    }
+
+    if (typeof window === "undefined") return;
+    if (window.sessionStorage.getItem(key) === "1") return;
+
+    toast.info("Complete your profile to unlock a better dashboard experience.");
+    window.sessionStorage.setItem(key, "1");
+  }, [loaded, currentUser]);
 
   return (
     <div className="flex min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">

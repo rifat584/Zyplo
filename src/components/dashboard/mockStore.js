@@ -173,6 +173,27 @@ export async function markAllNotificationsRead() {
   await loadDashboard({ force: true });
 }
 
+export async function refreshNotifications() {
+  const data = await request("/api/dashboard/bootstrap");
+  setState({
+    notifications: Array.isArray(data?.notifications) ? data.notifications : [],
+  });
+  return state.notifications;
+}
+
+export async function updateProfile(patch) {
+  const data = await request("/api/dashboard/profile", {
+    method: "PATCH",
+    body: JSON.stringify(patch || {}),
+  });
+
+  if (data?.currentUser) {
+    setState({ currentUser: data.currentUser });
+  }
+  await loadDashboard({ force: true, silent: true });
+  return data?.currentUser || null;
+}
+
 export function getWorkspaceById(workspaceId) {
   return state.workspaces.find((workspace) => workspace.id === workspaceId) || null;
 }
@@ -188,7 +209,10 @@ export function resolveWorkspaceRole(workspace, user) {
     return (userId && memberUserId === userId) || (userEmail && memberEmail === userEmail);
   });
 
-  return String(member?.role || "").toLowerCase();
+  // Some legacy workspaces store the workspace owner role as "owner".
+  // Treat it as admin for UI gating; backend remains the source of truth.
+  const role = String(member?.role || "").toLowerCase();
+  return role === "owner" ? "admin" : role;
 }
 
 export function useWorkspaceAccess(workspaceId) {
