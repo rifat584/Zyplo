@@ -7,10 +7,8 @@ export default function Footer() {
   return (
     <footer className="bg-[#0B1120] text-white pt-20 pb-8">
       <div className="max-w-7xl mx-auto px-6">
-
         {/* Top Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-
           {/* Brand */}
           <div>
             <Link href="/" className="flex items-center mb-4">
@@ -27,7 +25,6 @@ export default function Footer() {
 
             {/* Social Icons */}
             <div className="flex space-x-4">
-
               <Link
                 href="https://facebook.com"
                 target="_blank"
@@ -63,44 +60,83 @@ export default function Footer() {
               >
                 <FaGithub size={14} />
               </Link>
-
             </div>
           </div>
 
-          {/* Product */}
+   
           <div>
-            <h4 className="font-semibold mb-4">Product</h4>
+            <h4 className="font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2 text-slate-400">
               <li>
-                <Link href="/features" className="hover:text-sky-400 transition">
-                  Features
+                <Link href="/" className="hover:text-sky-400 transition">
+                  Home
                 </Link>
               </li>
               <li>
-                <Link href="/roadmap" className="hover:text-sky-400 transition">
-                  Roadmap
+                <Link href="/pricing" className="hover:text-sky-400 transition">
+                  Pricing
                 </Link>
               </li>
+              <li>
+                <Link href="/blog" className="hover:text-sky-400 transition">
+                  Blog
+                </Link>
+              </li>
+                <li>
+        <Link href="/contact" className="hover:text-sky-400 transition">
+          Contact
+        </Link>
+      </li>
             </ul>
           </div>
 
-          {/* Company */}
+          {/* Resources */}
           <div>
-            <h4 className="font-semibold mb-4">Company</h4>
+            <h4 className="font-semibold mb-4">Resources & Support</h4>
             <ul className="space-y-2 text-slate-400">
               <li>
-                <Link href="/about" className="hover:text-sky-400 transition">
-                  About
+                <Link href="/guide" className="hover:text-sky-400 transition">
+                  User Guide
                 </Link>
               </li>
               <li>
-                <Link href="/careers" className="hover:text-sky-400 transition">
+                <Link
+                  href="/resources/help"
+                  className="hover:text-sky-400 transition"
+                >
+                  Help Center
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/resources/developers"
+                  className="hover:text-sky-400 transition"
+                >
+                  Developers
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/resources/customer-stories"
+                  className="hover:text-sky-400 transition"
+                >
+                  Customer Stories
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/resources/webinars"
+                  className="hover:text-sky-400 transition"
+                >
+                  Webinars
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/resources/remote-work"
+                  className="hover:text-sky-400 transition"
+                >
                   Careers
-                </Link>
-              </li>
-              <li>
-                <Link href="/contact" className="hover:text-sky-400 transition">
-                  Contact
                 </Link>
               </li>
             </ul>
@@ -131,14 +167,12 @@ export default function Footer() {
               </button>
             </div>
           </div>
-
         </div>
 
         {/* Bottom */}
         <div className="border-t border-slate-800 mt-16 pt-6 text-center text-slate-500 text-sm">
           © {new Date().getFullYear()} Zyplo. All rights reserved.
         </div>
-
       </div>
     </footer>
   );
