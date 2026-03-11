@@ -9,4 +9,3 @@ export async function GET(_request, { params }) {
   const taskId = resolvedParams?.taskId;
   return proxyDashboard(`/dashboard/tasks/${taskId}/activities`, { method: "GET" });
 }
-
