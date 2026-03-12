@@ -14,7 +14,7 @@ export default function ResourcesMenu({
         <>
             {/* Desktop Mega Menu */}
             {resourcesOpen && (
-                <div className="absolute top-14 -right-90 w-180 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl p-6 grid grid-cols-3 gap-6">
+                <div className="absolute top-14 -right-[22.5rem] w-[45rem] rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl p-6 grid grid-cols-3 gap-6">
                     <div className="col-span-2 grid grid-cols-2 gap-4">
                         {resources.map((item) => (
                             <Link
@@ -49,23 +49,47 @@ export default function ResourcesMenu({
 
             {/* Mobile Resources Submenu */}
             {mobileResourcesOpen && (
-                <div className=" space-y-2 border rounded-xl bg-secondary/15 p-2">
-                    {resources.map((item) => (
-                        <Link
-                            key={item.title}
-                            href={item.href}
-                            onClick={closeAll}
-                            className="block py-1 text-sm text-gray-600 dark:text-gray-300 hover:bg-secondary/30 p-4 rounded"
-                        >
-                            {item.title}
-                        </Link>
-                    ))}
+                <div className="overflow-hidden rounded-2xl border border-indigo-200/70 bg-gradient-to-br from-indigo-50 via-cyan-50 to-white p-3 shadow-sm dark:border-indigo-500/25 dark:from-indigo-500/10 dark:via-cyan-500/10 dark:to-slate-900">
+                    <div className="mb-2 rounded-xl border border-indigo-200/70 bg-white/70 px-3 py-2 dark:border-indigo-500/20 dark:bg-slate-900/60">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-indigo-700 dark:text-indigo-300">
+                            Resources
+                        </p>
+                        <p className="mt-0.5 text-xs text-slate-600 dark:text-slate-300">
+                            Guides, support docs, and practical playbooks.
+                        </p>
+                    </div>
+
+                    <div className="space-y-2">
+                        {resources.map((item, index) => (
+                            <Link
+                                key={item.title}
+                                href={item.href}
+                                onClick={closeAll}
+                                className="group block rounded-xl border border-white/80 bg-white/80 px-3 py-2.5 transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-sm dark:border-white/10 dark:bg-slate-900/60 dark:hover:border-indigo-400/30"
+                            >
+                                <div className="flex items-start gap-3">
+                                    <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-[11px] font-semibold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+                                        {index + 1}
+                                    </span>
+                                    <div className="min-w-0">
+                                        <p className="truncate text-sm font-semibold text-slate-900 group-hover:text-indigo-700 dark:text-slate-100 dark:group-hover:text-indigo-300">
+                                            {item.title}
+                                        </p>
+                                        <p className="mt-0.5 line-clamp-2 text-xs text-slate-600 dark:text-slate-300">
+                                            {item.desc}
+                                        </p>
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+
                     <Link
                         href="/blog"
                         onClick={closeAll}
-                        className="block py-1 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-secondary/40 p-4 rounded"
+                        className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-indigo-200 bg-white px-4 py-2.5 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-50 dark:border-indigo-400/30 dark:bg-slate-900/70 dark:text-indigo-300 dark:hover:bg-indigo-500/10"
                     >
-                        Zyplo Blog
+                        Explore Zyplo Blog
                     </Link>
                 </div>
             )}

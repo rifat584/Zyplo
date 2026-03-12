@@ -1,34 +1,106 @@
 [
-    {
-        "id": "intro",
-        "title": "Customer Stories",
+  {
+    "id": "stories-overview",
+    "title": "Customer Stories",
+    "summary": "How teams use Zyplo in production.",
+    "assetInstruction": "Optional: add story landing visual at public/resources/stories-1.png.",
+    "body": [
+      "These stories show how different organizations improved delivery consistency using Zyplo.",
+      "Each example focuses on setup choices, workflow changes, and measurable outcomes.",
+      "Use these stories as templates when designing your own rollout plan."
+    ]
+  },
+  {
+    "id": "startup-scaling",
+    "title": "Startup Scaling Team",
+    "summary": "From informal tracking to predictable weekly delivery.",
+    "subsections": [
+      {
+        "id": "challenge-startup",
+        "title": "Challenge",
         "body": [
-            "Teams around the world use Zyplo to ship better software.",
-            "Here are some real stories from our customers."
+          "The team was coordinating features through chat and spreadsheets, causing missed handoffs and unclear ownership.",
+          "Status updates were inconsistent and sprint visibility was poor."
         ]
-    },
-    {
-        "id": "startup",
-        "title": "Startup Team",
+      },
+      {
+        "id": "solution-startup",
+        "title": "Solution",
         "body": [
-            "A small startup used Zyplo to organize their sprint workflow.",
-            "They reduced planning time by 40% and shipped faster."
+          "They consolidated work into one workspace, standardized board statuses, and enforced assignee discipline.",
+          "Notification rules were tuned so both assignee and assigner saw critical status changes."
         ]
-    },
-    {
-        "id": "enterprise",
-        "title": "Enterprise Team",
+      },
+      {
+        "id": "outcome-startup",
+        "title": "Outcome",
         "body": [
-            "A large enterprise adopted Zyplo across multiple teams.",
-            "They improved visibility and cross-team collaboration."
+          "Planning overhead dropped significantly within one month.",
+          "Cycle predictability improved because blockers became visible earlier."
         ]
-    },
-    {
-        "id": "remote",
-        "title": "Remote Company",
+      }
+    ]
+  },
+  {
+    "id": "enterprise-transformation",
+    "title": "Enterprise Transformation",
+    "summary": "Multi-team governance with cleaner execution data.",
+    "subsections": [
+      {
+        "id": "challenge-enterprise",
+        "title": "Challenge",
         "body": [
-            "A fully remote company used Zyplo to stay aligned across time zones.",
-            "They replaced multiple tools with a single workflow in Zyplo."
+          "Different departments used different task status names and reporting methods.",
+          "Leadership lacked a reliable cross-team view of execution health."
         ]
-    }
+      },
+      {
+        "id": "solution-enterprise",
+        "title": "Solution",
+        "body": [
+          "They introduced a shared status taxonomy and normalized status keys in backend workflows.",
+          "Activity tracking and notification logic were standardized across all project teams."
+        ]
+      },
+      {
+        "id": "outcome-enterprise",
+        "title": "Outcome",
+        "body": [
+          "Cross-team reporting became consistent enough for weekly portfolio reviews.",
+          "Operational incidents related to task ownership dropped due to clearer notification coverage."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "remote-first-company",
+    "title": "Remote-First Company",
+    "summary": "Global coordination with async-first habits.",
+    "subsections": [
+      {
+        "id": "challenge-remote",
+        "title": "Challenge",
+        "body": [
+          "With teams across time zones, work was delayed by incomplete handoff notes and late status updates.",
+          "Important task changes were often discovered too late."
+        ]
+      },
+      {
+        "id": "solution-remote",
+        "title": "Solution",
+        "body": [
+          "They adopted strict end-of-day status hygiene and improved task documentation standards.",
+          "Recent activity and live notification refresh were used as daily operational controls."
+        ]
+      },
+      {
+        "id": "outcome-remote",
+        "title": "Outcome",
+        "body": [
+          "Handoffs became faster and less ambiguous.",
+          "Execution continuity improved, even with minimal overlap between regions."
+        ]
+      }
+    ]
+  }
 ]

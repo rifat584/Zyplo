@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Menu } from "lucide-react";
 import ResourcesSidebar from "@/components/resources/ResourcesSidebar/ResourcesSidebar";
 import developers from "@/lib/resources/developers.json";
 
@@ -9,7 +8,7 @@ export default function DevelopersPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <main className="mx-auto max-w-7xl px-6 pt-6 grid gap-8 lg:grid-cols-[260px_1fr] bg-base text-foreground">
+    <main className="mx-auto max-w-7xl px-6 pt-6 grid gap-8 lg:grid-cols-[260px_1fr] bg-base-100 text-base-content">
       <ResourcesSidebar
         sections={developers}
         title="Developers"
@@ -20,21 +19,52 @@ export default function DevelopersPage() {
       <div>
         <div className="prose max-w-none dark:prose-invert">
           {developers.map((section) => (
-            <section key={section.id} id={section.id} className="mb-24">
-              <h2>{section.title}</h2>
+            <section key={section.id} className="mb-24">
+              <div id={section.id} className="h-1 scroll-mt-24" />
 
-              {section.body?.map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
+              <div className="rounded-3xl bg-base-100 p-8 md:p-10 shadow-xl dark:shadow-gray-500">
+                <h2 className="text-3xl md:text-4xl font-semibold mb-6">
+                  {section.title}
+                </h2>
 
-              {section.subsections?.map((sub) => (
-                <div key={sub.id} id={sub.id} className="mt-10">
-                  <h3>{sub.title}</h3>
-                  {sub.body.map((p, i) => (
-                    <p key={i}>{p}</p>
-                  ))}
-                </div>
-              ))}
+                {section.image && (
+                  <img
+                    src={section.image}
+                    alt={section.title}
+                    className="w-full rounded-2xl shadow my-6"
+                  />
+                )}
+
+                {section.body?.map((p, i) => (
+                  <p key={i} className="leading-relaxed">
+                    {p}
+                  </p>
+                ))}
+
+                {section.subsections?.map((sub) => (
+                  <div key={sub.id} id={sub.id} className="mt-12">
+                    <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-base-200/40 p-6 md:p-8">
+                      <h3 className="text-2xl font-semibold mb-4">
+                        {sub.title}
+                      </h3>
+
+                      {sub.image && (
+                        <img
+                          src={sub.image}
+                          alt={sub.title}
+                          className="w-full rounded-xl shadow my-4"
+                        />
+                      )}
+
+                      {sub.body?.map((p, i) => (
+                        <p key={i} className="leading-relaxed">
+                          {p}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </section>
           ))}
         </div>

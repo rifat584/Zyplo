@@ -1,50 +1,83 @@
 [
-    {
-        "id": "intro",
-        "title": "Zyplo Webinars",
+  {
+    "id": "webinar-overview",
+    "title": "Zyplo Webinars",
+    "summary": "Learn through live and recorded sessions.",
+    "assetInstruction": "Optional: add webinar hero image at public/resources/webinars-1.png.",
+    "body": [
+      "Zyplo webinars are designed to shorten learning curves for new and existing teams.",
+      "Each session combines product walkthroughs, implementation examples, and team operating practices.",
+      "Use webinars for onboarding, process upgrades, and cross-team knowledge sharing."
+    ]
+  },
+  {
+    "id": "session-catalog",
+    "title": "Session Catalog",
+    "summary": "Recommended webinar tracks by role.",
+    "subsections": [
+      {
+        "id": "for-admins",
+        "title": "For Admins and Team Leads",
         "body": [
-            "Our webinars help you learn Zyplo faster.",
-            "Join live sessions or watch recordings anytime."
+          "Workspace governance and role management.",
+          "Project setup standards and status taxonomy design.",
+          "Notification strategy to balance awareness and noise."
         ]
-    },
-    {
-        "id": "getting-value",
-        "title": "Getting Value from Webinars",
+      },
+      {
+        "id": "for-contributors",
+        "title": "For Contributors",
         "body": [
-            "Attend live sessions to ask questions.",
-            "Watch recordings to learn at your own pace.",
-            "Share learnings with your team."
+          "Daily task flow, board hygiene, and time tracking best practices.",
+          "How to write high-quality task descriptions and handoff notes.",
+          "Using profile, notifications, and activity feed to stay aligned."
         ]
-    },
-    {
-        "id": "topics",
-        "title": "Popular Topics",
-        "subsections": [
-            {
-                "id": "productivity",
-                "title": "Team Productivity",
-                "body": [
-                    "Learn how to optimize workflows.",
-                    "Discover best practices from experienced teams."
-                ]
-            },
-            {
-                "id": "roadmaps",
-                "title": "Roadmaps & Planning",
-                "body": [
-                    "Plan sprints more effectively.",
-                    "Align stakeholders with clear roadmaps."
-                ]
-            }
-        ]
-    },
-    {
-        "id": "community",
-        "title": "Community Sessions",
+      },
+      {
+        "id": "for-operations",
+        "title": "For Operations and PMO",
         "body": [
-            "Hear from real teams using Zyplo.",
-            "Learn from real-world case studies.",
-            "Get inspired by different workflows."
+          "Reporting and trend analysis across workspace activity.",
+          "Identifying bottlenecks from status transition patterns.",
+          "Designing repeatable delivery playbooks with Zyplo."
         ]
-    }
+      }
+    ]
+  },
+  {
+    "id": "best-practices",
+    "title": "How to Get Maximum Value",
+    "summary": "A practical webinar adoption strategy.",
+    "body": [
+      "Attend live sessions when possible to ask context-specific questions.",
+      "Assign one teammate to capture implementation notes during each session.",
+      "Convert webinar learnings into immediate process changes and track outcomes for two weeks.",
+      "Build an internal playlist by role so new members can self-serve onboarding content."
+    ]
+  },
+  {
+    "id": "community-sessions",
+    "title": "Community and Case Sessions",
+    "summary": "Learning from real teams and scenarios.",
+    "subsections": [
+      {
+        "id": "scale-stories",
+        "title": "Scaling Stories",
+        "body": [
+          "How teams moved from ad-hoc tracking to structured workflows.",
+          "What changed in notification and status governance as teams grew.",
+          "Common migration mistakes and how to avoid them."
+        ]
+      },
+      {
+        "id": "qa-clinics",
+        "title": "Q and A Clinics",
+        "body": [
+          "Hands-on sessions focused on real implementation issues from active teams.",
+          "Troubleshooting patterns for assignments, status sync, and activity consistency.",
+          "Direct recommendations for frontend and backend coordination."
+        ]
+      }
+    ]
+  }
 ]

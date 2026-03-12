@@ -1,59 +1,108 @@
 [
-    {
-        "id": "intro",
-        "title": "Help Center",
+  {
+    "id": "help-overview",
+    "title": "Help Center Overview",
+    "summary": "How to use support resources effectively.",
+    "assetInstruction": "Optional: add a cover image at public/resources/help-1.png and reference it in future UI.",
+    "body": [
+      "The Help Center is the fastest way to resolve setup, usage, and workflow issues without waiting for support responses.",
+      "Browse by topic first, then use troubleshooting flows to isolate root causes.",
+      "For team leads, use this page as a shared runbook during onboarding and incident response."
+    ]
+  },
+  {
+    "id": "account-security",
+    "title": "Account, Profile, and Security",
+    "summary": "Managing identity and access safely.",
+    "subsections": [
+      {
+        "id": "profile-management",
+        "title": "Profile Management",
         "body": [
-            "Welcome to the Zyplo Help Center.",
-            "Find answers to common questions and troubleshooting tips."
+          "Update name, phone, role title, company, location, website, avatar, and bio from the profile route.",
+          "Email is identity-linked and should remain immutable from standard profile edits.",
+          "After updating profile details, verify they reflect in both top-right avatar and dashboard bootstrap data."
         ]
-    },
-    {
-        "id": "account",
-        "title": "Account & Billing",
+      },
+      {
+        "id": "login-lockouts",
+        "title": "Login and Lockouts",
         "body": [
-            "Manage your profile and password from settings.",
-            "Upgrade or downgrade your plan anytime.",
-            "View invoices and billing history."
+          "If login fails repeatedly, account lock rules may apply temporarily for security.",
+          "Wait for lock period expiry or use password recovery flows where enabled.",
+          "Ensure browser time and system timezone are correct when diagnosing lock timing issues."
         ]
-    },
-    {
-        "id": "projects",
-        "title": "Projects & Tasks",
+      }
+    ]
+  },
+  {
+    "id": "workspace-and-projects",
+    "title": "Workspace and Project Administration",
+    "summary": "Operational controls for admins.",
+    "subsections": [
+      {
+        "id": "workspace-membership",
+        "title": "Membership and Roles",
         "body": [
-            "Learn how to create and manage projects.",
-            "Understand task statuses and workflows.",
-            "Troubleshoot common issues with boards."
+          "Only workspace admins should manage invites and role-sensitive settings.",
+          "When inviting members, validate pending invites to avoid duplicate entries and confusion.",
+          "Use consistent role definitions: admin for governance, member for execution."
         ]
-    },
-    {
-        "id": "troubleshooting",
-        "title": "Troubleshooting",
-        "subsections": [
-            {
-                "id": "login-issues",
-                "title": "Login Issues",
-                "body": [
-                    "Reset your password if you can’t log in.",
-                    "Check your email for verification links."
-                ]
-            },
-            {
-                "id": "performance",
-                "title": "Performance Issues",
-                "body": [
-                    "Refresh the page or clear cache.",
-                    "Check status page for outages."
-                ]
-            }
-        ]
-    },
-    {
-        "id": "contact",
-        "title": "Contact Support",
+      },
+      {
+        "id": "project-cleanup",
+        "title": "Project Cleanup",
         "body": [
-            "Reach out to our support team for help.",
-            "Provide screenshots and steps to reproduce issues.",
-            "We usually reply within 24 hours."
+          "Before deleting a project, confirm downstream impacts on tasks, boards, and time logs.",
+          "Schedule cleanup windows to avoid accidental data loss during active delivery periods.",
+          "Keep project naming and archival strategy documented for future audits."
         ]
-    }
+      }
+    ]
+  },
+  {
+    "id": "tasks-notifications",
+    "title": "Tasks, Notifications, and Activity",
+    "summary": "Common operational issues and how to resolve them.",
+    "subsections": [
+      {
+        "id": "status-change-notifications",
+        "title": "Status Change Notifications",
+        "body": [
+          "When task status changes, include the actor name and the from-status to to-status transition.",
+          "If a third member updates status, notify both assignee and assigner when they are different users.",
+          "Normalize status keys before comparing to prevent duplicate notifications like inreview vs in_review."
+        ]
+      },
+      {
+        "id": "notification-refresh",
+        "title": "Notification Refresh Without Reload",
+        "body": [
+          "Use background polling and visibility/focus refresh so users see new notifications in real time.",
+          "Pause polling in hidden tabs to reduce unnecessary network usage.",
+          "Use mark-all-read actions with optimistic UI where possible for smoother UX."
+        ]
+      },
+      {
+        "id": "activity-feed",
+        "title": "Recent Activity Quality",
+        "body": [
+          "Each activity item should capture user, workspace, project, task, action, and timestamp.",
+          "Keep action labels consistent: task_created, task_updated, task_deleted, task_status_changed.",
+          "Avoid writing low-value noise events; prioritize actions that affect execution and accountability."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "support-contact",
+    "title": "Contact Support",
+    "summary": "How to report issues effectively.",
+    "body": [
+      "When contacting support, include workspace ID, project ID, task ID, and exact reproduction steps.",
+      "Attach screenshots and timestamps so support can correlate logs quickly.",
+      "Provide expected vs actual behavior and whether issue is user-specific or workspace-wide.",
+      "For urgent blockers, include business impact and deadline context in the first message."
+    ]
+  }
 ]
