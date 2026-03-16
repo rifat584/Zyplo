@@ -7,36 +7,39 @@ import { Search, Menu, X, ChevronDown, Sun, Moon } from "lucide-react";
 import ResourcesMenu from "./ResourcesMenu/ResourcesMenu";
 import { useTheme } from "@/Context/ThemeContext";
 import Logo from "@/components/Shared/Logo/Logo";
-import { useSession, signOut } from "next-auth/react"; // Added signOut
+import { useSession, signOut } from "next-auth/react"; 
 import { resources } from "@/lib/resources/resources";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false); // Added profile dropdown state
+  const [profileOpen, setProfileOpen] = useState(false); 
   
   const pathname = usePathname();
   const dropdownRef = useRef(null);
-  const profileRef = useRef(null); // Added ref for profile dropdown
+  const profileRef = useRef(null); 
   
   const session = useSession();
-  const isAuthenticated = session.status === "authenticated"; // Corrected auth check
+  const isAuthenticated = session.status === "authenticated"; 
   const [profile, setProfile] = useState(null);
   
   // Theme state
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
+  // --- SWAPPED HOVER & ACTIVE CLASSES HERE ---
   const getLinkClass = (path) => {
     const baseStyles =
-      "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200";
+      "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border border-transparent"; // Added transparent border to prevent layout shift
 
     if (pathname === path) {
-      return `${baseStyles} bg-primary/10 text-gray-900 dark:text-gray-100 font-semibold shadow-sm ring-1 ring-primary/20 dark:bg-primary/20`;
+      // NEW ACTIVE: Gets the old hover styles (Secondary text and border)
+      return `${baseStyles} text-secondary border-gray-200 dark:border-gray-700 dark:text-secondary`;
     }
 
-    return `${baseStyles} text-gray-600 dark:text-gray-300 hover:text-secondary hover:border dark:hover:text-secondary transition-colors`;
+    // NEW HOVER: Gets the old active styles when hovered (Highlight background & ring)
+    return `${baseStyles} text-gray-600 dark:text-gray-300 hover:bg-primary/10 hover:text-gray-900 dark:hover:text-gray-100 hover:shadow-sm hover:ring-1 hover:ring-primary/20 dark:hover:bg-primary/20`;
   };
 
   // Close mega menu and profile menu on outside click
@@ -93,6 +96,11 @@ const Navbar = () => {
     setTheme(theme === "light" ? "dark" : "light");
   };
 
+  // --- TRICK TO OPEN COMMAND PALETTE ---
+  const openCommandPalette = () => {
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }));
+  };
+
   const displayName = profile?.name || session.data?.user?.name || "User";
   const displayEmail = profile?.email || session.data?.user?.email || "";
   const displayAvatarUrl = profile?.avatarUrl || session.data?.user?.image || "";
@@ -111,12 +119,16 @@ const Navbar = () => {
           <Link href="/pricing" className={getLinkClass("/pricing")}>Pricing</Link>
           <Link href="/blog" className={getLinkClass("/blog")}>Blog</Link>
 
-          {/* Resources Button */}
+          {/* Resources Button (Click only) */}
           <button
             onClick={() => setResourcesOpen((p) => !p)}
             className={`${getLinkClass("/resources")} flex items-center gap-1 cursor-pointer`}
           >
-            Resources <ChevronDown size={16} />
+            Resources 
+            <ChevronDown 
+              size={16} 
+              className={`transition-transform duration-200 ${resourcesOpen ? "rotate-180" : ""}`} 
+            />
           </button>
 
           {/* Mega Menu */}
@@ -148,7 +160,11 @@ const Navbar = () => {
             </button>
           )}
 
-          <button className="hidden sm:flex items-center gap-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 transition hover:bg-gray-100 dark:hover:bg-gray-700">
+          {/* Desktop Search Button */}
+          <button 
+            onClick={openCommandPalette}
+            className="hidden sm:flex items-center gap-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 transition hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+          >
             <Search size={16} />
             <span className="text-xs">Ctrl+K</span>
           </button>
@@ -192,7 +208,6 @@ const Navbar = () => {
                       </div>
                       
                       <div className="flex flex-col gap-1">
-                        {/* Moved Dashboard Link inside the dropdown */}
                         <Link
                           href="/dashboard"
                           onClick={() => setProfileOpen(false)}
@@ -266,8 +281,14 @@ const Navbar = () => {
 
           {/* Divider */}
           <div className="border-t border-gray-100 dark:border-gray-800 pt-4 flex flex-col gap-3">
-            {/* Search */}
-            <button className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-500 dark:text-gray-300">
+            {/* Mobile Search Button */}
+            <button 
+              onClick={() => {
+                closeAllMobile();
+                openCommandPalette();
+              }}
+              className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-500 dark:text-gray-300 cursor-pointer"
+            >
               <Search size={16} />
               Search...
             </button>
