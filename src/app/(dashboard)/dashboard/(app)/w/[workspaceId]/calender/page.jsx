@@ -361,7 +361,7 @@ export default function WorkspaceCalenderPage() {
           : String(task.status || "todo").toLowerCase() === status;
       const byPriority = priority === "all" ? true : task.priority === priority;
       const byReporter = moreFilters.reporter
-        ? String(task.reporterName || "Admin")
+        ? String(task.reporterName || "Unknown")
             .toLowerCase()
             .includes(moreFilters.reporter.toLowerCase())
         : true;

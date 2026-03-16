@@ -18,6 +18,7 @@ import {
   Eye,
   Search,
   Filter,
+  MoreHorizontal,
   Trash2,
   UserPlus,
   X,
@@ -1170,35 +1171,63 @@ export default function TaskListView() {
                     </td>
                   )}
 
-                  <td className="px-4 py-4">
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedTask(task)}
-                        aria-label="Open task details"
-                        title="Open task details"
-                        className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-100 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-white/10"
-                      >
-                        <Eye size={14} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteSingleTask(task.id)}
-                        disabled={deletingIds.has(String(task.id))}
-                        aria-label="Delete task"
-                        title="Delete task"
-                        className="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 p-2 text-red-600 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
-                      >
-                        <Trash2
-                          size={14}
-                          className={
-                            deletingIds.has(String(task.id))
-                              ? "animate-pulse"
-                              : ""
-                          }
-                        />
-                      </button>
-                    </div>
+                  <td className="px-4 py-4 relative">
+                    {activeDropdown === `actions-${task.id}` && (
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setActiveDropdown(null)}
+                      />
+                    )}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setActiveDropdown(
+                          activeDropdown === `actions-${task.id}`
+                            ? null
+                            : `actions-${task.id}`,
+                        )
+                      }
+                      aria-label="Open task actions"
+                      title="Task actions"
+                      className="relative z-20 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-100 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-white/10"
+                    >
+                      <MoreHorizontal size={16} />
+                    </button>
+
+                    {activeDropdown === `actions-${task.id}` && (
+                      <div className="absolute right-4 top-12 z-30 w-40 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedTask(task);
+                            setActiveDropdown(null);
+                          }}
+                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5"
+                        >
+                          <Eye size={14} />
+                          <span>Open</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveDropdown(null);
+                            handleDeleteSingleTask(task.id);
+                          }}
+                          disabled={deletingIds.has(String(task.id))}
+                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-red-400 dark:hover:bg-red-500/10"
+                        >
+                          <Trash2
+                            size={14}
+                            className={
+                              deletingIds.has(String(task.id))
+                                ? "animate-pulse"
+                                : ""
+                            }
+                          />
+                          <span>Delete</span>
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               );
