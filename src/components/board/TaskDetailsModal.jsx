@@ -23,6 +23,9 @@ import {
   ChevronUp,
   MessageSquare,
   Send,
+  LayoutGrid,
+  TimerReset,
+  GitBranch,
 } from "lucide-react";
 
 const PRIORITY_OPTIONS = [
@@ -139,6 +142,89 @@ function formatDurationHMS(value) {
   return `${hours}h ${minutes}m ${seconds}s`;
 }
 
+function formatDateOnly(value) {
+  if (!value) return "No date";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+  return date.toLocaleDateString();
+}
+
+function getPriorityLabel(value) {
+  return (
+    PRIORITY_OPTIONS.find((item) => item.value === String(value || "").toUpperCase())?.label ||
+    String(value || "Unknown")
+  );
+}
+
+function getStatusLabel(options, value) {
+  return (
+    options.find((item) => item.value === String(value || ""))?.label ||
+    String(value || "Unknown")
+  );
+}
+
+function OverviewRow({ label, children, alignTop = false }) {
+  return (
+    <div className={`grid gap-3 border-b border-slate-200/70 py-4 dark:border-white/10 sm:grid-cols-[160px_minmax(0,1fr)] xl:grid-cols-[180px_minmax(0,1fr)] ${alignTop ? "items-start" : "items-center"}`}>
+      <div className="pt-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
+        {label}
+      </div>
+      <div className="min-w-0">{children}</div>
+    </div>
+  );
+}
+
+function TaskTabButton({ active, icon: Icon, label, onClick, badge }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition ${
+        active
+          ? "border-slate-900 bg-slate-900 text-white shadow-lg shadow-slate-900/10 dark:border-white dark:bg-white dark:text-slate-900"
+          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+      }`}
+    >
+      <span className="flex min-w-0 items-center gap-3">
+        <Icon className="size-4 shrink-0" />
+        <span className="truncate">{label}</span>
+      </span>
+      {badge ? (
+        <span className={`rounded-full px-2 py-0.5 text-[10px] ${active ? "bg-white/20 text-white dark:bg-slate-900/10 dark:text-slate-900" : "bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-slate-300"}`}>
+          {badge}
+        </span>
+      ) : null}
+    </button>
+  );
+}
+
+function EditableValueButton({ value, placeholder, secondaryText, onClick, multiline = false }) {
+  const hasValue = Boolean(String(value || "").trim());
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`group w-full rounded-2xl border border-slate-200 bg-slate-50/80 px-4 text-left transition hover:border-slate-300 hover:bg-white dark:border-white/10 dark:bg-slate-800/60 dark:hover:border-white/20 dark:hover:bg-slate-800 ${multiline ? "py-3.5" : "py-3"}`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className={`${hasValue ? "text-sm text-slate-900 dark:text-slate-100" : "text-sm text-slate-400 dark:text-slate-500"} ${multiline ? "whitespace-pre-wrap" : "truncate"}`}>
+            {hasValue ? value : placeholder}
+          </div>
+          {secondaryText ? (
+            <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              {secondaryText}
+            </div>
+          ) : null}
+        </div>
+        <span className="shrink-0 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400 opacity-0 transition group-hover:opacity-100 dark:text-slate-500">
+          Edit
+        </span>
+      </div>
+    </button>
+  );
+}
+
 const getFileIcon = (type) => {
   if (type.startsWith("image/")) return <ImageIcon size={14} />;
   if (type.startsWith("video/")) return <Film size={14} />;
@@ -178,6 +264,8 @@ export default function TaskDetailsModal({
   });
   const [isManualEntryOpen, setIsManualEntryOpen] = useState(true);
   const [isTimeTrackingOpen, setIsTimeTrackingOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("attachments");
+  const [editingField, setEditingField] = useState("");
   const [timePanelInitialized, setTimePanelInitialized] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isAttachmentsOpen, setIsAttachmentsOpen] = useState(true);
@@ -268,6 +356,8 @@ export default function TaskDetailsModal({
 
     // Auto-open attachments if there are any
     setIsAttachmentsOpen(taskAttachments.length > 0);
+    setEditingField("");
+    setActiveTab(taskAttachments.length > 0 ? "attachments" : "time");
     setIsManualEntryOpen(true);
     setIsTimeTrackingOpen(false);
     setTimePanelInitialized(false);
@@ -390,6 +480,22 @@ useEffect(() => {
     return [...BASE_STATUS_OPTIONS, { value: current, label: current }];
   }, [form.status]);
   
+  const memberNameMap = useMemo(() => {
+    return new Map(
+      members.map((member) => [String(member.id || ""), member.name || member.email || "Unknown"])
+    );
+  }, [members]);
+  const reporterDisplayName = task?.reporterName || task?.reporterEmail || "Unknown";
+  const reporterSecondary =
+    task?.reporterEmail && task.reporterEmail !== reporterDisplayName
+      ? task.reporterEmail
+      : "";
+  const assigneeDisplayName =
+    memberNameMap.get(String(form.assigneeId || "")) || task?.assigneeName || "Unassigned";
+  const priorityLabel = getPriorityLabel(form.priority);
+  const statusLabel = getStatusLabel(statusOptions, form.status);
+  const dueDateLabel = form.dueDate ? formatDateOnly(`${form.dueDate}T00:00:00`) : "No due date";
+
   const updatedAtValue = task?.updatedAt || task?.createdAt;
   const hasOtherActiveTimer =
     activeTimer &&
@@ -464,33 +570,42 @@ useEffect(() => {
         aria-label="Close task details modal"
       />
 
-      <div className="absolute left-1/2 top-1/2 w-[95vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-900 flex flex-col max-h-[90vh]">
-        <div className="border-b border-slate-200 bg-slate-50/70 px-5 py-4 dark:border-white/10 dark:bg-slate-800/30 shrink-0">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                Task Overview
-              </p>
-              <div className="flex gap-4 items-center">
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                {task.title || "Untitled Task"}
-              </h2>
-
-              {task?.taskRef && (
-      <span className="rounded-md bg-slate-100 px-2 py-0.5 font-mono text-xs font-medium text-slate-500 dark:bg-white/10 dark:text-slate-400">
-        {task?.taskRef}
-      </span>
-    )}
+      <div className="absolute left-1/2 top-1/2 w-[96vw] max-w-6xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-900 flex max-h-[90vh] flex-col">
+        <div className="border-b border-slate-200 bg-gradient-to-br from-slate-50 via-white to-slate-100 px-5 py-3.5 dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shrink-0">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 space-y-2.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full bg-slate-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-white dark:bg-white dark:text-slate-900">
+                  {task.projectName || "Unknown Project"}
+                </span>
+                {task?.taskRef ? (
+                  <span className="rounded-full border border-slate-200 bg-white px-3 py-1 font-mono text-[11px] font-semibold text-slate-600 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300">
+                    {task.taskRef}
+                  </span>
+                ) : null}
+                <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-medium text-slate-500 dark:border-white/10 dark:bg-slate-900 dark:text-slate-400">
+                  Reporter: {reporterDisplayName}
+                </span>
+              </div>
+              <div className="space-y-1">
+                <h2 className="truncate text-xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">
+                  {form.title || task.title || "Untitled Task"}
+                </h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Use the left tabs to switch sections. Click any editable value in the details panel to update it.
+                </p>
               </div>
             </div>
-            <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300">
-              {task.projectName || "Unknown Project"}
-            </span>
-          </div>
-          
-          <div className="mt-3 grid gap-2 text-xs text-slate-500 dark:text-slate-400 sm:grid-cols-2">
-            <p>Created: {formatDateTime(task.createdAt)}</p>
-            <p>Updated: {formatDateTime(updatedAtValue)}</p>
+
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isBusy}
+              className="inline-flex size-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:text-slate-700 disabled:opacity-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-white/20 dark:hover:text-slate-100"
+              aria-label="Close task details modal"
+            >
+              <X className="size-4" />
+            </button>
           </div>
         </div>
 
@@ -513,6 +628,250 @@ useEffect(() => {
               });
             }}
           >
+            <div className="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)]">
+              <aside className="h-fit rounded-[28px] border border-slate-200 bg-gradient-to-b from-slate-50 to-white p-5 shadow-sm xl:sticky xl:top-0 xl:self-start dark:border-white/10 dark:from-slate-900 dark:to-slate-900">
+                <div className="mb-5">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
+                    Navigation
+                  </p>
+                  <h3 className="mt-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    Task Sections
+                  </h3>
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                    Open attachments, time tracking, comments, and GitHub activity from one place.
+                  </p>
+                </div>
+                <div className="space-y-2.5">
+                  <TaskTabButton
+                    active={activeTab === "attachments"}
+                    icon={Paperclip}
+                    label="Attachments"
+                    badge={form.attachments.length > 0 ? form.attachments.length : null}
+                    onClick={() => setActiveTab("attachments")}
+                  />
+                  <TaskTabButton
+                    active={activeTab === "time"}
+                    icon={TimerReset}
+                    label="Time Tracking"
+                    onClick={() => setActiveTab("time")}
+                  />
+                  <TaskTabButton
+                    active={activeTab === "comments"}
+                    icon={MessageSquare}
+                    label="Comments"
+                    badge={comments.length > 0 ? comments.length : null}
+                    onClick={() => setActiveTab("comments")}
+                  />
+                  <TaskTabButton
+                    active={activeTab === "github"}
+                    icon={GitBranch}
+                    label="GitHub Integration"
+                    badge={githubActivities.length > 0 ? githubActivities.length : null}
+                    onClick={() => setActiveTab("github")}
+                  />
+                </div>
+              </aside>
+
+              <div className="space-y-5">
+                <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
+                  <div className="mb-5 flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
+                        Details
+                      </p>
+                      <h3 className="mt-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+                        Task Information
+                      </h3>
+                    </div>
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-medium text-slate-500 dark:bg-white/10 dark:text-slate-400">
+                      Click a value to edit
+                    </span>
+                  </div>
+
+                  <div className="rounded-[24px] border border-slate-200/80 bg-slate-50/70 px-5 dark:border-white/10 dark:bg-slate-950/40">
+                    <OverviewRow label="Task Title">
+                      {editingField === "title" ? (
+                        <input
+                          id="task-details-title"
+                          value={form.title}
+                          autoFocus
+                          onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
+                          onBlur={() => setEditingField("")}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") setEditingField("");
+                            if (event.key === "Escape") setEditingField("");
+                          }}
+                          placeholder="Enter a clear task title"
+                          className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                          required
+                        />
+                      ) : (
+                        <EditableValueButton
+                          value={form.title}
+                          placeholder="Add a title"
+                          onClick={() => setEditingField("title")}
+                        />
+                      )}
+                    </OverviewRow>
+
+                    <OverviewRow label="Description" alignTop>
+                      {editingField === "description" ? (
+                        <textarea
+                          id="task-details-description"
+                          rows={5}
+                          value={form.description}
+                          autoFocus
+                          onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
+                          onBlur={() => setEditingField("")}
+                          placeholder="Add details, acceptance criteria, or important context"
+                          className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        />
+                      ) : (
+                        <EditableValueButton
+                          value={form.description}
+                          placeholder="Add details, acceptance criteria, or important context"
+                          onClick={() => setEditingField("description")}
+                          multiline
+                        />
+                      )}
+                    </OverviewRow>
+
+                    <OverviewRow label="Assignee">
+                      {editingField === "assigneeId" ? (
+                        <select
+                          id="task-details-assignee"
+                          value={form.assigneeId}
+                          autoFocus
+                          onChange={(event) => setForm((prev) => ({ ...prev, assigneeId: event.target.value }))}
+                          onBlur={() => setEditingField("")}
+                          className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        >
+                          <option value="">Unassigned</option>
+                          {members.map((member) => (
+                            <option key={member.id} value={member.id}>
+                              {member.name}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <EditableValueButton
+                          value={assigneeDisplayName}
+                          placeholder="Select an assignee"
+                          onClick={() => setEditingField("assigneeId")}
+                        />
+                      )}
+                    </OverviewRow>
+
+                    <OverviewRow label="Reporter">
+                      <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-slate-800/60 dark:text-slate-200">
+                        <div className="font-medium text-slate-900 dark:text-slate-100">
+                          {reporterDisplayName}
+                        </div>
+                        {reporterSecondary ? (
+                          <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            {reporterSecondary}
+                          </div>
+                        ) : null}
+                      </div>
+                    </OverviewRow>
+
+                    <OverviewRow label="Due Date">
+                      {editingField === "dueDate" ? (
+                        <input
+                          id="task-details-due-date"
+                          type="date"
+                          value={form.dueDate}
+                          autoFocus
+                          onChange={(event) => setForm((prev) => ({ ...prev, dueDate: event.target.value }))}
+                          onBlur={() => setEditingField("")}
+                          className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        />
+                      ) : (
+                        <EditableValueButton
+                          value={dueDateLabel}
+                          placeholder="No due date"
+                          onClick={() => setEditingField("dueDate")}
+                        />
+                      )}
+                    </OverviewRow>
+
+                    <OverviewRow label="Priority">
+                      {editingField === "priority" ? (
+                        <select
+                          id="task-details-priority"
+                          value={form.priority}
+                          autoFocus
+                          onChange={(event) => setForm((prev) => ({ ...prev, priority: event.target.value }))}
+                          onBlur={() => setEditingField("")}
+                          className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        >
+                          {PRIORITY_OPTIONS.map((item) => (
+                            <option key={item.value} value={item.value}>
+                              {item.label}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <EditableValueButton
+                          value={priorityLabel}
+                          placeholder="Select priority"
+                          onClick={() => setEditingField("priority")}
+                        />
+                      )}
+                    </OverviewRow>
+
+                    <OverviewRow label="Status">
+                      {editingField === "status" ? (
+                        <select
+                          id="task-details-status"
+                          value={form.status}
+                          autoFocus
+                          onChange={(event) => setForm((prev) => ({ ...prev, status: event.target.value }))}
+                          onBlur={() => setEditingField("")}
+                          className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        >
+                          {statusOptions.map((item) => (
+                            <option key={item.value} value={item.value}>
+                              {item.label}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <EditableValueButton
+                          value={statusLabel}
+                          placeholder="Select status"
+                          onClick={() => setEditingField("status")}
+                        />
+                      )}
+                    </OverviewRow>
+
+                    <OverviewRow label="Project">
+                      <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-slate-800/60 dark:text-slate-200">
+                        {task.projectName || "Unknown Project"}
+                      </div>
+                    </OverviewRow>
+
+                    <OverviewRow label="Task Ref">
+                      <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 font-mono text-sm text-slate-700 dark:border-white/10 dark:bg-slate-800/60 dark:text-slate-200">
+                        {task.taskRef || "Not assigned"}
+                      </div>
+                    </OverviewRow>
+
+                    <OverviewRow label="Created">
+                      <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-slate-800/60 dark:text-slate-200">
+                        {formatDateTime(task.createdAt)}
+                      </div>
+                    </OverviewRow>
+
+                    <OverviewRow label="Updated">
+                      <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 dark:border-white/10 dark:bg-slate-800/60 dark:text-slate-200">
+                        {formatDateTime(updatedAtValue)}
+                      </div>
+                    </OverviewRow>
+                  </div>
+                </div>
+
+            {activeTab === "time" ? (
             <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
               <div className="flex items-start justify-between gap-3">
                 <button
@@ -901,45 +1260,9 @@ useEffect(() => {
                   ) : null}
               </div>
             </div>
-            <div className="space-y-1.5">
-              <label
-                htmlFor="task-details-title"
-                className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-              >
-                Task Title
-              </label>
-              <input
-                id="task-details-title"
-                value={form.title}
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, title: event.target.value }))
-                }
-                placeholder="Enter a clear task title"
-                className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                required
-              />
-            </div>
+            ) : null}
 
-            <div className="space-y-1.5">
-              <label
-                htmlFor="task-details-description"
-                className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-              >
-                Description
-              </label>
-              <textarea
-                id="task-details-description"
-                rows={4}
-                value={form.description}
-                onChange={(event) =>
-                  setForm((prev) => ({ ...prev, description: event.target.value }))
-                }
-                placeholder="Add details, acceptance criteria, or important context"
-                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-              />
-            </div>
-
-            {/* --- ATTACHMENTS COLLAPSIBLE SECTION --- */}
+            {activeTab === "attachments" ? (
             <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
               <div className="flex items-center justify-between">
                 <button
@@ -1023,9 +1346,9 @@ useEffect(() => {
                 </div>
               )}
             </div>
+            ) : null}
 
-
-            {/* GitHub Activity Section */}
+            {activeTab === "github" ? (
             <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
               <button
                 type="button"
@@ -1149,99 +1472,10 @@ useEffect(() => {
                 )}
               </div>
             </div>
+            ) : null}
 
-            <div className="grid gap-3 sm:grid-cols-2 pt-2">
-              <div className="space-y-1.5">
-                <label
-                  htmlFor="task-details-assignee"
-                  className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-                >
-                  Assignee
-                </label>
-                <select
-                  id="task-details-assignee"
-                  value={form.assigneeId}
-                  onChange={(event) =>
-                    setForm((prev) => ({ ...prev, assigneeId: event.target.value }))
-                  }
-                  className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                >
-                  <option value="">Unassigned</option>
-                  {members.map((member) => (
-                    <option key={member.id} value={member.id}>
-                      {member.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label
-                  htmlFor="task-details-due-date"
-                  className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-                >
-                  Due Date
-                </label>
-                <input
-                  id="task-details-due-date"
-                  type="date"
-                  value={form.dueDate}
-                  onChange={(event) =>
-                    setForm((prev) => ({ ...prev, dueDate: event.target.value }))
-                  }
-                  className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label
-                  htmlFor="task-details-priority"
-                  className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-                >
-                  Priority
-                </label>
-                <select
-                  id="task-details-priority"
-                  value={form.priority}
-                  onChange={(event) =>
-                    setForm((prev) => ({ ...prev, priority: event.target.value }))
-                  }
-                  className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                >
-                  {PRIORITY_OPTIONS.map((item) => (
-                    <option key={item.value} value={item.value}>
-                      {item.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="space-y-1.5">
-                <label
-                  htmlFor="task-details-status"
-                  className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
-                >
-                  Status
-                </label>
-                <select
-                  id="task-details-status"
-                  value={form.status}
-                  onChange={(event) =>
-                    setForm((prev) => ({ ...prev, status: event.target.value }))
-                  }
-                  className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                >
-                  {statusOptions.map((item) => (
-                    <option key={item.value} value={item.value}>
-                      {item.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* --- ADDED: ACTIVITY / COMMENTS SECTION --- */}
-            <div className="mt-8 border-t border-slate-200 pt-6 dark:border-white/10">
+            {activeTab === "comments" ? (
+            <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
               <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
                 <MessageSquare size={14} />
                 Activity & Comments
@@ -1288,7 +1522,10 @@ useEffect(() => {
                 ))}
               </div>
             </div>
-            {/* --- END ACTIVITY / COMMENTS SECTION --- */}
+            ) : null}
+
+              </div>
+            </div>
 
           </form>
         </div>
@@ -1328,3 +1565,4 @@ useEffect(() => {
     </div>
   );
 }
+
