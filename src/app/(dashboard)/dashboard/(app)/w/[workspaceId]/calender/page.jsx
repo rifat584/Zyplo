@@ -1,6 +1,21 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  closestCenter,
+  useDroppable,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { useParams } from "next/navigation";
 import {
   CalendarDays,
@@ -11,7 +26,7 @@ import {
   X,
 } from "lucide-react";
 // file attach - helal / bayijid
-import { useMockStore, loadDashboard } from "@/components/dashboard/mockStore"; 
+import { useMockStore, loadDashboard } from "@/components/dashboard/mockStore";
 import TaskDetailsModal from "@/components/board/TaskDetailsModal";
 
 const WEEK_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -49,6 +64,15 @@ function toDateInputValue(date) {
   return `${y}-${m}-${d}`;
 }
 
+function toDateKey(value) {
+  if (!value) return "";
+  const raw = String(value).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(raw)) return raw.slice(0, 10);
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return toDateInputValue(date);
+}
+
 function minutesToSeconds(value) {
   const minutes = Number(value);
   if (!Number.isFinite(minutes) || minutes < 0) return 0;
@@ -56,7 +80,9 @@ function minutesToSeconds(value) {
 }
 
 function normalizeStatus(status) {
-  const s = String(status || "todo").toLowerCase().replace(/\s+/g, "");
+  const s = String(status || "todo")
+    .toLowerCase()
+    .replace(/\s+/g, "");
   if (s === "inprogress") return "In Progress";
   if (s === "inreview") return "In Review";
   if (s === "done") return "Done";
@@ -72,14 +98,17 @@ function normalizeStatusKey(value) {
 function getStatusFromColumnName(columnName, fallback = "") {
   const normalized = normalizeStatusKey(columnName);
   if (normalized === "todo" || normalized === "backlog") return "todo";
-  if (normalized === "inprogress" || normalized === "doing") return "inprogress";
+  if (normalized === "inprogress" || normalized === "doing")
+    return "inprogress";
   if (normalized === "inreview" || normalized === "review") return "inreview";
   if (normalized === "done" || normalized === "completed") return "done";
   return normalizeStatusKey(fallback) || "todo";
 }
 
 function sortColumns(columns = []) {
-  return [...columns].sort((a, b) => Number(a?.order || 0) - Number(b?.order || 0));
+  return [...columns].sort(
+    (a, b) => Number(a?.order || 0) - Number(b?.order || 0),
+  );
 }
 
 async function fetchJson(url, options = {}) {
@@ -105,6 +134,140 @@ async function fetchJson(url, options = {}) {
   }
 
   return data;
+}
+
+function findCalendarTaskById(tasks = [], taskId = "") {
+  return tasks.find((task) => String(task.id) === String(taskId)) || null;
+}
+
+function resolveCalendarDropDate(over) {
+  const overData = over?.data?.current;
+  if (!overData) return "";
+  if (overData.type === "task") return String(overData.dateKey || "");
+  if (overData.type === "day") return String(overData.dateKey || "");
+  return "";
+}
+
+function CalendarTaskOverlay({ task }) {
+  return (
+    <div className="truncate rounded-md border border-indigo-200 bg-indigo-50 px-1.5 py-1 text-[11px] text-indigo-700 shadow-lg sm:px-2 sm:text-xs dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300">
+      {task.title} | {normalizeStatus(task.status)}
+    </div>
+  );
+}
+
+function CalendarTaskChip({ task, dateKey, onTaskClick }) {
+  const sortable = useSortable({
+    id: task.id,
+    data: {
+      type: "task",
+      taskId: task.id,
+      dateKey,
+    },
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(sortable.transform),
+    transition: sortable.transition,
+  };
+
+  const className = `truncate rounded-md border border-indigo-200 bg-indigo-50 px-1.5 py-1 text-[11px] text-indigo-700 sm:px-2 sm:text-xs dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300 ${
+    sortable.isDragging
+      ? "cursor-grabbing opacity-40"
+      : "cursor-grab hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors"
+  }`;
+
+  return (
+    <div
+      ref={sortable.setNodeRef}
+      style={style}
+      {...sortable.attributes}
+      {...sortable.listeners}
+      onClick={(event) => {
+        event.stopPropagation();
+        if (!sortable.isDragging) {
+          onTaskClick?.(task);
+        }
+      }}
+      className={className}
+    >
+      {task.title} | {normalizeStatus(task.status)}
+    </div>
+  );
+}
+
+function CalendarDayCell({
+  dateKey,
+  day,
+  dayTasks,
+  isCurrentMonth,
+  onOpenDayDetails,
+  onOpenCreateModal,
+  onTaskClick,
+}) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: `day-${dateKey}`,
+    data: {
+      type: "day",
+      dateKey,
+    },
+  });
+
+  const visibleTasks = dayTasks.slice(0, 2);
+  const itemIds = useMemo(
+    () => visibleTasks.map((task) => task.id),
+    [visibleTasks],
+  );
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`min-h-24 cursor-pointer border-b border-r border-slate-200 p-1.5 last:border-r-0 hover:bg-slate-50 sm:min-h-32 sm:p-2 dark:border-white/10 dark:hover:bg-slate-800/40 ${
+        isOver ? "bg-cyan-50 dark:bg-cyan-500/10" : ""
+      }`}
+      onClick={() => onOpenDayDetails(dateKey)}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <p
+          className={`text-xs sm:text-sm ${
+            isCurrentMonth
+              ? "text-slate-700 dark:text-slate-200"
+              : "text-slate-400 dark:text-slate-500"
+          }`}
+        >
+          {day.getDate()}
+        </p>
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onOpenCreateModal(dateKey);
+          }}
+          className="inline-flex size-5 cursor-pointer items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-slate-200 sm:size-6 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800"
+          aria-label={`Create task on ${dateKey}`}
+        >
+          <Plus className="size-3 sm:size-3.5" />
+        </button>
+      </div>
+      <div className="mt-1.5 space-y-1 sm:mt-2">
+        <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
+          {visibleTasks.map((task) => (
+            <CalendarTaskChip
+              key={task.id}
+              task={task}
+              dateKey={dateKey}
+              onTaskClick={onTaskClick}
+            />
+          ))}
+        </SortableContext>
+        {dayTasks.length > 2 ? (
+          <p className="text-[11px] text-slate-500 sm:text-xs dark:text-slate-400">
+            {dayTasks.length - 2} more
+          </p>
+        ) : null}
+      </div>
+    </div>
+  );
 }
 
 export default function WorkspaceCalenderPage() {
@@ -138,17 +301,31 @@ export default function WorkspaceCalenderPage() {
   const [assignee, setAssignee] = useState("all");
   const [status, setStatus] = useState("all");
   const [priority, setPriority] = useState("all");
+  const [activeTaskId, setActiveTaskId] = useState("");
+  const [taskDateOverrides, setTaskDateOverrides] = useState({});
+  const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
+  const [moreFilters, setMoreFilters] = useState({
+    reporter: "",
+    updatedAt: "",
+    createdAt: "",
+    dueDate: "",
+  });
   const [createOpen, setCreateOpen] = useState(false);
   const [createBusy, setCreateBusy] = useState(false);
   const [createError, setCreateError] = useState("");
   const [targetLoading, setTargetLoading] = useState(false);
   const [dayDetailsOpen, setDayDetailsOpen] = useState(false);
   const [selectedDateKey, setSelectedDateKey] = useState("");
-  
+
   // file attach - helal / bayijid (Task Details Modal States)
   const [selectedTask, setSelectedTask] = useState(null);
   const [updateBusy, setUpdateBusy] = useState(false);
   const [deleteBusy, setDeleteBusy] = useState(false);
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 6 },
+    }),
+  );
 
   const [form, setForm] = useState({
     title: "",
@@ -162,7 +339,14 @@ export default function WorkspaceCalenderPage() {
   });
 
   const filteredTasks = useMemo(() => {
-    return workspaceTasks.filter((task) => {
+    const tasksWithOverrides = workspaceTasks.map((task) => {
+      const nextDueDate = taskDateOverrides[task.id];
+      return nextDueDate !== undefined
+        ? { ...task, dueDate: nextDueDate }
+        : task;
+    });
+
+    return tasksWithOverrides.filter((task) => {
       const query = search.trim().toLowerCase();
       const bySearch = query
         ? `${task.title || ""} ${task.projectName || ""}`
@@ -176,9 +360,40 @@ export default function WorkspaceCalenderPage() {
           ? true
           : String(task.status || "todo").toLowerCase() === status;
       const byPriority = priority === "all" ? true : task.priority === priority;
-      return bySearch && byAssignee && byStatus && byPriority;
+      const byReporter = moreFilters.reporter
+        ? String(task.reporterName || "Admin")
+            .toLowerCase()
+            .includes(moreFilters.reporter.toLowerCase())
+        : true;
+      const byUpdatedAt = moreFilters.updatedAt
+        ? toDateKey(task.updatedAt) === moreFilters.updatedAt
+        : true;
+      const byCreatedAt = moreFilters.createdAt
+        ? toDateKey(task.createdAt) === moreFilters.createdAt
+        : true;
+      const byDueDate = moreFilters.dueDate
+        ? toDateKey(task.dueDate) === moreFilters.dueDate
+        : true;
+      return (
+        bySearch &&
+        byAssignee &&
+        byStatus &&
+        byPriority &&
+        byReporter &&
+        byUpdatedAt &&
+        byCreatedAt &&
+        byDueDate
+      );
     });
-  }, [workspaceTasks, search, assignee, status, priority]);
+  }, [
+    workspaceTasks,
+    taskDateOverrides,
+    search,
+    assignee,
+    status,
+    priority,
+    moreFilters,
+  ]);
 
   const taskMap = useMemo(() => {
     const map = new Map();
@@ -220,7 +435,9 @@ export default function WorkspaceCalenderPage() {
     setForm({
       title: "",
       description: "",
-      projectId: preferredExists ? preferredProjectId : filteredProjects[0]?.id || "",
+      projectId: preferredExists
+        ? preferredProjectId
+        : filteredProjects[0]?.id || "",
       assigneeId: "",
       dueDate: dateKey,
       priority: "P2",
@@ -258,7 +475,9 @@ export default function WorkspaceCalenderPage() {
       let resolvedTarget = null;
       for (const candidateProjectId of projectCandidates) {
         try {
-          const boardData = await fetchJson(`/api/dashboard/boards/${candidateProjectId}`);
+          const boardData = await fetchJson(
+            `/api/dashboard/boards/${candidateProjectId}`,
+          );
           const board = boardData?.board || null;
           const columns = sortColumns(boardData?.columns || []);
           const todoColumn =
@@ -272,7 +491,10 @@ export default function WorkspaceCalenderPage() {
             projectId: candidateProjectId,
             boardId: String(board.id),
             columnId: String(todoColumn.id),
-            status: getStatusFromColumnName(todoColumn.name, form.status || "todo"),
+            status: getStatusFromColumnName(
+              todoColumn.name,
+              form.status || "todo",
+            ),
           };
           break;
         } catch {
@@ -297,12 +519,14 @@ export default function WorkspaceCalenderPage() {
           title: form.title.trim(),
           description: form.description.trim(),
           assigneeId: form.assigneeId || "",
-          assigneeName: assignee ? (assignee.name || assignee.email || "Unassigned") : "Unassigned",
+          assigneeName: assignee
+            ? assignee.name || assignee.email || "Unassigned"
+            : "Unassigned",
           dueDate: form.dueDate || "",
           priority: form.priority || "P2",
           status: resolvedTarget.status,
           estimatedTime: minutesToSeconds(form.estimatedTime),
-        })
+        }),
       });
 
       await loadDashboard({ force: true, silent: true });
@@ -322,8 +546,11 @@ export default function WorkspaceCalenderPage() {
       setUpdateBusy(true);
 
       const selectedMember = members.find((m) => m.id === values.assigneeId);
-      values.assigneeName = values.assigneeId 
-        ? (selectedMember?.name || selectedMember?.email || selectedTask.assigneeName || "Unassigned")
+      values.assigneeName = values.assigneeId
+        ? selectedMember?.name ||
+          selectedMember?.email ||
+          selectedTask.assigneeName ||
+          "Unassigned"
         : "Unassigned";
 
       const nextStatus = values.status || selectedTask.status || "todo";
@@ -333,34 +560,51 @@ export default function WorkspaceCalenderPage() {
       if (nextStatus !== currentStatus && selectedTask.projectId) {
         try {
           // Fetch exact board state to prevent mismatch errors
-          const boardData = await fetchJson(`/api/dashboard/boards/${selectedTask.projectId}`);
+          const boardData = await fetchJson(
+            `/api/dashboard/boards/${selectedTask.projectId}`,
+          );
           const columns = boardData?.columns || [];
-          
+
           let trueSourceColumnId = selectedTask.columnId;
           // Find where the backend actually placed this task
           for (const col of columns) {
-            if (col.tasks?.some(t => String(t.id) === String(selectedTask.id))) {
+            if (
+              col.tasks?.some((t) => String(t.id) === String(selectedTask.id))
+            ) {
               trueSourceColumnId = String(col.id);
               break;
             }
           }
 
-          const destCol = columns.find(c => getStatusFromColumnName(c.name, "") === normalizeStatusKey(nextStatus));
-          
-          if (destCol && trueSourceColumnId && String(destCol.id) !== trueSourceColumnId) {
+          const destCol = columns.find(
+            (c) =>
+              getStatusFromColumnName(c.name, "") ===
+              normalizeStatusKey(nextStatus),
+          );
+
+          if (
+            destCol &&
+            trueSourceColumnId &&
+            String(destCol.id) !== trueSourceColumnId
+          ) {
             await fetchJson(`/api/dashboard/tasks/${selectedTask.id}/move`, {
               method: "PATCH",
               body: JSON.stringify({
                 sourceColumnId: trueSourceColumnId,
                 destinationColumnId: String(destCol.id),
-                newOrder: Array.isArray(destCol.tasks) ? destCol.tasks.length : 0,
+                newOrder: Array.isArray(destCol.tasks)
+                  ? destCol.tasks.length
+                  : 0,
                 status: nextStatus,
-              })
+              }),
             });
           }
         } catch (moveError) {
           // Ignore move errors! Let the patch update continue saving the files/title!
-          console.warn("Could not sync board columns, but safely continuing with update:", moveError);
+          console.warn(
+            "Could not sync board columns, but safely continuing with update:",
+            moveError,
+          );
         }
       }
 
@@ -389,7 +633,9 @@ export default function WorkspaceCalenderPage() {
 
   async function handleDeleteTask(task) {
     if (!task?.id) return;
-    const confirmed = window.confirm("Are you sure you want to delete this task?");
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this task?",
+    );
     if (!confirmed) return;
 
     try {
@@ -411,6 +657,85 @@ export default function WorkspaceCalenderPage() {
     if (!selectedDateKey) return [];
     return taskMap.get(selectedDateKey) || [];
   }, [selectedDateKey, taskMap]);
+
+  const activeTask = useMemo(
+    () => findCalendarTaskById(filteredTasks, activeTaskId),
+    [filteredTasks, activeTaskId],
+  );
+
+  function handleDragStart(event) {
+    setActiveTaskId(String(event.active?.id || ""));
+  }
+
+  function handleDragCancel() {
+    setActiveTaskId("");
+  }
+
+  async function handleDragEnd(event) {
+    setActiveTaskId("");
+
+    const { active, over } = event;
+    if (!active || !over) return;
+
+    const activeData = active.data?.current;
+    if (activeData?.type !== "task") return;
+
+    const movingTask = findCalendarTaskById(filteredTasks, active.id);
+    if (!movingTask) return;
+
+    const currentDateKey = toDateKey(
+      movingTask.dueDate || movingTask.createdAt,
+    );
+    const destinationDateKey = resolveCalendarDropDate(over);
+
+    if (
+      !currentDateKey ||
+      !destinationDateKey ||
+      currentDateKey === destinationDateKey
+    ) {
+      return;
+    }
+
+    const previousDueDate = movingTask.dueDate || "";
+
+    setTaskDateOverrides((prev) => ({
+      ...prev,
+      [movingTask.id]: destinationDateKey,
+    }));
+    setSelectedTask((prev) =>
+      prev?.id === movingTask.id
+        ? { ...prev, dueDate: destinationDateKey }
+        : prev,
+    );
+
+    try {
+      await fetchJson(`/api/dashboard/tasks/${movingTask.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          dueDate: destinationDateKey,
+        }),
+      });
+      await loadDashboard({ force: true, silent: true });
+      setTaskDateOverrides((prev) => {
+        const next = { ...prev };
+        delete next[movingTask.id];
+        return next;
+      });
+    } catch (error) {
+      setTaskDateOverrides((prev) => {
+        const next = { ...prev };
+        delete next[movingTask.id];
+        return next;
+      });
+      setSelectedTask((prev) =>
+        prev?.id === movingTask.id
+          ? { ...prev, dueDate: previousDueDate }
+          : prev,
+      );
+      console.error("Failed to move task", error);
+      alert(error?.message || "Failed to move task");
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -442,7 +767,7 @@ export default function WorkspaceCalenderPage() {
             onChange={(e) => setPriority(e.target.value)}
             className="h-10 min-w-[110px] rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
           >
-            <option value="all">Type</option>
+            <option value="all">Priority</option>
             <option value="P1">P1</option>
             <option value="P2">P2</option>
             <option value="P3">P3</option>
@@ -459,13 +784,95 @@ export default function WorkspaceCalenderPage() {
             <option value="inreview">In Review</option>
             <option value="done">Done</option>
           </select>
-          <button
-            type="button"
-            className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800"
-          >
-            <CalendarDays className="size-4" />
-            More filters
-          </button>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setMoreFiltersOpen((prev) => !prev)}
+              className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800"
+            >
+              <CalendarDays className="size-4" />
+              More filters
+            </button>
+
+            {moreFiltersOpen ? (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setMoreFiltersOpen(false)}
+                />
+                <div className="absolute right-0 top-11 z-50 w-[320px] space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                      Reporter
+                    </label>
+                    <input
+                      type="text"
+                      value={moreFilters.reporter}
+                      onChange={(event) =>
+                        setMoreFilters((prev) => ({
+                          ...prev,
+                          reporter: event.target.value,
+                        }))
+                      }
+                      placeholder="Filter by reporter"
+                      className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                      Updated At
+                    </label>
+                    <input
+                      type="date"
+                      value={moreFilters.updatedAt}
+                      onChange={(event) =>
+                        setMoreFilters((prev) => ({
+                          ...prev,
+                          updatedAt: event.target.value,
+                        }))
+                      }
+                      className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                      Created At
+                    </label>
+                    <input
+                      type="date"
+                      value={moreFilters.createdAt}
+                      onChange={(event) =>
+                        setMoreFilters((prev) => ({
+                          ...prev,
+                          createdAt: event.target.value,
+                        }))
+                      }
+                      className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                      Due Date
+                    </label>
+                    <input
+                      type="date"
+                      value={moreFilters.dueDate}
+                      onChange={(event) =>
+                        setMoreFilters((prev) => ({
+                          ...prev,
+                          dueDate: event.target.value,
+                        }))
+                      }
+                      className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                    />
+                  </div>
+                </div>
+              </>
+            ) : null}
+          </div>
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -512,79 +919,54 @@ export default function WorkspaceCalenderPage() {
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
-        <div className="overflow-x-auto">
-          <div className="min-w-[700px]">
-            <div className="grid grid-cols-7 border-b border-slate-200 dark:border-white/10">
-              {WEEK_DAYS.map((day) => (
-                <div
-                  key={day}
-                  className="border-r border-slate-200 px-2 py-2 text-center text-xs font-medium text-slate-600 last:border-r-0 sm:px-3 sm:text-sm dark:border-white/10 dark:text-slate-300"
-                >
-                  {day}
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-7">
-              {days.map((day) => {
-                const key = toDateInputValue(day);
-                const dayTasks = taskMap.get(key) || [];
-                const isCurrentMonth = day.getMonth() === monthIndex;
-                return (
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
+      >
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
+          <div className="overflow-x-auto">
+            <div className="min-w-[700px]">
+              <div className="grid grid-cols-7 border-b border-slate-200 dark:border-white/10">
+                {WEEK_DAYS.map((day) => (
                   <div
-                    key={key}
-                    className="min-h-24 cursor-pointer border-b border-r border-slate-200 p-1.5 last:border-r-0 hover:bg-slate-50 sm:min-h-32 sm:p-2 dark:border-white/10 dark:hover:bg-slate-800/40"
-                    onClick={() => openDayDetails(key)}
+                    key={day}
+                    className="border-r border-slate-200 px-2 py-2 text-center text-xs font-medium text-slate-600 last:border-r-0 sm:px-3 sm:text-sm dark:border-white/10 dark:text-slate-300"
                   >
-                    <div className="flex items-start justify-between gap-2">
-                      <p
-                        className={`text-xs sm:text-sm ${
-                          isCurrentMonth
-                            ? "text-slate-700 dark:text-slate-200"
-                            : "text-slate-400 dark:text-slate-500"
-                        }`}
-                      >
-                        {day.getDate()}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          openCreateModal(key);
-                        }}
-                        className="inline-flex size-5 cursor-pointer items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-slate-200 sm:size-6 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800"
-                        aria-label={`Create task on ${key}`}
-                      >
-                        <Plus className="size-3 sm:size-3.5" />
-                      </button>
-                    </div>
-                    <div className="mt-1.5 space-y-1 sm:mt-2">
-                      {dayTasks.slice(0, 2).map((task) => (
-                        <div
-                          key={task.id}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedTask(task); // Opens Reusable Modal directly
-                          }}
-                          className="truncate rounded-md border border-indigo-200 bg-indigo-50 px-1.5 py-1 text-[11px] text-indigo-700 sm:px-2 sm:text-xs cursor-pointer hover:bg-indigo-100 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20 transition-colors"
-                        >
-                          {task.title} | {normalizeStatus(task.status)}
-                        </div>
-                      ))}
-                      {dayTasks.length > 2 ? (
-                        <p className="text-[11px] text-slate-500 sm:text-xs dark:text-slate-400">
-                          {dayTasks.length - 2} more
-                        </p>
-                      ) : null}
-                    </div>
+                    {day}
                   </div>
-                );
-              })}
+                ))}
+              </div>
+
+              <div className="grid grid-cols-7">
+                {days.map((day) => {
+                  const key = toDateInputValue(day);
+                  const dayTasks = taskMap.get(key) || [];
+                  const isCurrentMonth = day.getMonth() === monthIndex;
+                  return (
+                    <CalendarDayCell
+                      key={key}
+                      dateKey={key}
+                      day={day}
+                      dayTasks={dayTasks}
+                      isCurrentMonth={isCurrentMonth}
+                      onOpenDayDetails={openDayDetails}
+                      onOpenCreateModal={openCreateModal}
+                      onTaskClick={setSelectedTask}
+                    />
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        <DragOverlay>
+          {activeTask ? <CalendarTaskOverlay task={activeTask} /> : null}
+        </DragOverlay>
+      </DndContext>
 
       {/* --- INLINE CREATE TASK MODAL --- */}
       {createOpen ? (
@@ -639,7 +1021,10 @@ export default function WorkspaceCalenderPage() {
                   rows={3}
                   value={form.description}
                   onChange={(e) =>
-                    setForm((prev) => ({ ...prev, description: e.target.value }))
+                    setForm((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
                   }
                   className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                   placeholder="Optional description"
@@ -654,7 +1039,10 @@ export default function WorkspaceCalenderPage() {
                   <select
                     value={form.projectId}
                     onChange={(e) =>
-                      setForm((prev) => ({ ...prev, projectId: e.target.value }))
+                      setForm((prev) => ({
+                        ...prev,
+                        projectId: e.target.value,
+                      }))
                     }
                     className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                   >
@@ -673,7 +1061,10 @@ export default function WorkspaceCalenderPage() {
                   <select
                     value={form.assigneeId}
                     onChange={(e) =>
-                      setForm((prev) => ({ ...prev, assigneeId: e.target.value }))
+                      setForm((prev) => ({
+                        ...prev,
+                        assigneeId: e.target.value,
+                      }))
                     }
                     className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                   >
@@ -772,7 +1163,12 @@ export default function WorkspaceCalenderPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={!form.title.trim() || !form.projectId || createBusy || targetLoading}
+                  disabled={
+                    !form.title.trim() ||
+                    !form.projectId ||
+                    createBusy ||
+                    targetLoading
+                  }
                   className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
                 >
                   {createBusy || targetLoading ? "Creating..." : "Create Task"}
