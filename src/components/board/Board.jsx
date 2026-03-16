@@ -10,7 +10,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { RefreshCw, Plus } from "lucide-react";
+import { RefreshCw, Plus, Filter } from "lucide-react";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
 import { loadDashboard } from "@/components/dashboard/mockStore";
@@ -46,6 +46,18 @@ function normalizeStatusKey(value) {
   return String(value || "")
     .toLowerCase()
     .replace(/[^a-z]/g, "");
+}
+
+function toDateKey(value) {
+  if (!value) return "";
+  const raw = String(value).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(raw)) return raw.slice(0, 10);
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }
 
 function findColumnByStatus(columns = [], status = "") {
@@ -205,6 +217,17 @@ export default function Board({ workspaceId, projectId }) {
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedColumnId, setSelectedColumnId] = useState("");
   const [selectedTaskId, setSelectedTaskId] = useState("");
+  const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
+  const [columnFilters, setColumnFilters] = useState({
+    taskName: "",
+    status: "all",
+    priority: "all",
+    assigneeId: "all",
+    reporter: "",
+    updatedAt: "",
+    createdAt: "",
+    dueDate: "",
+  });
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -388,6 +411,61 @@ export default function Board({ workspaceId, projectId }) {
 
   const boardData = boardQuery.data || { board: null, columns: [] };
   const columns = boardData.columns || [];
+  const filteredColumns = useMemo(() => {
+    return columns.map((column) => ({
+      ...column,
+      tasks: (column.tasks || []).filter((task) => {
+        const byTaskName = columnFilters.taskName
+          ? String(task.title || "")
+              .toLowerCase()
+              .includes(columnFilters.taskName.toLowerCase())
+          : true;
+        if (!byTaskName) return false;
+
+        const byStatus =
+          columnFilters.status === "all"
+            ? true
+            : normalizeStatusKey(task.status || "todo") ===
+              normalizeStatusKey(columnFilters.status);
+        if (!byStatus) return false;
+
+        const byPriority =
+          columnFilters.priority === "all"
+            ? true
+            : String(task.priority || "") === columnFilters.priority;
+        if (!byPriority) return false;
+
+        const byAssignee =
+          columnFilters.assigneeId === "all"
+            ? true
+            : String(task.assigneeId || "") === columnFilters.assigneeId;
+        if (!byAssignee) return false;
+
+        const byReporter = columnFilters.reporter
+          ? String(task.reporterName || "Admin")
+              .toLowerCase()
+              .includes(columnFilters.reporter.toLowerCase())
+          : true;
+        if (!byReporter) return false;
+
+        const byUpdatedAt = columnFilters.updatedAt
+          ? toDateKey(task.updatedAt) === columnFilters.updatedAt
+          : true;
+        if (!byUpdatedAt) return false;
+
+        const byCreatedAt = columnFilters.createdAt
+          ? toDateKey(task.createdAt) === columnFilters.createdAt
+          : true;
+        if (!byCreatedAt) return false;
+
+        const byDueDate = columnFilters.dueDate
+          ? toDateKey(task.dueDate) === columnFilters.dueDate
+          : true;
+
+        return byDueDate;
+      }),
+    }));
+  }, [columns, columnFilters]);
   const selectedColumn =
     columns.find((column) => column.id === selectedColumnId) ||
     columns[0] ||
@@ -653,6 +731,167 @@ export default function Board({ workspaceId, projectId }) {
         </button>
       </section>
 
+      <section className="mb-4 rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
+        <div className="border-t border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/20">
+          <div className="flex flex-wrap gap-2">
+            <input
+              type="text"
+              value={columnFilters.taskName}
+              onChange={(event) =>
+                setColumnFilters((prev) => ({
+                  ...prev,
+                  taskName: event.target.value,
+                }))
+              }
+              placeholder="Task Name"
+              className="h-10 min-w-42.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+            />
+
+            <select
+              value={columnFilters.status}
+              onChange={(event) =>
+                setColumnFilters((prev) => ({
+                  ...prev,
+                  status: event.target.value,
+                }))
+              }
+              className="h-10 min-w-32.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+            >
+              <option value="all">Status</option>
+              <option value="todo">To Do</option>
+              <option value="inprogress">In Progress</option>
+              <option value="inreview">In Review</option>
+              <option value="done">Done</option>
+            </select>
+
+            <select
+              value={columnFilters.priority}
+              onChange={(event) =>
+                setColumnFilters((prev) => ({
+                  ...prev,
+                  priority: event.target.value,
+                }))
+              }
+              className="h-10 min-w-27.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+            >
+              <option value="all">Priority</option>
+              <option value="P0">P0</option>
+              <option value="P1">P1</option>
+              <option value="P2">P2</option>
+              <option value="P3">P3</option>
+            </select>
+
+            <select
+              value={columnFilters.assigneeId}
+              onChange={(event) =>
+                setColumnFilters((prev) => ({
+                  ...prev,
+                  assigneeId: event.target.value,
+                }))
+              }
+              className="h-10 min-w-37.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+            >
+              <option value="all">Assignee</option>
+              {(membersQuery.data || []).map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.name || member.email || "Member"}
+                </option>
+              ))}
+            </select>
+
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setMoreFiltersOpen((prev) => !prev)}
+                className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+              >
+                <Filter className="size-4" />
+                More filters
+              </button>
+
+              {moreFiltersOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setMoreFiltersOpen(false)}
+                  />
+                  <div className="absolute right-0 top-11 z-50 w-[320px] space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                        Reporter
+                      </label>
+                      <input
+                        type="text"
+                        value={columnFilters.reporter}
+                        onChange={(event) =>
+                          setColumnFilters((prev) => ({
+                            ...prev,
+                            reporter: event.target.value,
+                          }))
+                        }
+                        placeholder="Filter by reporter"
+                        className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                        Updated At
+                      </label>
+                      <input
+                        type="date"
+                        value={columnFilters.updatedAt}
+                        onChange={(event) =>
+                          setColumnFilters((prev) => ({
+                            ...prev,
+                            updatedAt: event.target.value,
+                          }))
+                        }
+                        className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                        Created At
+                      </label>
+                      <input
+                        type="date"
+                        value={columnFilters.createdAt}
+                        onChange={(event) =>
+                          setColumnFilters((prev) => ({
+                            ...prev,
+                            createdAt: event.target.value,
+                          }))
+                        }
+                        className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                        Due Date
+                      </label>
+                      <input
+                        type="date"
+                        value={columnFilters.dueDate}
+                        onChange={(event) =>
+                          setColumnFilters((prev) => ({
+                            ...prev,
+                            dueDate: event.target.value,
+                          }))
+                        }
+                        className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -662,7 +901,7 @@ export default function Board({ workspaceId, projectId }) {
       >
         <section className="overflow-x-auto pb-2">
           <div className="flex min-w-full gap-3">
-            {columns.map((column) => (
+            {filteredColumns.map((column) => (
               <Column
                 key={column.id}
                 column={column}
