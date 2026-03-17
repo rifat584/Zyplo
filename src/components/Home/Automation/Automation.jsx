@@ -15,10 +15,10 @@ export default function Automation() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
             Smart Workflow Automation
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-muted-foreground max-w-2xl mx-auto">
             Save time and reduce manual work with Zyplo’s powerful automation.
             Automate tasks, notifications, and project updates effortlessly.
           </p>
@@ -64,18 +64,18 @@ export default function Automation() {
               transition={{ duration: 0.6 }}
               whileHover={{ scale: 1.05 }}
               className="p-8 rounded-2xl border transition-all duration-300
-              bg-white dark:bg-gray-800
-              border-gray-200 dark:border-gray-700
-              hover:border-indigo-300 dark:hover:border-indigo-500
+              bg-white dark:bg-surface
+              border-border dark:border-border
+              hover:border-primary/35 dark:hover:border-primary/45
               hover:shadow-xl dark:hover:shadow-indigo-500/10"
             >
-              <div className="text-sky-500 text-3xl mb-4">
+              <div className="text-secondary text-3xl mb-4">
                 {item.icon}
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-white">
+              <h3 className="text-xl font-semibold mb-3 text-foreground">
                 {item.title}
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+              <p className="text-muted-foreground leading-relaxed">
                 {item.desc}
               </p>
             </motion.div>
@@ -92,7 +92,7 @@ export default function Automation() {
         >
           <button
             className="px-8 py-3 rounded-lg font-semibold text-white
-            bg-gradient-to-br from-indigo-500 to-cyan-400
+            bg-gradient-to-br from-primary to-secondary
             shadow-lg shadow-indigo-500/20
             transition-all duration-300
             hover:scale-[1.03] hover:shadow-indigo-500/40

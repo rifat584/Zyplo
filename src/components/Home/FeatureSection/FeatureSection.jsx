@@ -33,10 +33,10 @@ export default function FeatureSection() {
               Everything your team ships{" "}
               <span className="relative inline-block">
                 in one place
-                <span className="absolute left-0 -bottom-1 h-0.75 w-full bg-linear-to-r from-indigo-500 to-cyan-400 rounded-full" />
+                <span className="absolute left-0 -bottom-1 h-0.75 w-full bg-linear-to-r from-primary to-secondary rounded-full" />
               </span>
             </h2>
-            <p className="mt-4 text-sm text-zinc-600 dark:text-gray-400 sm:text-base">
+            <p className="mt-4 text-sm text-muted-foreground sm:text-base">
               Tasks, projects, docs, and collaboration - built for teams
               shipping production web apps.
             </p>

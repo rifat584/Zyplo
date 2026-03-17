@@ -42,7 +42,7 @@ export default function TimeTracking() {
       
       <div className="absolute inset-0 z-0 pointer-events-none">
         {/* Base dark/light layer */}
-        <div className="absolute inset-0 bg-slate-50 dark:bg-[#050505] transition-colors duration-500" />
+        <div className="absolute inset-0 bg-surface transition-colors duration-500" />
         
         {/* Subtle Diagonal "Time-Track" Slant Texture */}
         <div 
@@ -54,7 +54,7 @@ export default function TimeTracking() {
         <motion.div
           animate={{ x: [0, 100, 0], y: [0, -50, 0], scale: [1, 1.1, 1] }}
           transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full bg-blue-400/30 blur-[120px] dark:bg-blue-600/20"
+          className="absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full bg-blue-400/30 blur-[120px] dark:bg-primary/20"
         />
 
         {/* Animated Aurora Orb 2 (Bottom Right / Cyan) */}
@@ -68,7 +68,7 @@ export default function TimeTracking() {
         <motion.div
           animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0.8, 0.5] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute left-1/2 top-1/2 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-300/20 blur-[150px] dark:bg-indigo-600/10"
+          className="absolute left-1/2 top-1/2 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-300/20 blur-[150px] dark:bg-primary/10"
         />
 
         {/* Top/Bottom Fade out masks to blend perfectly with sections above and below */}
@@ -83,14 +83,14 @@ export default function TimeTracking() {
           
           {/* Header */}
           <div className="mb-14 max-w-2xl">
-            <p className="mb-4 text-sm font-semibold text-blue-600 dark:text-cyan-400 uppercase tracking-widest drop-shadow-sm">
+            <p className="mb-4 text-sm font-semibold text-primary dark:text-cyan-400 uppercase tracking-widest drop-shadow-sm">
               Time Tracking & Worklog
             </p>
-            <h2 className="mt-4 text-3xl font-heading font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+            <h2 className="mt-4 text-3xl font-heading font-bold tracking-tight text-foreground sm:text-5xl">
               Timer-first logging{" "}
-              <span className="relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-indigo-400 dark:to-cyan-300">
+              <span className="relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary dark:from-primary dark:to-secondary">
                 that feels built into the board
-                <span className="absolute left-0 -bottom-2 h-1 w-full rounded-full bg-gradient-to-r from-blue-600/50 to-cyan-500/50 dark:from-indigo-400/50 dark:to-cyan-300/50 blur-[2px]" />
+                <span className="absolute left-0 -bottom-2 h-1 w-full rounded-full bg-gradient-to-r from-primary/40 to-secondary/40 dark:from-primary/40 dark:to-secondary/40 blur-[2px]" />
               </span>
             </h2>
           </div>
@@ -111,13 +111,13 @@ export default function TimeTracking() {
             >
               <div className="mb-8 flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Current task</p>
-                  <p className="mt-1 text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Current task</p>
+                  <p className="mt-1 text-lg font-semibold text-foreground">
                     {timeTrackingData.currentTask}
                   </p>
                 </div>
                 {/* Running Badge with pulsing dot */}
-                <span className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-gray-700 shadow-sm dark:border-white/10 dark:bg-black/40 dark:text-gray-300">
+                <span className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-3 py-1 text-xs font-semibold text-foreground shadow-sm dark:border-white/10 dark:bg-black/40 dark:text-muted-foreground">
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
@@ -137,7 +137,7 @@ export default function TimeTracking() {
                     className="absolute inset-0 rounded-full border border-blue-500/30 dark:border-cyan-400/30"
                   />
                   {/* Inner Static Ring */}
-                  <div className="absolute inset-3 rounded-full border border-gray-200 dark:border-white/10" />
+                  <div className="absolute inset-3 rounded-full border border-border dark:border-white/10" />
                   
                   {/* Timer Text */}
                   <span className="z-10 text-2xl font-mono font-bold text-gray-900 tracking-wider dark:text-white">
@@ -149,18 +149,18 @@ export default function TimeTracking() {
                 <div className="flex-1 w-full space-y-6">
                   <div className="flex flex-wrap gap-3">
                     {/* Start Button */}
-                    <button className="flex items-center gap-2 rounded-xl bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:scale-105 hover:bg-blue-600 hover:shadow-lg hover:shadow-blue-500/30 dark:bg-white dark:text-gray-900 dark:hover:bg-blue-400">
+                    <button className="flex items-center gap-2 rounded-xl bg-gray-900 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:scale-105 hover:bg-primary hover:shadow-lg hover:shadow-blue-500/30 dark:bg-white dark:text-gray-900 dark:hover:bg-blue-400">
                       <Play size={16} fill="currentColor" /> Start
                     </button>
                     {/* Stop Button */}
-                    <button className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50 dark:border-white/10 dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/10">
+                    <button className="flex items-center gap-2 rounded-xl border border-border bg-white px-5 py-2.5 text-sm font-semibold text-foreground transition-all hover:bg-surface dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground dark:hover:bg-white/10">
                       <Square size={16} fill="currentColor" /> Stop
                     </button>
                   </div>
                   
                   {/* Progress Bar */}
                   <div className="space-y-2">
-                    <div className="relative h-2 w-full overflow-hidden rounded-full bg-gray-200/50 dark:bg-gray-800/50">
+                    <div className="relative h-2 w-full overflow-hidden rounded-full bg-muted/50 dark:bg-surface/50">
                       <motion.div
                         initial={{ width: "0%" }}
                         whileInView={{ width: "65%" }}
@@ -169,7 +169,7 @@ export default function TimeTracking() {
                         className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-blue-500 to-cyan-400 dark:from-indigo-500 dark:to-cyan-400"
                       />
                     </div>
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 flex justify-between">
+                    <p className="text-xs font-medium text-muted-foreground flex justify-between">
                       <span>Session progress</span>
                       <span>Synced to sprint</span>
                     </p>
@@ -184,9 +184,9 @@ export default function TimeTracking() {
               className="rounded-3xl border border-white/60 bg-white/60 p-6 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-white/5 flex flex-col justify-between"
             >
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Weekly total</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Weekly total</p>
                 <div className="mt-2 flex items-baseline gap-2">
-                  <p className="text-4xl font-bold text-gray-900 dark:text-white">
+                  <p className="text-4xl font-bold text-foreground">
                     {timeTrackingData.weeklyTotal}
                   </p>
                   <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-100/50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-md">
@@ -215,7 +215,7 @@ export default function TimeTracking() {
               variants={cardVariants}
               className="rounded-3xl border border-white/60 bg-white/60 p-6 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-white/5"
             >
-              <p className="mb-5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Recent entries</p>
+              <p className="mb-5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recent entries</p>
               <div className="space-y-3">
                 {timeTrackingData.entries.map((entry, idx) => (
                   <div
@@ -223,14 +223,14 @@ export default function TimeTracking() {
                     className="group flex flex-col gap-1.5 rounded-2xl border border-transparent bg-white/50 p-3 transition-all duration-300 hover:border-blue-200 hover:bg-white dark:bg-black/20 dark:hover:border-blue-500/30 dark:hover:bg-white/5 shadow-sm hover:shadow-md"
                   >
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium text-gray-900 group-hover:text-blue-600 dark:text-gray-200 dark:group-hover:text-blue-400 transition-colors">
+                      <span className="text-sm font-medium text-gray-900 group-hover:text-primary dark:text-foreground dark:group-hover:text-blue-400 transition-colors">
                         {entry.task}
                       </span>
-                      <span className="text-sm font-mono font-medium text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                      <span className="text-sm font-mono font-medium text-muted-foreground group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
                         {entry.duration}
                       </span>
                     </div>
-                    <span className="text-xs text-gray-500 dark:text-gray-500">
+                    <span className="text-xs text-muted-foreground dark:text-muted-foreground">
                       {entry.when}
                     </span>
                   </div>
@@ -244,12 +244,12 @@ export default function TimeTracking() {
               className="col-span-1 lg:col-span-2 flex flex-col justify-between rounded-3xl border border-white/60 bg-white/60 p-6 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-white/5 sm:flex-row sm:items-center"
             >
               <div className="mb-4 sm:mb-0">
-                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Worklog export</p>
-                <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-200">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Worklog export</p>
+                <p className="mt-1 text-sm font-medium text-gray-900 dark:text-foreground">
                   CSV ready for sprint review and client invoicing.
                 </p>
               </div>
-              <button className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:scale-105 hover:border-gray-300 hover:bg-gray-50 dark:border-white/10 dark:bg-white/5 dark:text-gray-200 dark:hover:bg-white/10">
+              <button className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-border bg-white px-5 py-3 text-sm font-semibold text-foreground shadow-sm transition-all hover:scale-105 hover:border-gray-300 hover:bg-surface dark:border-white/10 dark:bg-white/5 dark:text-foreground dark:hover:bg-white/10">
                 <Download size={16} /> Export CSV
               </button>
             </motion.div>

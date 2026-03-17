@@ -96,17 +96,17 @@ function RegisterForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5">
       <div className="space-y-1.5">
-        <Label htmlFor="name" className="text-slate-700 dark:text-slate-200">
+        <Label htmlFor="name" className="text-foreground">
           Full name
         </Label>
         <Input id="name" placeholder="Alex Morgan" {...register("name")} />
         {errors.name ? (
-          <p className="text-xs text-red-500">{errors.name.message}</p>
+          <p className="text-xs text-destructive">{errors.name.message}</p>
         ) : null}
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="email" className="text-slate-700 dark:text-slate-200">
+        <Label htmlFor="email" className="text-foreground">
           Email
         </Label>
         <Input
@@ -116,7 +116,7 @@ function RegisterForm() {
           {...register("email")}
         />
         {errors.email ? (
-          <p className="text-xs text-red-500">{errors.email.message}</p>
+          <p className="text-xs text-destructive">{errors.email.message}</p>
         ) : null}
       </div>
 
@@ -139,13 +139,13 @@ function RegisterForm() {
       <div className="space-y-1">
         <Label
           htmlFor="acceptTerms"
-          className="inline-flex cursor-pointer items-center gap-2 text-slate-600 dark:text-slate-300"
+          className="inline-flex cursor-pointer items-center gap-2 text-muted-foreground"
         >
           <Checkbox id="acceptTerms" className="cursor-pointer" {...register("acceptTerms")} />I agree to
           the terms and privacy policy
         </Label>
         {errors.acceptTerms ? (
-          <p className="text-xs text-red-500">{errors.acceptTerms.message}</p>
+          <p className="text-xs text-destructive">{errors.acceptTerms.message}</p>
         ) : null}
       </div>
 
@@ -153,11 +153,11 @@ function RegisterForm() {
         {isSubmitting ? "Creating account..." : "Create account"}
       </Button>
 
-      <p className="text-center text-sm text-slate-600 dark:text-slate-300">
+      <p className="text-center text-sm text-muted-foreground">
         Already have an account?{" "}
         <Link
           href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-          className="cursor-pointer text-cyan-600 transition-colors hover:text-cyan-700 dark:text-cyan-300 dark:hover:text-cyan-200"
+          className="cursor-pointer text-secondary transition-colors hover:text-secondary dark:text-secondary dark:hover:text-secondary"
         >
           Sign in
         </Link>

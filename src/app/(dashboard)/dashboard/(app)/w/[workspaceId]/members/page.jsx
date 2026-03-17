@@ -135,8 +135,8 @@ export default function WorkspaceMembersPage() {
   });
 
   return (
-    <section className="space-y-6 rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+    <section className="space-y-6 rounded-2xl border border-border bg-white p-5 dark:border-white/10 dark:bg-card">
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
         {isAdmin ? "Invite Users" : "Members"}
       </h2>
 
@@ -147,10 +147,10 @@ export default function WorkspaceMembersPage() {
               type="email"
               placeholder="member@company.com"
               {...register("email")}
-              className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-cyan-300 md:col-span-3 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-secondary/30 md:col-span-3 dark:border-white/10 dark:bg-surface dark:text-slate-100"
             />
             <select
-              className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-cyan-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-secondary/30 dark:border-white/10 dark:bg-surface dark:text-slate-100"
               {...register("role")}
             >
               <option value="member">Member</option>
@@ -158,14 +158,14 @@ export default function WorkspaceMembersPage() {
             </select>
           </div>
           {errors.email ? (
-            <p className="text-xs text-rose-600 dark:text-rose-300">{errors.email.message}</p>
+            <p className="text-xs text-destructive dark:text-destructive">{errors.email.message}</p>
           ) : null}
 
           <button
             type="button"
             onClick={handleSubmit(onSubmit)}
             disabled={isSubmitting}
-            className="rounded-lg bg-indigo-500 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting ? "Sending..." : "Send invite"}
           </button>
@@ -173,22 +173,22 @@ export default function WorkspaceMembersPage() {
       ) : null}
 
       <div className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Members
         </p>
 
         {members.map((member, i) => (
           <div
             key={member?.id || i}
-            className="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-white/10 dark:bg-black/20"
+            className="rounded-xl border border-border bg-white px-4 py-3 shadow-sm dark:border-white/10 dark:bg-black/20"
           >
             <div className="flex items-center justify-between gap-4">
               <div className="space-y-1">
-                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-none">
+                <p className="text-sm font-semibold text-foreground leading-none">
                   {member?.name || member?.email}
                 </p>
-                <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                  <span className="rounded-md bg-slate-100 px-2 py-0.5 dark:bg-white/10">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span className="rounded-md bg-muted px-2 py-0.5 dark:bg-white/10">
                     {String(member?.role || "member")}
                   </span>
                   <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
@@ -200,7 +200,7 @@ export default function WorkspaceMembersPage() {
           </div>
         ))}
         {!members.length ? (
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-muted-foreground">
             No members loaded.
           </p>
         ) : null}
@@ -208,22 +208,22 @@ export default function WorkspaceMembersPage() {
 
       {isAdmin ? (
         <div className="space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Pending / Sent Invites
           </p>
           {pendingOrRevokedInvites.map((invite, i) => (
             <div
               key={invite?._id || i}
-              className="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-white/10 dark:bg-black/20"
+              className="rounded-xl border border-border bg-white px-4 py-3 shadow-sm dark:border-white/10 dark:bg-black/20"
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-none">
+                  <p className="text-sm font-semibold text-foreground leading-none">
                     {invite.email}
                   </p>
 
-                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                    <span className="rounded-md bg-slate-100 px-2 py-0.5 dark:bg-white/10">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="rounded-md bg-muted px-2 py-0.5 dark:bg-white/10">
                       {invite.role}
                     </span>
 
@@ -232,7 +232,7 @@ export default function WorkspaceMembersPage() {
                     </span>
                   </div>
                   {invite?.expiresAt ? (
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                    <p className="text-xs text-muted-foreground">
                       Expires: {new Date(invite.expiresAt).toLocaleString()}
                     </p>
                   ) : null}
@@ -242,7 +242,7 @@ export default function WorkspaceMembersPage() {
                   <button
                     onClick={() => handleDelete(invite._id)}
                     disabled={!invite?._id}
-                    className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300"
+                    className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-50 dark:border-destructive/30 dark:bg-destructive/10 dark:text-destructive"
                   >
                     Delete
                   </button>
@@ -251,7 +251,7 @@ export default function WorkspaceMembersPage() {
             </div>
           ))}
           {!pendingOrRevokedInvites.length ? (
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-muted-foreground">
               No invites loaded.
             </p>
           ) : null}

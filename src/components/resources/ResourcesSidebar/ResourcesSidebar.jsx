@@ -87,7 +87,7 @@ export default function ResourcesSidebar({ sections, open, onClose, title = "Con
                 className={`block w-full rounded-l-md px-3 py-1.5 text-sm transition-colors ${level === 0 ? "font-medium" : ""
                     } ${isActive
                         ? "bg-primary/10 text-primary"
-                        : "text-gray-700 hover:bg-gray-100 hover:text-primary dark:text-gray-300 dark:hover:bg-surface"
+                        : "text-foreground hover:bg-muted hover:text-primary dark:text-muted-foreground dark:hover:bg-surface"
                     }`}
             >
                 {title}
@@ -108,7 +108,7 @@ export default function ResourcesSidebar({ sections, open, onClose, title = "Con
                         <div
                             className={`w-full rounded-md lg:rounded-none transition ${groupActive
                                     ? "bg-primary/10"
-                                    : "hover:bg-gray-100 dark:hover:bg-surface"
+                                    : "hover:bg-muted dark:hover:bg-surface"
                                 }`}
                         >
                             <div className="flex items-center justify-between gap-2 px-2 py-1.5">
@@ -117,10 +117,10 @@ export default function ResourcesSidebar({ sections, open, onClose, title = "Con
                                     <button
                                         type="button"
                                         onClick={() => toggleGroup(s.id)}
-                                        className={`flex w-full items-center gap-2 text-left text-sm font-medium ${groupActive ? "text-primary" : "text-gray-700 dark:text-gray-300"
+                                        className={`flex w-full items-center gap-2 text-left text-sm font-medium ${groupActive ? "text-primary" : "text-foreground"
                                             }`}
                                     >
-                                        <span className="w-6 text-sm text-gray-400 text-left">{i + 1}</span>
+                                        <span className="w-6 text-sm text-muted-foreground text-left">{i + 1}</span>
                                         <span className="flex-1">{s.title}</span>
                                     </button>
                                 ) : (
@@ -130,10 +130,10 @@ export default function ResourcesSidebar({ sections, open, onClose, title = "Con
                                             setOpenGroups((prev) => ({ ...prev, ["__mobile_root"]: false }));
                                             onClose?.();
                                         }}
-                                        className={`flex w-full items-center gap-2 text-left text-sm font-medium ${active === s.id ? "text-primary" : "text-gray-700 dark:text-gray-300"
+                                        className={`flex w-full items-center gap-2 text-left text-sm font-medium ${active === s.id ? "text-primary" : "text-foreground"
                                             }`}
                                     >
-                                        <span className="w-6 text-sm text-gray-400 text-left">{i + 1}</span>
+                                        <span className="w-6 text-sm text-muted-foreground text-left">{i + 1}</span>
                                         <span className="flex-1">{s.title}</span>
                                     </a>
                                 )}
@@ -143,7 +143,7 @@ export default function ResourcesSidebar({ sections, open, onClose, title = "Con
                                     <button
                                         type="button"
                                         onClick={() => toggleGroup(s.id)}
-                                        className="p-1 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
+                                        className="p-1 text-muted-foreground hover:text-gray-800 dark:hover:text-foreground"
                                     >
                                         <ChevronDown
                                             size={16}
@@ -176,7 +176,7 @@ export default function ResourcesSidebar({ sections, open, onClose, title = "Con
     return (
         <>
             {/* Desktop Sidebar */}
-            <aside className="hidden lg:block sticky top-20 h-[calc(100vh-5rem)] w-64 shrink-0 overflow-y-auto bg-surface border-r border-gray-200 dark:border-none rounded-t-xl shadow-md">
+            <aside className="hidden lg:block sticky top-20 h-[calc(100vh-5rem)] w-64 shrink-0 overflow-y-auto bg-surface border-r border-border dark:border-none rounded-t-xl shadow-md">
                 <p className="mb-2 text-lg font-semibold text-primary p-4">
                     Getting started with Zyplo
                 </p>

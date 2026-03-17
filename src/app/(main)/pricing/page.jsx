@@ -8,7 +8,7 @@ import {
 
 export default function PricingPage() {
   return (
-    <main className="relative overflow-hidden bg-white dark:bg-slate-950">
+    <main className="relative overflow-hidden bg-background">
       <PricingExperience
         plans={pricingPlans}
         benefits={pricingBenefits}

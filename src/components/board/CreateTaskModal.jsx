@@ -59,26 +59,26 @@ export default function CreateTaskModal({
       <button
         type="button"
         onClick={() => (submitting ? null : onClose())}
-        className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px]"
+        className="absolute inset-0 bg-background/70 backdrop-blur-[2px]"
         aria-label="Close create task modal"
       />
 
-      <div className="absolute left-1/2 top-1/2 w-[94vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-900">
-        <div className="border-b border-slate-200 bg-slate-50/70 px-5 py-4 dark:border-white/10 dark:bg-slate-800/30">
+      <div className="absolute left-1/2 top-1/2 w-[94vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-white shadow-2xl dark:border-white/10 dark:bg-card">
+        <div className="border-b border-border bg-surface/70 px-5 py-4 dark:border-white/10 dark:bg-surface/60">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
                 Board Task
               </p>
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              <h2 className="text-lg font-semibold text-foreground">
                 Create Task
               </h2>
             </div>
-            <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300">
+            <span className="rounded-full border border-border bg-white px-3 py-1 text-xs font-medium text-muted-foreground dark:border-white/10 dark:bg-card dark:text-muted-foreground">
               {columnName || "Unknown Column"}
             </span>
           </div>
-          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-2 text-xs text-muted-foreground">
             Updated: {formatDateTime(openedAt)}
           </p>
         </div>
@@ -101,7 +101,7 @@ export default function CreateTaskModal({
           <div className="space-y-1.5">
             <label
               htmlFor="create-task-title"
-              className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+              className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
             >
               Task Title
             </label>
@@ -112,7 +112,7 @@ export default function CreateTaskModal({
                 setForm((prev) => ({ ...prev, title: event.target.value }))
               }
               placeholder="Enter a clear task title"
-              className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
               required
             />
           </div>
@@ -120,7 +120,7 @@ export default function CreateTaskModal({
           <div className="space-y-1.5">
             <label
               htmlFor="create-task-description"
-              className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+              className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
             >
               Description
             </label>
@@ -132,7 +132,7 @@ export default function CreateTaskModal({
                 setForm((prev) => ({ ...prev, description: event.target.value }))
               }
               placeholder="Describe the task context, expected outcome, or notes"
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
             />
           </div>
 
@@ -140,7 +140,7 @@ export default function CreateTaskModal({
             <div className="space-y-1.5">
               <label
                 htmlFor="create-task-assignee"
-                className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+                className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
               >
                 Assignee
               </label>
@@ -150,7 +150,7 @@ export default function CreateTaskModal({
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, assigneeId: event.target.value }))
                 }
-                className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
               >
                 <option value="">Auto assignee</option>
                 {members.map((member) => (
@@ -164,7 +164,7 @@ export default function CreateTaskModal({
             <div className="space-y-1.5">
               <label
                 htmlFor="create-task-due-date"
-                className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+                className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
               >
                 Due Date
               </label>
@@ -175,14 +175,14 @@ export default function CreateTaskModal({
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, dueDate: event.target.value }))
                 }
-                className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
               />
             </div>
 
             <div className="space-y-1.5">
               <label
                 htmlFor="create-task-priority"
-                className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+                className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
               >
                 Priority
               </label>
@@ -192,7 +192,7 @@ export default function CreateTaskModal({
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, priority: event.target.value }))
                 }
-                className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
               >
                 <option value="P0">P0 (Critical)</option>
                 <option value="P1">P1 (High)</option>
@@ -203,7 +203,7 @@ export default function CreateTaskModal({
             <div className="space-y-1.5">
               <label
                 htmlFor="create-task-estimated-time"
-                className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+                className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
               >
                 Estimate (mins)
               </label>
@@ -219,24 +219,24 @@ export default function CreateTaskModal({
                   }))
                 }
                 placeholder="0"
-                className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
               />
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 border-t border-slate-200 pt-4 dark:border-white/10">
+          <div className="flex justify-end gap-2 border-t border-border pt-4 dark:border-white/10">
             <button
               type="button"
               onClick={onClose}
               disabled={submitting}
-              className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 disabled:opacity-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
+              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-accent disabled:opacity-50 dark:border-border dark:text-foreground dark:hover:bg-accent"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!form.title.trim() || submitting}
-              className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-600 disabled:opacity-50"
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90 disabled:opacity-50"
             >
               {submitting ? "Creating..." : "Create Task"}
             </button>

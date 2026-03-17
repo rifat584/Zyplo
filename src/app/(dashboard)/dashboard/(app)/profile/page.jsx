@@ -129,27 +129,27 @@ export default function DashboardProfilePage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-200 pb-4 dark:border-white/10">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4 dark:border-white/10">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+          <h1 className="text-2xl font-semibold text-foreground">
             Profile
           </h1>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
+          <p className="text-sm text-muted-foreground dark:text-muted-foreground">
             Update your personal information.
           </p>
         </div>
-        <div className="min-w-40 rounded-lg border border-slate-200 bg-white p-2 dark:border-white/10 dark:bg-slate-900">
+        <div className="min-w-40 rounded-lg border border-border bg-white p-2 dark:border-white/10 dark:bg-card">
           <div className="mb-1 flex items-center justify-between text-xs">
-            <span className="font-medium text-slate-600 dark:text-slate-300">
+            <span className="font-medium text-muted-foreground">
               Profile completion
             </span>
-            <span className="font-semibold text-indigo-600 dark:text-indigo-300">
+            <span className="font-semibold text-primary dark:text-primary">
               {completion}%
             </span>
           </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+          <div className="h-1.5 overflow-hidden rounded-full bg-muted dark:bg-slate-700">
             <div
-              className="h-full rounded-full bg-indigo-500 transition-all"
+              className="h-full rounded-full bg-primary/100 transition-all"
               style={{ width: `${Math.max(0, Math.min(completion, 100))}%` }}
             />
           </div>
@@ -158,10 +158,10 @@ export default function DashboardProfilePage() {
 
       <form
         onSubmit={handleSave}
-        className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900"
+        className="space-y-5 rounded-2xl border border-border bg-white p-5 dark:border-white/10 dark:bg-card"
       >
-        <section className="rounded-xl border border-slate-200 p-3 dark:border-white/10">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+        <section className="rounded-xl border border-border p-3 dark:border-white/10">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Profile Image
           </p>
           <div className="mt-2 flex items-center gap-3">
@@ -169,11 +169,11 @@ export default function DashboardProfilePage() {
               <img
                 src={form.avatarUrl}
                 alt="Profile preview"
-                className="size-14 rounded-full border border-slate-200 object-cover dark:border-white/10"
+                className="size-14 rounded-full border border-border object-cover dark:border-white/10"
                 referrerPolicy="no-referrer"
               />
             ) : (
-              <div className="flex size-14 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-xs text-slate-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-400 text-center">
+              <div className="flex size-14 items-center justify-center rounded-full border border-border bg-muted text-xs text-muted-foreground dark:border-white/10 dark:bg-surface dark:text-muted-foreground text-center">
                 No image
               </div>
             )}
@@ -183,9 +183,9 @@ export default function DashboardProfilePage() {
                 accept="image/*"
                 disabled={uploadingAvatar}
                 onChange={handleAvatarFileChange}
-                className="block w-full cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 file:mr-3 file:rounded-md file:border-0 file:bg-indigo-50 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-indigo-700 hover:file:bg-indigo-100 disabled:opacity-50 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100 dark:file:bg-indigo-500/20 dark:file:text-indigo-300"
+                className="block w-full cursor-pointer rounded-lg border border-border bg-white px-3 py-2 text-sm text-foreground file:mr-3 file:rounded-md file:border-0 file:bg-primary/10 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-primary hover:file:bg-primary/10 disabled:opacity-50 dark:border-white/10 dark:bg-surface dark:text-foreground dark:file:bg-primary/100/20 dark:file:text-primary"
               />
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-xs text-muted-foreground">
                 {uploadingAvatar
                   ? "Uploading image..."
                   : "Choose an image file to upload and set as avatar."}
@@ -196,24 +196,24 @@ export default function DashboardProfilePage() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Full Name
             </label>
             <input
               value={form.fullName}
               onChange={(event) => updateField("fullName", event.target.value)}
-              className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
               placeholder="Your full name"
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Email
             </label>
             <input
               value={email}
               disabled
-              className="h-10 w-full cursor-not-allowed rounded-lg border border-slate-200 bg-slate-100 px-3 text-sm text-slate-500 dark:border-white/10 dark:bg-slate-800/60 dark:text-slate-400"
+              className="h-10 w-full cursor-not-allowed rounded-lg border border-border bg-muted px-3 text-sm text-muted-foreground dark:border-white/10 dark:bg-surface/60 dark:text-muted-foreground"
               placeholder="Email"
             />
           </div>
@@ -221,24 +221,24 @@ export default function DashboardProfilePage() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Phone
             </label>
             <input
               value={form.phone}
               onChange={(event) => updateField("phone", event.target.value)}
-              className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
               placeholder="+880..."
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Role Title
             </label>
             <input
               value={form.roleTitle}
               onChange={(event) => updateField("roleTitle", event.target.value)}
-              className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
               placeholder="Product Manager"
             />
           </div>
@@ -246,24 +246,24 @@ export default function DashboardProfilePage() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Company
             </label>
             <input
               value={form.company}
               onChange={(event) => updateField("company", event.target.value)}
-              className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
               placeholder="Zyplo Inc."
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Location
             </label>
             <input
               value={form.location}
               onChange={(event) => updateField("location", event.target.value)}
-              className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
               placeholder="Dhaka, Bangladesh"
             />
           </div>
@@ -271,38 +271,38 @@ export default function DashboardProfilePage() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Website
             </label>
             <input
               value={form.website}
               onChange={(event) => updateField("website", event.target.value)}
-              className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
               placeholder="https://..."
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Avatar URL
             </label>
             <input
               value={form.avatarUrl}
               onChange={(event) => updateField("avatarUrl", event.target.value)}
-              className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
               placeholder="https://image..."
             />
           </div>
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Bio
           </label>
           <textarea
             rows={5}
             value={form.bio}
             onChange={(event) => updateField("bio", event.target.value)}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+            className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
             placeholder="Tell your team about yourself..."
           />
         </div>
@@ -311,7 +311,7 @@ export default function DashboardProfilePage() {
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-2 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary/100 px-4 py-2 text-sm font-medium text-white hover:bg-primary disabled:opacity-50"
           >
             <Save className="size-4" />
             {saving ? "Saving..." : "Save Profile"}

@@ -5,7 +5,7 @@ import { FaXTwitter } from "react-icons/fa6";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0B1120] text-white pt-20 pb-8">
+    <footer className="bg-background text-foreground pt-20 pb-8">
       <div className="max-w-7xl mx-auto px-6">
 
         {/* Top Grid */}
@@ -15,12 +15,12 @@ export default function Footer() {
           <div>
             <Link href="/" className="flex items-center mb-4">
               <Logo showText={false} size={65} className="-ml-1 -mt-2" />
-              <span className="ml-2 font-bold font-serif text-3xl text-gray-200 -mt-1">
+              <span className="ml-2 font-bold font-serif text-3xl text-foreground -mt-1">
                 Zyplo
               </span>
             </Link>
 
-            <p className="text-slate-400 leading-relaxed mb-6">
+            <p className="text-muted-foreground leading-relaxed mb-6">
               Zyplo is a powerful project management platform built to help
               teams plan smarter, collaborate better, and deliver faster.
             </p>
@@ -32,7 +32,7 @@ export default function Footer() {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition duration-300"
+                className="bg-surface p-3 rounded-full hover:bg-secondary transition duration-300"
               >
                 <FaFacebookF size={14} />
               </Link>
@@ -41,7 +41,7 @@ export default function Footer() {
                 href="https://x.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition duration-300"
+                className="bg-surface p-3 rounded-full hover:bg-secondary transition duration-300"
               >
                 <FaXTwitter size={14} />
               </Link>
@@ -50,7 +50,7 @@ export default function Footer() {
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition duration-300"
+                className="bg-surface p-3 rounded-full hover:bg-secondary transition duration-300"
               >
                 <FaLinkedinIn size={14} />
               </Link>
@@ -59,7 +59,7 @@ export default function Footer() {
                 href="https://github.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition duration-300"
+                className="bg-surface p-3 rounded-full hover:bg-secondary transition duration-300"
               >
                 <FaGithub size={14} />
               </Link>
@@ -70,14 +70,14 @@ export default function Footer() {
           {/* Product */}
           <div>
             <h4 className="font-semibold mb-4">Product</h4>
-            <ul className="space-y-2 text-slate-400">
+            <ul className="space-y-2 text-muted-foreground">
               <li>
-                <Link href="/features" className="hover:text-sky-400 transition">
+                <Link href="/features" className="hover:text-secondary transition">
                   Features
                 </Link>
               </li>
               <li>
-                <Link href="/roadmap" className="hover:text-sky-400 transition">
+                <Link href="/roadmap" className="hover:text-secondary transition">
                   Roadmap
                 </Link>
               </li>
@@ -87,19 +87,19 @@ export default function Footer() {
           {/* Company */}
           <div>
             <h4 className="font-semibold mb-4">Company</h4>
-            <ul className="space-y-2 text-slate-400">
+            <ul className="space-y-2 text-muted-foreground">
               <li>
-                <Link href="/about" className="hover:text-sky-400 transition">
+                <Link href="/about" className="hover:text-secondary transition">
                   About
                 </Link>
               </li>
               <li>
-                <Link href="/careers" className="hover:text-sky-400 transition">
+                <Link href="/careers" className="hover:text-secondary transition">
                   Careers
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="hover:text-sky-400 transition">
+                <Link href="/contact" className="hover:text-secondary transition">
                   Contact
                 </Link>
               </li>
@@ -109,7 +109,7 @@ export default function Footer() {
           {/* Newsletter */}
           <div>
             <h4 className="font-semibold mb-4">Stay Updated</h4>
-            <p className="text-slate-400 mb-4">
+            <p className="text-muted-foreground mb-4">
               Get product updates and productivity tips directly in your inbox.
             </p>
 
@@ -117,14 +117,14 @@ export default function Footer() {
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="w-full px-4 py-2 rounded-l-lg bg-slate-800 border border-slate-700 text-sm focus:outline-none focus:border-sky-500"
+                className="w-full px-4 py-2 rounded-l-lg bg-surface border border-border text-sm focus:outline-none focus:border-secondary"
               />
               <button
-                className="px-4 rounded-r-lg text-sm font-semibold text-white
-                bg-gradient-to-br from-indigo-500 to-cyan-400
-                shadow-lg shadow-indigo-500/20
+                className="px-4 rounded-r-lg text-sm font-semibold text-primary-foreground
+                bg-gradient-to-br from-primary to-secondary
+                shadow-lg shadow-primary/20
                 transition-all duration-300
-                hover:scale-[1.02] hover:shadow-indigo-500/40
+                hover:scale-[1.02] hover:shadow-secondary/25
                 active:scale-95"
               >
                 Subscribe
@@ -135,7 +135,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom */}
-        <div className="border-t border-slate-800 mt-16 pt-6 text-center text-slate-500 text-sm">
+        <div className="border-t border-border mt-16 pt-6 text-center text-muted-foreground text-sm">
           © {new Date().getFullYear()} Zyplo. All rights reserved.
         </div>
 

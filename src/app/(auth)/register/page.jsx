@@ -6,7 +6,7 @@ function RegisterPage() {
     <AuthCard title="Create your account" subtitle="Start organizing work with Zyplo.">
       <BackToHomeLink />
       
-      <Suspense fallback={<div className="p-4 text-center text-sm text-slate-500">Loading...</div>}>
+      <Suspense fallback={<div className="p-4 text-center text-sm text-muted-foreground">Loading...</div>}>
         <SocialButtons />
         <RegisterForm />
       </Suspense>

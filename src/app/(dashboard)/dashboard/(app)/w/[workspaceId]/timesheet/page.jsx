@@ -80,24 +80,24 @@ function TooltipCard({ active, payload, label, keyName = "seconds" }) {
   if (!active || !payload?.length) return null;
   const row = payload[0]?.payload || {};
   return (
-    <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs shadow dark:border-white/10 dark:bg-slate-900">
-      <p className="text-slate-500 dark:text-slate-400">{label}</p>
-      <p className="font-semibold text-slate-800 dark:text-slate-100">{fmtSeconds(row[keyName] || 0)}</p>
+    <div className="rounded-lg border border-border bg-white px-3 py-2 text-xs shadow dark:border-white/10 dark:bg-card">
+      <p className="text-muted-foreground">{label}</p>
+      <p className="font-semibold text-foreground dark:text-foreground">{fmtSeconds(row[keyName] || 0)}</p>
     </div>
   );
 }
 
 function StatCard({ title, value, subtitle, Icon }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/90">
+    <div className="rounded-2xl border border-border bg-white/90 p-4 shadow-sm dark:border-white/10 dark:bg-card/90">
       <div className="flex items-center justify-between">
-        <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">{title}</p>
-        <span className="inline-flex size-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">{title}</p>
+        <span className="inline-flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/100/20 dark:text-primary">
           <Icon className="size-4" />
         </span>
       </div>
-      <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">{value}</p>
-      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{subtitle}</p>
+      <p className="mt-2 text-2xl font-semibold text-foreground">{value}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>
     </div>
   );
 }
@@ -366,41 +366,41 @@ export default function WorkspaceTimesheetPage() {
 
   return (
     <div className="space-y-4">
-      <section className="relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-sky-50 via-white to-cyan-50 p-4 shadow-sm dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-cyan-950/20">
-        <div className="pointer-events-none absolute -right-16 -top-20 size-48 rounded-full bg-indigo-500/15 blur-3xl" />
+      <section className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-sky-50 via-white to-cyan-50 p-4 shadow-sm dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-cyan-950/20">
+        <div className="pointer-events-none absolute -right-16 -top-20 size-48 rounded-full bg-primary/100/15 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-20 -left-16 size-56 rounded-full bg-cyan-500/10 blur-3xl" />
         <div className="relative">
-          <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Reports</p>
-          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Time Sheet Analytics</h2>
-          <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">Charts + member contribution overview</p>
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">Reports</p>
+          <h2 className="text-xl font-semibold text-foreground">Time Sheet Analytics</h2>
+          <p className="mt-1 text-xs text-muted-foreground">Charts + member contribution overview</p>
           <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            <label className="space-y-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
+            <label className="space-y-1 text-[11px] font-medium text-muted-foreground">
               <span>Start date</span>
               <div className="relative">
-                <CalendarRange className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-8 pr-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100" />
+                <CalendarRange className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-10 w-full rounded-lg border border-border bg-white pl-8 pr-3 text-sm outline-none focus:border-primary dark:border-white/10 dark:bg-surface dark:text-foreground" />
               </div>
             </label>
-            <label className="space-y-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
+            <label className="space-y-1 text-[11px] font-medium text-muted-foreground">
               <span>End date</span>
               <div className="relative">
-                <CalendarRange className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-8 pr-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100" />
+                <CalendarRange className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="h-10 w-full rounded-lg border border-border bg-white pl-8 pr-3 text-sm outline-none focus:border-primary dark:border-white/10 dark:bg-surface dark:text-foreground" />
               </div>
             </label>
-            <label className="space-y-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
+            <label className="space-y-1 text-[11px] font-medium text-muted-foreground">
               <span>Project</span>
               <div className="relative">
-                <select value={selectedProjectId} onChange={(e) => setSelectedProjectId(e.target.value)} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100">
+                <select value={selectedProjectId} onChange={(e) => setSelectedProjectId(e.target.value)} className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary dark:border-white/10 dark:bg-surface dark:text-foreground">
                   {!projects.length ? <option value="">No project</option> : null}
                   {projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
                 </select>
               </div>
             </label>
-            <label className="space-y-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
+            <label className="space-y-1 text-[11px] font-medium text-muted-foreground">
               <span>Task</span>
               <div className="relative">
-                <select value={selectedTaskId} onChange={(e) => setSelectedTaskId(e.target.value)} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100">
+                <select value={selectedTaskId} onChange={(e) => setSelectedTaskId(e.target.value)} className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary dark:border-white/10 dark:bg-surface dark:text-foreground">
                   {!tasksForProject.length ? <option value="">No task</option> : null}
                   {tasksForProject.map((task) => <option key={task.id} value={task.id}>{task.title}</option>)}
                 </select>
@@ -417,17 +417,17 @@ export default function WorkspaceTimesheetPage() {
         <StatCard title="Current User" value={currentUser?.name || "User"} subtitle={currentUser?.email || "Account"} Icon={Activity} />
       </section>
 
-      {error ? <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">{error}</div> : null}
+      {error ? <div className="rounded-2xl border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive dark:border-destructive/30 dark:bg-destructive/10 dark:text-destructive">{error}</div> : null}
       {memberError ? <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">{memberError}</div> : null}
 
       <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
-        <div className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/95">
+        <div className="rounded-2xl border border-border bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-card/95">
           <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Timesheet Trend</h3>
-            <span className="text-xs text-slate-500 dark:text-slate-400">Hours by day</span>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Timesheet Trend</h3>
+            <span className="text-xs text-muted-foreground">Hours by day</span>
           </div>
           {loading ? (
-            <p className="text-sm text-slate-500 dark:text-slate-400">Loading chart...</p>
+            <p className="text-sm text-muted-foreground">Loading chart...</p>
           ) : trendData.length ? (
             <div className="h-72 w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -447,14 +447,14 @@ export default function WorkspaceTimesheetPage() {
               </ResponsiveContainer>
             </div>
           ) : (
-            <p className="text-sm text-slate-500 dark:text-slate-400">No timesheet data for selected range.</p>
+            <p className="text-sm text-muted-foreground">No timesheet data for selected range.</p>
           )}
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/95">
+        <div className="rounded-2xl border border-border bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-card/95">
           <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Project Distribution</h3>
-            <PieIcon className="size-4 text-slate-400" />
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Project Distribution</h3>
+            <PieIcon className="size-4 text-muted-foreground" />
           </div>
           {projectTotalsPie.length ? (
             <>
@@ -471,26 +471,26 @@ export default function WorkspaceTimesheetPage() {
               <div className="max-h-40 space-y-2 overflow-y-auto pr-1">
                 {projectTotalsPie.map((row) => (
                   <div key={row.name} className="flex items-center justify-between text-xs">
-                    <div className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                    <div className="inline-flex items-center gap-2 text-muted-foreground">
                       <span className="inline-block size-2.5 rounded-full" style={{ background: row.fill }} />
                       <span className="truncate">{row.name}</span>
                     </div>
-                    <span className="font-medium text-slate-700 dark:text-slate-200">{fmtSeconds(row.seconds)}</span>
+                    <span className="font-medium text-foreground">{fmtSeconds(row.seconds)}</span>
                   </div>
                 ))}
               </div>
             </>
           ) : (
-            <p className="text-sm text-slate-500 dark:text-slate-400">No workspace project data found.</p>
+            <p className="text-sm text-muted-foreground">No workspace project data found.</p>
           )}
         </div>
       </section>
 
       <section className="grid gap-4 xl:grid-cols-2">
-        <div className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/95">
+        <div className="rounded-2xl border border-border bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-card/95">
           <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Selected Project Contribution</h3>
-            <span className="text-xs text-slate-500 dark:text-slate-400">{selectedProject?.name || "Select project"}</span>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Selected Project Contribution</h3>
+            <span className="text-xs text-muted-foreground">{selectedProject?.name || "Select project"}</span>
           </div>
           {selectedProjectContrib.length ? (
             <div className="h-72 w-full">
@@ -507,17 +507,17 @@ export default function WorkspaceTimesheetPage() {
               </ResponsiveContainer>
             </div>
           ) : (
-            <p className="text-sm text-slate-500 dark:text-slate-400">No contributor data found for this project.</p>
+            <p className="text-sm text-muted-foreground">No contributor data found for this project.</p>
           )}
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/95">
+        <div className="rounded-2xl border border-border bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-card/95">
           <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">All Members Contribution</h3>
-            <span className="text-xs text-slate-500 dark:text-slate-400">All projects (all-time)</span>
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">All Members Contribution</h3>
+            <span className="text-xs text-muted-foreground">All projects (all-time)</span>
           </div>
           {loadingMembers ? (
-            <p className="text-sm text-slate-500 dark:text-slate-400">Loading member contribution...</p>
+            <p className="text-sm text-muted-foreground">Loading member contribution...</p>
           ) : allMemberChart.length ? (
             <div className="grid gap-3 lg:grid-cols-[1fr_0.95fr]">
               <div className="h-72 w-full">
@@ -533,95 +533,95 @@ export default function WorkspaceTimesheetPage() {
               </div>
               <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
                 {allMemberRows.map((row) => (
-                  <div key={row.key} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm dark:border-white/10 dark:bg-slate-900/70">
+                  <div key={row.key} className="flex items-center justify-between rounded-xl border border-border bg-white/80 px-3 py-2 text-sm dark:border-white/10 dark:bg-card/70">
                     <div className="min-w-0">
-                      <p className="truncate font-medium text-slate-800 dark:text-slate-100">{row.name}</p>
-                      <p className="truncate text-xs text-slate-500 dark:text-slate-400">{row.email || "No email"}</p>
+                      <p className="truncate font-medium text-foreground dark:text-foreground">{row.name}</p>
+                      <p className="truncate text-xs text-muted-foreground">{row.email || "No email"}</p>
                     </div>
-                    <p className="ml-2 shrink-0 font-semibold text-slate-700 dark:text-slate-200">{fmtSeconds(row.seconds)}</p>
+                    <p className="ml-2 shrink-0 font-semibold text-foreground">{fmtSeconds(row.seconds)}</p>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <p className="text-sm text-slate-500 dark:text-slate-400">No member contribution data available.</p>
+            <p className="text-sm text-muted-foreground">No member contribution data available.</p>
           )}
         </div>
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/95">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Snapshot</h3>
+        <div className="rounded-2xl border border-border bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-card/95">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Snapshot</h3>
           <div className="mt-3 space-y-3 text-sm">
-            <div className="rounded-xl border border-slate-200 p-3 dark:border-white/10">
-              <p className="text-xs text-slate-500 dark:text-slate-400">Top Contributor</p>
-              <p className="mt-1 font-semibold text-slate-800 dark:text-slate-100">{topContributor?.name || "N/A"}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{topContributor ? fmtSeconds(topContributor.seconds) : "No data"}</p>
+            <div className="rounded-xl border border-border p-3 dark:border-white/10">
+              <p className="text-xs text-muted-foreground">Top Contributor</p>
+              <p className="mt-1 font-semibold text-foreground dark:text-foreground">{topContributor?.name || "N/A"}</p>
+              <p className="text-xs text-muted-foreground">{topContributor ? fmtSeconds(topContributor.seconds) : "No data"}</p>
             </div>
-            <div className="rounded-xl border border-slate-200 p-3 dark:border-white/10">
-              <p className="text-xs text-slate-500 dark:text-slate-400">Selected Project</p>
-              <p className="mt-1 font-semibold text-slate-800 dark:text-slate-100">{selectedProject?.name || "N/A"}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{fmtSeconds(projectRows.reduce((sum, row) => sum + Number(row.totalTime || 0), 0))}</p>
+            <div className="rounded-xl border border-border p-3 dark:border-white/10">
+              <p className="text-xs text-muted-foreground">Selected Project</p>
+              <p className="mt-1 font-semibold text-foreground dark:text-foreground">{selectedProject?.name || "N/A"}</p>
+              <p className="text-xs text-muted-foreground">{fmtSeconds(projectRows.reduce((sum, row) => sum + Number(row.totalTime || 0), 0))}</p>
             </div>
-            <div className="rounded-xl border border-slate-200 p-3 dark:border-white/10">
-              <p className="text-xs text-slate-500 dark:text-slate-400">Selected Task</p>
-              <p className="mt-1 font-semibold text-slate-800 dark:text-slate-100">{selectedTask?.title || "N/A"}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{taskReport ? `${fmtSeconds(taskReport.totalTimeSpent || 0)} spent` : "No task report"}</p>
+            <div className="rounded-xl border border-border p-3 dark:border-white/10">
+              <p className="text-xs text-muted-foreground">Selected Task</p>
+              <p className="mt-1 font-semibold text-foreground dark:text-foreground">{selectedTask?.title || "N/A"}</p>
+              <p className="text-xs text-muted-foreground">{taskReport ? `${fmtSeconds(taskReport.totalTimeSpent || 0)} spent` : "No task report"}</p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/95">
+        <div className="rounded-2xl border border-border bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-card/95">
           <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Task Report</h3>
-            <Clock3 className="size-4 text-slate-400" />
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Task Report</h3>
+            <Clock3 className="size-4 text-muted-foreground" />
           </div>
           {taskReport ? (
             <div className="space-y-4">
-              <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{selectedTask?.title || "Selected task"}</p>
+              <p className="text-sm font-medium text-foreground dark:text-foreground">{selectedTask?.title || "Selected task"}</p>
               <div className="grid gap-2 sm:grid-cols-3">
-                <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-800/50">
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Estimated</p>
-                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{fmtSeconds(taskReport.estimatedTime)}</p>
+                <div className="rounded-lg bg-surface p-2 dark:bg-surface/50">
+                  <p className="text-[11px] text-muted-foreground">Estimated</p>
+                  <p className="text-sm font-semibold text-foreground dark:text-foreground">{fmtSeconds(taskReport.estimatedTime)}</p>
                 </div>
-                <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-800/50">
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Spent</p>
-                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{fmtSeconds(taskReport.totalTimeSpent)}</p>
+                <div className="rounded-lg bg-surface p-2 dark:bg-surface/50">
+                  <p className="text-[11px] text-muted-foreground">Spent</p>
+                  <p className="text-sm font-semibold text-foreground dark:text-foreground">{fmtSeconds(taskReport.totalTimeSpent)}</p>
                 </div>
-                <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-800/50">
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Remaining</p>
-                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{fmtSeconds(taskReport.remainingTime)}</p>
+                <div className="rounded-lg bg-surface p-2 dark:bg-surface/50">
+                  <p className="text-[11px] text-muted-foreground">Remaining</p>
+                  <p className="text-sm font-semibold text-foreground dark:text-foreground">{fmtSeconds(taskReport.remainingTime)}</p>
                 </div>
               </div>
               <div>
-                <div className="mb-1 flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
+                <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
                   <span>Progress</span>
                   <span>{taskProgress}%</span>
                 </div>
-                <div className="h-2.5 rounded-full bg-slate-100 dark:bg-slate-800">
+                <div className="h-2.5 rounded-full bg-muted dark:bg-surface">
                   <div className="h-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-cyan-500" style={{ width: `${taskProgress}%` }} />
                 </div>
               </div>
               <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Recent Logs</p>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Recent Logs</p>
                 <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
                   {(taskReport.logs || []).slice(0, 10).map((log) => (
-                    <div key={log.id} className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-xs dark:border-white/10">
+                    <div key={log.id} className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10">
                       <div className="min-w-0">
-                        <p className="truncate text-slate-700 dark:text-slate-200">
+                        <p className="truncate text-foreground">
                           {log.startTime ? new Date(log.startTime).toLocaleString() : "Unknown"} - {log.endTime ? new Date(log.endTime).toLocaleString() : "Running"}
                         </p>
-                        {log.description ? <p className="truncate text-slate-500 dark:text-slate-400">{log.description}</p> : null}
+                        {log.description ? <p className="truncate text-muted-foreground">{log.description}</p> : null}
                       </div>
-                      <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200">{fmtSeconds(log.duration)}</span>
+                      <span className="ml-3 font-semibold text-foreground">{fmtSeconds(log.duration)}</span>
                     </div>
                   ))}
-                  {!taskReport.logs?.length ? <p className="text-sm text-slate-500 dark:text-slate-400">No task logs found.</p> : null}
+                  {!taskReport.logs?.length ? <p className="text-sm text-muted-foreground">No task logs found.</p> : null}
                 </div>
               </div>
             </div>
           ) : (
-            <p className="text-sm text-slate-500 dark:text-slate-400">Select a task to view task-level report.</p>
+            <p className="text-sm text-muted-foreground">Select a task to view task-level report.</p>
           )}
         </div>
       </section>

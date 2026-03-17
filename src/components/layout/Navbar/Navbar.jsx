@@ -31,10 +31,10 @@ const Navbar = () => {
       "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200";
 
     if (pathname === path) {
-      return `${baseStyles} bg-primary/10 text-gray-900 dark:text-gray-100 font-semibold shadow-sm ring-1 ring-primary/20 dark:bg-primary/20`;
+      return `${baseStyles} bg-primary/10 text-foreground font-semibold shadow-sm ring-1 ring-primary/20 dark:bg-primary/20`;
     }
 
-    return `${baseStyles} text-gray-600 dark:text-gray-300 hover:text-secondary hover:border dark:hover:text-secondary transition-colors`;
+    return `${baseStyles} text-muted-foreground hover:text-secondary hover:border dark:hover:text-secondary transition-colors`;
   };
 
   // Close mega menu and profile menu on outside click
@@ -76,7 +76,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-[#0F1629]/80 backdrop-blur-md transition-colors duration-300">
+    <nav className="sticky top-0 z-50 w-full border-b border-border bg-card/80 backdrop-blur-md transition-colors duration-300">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
@@ -114,18 +114,18 @@ const Navbar = () => {
           {mounted && (
             <button
               onClick={toggleTheme}
-              className="relative flex h-9 w-9 items-center justify-center rounded-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:scale-105 cursor-pointer"
+              className="relative flex h-9 w-9 items-center justify-center rounded-full bg-surface dark:bg-surface border border-border dark:border-border transition-all duration-300 hover:scale-105 cursor-pointer"
               aria-label="Toggle theme"
             >
               {theme === "light" ? (
-                <Moon size={16} className="text-gray-600" />
+                <Moon size={16} className="text-muted-foreground" />
               ) : (
-                <Sun size={16} className="text-yellow-400" />
+                <Sun size={16} className="text-secondary" />
               )}
             </button>
           )}
 
-          <button className="hidden sm:flex items-center gap-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 transition hover:bg-gray-100 dark:hover:bg-gray-700">
+          <button className="hidden sm:flex items-center gap-2 rounded-md border border-border dark:border-border bg-surface dark:bg-surface px-3 py-1.5 text-sm text-muted-foreground transition hover:bg-muted dark:hover:bg-surface">
             <Search size={16} />
             <span className="text-xs">Ctrl+K</span>
           </button>
@@ -133,10 +133,10 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-4">
             {!isAuthenticated ? (
               <>
-                <Link href="/login" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-secondary">
+                <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-secondary">
                   Sign in
                 </Link>
-                <Link href="/register" className="flex items-center justify-center rounded-lg bg-linear-to-br from-indigo-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-indigo-500/40 active:scale-95">
+                <Link href="/register" className="flex items-center justify-center rounded-lg bg-linear-to-br from-primary to-secondary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-secondary/25 active:scale-95">
                   Get started
                 </Link>
               </>
@@ -148,18 +148,18 @@ const Navbar = () => {
                     onClick={() => setProfileOpen(!profileOpen)}
                     className="flex items-center gap-2 outline-none"
                   >
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 hover:ring-2 hover:ring-indigo-500/50 transition-all cursor-pointer">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary hover:ring-2 hover:ring-primary/40 transition-all cursor-pointer">
                       {(session.data?.user?.name?.charAt(0) || "U").toUpperCase()}
                     </div>
                   </button>
 
                   {profileOpen ? (
-                    <div className="absolute right-0 top-12 z-30 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg dark:border-white/10 dark:bg-slate-900">
-                      <div className="mb-2 border-b border-slate-200 pb-2 px-2 dark:border-white/10">
-                        <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+                    <div className="absolute right-0 top-12 z-30 w-56 rounded-xl border border-border bg-card p-2 shadow-lg">
+                      <div className="mb-2 border-b border-border pb-2 px-2">
+                        <p className="text-sm font-medium text-foreground truncate">
                           {session.data?.user?.name || "User"}
                         </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                        <p className="text-xs text-muted-foreground truncate">
                           {session.data?.user?.email || ""}
                         </p>
                       </div>
@@ -169,7 +169,7 @@ const Navbar = () => {
                         <Link
                           href="/dashboard"
                           onClick={() => setProfileOpen(false)}
-                          className="w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5 transition-colors"
+                          className="w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-foreground hover:bg-muted transition-colors"
                         >
                           Dashboard
                         </Link>
@@ -177,7 +177,7 @@ const Navbar = () => {
                         <button
                           type="button"
                           onClick={() => signOut({ callbackUrl: "/login" })}
-                          className="w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 transition-colors"
+                          className="w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-destructive hover:bg-destructive/10 dark:text-destructive dark:hover:bg-destructive/10 transition-colors"
                         >
                           Sign out
                         </button>
@@ -192,7 +192,7 @@ const Navbar = () => {
           {/* Mobile Toggle */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
+            className="md:hidden p-2 text-muted-foreground hover:bg-muted dark:hover:bg-accent/70 rounded-md transition-colors"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -200,11 +200,11 @@ const Navbar = () => {
       </div>
 
       {/* Gradient line */}
-      <div className="absolute bottom-0 left-0 h-[1px] w-full bg-gradient-to-r from-transparent via-indigo-500/30 dark:via-cyan-400/30 to-transparent" />
+      <div className="absolute bottom-0 left-0 h-[1px] w-full bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0F1629] px-6 py-4 space-y-4 shadow-xl">
+        <div className="md:hidden border-t border-border bg-card px-6 py-4 space-y-4 shadow-xl">
           {/* Top Links */}
           <div className="flex flex-col space-y-2">
             <Link href="/" onClick={closeAllMobile} className={getLinkClass("/")}>Home</Link>
@@ -213,7 +213,7 @@ const Navbar = () => {
             {/* Resources Toggle */}
             <button
               onClick={() => setMobileResourcesOpen((p) => !p)}
-              className="w-full flex items-center justify-between px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground dark:text-gray-300 hover:bg-secondary/20"
+              className="w-full flex items-center justify-between px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground dark:text-muted-foreground hover:bg-secondary/20"
             >
               Resources
               <ChevronDown size={16} className={`${mobileResourcesOpen ? "rotate-180" : ""} transition-transform`} />
@@ -232,7 +232,7 @@ const Navbar = () => {
           {/* Divider */}
           <div className="border-t border-gray-100 dark:border-gray-800 pt-4 flex flex-col gap-3">
             {/* Search */}
-            <button className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-500 dark:text-gray-300">
+            <button className="flex w-full items-center justify-center gap-2 rounded-md border border-border dark:border-border bg-surface dark:bg-surface px-3 py-2 text-sm text-muted-foreground dark:text-muted-foreground">
               <Search size={16} />
               Search...
             </button>
@@ -242,14 +242,14 @@ const Navbar = () => {
                 <Link
                   href="/login"
                   onClick={closeAllMobile}
-                  className="flex w-full items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  className="flex w-full items-center justify-center rounded-lg border border-border dark:border-border py-2 text-sm font-medium text-muted-foreground hover:bg-surface dark:hover:bg-accent/70"
                 >
                   Sign in
                 </Link>
                 <Link
                   href="/register"
                   onClick={closeAllMobile}
-                  className="flex w-full items-center justify-center rounded-lg bg-linear-to-br from-indigo-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-indigo-500/40 active:scale-95"
+                  className="flex w-full items-center justify-center rounded-lg bg-linear-to-br from-primary to-secondary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-indigo-500/40 active:scale-95"
                 >
                   Get started
                 </Link>
@@ -260,22 +260,22 @@ const Navbar = () => {
                 <Link
                   href="/dashboard"
                   onClick={closeAllMobile}
-                  className="flex w-full items-center justify-center rounded-lg border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 py-2 text-sm font-medium text-indigo-700 dark:text-indigo-300"
+                  className="flex w-full items-center justify-center rounded-lg border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-primary/10 py-2 text-sm font-medium text-primary dark:text-primary"
                 >
                   Dashboard
                 </Link>
                 
                 {/* Mobile User Info & Logout */}
-                <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-800/50">
-                  <div className="mb-3 border-b border-slate-200 pb-3 dark:border-white/10 flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+                <div className="mt-2 rounded-xl border border-border bg-slate-50 p-3 dark:border-white/10 dark:bg-surface/50">
+                  <div className="mb-3 border-b border-border pb-3 dark:border-white/10 flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary dark:bg-primary/20 dark:text-primary">
                       {(session.data?.user?.name?.charAt(0) || "U").toUpperCase()}
                     </div>
                     <div className="overflow-hidden">
-                      <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+                      <p className="text-sm font-medium text-foreground truncate">
                         {session.data?.user?.name || "User"}
                       </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                      <p className="text-xs text-muted-foreground truncate">
                         {session.data?.user?.email || ""}
                       </p>
                     </div>
@@ -283,7 +283,7 @@ const Navbar = () => {
                   <button
                     type="button"
                     onClick={() => signOut({ callbackUrl: "/login" })}
-                    className="w-full rounded-lg py-2 text-center text-sm font-medium text-rose-600 hover:bg-rose-100 dark:text-rose-400 dark:hover:bg-rose-500/10 transition-colors"
+                    className="w-full rounded-lg py-2 text-center text-sm font-medium text-destructive hover:bg-destructive/10 dark:text-destructive dark:hover:bg-destructive/10 transition-colors"
                   >
                     Sign out
                   </button>

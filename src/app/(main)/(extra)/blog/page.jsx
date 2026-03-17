@@ -99,7 +99,7 @@ export default function BlogPage() {
                         initial={{ opacity: 0, y: 16 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
-                        className="mt-4 max-w-2xl text-gray-600 dark:text-gray-400"
+                        className="mt-4 max-w-2xl text-muted-foreground"
                     >
                         Insights on productivity, workflows, remote work, and building better dev teams.
                     </motion.p>
@@ -107,7 +107,7 @@ export default function BlogPage() {
                     {/* Search + Filter */}
                     <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div className="relative max-w-md w-full">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <input
                                 value={query}
                                 onChange={(e) => setQuery(e.target.value)}
@@ -123,7 +123,7 @@ export default function BlogPage() {
                                     onClick={() => setActiveCat(cat)}
                                     className={`inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-xs transition ${activeCat === cat
                                             ? "border-secondary/50 bg-secondary/10 text-secondary"
-                                            : "border-border text-gray-600 hover:bg-surface dark:text-gray-300"
+                                            : "border-border text-gray-600 hover:bg-surface dark:text-muted-foreground"
                                         }`}
                                 >
                                     <Tag className="h-3 w-3" />
@@ -158,7 +158,7 @@ export default function BlogPage() {
                                     Featured
                                 </span>
                                 <h2 className="text-2xl font-bold">{featured.title}</h2>
-                                <p className="mt-3 text-gray-600 dark:text-gray-400">
+                                <p className="mt-3 text-muted-foreground">
                                     {featured.excerpt}
                                 </p>
                             </div>
@@ -193,12 +193,12 @@ export default function BlogPage() {
                                 />
                             </div>
                             <div className="p-5 flex flex-col">
-                                <div className="mb-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                                <div className="mb-2 flex items-center justify-between text-xs text-muted-foreground">
                                     <span>{post.category}</span>
                                     <span>{new Date(post.date).toLocaleDateString()}</span>
                                 </div>
                                 <h3 className="text-lg font-semibold">{post.title}</h3>
-                                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 flex-1">
+                                <p className="mt-2 text-sm text-muted-foreground flex-1">
                                     {post.excerpt}
                                 </p>
                                 <Link
@@ -213,7 +213,7 @@ export default function BlogPage() {
                 </div>
 
                 {filtered.length === 0 && (
-                    <p className="mt-12 text-center text-gray-500">No articles found.</p>
+                    <p className="mt-12 text-center text-muted-foreground">No articles found.</p>
                 )}
             </section>
         </main>

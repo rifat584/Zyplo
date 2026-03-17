@@ -133,8 +133,8 @@ export default function WorkspaceSettingsPage() {
   }
 
   return (
-    <section className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+    <section className="space-y-4 rounded-2xl border border-border bg-white p-4 dark:border-white/10 dark:bg-card">
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
         Workspace Settings
       </h2>
 
@@ -149,14 +149,14 @@ export default function WorkspaceSettingsPage() {
         }
         if (githubParam === "cancelled") {
           return (
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
+            <div className="rounded-xl border border-border bg-slate-50 p-3 text-sm text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-foreground">
               GitHub connection was cancelled.
             </div>
           );
         }
         if (githubParam === "error") {
           return (
-            <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
+            <div className="rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive dark:border-destructive/30 dark:bg-destructive/10 dark:text-destructive">
               GitHub connection failed. Please try again.
             </div>
           );
@@ -165,34 +165,34 @@ export default function WorkspaceSettingsPage() {
       })()}
 
       <div className="space-y-1">
-        <label className="text-xs text-slate-500 dark:text-slate-400">Workspace Name</label>
+        <label className="text-xs text-muted-foreground">Workspace Name</label>
         <input
           value={name}
           onChange={(event) => setName(event.target.value)}
-          className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+          className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none dark:border-white/10 dark:bg-surface dark:text-slate-100"
         />
-        <p className="text-xs text-slate-500 dark:text-slate-400">
+        <p className="text-xs text-muted-foreground">
           Rename is UI-only right now. Tell me and I will wire backend update endpoint.
         </p>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600 dark:border-white/10 dark:bg-slate-800/40 dark:text-slate-300">
+      <div className="rounded-xl border border-border bg-slate-50 p-3 text-xs text-slate-600 dark:border-white/10 dark:bg-surface/40 dark:text-muted-foreground">
         <p>Workspace ID: {workspaceId}</p>
         <p>Members: {workspace?.members?.length || 0}</p>
       </div>
 
-      <div className="flex items-center justify-between rounded-xl border border-slate-200 p-4 dark:border-white/10">
+      <div className="flex items-center justify-between rounded-xl border border-border p-4 dark:border-white/10">
         <div className="flex items-center gap-3">
-          <span className="inline-flex size-8 items-center justify-center rounded-lg bg-slate-900 dark:bg-white/10">
+          <span className="inline-flex size-8 items-center justify-center rounded-lg bg-card dark:bg-white/10">
             <svg viewBox="0 0 24 24" fill="white" className="size-4">
               <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12" />
             </svg>
           </span>
           <div>
-            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+            <p className="text-sm font-semibold text-foreground">
               GitHub
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-muted-foreground">
               {githubLoading
                 ? "Checking connection..."
                 : githubStatus?.connected
@@ -200,12 +200,12 @@ export default function WorkspaceSettingsPage() {
                   : "Not connected"}
             </p>
             {!githubLoading && githubStatus?.connectedAt ? (
-              <p className="mt-1 text-[11px] text-slate-400">
+              <p className="mt-1 text-[11px] text-muted-foreground">
                 Connected at: {formatConnectedAt(githubStatus.connectedAt)}
               </p>
             ) : null}
             {!githubLoading && githubError ? (
-              <p className="mt-1 text-[11px] text-rose-600 dark:text-rose-300">
+              <p className="mt-1 text-[11px] text-destructive dark:text-destructive">
                 {githubError}
               </p>
             ) : null}
@@ -221,7 +221,7 @@ export default function WorkspaceSettingsPage() {
               type="button"
               onClick={disconnectGithub}
               disabled={githubDisconnecting || githubLoading}
-              className="cursor-pointer rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/15"
+              className="cursor-pointer rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-50 dark:border-destructive/30 dark:bg-destructive/10 dark:text-destructive dark:hover:bg-destructive/100/15"
             >
               {githubDisconnecting ? "Disconnecting..." : "Disconnect"}
             </button>
@@ -234,7 +234,7 @@ export default function WorkspaceSettingsPage() {
               if (!connectUrl) event.preventDefault();
             }}
             className={[
-              "cursor-pointer rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white hover:bg-slate-700 dark:bg-white/10 dark:hover:bg-white/20",
+              "cursor-pointer rounded-lg bg-card px-3 py-2 text-xs font-semibold text-white hover:bg-slate-700 dark:bg-white/10 dark:hover:bg-white/20",
               !connectUrl ? "cursor-not-allowed opacity-50 pointer-events-none" : "",
             ].join(" ")}
             title={!appSlug ? "NEXT_PUBLIC_GITHUB_APP_SLUG is missing" : undefined}

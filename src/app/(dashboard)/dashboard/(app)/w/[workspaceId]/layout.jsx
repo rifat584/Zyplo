@@ -47,13 +47,13 @@ export default function WorkspaceLayout({ children }) {
 
   return (
     <div className="space-y-4">
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
-        <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Workspace</p>
-        <h1 className="mt-1 text-2xl font-semibold text-slate-900 dark:text-slate-100">
+      <section className="rounded-2xl border border-border bg-white p-4 dark:border-white/10 dark:bg-card">
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">Workspace</p>
+        <h1 className="mt-1 text-2xl font-semibold text-foreground">
           {workspace?.name || "Loading workspace..."}
         </h1>
 
-        <div className="mt-4 hidden flex-wrap items-center gap-2 border-b border-slate-200 pb-1 dark:border-white/10 md:flex">
+        <div className="mt-4 hidden flex-wrap items-center gap-2 border-b border-border pb-1 dark:border-white/10 md:flex">
           {visibleNavItems.map((item) => {
             const href = item.href(workspaceId);
             const active = pathname === href;
@@ -63,8 +63,8 @@ export default function WorkspaceLayout({ children }) {
                 href={href}
                 className={`rounded-lg px-3 py-1.5 text-sm transition ${
                   active
-                    ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
-                    : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                    ? "bg-primary/10 text-primary dark:bg-primary/100/20 dark:text-primary"
+                    : "text-muted-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-surface"
                 }`}
               >
                 {item.label}
@@ -73,7 +73,7 @@ export default function WorkspaceLayout({ children }) {
           })}
         </div>
 
-        <div className="mt-4 border-b border-slate-200 pb-1 dark:border-white/10 md:hidden">
+        <div className="mt-4 border-b border-border pb-1 dark:border-white/10 md:hidden">
           <div className="relative flex items-center gap-1 overflow-x-auto whitespace-nowrap">
             {primaryItems.map((item) => {
               const href = item.href(workspaceId);
@@ -84,8 +84,8 @@ export default function WorkspaceLayout({ children }) {
                   href={href}
                   className={`rounded-lg px-2.5 py-1.5 text-sm transition ${
                     active
-                      ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
-                      : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                      ? "bg-primary/10 text-primary dark:bg-primary/100/20 dark:text-primary"
+                      : "text-muted-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-surface"
                   }`}
                 >
                   {item.label}
@@ -98,8 +98,8 @@ export default function WorkspaceLayout({ children }) {
                 onClick={() => setMoreOpen((v) => !v)}
                 className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-sm transition ${
                   isMoreActive || moreOpen
-                    ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
-                    : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                    ? "bg-primary/10 text-primary dark:bg-primary/100/20 dark:text-primary"
+                    : "text-muted-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-surface"
                 }`}
               >
                 More
@@ -109,7 +109,7 @@ export default function WorkspaceLayout({ children }) {
           </div>
 
           {moreOpen ? (
-            <div className="mt-2 w-56 rounded-xl border border-slate-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-slate-900">
+            <div className="mt-2 w-56 rounded-xl border border-border bg-white p-1 shadow-lg dark:border-white/10 dark:bg-card">
               {moreItems.map((item) => {
                 const href = item.href(workspaceId);
                 const active = pathname === href;
@@ -119,8 +119,8 @@ export default function WorkspaceLayout({ children }) {
                     href={href}
                     className={`block rounded-lg px-3 py-2 text-sm transition ${
                       active
-                        ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
-                        : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+                        ? "bg-primary/10 text-primary dark:bg-primary/100/20 dark:text-primary"
+                        : "text-muted-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-surface"
                     }`}
                   >
                     {item.label}

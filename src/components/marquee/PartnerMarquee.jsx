@@ -43,7 +43,7 @@ const PartnerLogo = ({ partner, subtle = false }) => (
   <div
     className={[
       "flex h-14 w-20 shrink-0 items-center justify-center rounded-xl border border-zinc-200/70 bg-white/80 p-2.5 sm:h-16 sm:w-24 sm:p-3",
-      "dark:border-gray-700 dark:bg-[#0F1629]/80",
+      "dark:border-border dark:bg-[#0F1629]/80",
       subtle ? "opacity-85" : "",
     ].join(" ")}
   >
@@ -65,7 +65,7 @@ const PartnerLogo = ({ partner, subtle = false }) => (
 
 const PartnerMarquee = () => {
   return (
-    <section className="bg-white dark:bg-[#0B0F19]">
+    <section className="bg-background">
       <MainContainer className="px-6 py-14 sm:py-16">
         <h3 className="mb-8 text-center text-3xl font-semibold text-foreground dark:text-gray-100 sm:text-5xl">
           Our Partners

@@ -414,21 +414,21 @@ export default function WorkspaceCalenderPage() {
 
   return (
     <div className="space-y-4">
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
+      <section className="rounded-2xl border border-border bg-white p-4 dark:border-white/10 dark:bg-card">
         <div className="flex flex-wrap gap-2">
           <div className="relative min-w-[220px] flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search calendar"
-              className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 w-full rounded-lg border border-border bg-white pl-9 pr-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
             />
           </div>
           <select
             value={assignee}
             onChange={(e) => setAssignee(e.target.value)}
-            className="h-10 min-w-[140px] rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+            className="h-10 min-w-[140px] rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
           >
             <option value="all">Assignee</option>
             {members.map((member) => (
@@ -440,7 +440,7 @@ export default function WorkspaceCalenderPage() {
           <select
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
-            className="h-10 min-w-[110px] rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+            className="h-10 min-w-[110px] rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
           >
             <option value="all">Type</option>
             <option value="P1">P1</option>
@@ -451,7 +451,7 @@ export default function WorkspaceCalenderPage() {
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="h-10 min-w-[120px] rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+            className="h-10 min-w-[120px] rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
           >
             <option value="all">Status</option>
             <option value="todo">To Do</option>
@@ -461,7 +461,7 @@ export default function WorkspaceCalenderPage() {
           </select>
           <button
             type="button"
-            className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800"
+            className="inline-flex h-10 items-center gap-2 rounded-lg border border-border px-3 text-sm text-muted-foreground hover:bg-surface dark:border-white/10 dark:text-muted-foreground dark:hover:bg-surface"
           >
             <CalendarDays className="size-4" />
             More filters
@@ -472,7 +472,7 @@ export default function WorkspaceCalenderPage() {
           <button
             type="button"
             onClick={() => setMonthDate(new Date())}
-            className="h-9 rounded-lg border border-slate-200 px-3 text-sm text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="h-9 rounded-lg border border-border px-3 text-sm text-foreground hover:bg-surface dark:border-white/10 dark:text-foreground dark:hover:bg-surface"
           >
             Today
           </button>
@@ -484,11 +484,11 @@ export default function WorkspaceCalenderPage() {
                   new Date(current.getFullYear(), current.getMonth() - 1, 1),
               )
             }
-            className="inline-flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="inline-flex size-9 items-center justify-center rounded-lg border border-border text-foreground hover:bg-surface dark:border-white/10 dark:text-foreground dark:hover:bg-surface"
           >
             <ChevronLeft className="size-4" />
           </button>
-          <div className="h-9 rounded-lg border border-slate-200 px-3 text-sm leading-9 text-slate-800 dark:border-white/10 dark:text-slate-100">
+          <div className="h-9 rounded-lg border border-border px-3 text-sm leading-9 text-foreground dark:border-white/10 dark:text-foreground">
             {formatMonthLabel(monthDate)}
           </div>
           <button
@@ -499,27 +499,27 @@ export default function WorkspaceCalenderPage() {
                   new Date(current.getFullYear(), current.getMonth() + 1, 1),
               )
             }
-            className="inline-flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="inline-flex size-9 items-center justify-center rounded-lg border border-border text-foreground hover:bg-surface dark:border-white/10 dark:text-foreground dark:hover:bg-surface"
           >
             <ChevronRight className="size-4" />
           </button>
           <select
             defaultValue="month"
-            className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+            className="h-9 rounded-lg border border-border bg-white px-3 text-sm text-foreground dark:border-white/10 dark:bg-surface dark:text-foreground"
           >
             <option value="month">Month</option>
           </select>
         </div>
       </section>
 
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
+      <section className="overflow-hidden rounded-2xl border border-border bg-white dark:border-white/10 dark:bg-card">
         <div className="overflow-x-auto">
           <div className="min-w-[700px]">
-            <div className="grid grid-cols-7 border-b border-slate-200 dark:border-white/10">
+            <div className="grid grid-cols-7 border-b border-border">
               {WEEK_DAYS.map((day) => (
                 <div
                   key={day}
-                  className="border-r border-slate-200 px-2 py-2 text-center text-xs font-medium text-slate-600 last:border-r-0 sm:px-3 sm:text-sm dark:border-white/10 dark:text-slate-300"
+                  className="border-r border-border px-2 py-2 text-center text-xs font-medium text-muted-foreground last:border-r-0 sm:px-3 sm:text-sm dark:border-white/10 dark:text-muted-foreground"
                 >
                   {day}
                 </div>
@@ -534,15 +534,15 @@ export default function WorkspaceCalenderPage() {
                 return (
                   <div
                     key={key}
-                    className="min-h-24 cursor-pointer border-b border-r border-slate-200 p-1.5 last:border-r-0 hover:bg-slate-50 sm:min-h-32 sm:p-2 dark:border-white/10 dark:hover:bg-slate-800/40"
+                    className="min-h-24 cursor-pointer border-b border-r border-border p-1.5 last:border-r-0 hover:bg-surface sm:min-h-32 sm:p-2 dark:border-white/10 dark:hover:bg-surface/40"
                     onClick={() => openDayDetails(key)}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <p
                         className={`text-xs sm:text-sm ${
                           isCurrentMonth
-                            ? "text-slate-700 dark:text-slate-200"
-                            : "text-slate-400 dark:text-slate-500"
+                            ? "text-foreground"
+                            : "text-muted-foreground"
                         }`}
                       >
                         {day.getDate()}
@@ -553,7 +553,7 @@ export default function WorkspaceCalenderPage() {
                           event.stopPropagation();
                           openCreateModal(key);
                         }}
-                        className="inline-flex size-5 cursor-pointer items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-slate-200 sm:size-6 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800"
+                        className="inline-flex size-5 cursor-pointer items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted sm:size-6 dark:border-white/10 dark:text-muted-foreground dark:hover:bg-surface"
                         aria-label={`Create task on ${key}`}
                       >
                         <Plus className="size-3 sm:size-3.5" />
@@ -567,13 +567,13 @@ export default function WorkspaceCalenderPage() {
                             e.stopPropagation();
                             setSelectedTask(task); // Opens Reusable Modal directly
                           }}
-                          className="truncate rounded-md border border-indigo-200 bg-indigo-50 px-1.5 py-1 text-[11px] text-indigo-700 sm:px-2 sm:text-xs cursor-pointer hover:bg-indigo-100 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20 transition-colors"
+                          className="truncate rounded-md border border-primary/20 bg-primary/10 px-1.5 py-1 text-[11px] text-primary sm:px-2 sm:text-xs cursor-pointer hover:bg-primary/10 dark:border-primary/30 dark:bg-primary/100/10 dark:text-primary dark:hover:bg-primary/100/20 transition-colors"
                         >
                           {task.title} | {normalizeStatus(task.status)}
                         </div>
                       ))}
                       {dayTasks.length > 2 ? (
-                        <p className="text-[11px] text-slate-500 sm:text-xs dark:text-slate-400">
+                        <p className="text-[11px] text-muted-foreground sm:text-xs dark:text-muted-foreground">
                           {dayTasks.length - 2} more
                         </p>
                       ) : null}
@@ -591,24 +591,24 @@ export default function WorkspaceCalenderPage() {
         <div className="fixed inset-0 z-50">
           <button
             type="button"
-            className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-background/70 backdrop-blur-[2px]"
             onClick={() => (createBusy ? null : setCreateOpen(false))}
             aria-label="Close task create modal"
           />
-          <div className="absolute left-1/2 top-1/2 w-[94vw] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-900">
-            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-white/10">
+          <div className="absolute left-1/2 top-1/2 w-[94vw] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-white shadow-2xl dark:border-white/10 dark:bg-card">
+            <div className="flex items-center justify-between border-b border-border px-5 py-4 dark:border-white/10">
               <div>
-                <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">
                   Calendar
                 </p>
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                <h2 className="text-lg font-semibold text-foreground">
                   Create Task
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => (createBusy ? null : setCreateOpen(false))}
-                className="inline-flex size-8 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800"
+                className="inline-flex size-8 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-surface dark:border-white/10 dark:text-muted-foreground dark:hover:bg-surface"
                 aria-label="Close"
               >
                 <X className="size-4" />
@@ -617,7 +617,7 @@ export default function WorkspaceCalenderPage() {
 
             <form className="space-y-4 p-5" onSubmit={handleCreateTask}>
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Task Title
                 </label>
                 <input
@@ -626,13 +626,13 @@ export default function WorkspaceCalenderPage() {
                     setForm((prev) => ({ ...prev, title: e.target.value }))
                   }
                   required
-                  className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                  className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary dark:border-white/10 dark:bg-surface dark:text-foreground"
                   placeholder="Enter task title"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Description
                 </label>
                 <textarea
@@ -641,14 +641,14 @@ export default function WorkspaceCalenderPage() {
                   onChange={(e) =>
                     setForm((prev) => ({ ...prev, description: e.target.value }))
                   }
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                  className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm outline-none focus:border-primary dark:border-white/10 dark:bg-surface dark:text-foreground"
                   placeholder="Optional description"
                 />
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Project
                   </label>
                   <select
@@ -656,7 +656,7 @@ export default function WorkspaceCalenderPage() {
                     onChange={(e) =>
                       setForm((prev) => ({ ...prev, projectId: e.target.value }))
                     }
-                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                    className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary dark:border-white/10 dark:bg-surface dark:text-foreground"
                   >
                     <option value="">No project</option>
                     {filteredProjects.map((project) => (
@@ -667,7 +667,7 @@ export default function WorkspaceCalenderPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Assignee
                   </label>
                   <select
@@ -675,7 +675,7 @@ export default function WorkspaceCalenderPage() {
                     onChange={(e) =>
                       setForm((prev) => ({ ...prev, assigneeId: e.target.value }))
                     }
-                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                    className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary dark:border-white/10 dark:bg-surface dark:text-foreground"
                   >
                     <option value="">Auto assignee</option>
                     {members.map((member) => (
@@ -689,7 +689,7 @@ export default function WorkspaceCalenderPage() {
 
               <div className="grid gap-3 sm:grid-cols-4">
                 <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Due Date
                   </label>
                   <input
@@ -698,11 +698,11 @@ export default function WorkspaceCalenderPage() {
                     onChange={(e) =>
                       setForm((prev) => ({ ...prev, dueDate: e.target.value }))
                     }
-                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                    className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary dark:border-white/10 dark:bg-surface dark:text-foreground"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Priority
                   </label>
                   <select
@@ -710,7 +710,7 @@ export default function WorkspaceCalenderPage() {
                     onChange={(e) =>
                       setForm((prev) => ({ ...prev, priority: e.target.value }))
                     }
-                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                    className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary dark:border-white/10 dark:bg-surface dark:text-foreground"
                   >
                     <option value="P1">P1</option>
                     <option value="P2">P2</option>
@@ -719,7 +719,7 @@ export default function WorkspaceCalenderPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Status
                   </label>
                   <select
@@ -727,7 +727,7 @@ export default function WorkspaceCalenderPage() {
                     onChange={(e) =>
                       setForm((prev) => ({ ...prev, status: e.target.value }))
                     }
-                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                    className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary dark:border-white/10 dark:bg-surface dark:text-foreground"
                   >
                     <option value="todo">To Do</option>
                     <option value="inprogress">In Progress</option>
@@ -736,7 +736,7 @@ export default function WorkspaceCalenderPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Estimate (mins)
                   </label>
                   <input
@@ -749,31 +749,31 @@ export default function WorkspaceCalenderPage() {
                         estimatedTime: e.target.value,
                       }))
                     }
-                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                    className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-primary dark:border-white/10 dark:bg-surface dark:text-foreground"
                     placeholder="0"
                   />
                 </div>
               </div>
 
               {createError ? (
-                <p className="text-sm text-rose-600 dark:text-rose-400">
+                <p className="text-sm text-destructive dark:text-destructive">
                   {createError}
                 </p>
               ) : null}
 
-              <div className="flex justify-end gap-2 border-t border-slate-200 pt-4 dark:border-white/10">
+              <div className="flex justify-end gap-2 border-t border-border pt-4 dark:border-white/10">
                 <button
                   type="button"
                   onClick={() => setCreateOpen(false)}
                   disabled={createBusy}
-                  className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
+                  className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-50 dark:border-white/10 dark:text-foreground dark:hover:bg-surface"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={!form.title.trim() || !form.projectId || createBusy || targetLoading}
-                  className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
+                  className="rounded-lg bg-primary/100 px-4 py-2 text-sm font-medium text-white hover:bg-primary disabled:opacity-50"
                 >
                   {createBusy || targetLoading ? "Creating..." : "Create Task"}
                 </button>
@@ -788,24 +788,24 @@ export default function WorkspaceCalenderPage() {
         <div className="fixed inset-0 z-50">
           <button
             type="button"
-            className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-background/70 backdrop-blur-[2px]"
             onClick={() => setDayDetailsOpen(false)}
             aria-label="Close day details modal"
           />
-          <div className="absolute left-1/2 top-1/2 w-[94vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-900">
-            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-white/10">
+          <div className="absolute left-1/2 top-1/2 w-[94vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-white shadow-2xl dark:border-white/10 dark:bg-card">
+            <div className="flex items-center justify-between border-b border-border px-5 py-4 dark:border-white/10">
               <div>
-                <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">
                   Day Details
                 </p>
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                <h2 className="text-lg font-semibold text-foreground">
                   Tasks on {selectedDateKey}
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setDayDetailsOpen(false)}
-                className="inline-flex size-8 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800"
+                className="inline-flex size-8 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-surface dark:border-white/10 dark:text-muted-foreground dark:hover:bg-surface"
                 aria-label="Close"
               >
                 <X className="size-4" />
@@ -818,23 +818,23 @@ export default function WorkspaceCalenderPage() {
                   <div
                     key={task.id}
                     onClick={() => setSelectedTask(task)} // Opens Reusable Modal
-                    className="group flex cursor-pointer items-center justify-between rounded-xl border border-slate-200 bg-white p-3.5 transition-all hover:border-indigo-300 hover:shadow-sm dark:border-white/10 dark:bg-slate-900/50 dark:hover:border-indigo-500/50"
+                    className="group flex cursor-pointer items-center justify-between rounded-xl border border-border bg-white p-3.5 transition-all hover:border-primary/30 hover:shadow-sm dark:border-white/10 dark:bg-card/50 dark:hover:border-primary/50"
                   >
                     <div className="flex flex-col gap-1">
-                      <h3 className="text-sm font-medium text-slate-900 group-hover:text-indigo-600 dark:text-slate-100 dark:group-hover:text-indigo-400">
+                      <h3 className="text-sm font-medium text-foreground group-hover:text-primary dark:text-foreground dark:group-hover:text-primary">
                         {task.title}
                       </h3>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                      <p className="text-xs text-muted-foreground">
                         {task.projectName || "No project"}
                       </p>
                     </div>
-                    <span className="rounded-md bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                    <span className="rounded-md bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground dark:bg-surface dark:text-muted-foreground">
                       {normalizeStatus(task.status)}
                     </span>
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-sm text-muted-foreground">
                   No tasks found for this date.
                 </p>
               )}

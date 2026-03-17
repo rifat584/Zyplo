@@ -117,7 +117,7 @@ export default function WorkspaceBoardPage() {
 
   if (!workspaceId) {
     return (
-      <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
+      <div className="rounded-2xl border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive dark:border-destructive/30 dark:bg-destructive/10 dark:text-destructive">
         Invalid workspace route.
       </div>
     );
@@ -125,7 +125,7 @@ export default function WorkspaceBoardPage() {
 
   if (!loaded || loading) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300">
+      <div className="rounded-2xl border border-border bg-white p-4 text-sm text-slate-600 dark:border-white/10 dark:bg-card dark:text-muted-foreground">
         Loading board...
       </div>
     );
@@ -211,12 +211,12 @@ export default function WorkspaceBoardPage() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <section className="mb-4 flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
+      <section className="mb-4 flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-border bg-white p-4 dark:border-white/10 dark:bg-card">
         <div>
-          <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">
             Workspace Board
           </p>
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+          <h2 className="text-lg font-semibold text-foreground">
             Select Project
           </h2>
         </div>
@@ -227,7 +227,7 @@ export default function WorkspaceBoardPage() {
               value={selectedProjectId}
               onChange={(event) => setSelectedProjectId(event.target.value)}
               disabled={!workspaceProjects.length || deletingProject}
-              className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-cyan-300 disabled:opacity-60 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-secondary/30 disabled:opacity-60 dark:border-white/10 dark:bg-surface dark:text-slate-100"
             >
               {workspaceProjects.length ? (
                 workspaceProjects.map((project) => (
@@ -249,7 +249,7 @@ export default function WorkspaceBoardPage() {
                   setDeleteError("");
                   setShowCreateForm((current) => !current);
                 }}
-                className="inline-flex items-center h-10 rounded-lg bg-indigo-500 px-3 text-sm font-medium text-white hover:bg-indigo-600"
+                className="inline-flex items-center h-10 rounded-lg bg-primary px-3 text-sm font-medium text-white hover:bg-primary"
               >
                 {showCreateForm ? "Cancel" : "New Project"}
               </button>
@@ -257,7 +257,7 @@ export default function WorkspaceBoardPage() {
                 type="button"
                 onClick={handleDeleteProject}
                 disabled={!selectedProjectId || deletingProject}
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 text-sm font-medium text-rose-700 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20"
+                className="inline-flex h-10 items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 px-3 text-sm font-medium text-destructive hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-50 dark:border-destructive/30 dark:bg-destructive/10 dark:text-destructive dark:hover:bg-destructive/100/20"
               >
                 <Trash2 className="size-4" />
                 {deletingProject ? "Deleting..." : "Delete Project"}
@@ -268,17 +268,17 @@ export default function WorkspaceBoardPage() {
       </section>
 
       {deleteError ? (
-        <p className="mb-4 text-sm text-rose-600 dark:text-rose-400">
+        <p className="mb-4 text-sm text-destructive dark:text-destructive">
           {deleteError}
         </p>
       ) : null}
 
       {(isAdmin && showCreateForm) || (isAdmin && !workspaceProjects.length) ? (
-        <section className="mb-4 rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+        <section className="mb-4 rounded-2xl border border-border bg-white p-5 dark:border-white/10 dark:bg-card">
+          <h2 className="text-lg font-semibold text-foreground">
             Create Project
           </h2>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-1 text-sm text-slate-600 dark:text-muted-foreground">
             Add a new project to this workspace.
           </p>
           <div className="mt-4 space-y-3">
@@ -286,24 +286,24 @@ export default function WorkspaceBoardPage() {
               value={projectName}
               onChange={(event) => setProjectName(event.target.value)}
               placeholder="Project name"
-              className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-cyan-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-secondary/30 dark:border-white/10 dark:bg-surface dark:text-slate-100"
             />
             <input
               value={projectKey}
               onChange={(event) => setProjectKey(event.target.value)}
               placeholder="Project key (optional)"
-              className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-cyan-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-secondary/30 dark:border-white/10 dark:bg-surface dark:text-slate-100"
             />
             <button
               type="button"
               onClick={handleCreateProject}
               disabled={!projectName.trim() || creatingProject}
-              className="inline-flex rounded-lg bg-indigo-500 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
+              className="inline-flex rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary disabled:opacity-50"
             >
               {creatingProject ? "Creating..." : "Create Project"}
             </button>
             {createError ? (
-              <p className="text-sm text-rose-600 dark:text-rose-400">
+              <p className="text-sm text-destructive dark:text-destructive">
                 {createError}
               </p>
             ) : null}
@@ -312,11 +312,11 @@ export default function WorkspaceBoardPage() {
       ) : null}
 
       {!workspaceProjects.length ? (
-        <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+        <div className="rounded-2xl border border-border bg-white p-5 dark:border-white/10 dark:bg-card">
+          <h2 className="text-lg font-semibold text-foreground">
             No Project Found
           </h2>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-1 text-sm text-slate-600 dark:text-muted-foreground">
             {isAdmin
               ? "Create a project first, then open the board."
               : "No project is available in this workspace yet."}
@@ -324,7 +324,7 @@ export default function WorkspaceBoardPage() {
           <div className="mt-4">
             <Link
               href={`/dashboard/w/${workspaceId}`}
-              className="inline-flex rounded-lg bg-indigo-500 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-600"
+              className="inline-flex rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary"
             >
               Go to Workspace Overview
             </Link>

@@ -604,8 +604,8 @@ export default function Board({ workspaceId, projectId }) {
 
   if (boardQuery.isLoading) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900">
-        <p className="text-sm text-slate-600 dark:text-slate-300">
+      <div className="rounded-2xl border border-border bg-white p-6 dark:border-white/10 dark:bg-card">
+        <p className="text-sm text-muted-foreground">
           Loading board...
         </p>
       </div>
@@ -614,14 +614,14 @@ export default function Board({ workspaceId, projectId }) {
 
   if (boardQuery.isError) {
     return (
-      <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 dark:border-rose-500/30 dark:bg-rose-500/10">
-        <p className="text-sm text-rose-700 dark:text-rose-300">
+      <div className="rounded-2xl border border-destructive/20 bg-destructive/10 p-6 dark:border-destructive/30 dark:bg-destructive/10">
+        <p className="text-sm text-destructive dark:text-destructive">
           {boardQuery.error?.message || "Failed to load board"}
         </p>
         <button
           type="button"
           onClick={() => boardQuery.refetch()}
-          className="mt-3 inline-flex items-center gap-2 rounded-lg border border-rose-300 px-3 py-2 text-sm text-rose-700 hover:bg-rose-100 dark:border-rose-500/40 dark:text-rose-300 dark:hover:bg-rose-500/20"
+          className="mt-3 inline-flex items-center gap-2 rounded-lg border border-rose-300 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 dark:border-rose-500/40 dark:text-destructive dark:hover:bg-destructive/100/20"
         >
           <RefreshCw className="size-4" />
           Retry
@@ -634,10 +634,10 @@ export default function Board({ workspaceId, projectId }) {
     <>
       <section className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">
             Project Board
           </p>
-          <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+          <h1 className="text-2xl font-semibold text-foreground">
             {boardData?.board?.name || "Kanban Board"}
           </h1>
         </div>
@@ -646,7 +646,7 @@ export default function Board({ workspaceId, projectId }) {
           type="button"
           onClick={() => openCreateModal(columns[0]?.id || "")}
           disabled={!columns.length}
-          className="inline-flex items-center gap-2 rounded-lg bg-indigo-500 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary disabled:opacity-50"
         >
           <Plus className="size-4" />
           Create Task
@@ -673,7 +673,7 @@ export default function Board({ workspaceId, projectId }) {
             ))}
 
             {!columns.length ? (
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-500 dark:border-white/15 dark:bg-slate-900 dark:text-slate-400">
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-sm text-muted-foreground dark:border-white/15 dark:bg-card dark:text-muted-foreground">
                 No columns available for this board.
               </div>
             ) : null}
