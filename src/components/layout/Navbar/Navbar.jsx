@@ -7,7 +7,7 @@ import { Search, Menu, X, ChevronDown, Sun, Moon } from "lucide-react";
 import ResourcesMenu from "./ResourcesMenu/ResourcesMenu";
 import { useTheme } from "@/Context/ThemeContext";
 import Logo from "@/components/Shared/Logo/Logo";
-import { useSession, signOut } from "next-auth/react"; 
+import { useSession, signOut } from "next-auth/react";
 import { resources } from "@/lib/resources/resources";
 
 const Navbar = () => {
@@ -28,18 +28,18 @@ const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  // --- SWAPPED HOVER & ACTIVE CLASSES HERE ---
+  // --- UPDATED ACTIVE ROUTE STYLES (Bottom Border) ---
   const getLinkClass = (path) => {
     const baseStyles =
-      "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border border-transparent"; // Added transparent border to prevent layout shift
+      "px-4 py-2 text-sm font-medium transition-all duration-200 border-b-2 border-transparent";
 
     if (pathname === path) {
-      // NEW ACTIVE: Gets the old hover styles (Secondary text and border)
-      return `${baseStyles} text-secondary border-gray-200 dark:border-gray-700 dark:text-secondary`;
+      // ACTIVE: Text color and bottom border are both 'secondary'
+      return `${baseStyles} text-secondary !border-secondary dark:text-secondary dark:!border-secondary`;
     }
 
-    // NEW HOVER: Gets the old active styles when hovered (Highlight background & ring)
-    return `${baseStyles} text-gray-600 dark:text-gray-300 hover:bg-primary/10 hover:text-gray-900 dark:hover:text-gray-100 hover:shadow-sm hover:ring-1 hover:ring-primary/20 dark:hover:bg-primary/20`;
+    // INACTIVE / HOVER: Normal text with rounded-top hover background
+    return `${baseStyles} rounded-t-lg text-gray-600 dark:text-gray-300 hover:bg-primary/10 hover:text-gray-900 dark:hover:text-gray-100 hover:shadow-sm dark:hover:bg-primary/20`;
   };
 
   // Close mega menu and profile menu on outside click
@@ -122,7 +122,7 @@ const Navbar = () => {
           {/* Resources Button (Click only) */}
           <button
             onClick={() => setResourcesOpen((p) => !p)}
-            className={`${getLinkClass("/resources")} flex items-center gap-1 cursor-pointer`}
+            className={`${getLinkClass("/resources")} flex items-center gap-1 cursor-pointer outline-none`}
           >
             Resources 
             <ChevronDown 
