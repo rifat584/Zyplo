@@ -442,7 +442,7 @@ export default function Board({ workspaceId, projectId }) {
         if (!byAssignee) return false;
 
         const byReporter = columnFilters.reporter
-          ? String(task.reporterName || "Admin")
+          ? String(task.reporterName || "Unknown")
               .toLowerCase()
               .includes(columnFilters.reporter.toLowerCase())
           : true;
