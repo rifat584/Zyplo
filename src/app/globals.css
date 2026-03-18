@@ -63,6 +63,27 @@ body {
   font-family: var(--font-sans);
 }
 
+.dashboard-shell button:not(:disabled),
+.dashboard-shell [role="button"]:not([aria-disabled="true"]),
+.dashboard-shell a[href],
+.dashboard-shell summary,
+.dashboard-shell select:not(:disabled),
+.dashboard-shell input[type="checkbox"]:not(:disabled),
+.dashboard-shell input[type="radio"]:not(:disabled),
+.dashboard-shell label[for],
+.dashboard-shell [data-interactive="true"] {
+  cursor: pointer !important;
+}
+
+.dashboard-shell button:disabled,
+.dashboard-shell [role="button"][aria-disabled="true"],
+.dashboard-shell select:disabled,
+.dashboard-shell input[type="checkbox"]:disabled,
+.dashboard-shell input[type="radio"]:disabled,
+.dashboard-shell [data-interactive="true"][aria-disabled="true"] {
+  cursor: not-allowed !important;
+}
+
 /* --- LIGHT MODE VARIABLES --- */
 :root {
   --radius: 0.625rem;

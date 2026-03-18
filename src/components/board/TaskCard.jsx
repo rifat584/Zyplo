@@ -88,7 +88,7 @@ function SortableTaskCard({ task, columnId, onClick }) {
       onClick={() => {
         if (!isDragging && onClick) onClick();
       }}
-      className={`touch-none rounded-xl border border-border bg-white p-3 shadow-sm dark:border-white/10 dark:bg-card ${
+      className={`touch-none cursor-pointer rounded-xl border border-border bg-white p-3 shadow-sm dark:border-white/10 dark:bg-card ${
         isDragging ? "opacity-40" : "opacity-100"
       }`}
     >

@@ -1,15 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Plus } from "lucide-react";
 import { loadDashboard, useMockStore } from "@/components/dashboard/mockStore";
+import { useWorkspaceProjectSelection } from "@/components/dashboard/projectSelection";
 import CreateTaskModal from "@/components/board/CreateTaskModal";
-
-const PROJECT_SELECTION_KEY_PREFIX = "dashboard.selectedProject.";
-
-function getProjectSelectionKey(workspaceId) {
-  return `${PROJECT_SELECTION_KEY_PREFIX}${workspaceId}`;
-}
 
 function normalizeStatusKey(value) {
   return String(value || "")
@@ -79,40 +74,20 @@ export default function CreateTaskLauncher({
     [workspaces, workspaceId],
   );
 
-  const [savedProjectId, setSavedProjectId] = useState("");
   const [open, setOpen] = useState(false);
   const [loadingTarget, setLoadingTarget] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [target, setTarget] = useState(null);
   const boardCacheRef = useRef(new Map());
-
-  useEffect(() => {
-    if (projectId || !workspaceId) {
-      setSavedProjectId(projectId || "");
-      return;
-    }
-    try {
-      const saved = window.localStorage.getItem(getProjectSelectionKey(workspaceId));
-      setSavedProjectId(saved || "");
-    } catch {
-      setSavedProjectId("");
-    }
-  }, [workspaceId, projectId]);
-
+  const { selectedProject: storedSelectedProject } =
+    useWorkspaceProjectSelection(workspaceId, workspaceProjects);
   const selectedProject = useMemo(() => {
-    if (projectId) {
-      return (
-        workspaceProjects.find((project) => project.id === projectId) || null
-      );
-    }
-    if (savedProjectId) {
-      const matched = workspaceProjects.find(
-        (project) => project.id === savedProjectId,
-      );
-      if (matched) return matched;
-    }
-    return workspaceProjects[0] || null;
-  }, [projectId, savedProjectId, workspaceProjects]);
+    if (!projectId) return storedSelectedProject;
+    return (
+      workspaceProjects.find((project) => String(project.id) === String(projectId)) ||
+      null
+    );
+  }, [projectId, storedSelectedProject, workspaceProjects]);
 
   async function resolveCreateTarget(project) {
     const cached = boardCacheRef.current.get(project.id);

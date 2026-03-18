@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import Board from "@/components/board/Board";
@@ -11,15 +11,13 @@ import {
   useMockStore,
   useWorkspaceAccess,
 } from "@/components/dashboard/mockStore";
+import {
+  useWorkspaceProjectSelection,
+  writeSelectedProjectId,
+} from "@/components/dashboard/projectSelection";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-
-const PROJECT_SELECTION_KEY_PREFIX = "dashboard.selectedProject.";
-
-function getProjectSelectionKey(workspaceId) {
-  return `${PROJECT_SELECTION_KEY_PREFIX}${workspaceId}`;
-}
 
 function createQueryClient() {
   return new QueryClient({
@@ -39,9 +37,6 @@ function createQueryClient() {
 
 export default function WorkspaceBoardPage() {
   const params = useParams();
-  const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const workspaceId =
     typeof params.workspaceId === "string" ? params.workspaceId : "";
   const [queryClient] = useState(() => createQueryClient());
@@ -66,22 +61,10 @@ export default function WorkspaceBoardPage() {
     () => projects.filter((project) => project.workspaceId === workspaceId),
     [projects, workspaceId],
   );
-  const selectedProjectId =
-    searchParams.get("project") ||
-    workspaceProjects[0]?.id ||
-    "";
-
-  useEffect(() => {
-    if (!workspaceId || !selectedProjectId) return;
-    try {
-      window.localStorage.setItem(
-        getProjectSelectionKey(workspaceId),
-        selectedProjectId,
-      );
-    } catch {
-      // no-op
-    }
-  }, [workspaceId, selectedProjectId]);
+  const { selectedProjectId } = useWorkspaceProjectSelection(
+    workspaceId,
+    workspaceProjects,
+  );
 
   useEffect(() => {
     if (!isAdmin || workspaceProjects.length) return;
@@ -102,7 +85,7 @@ export default function WorkspaceBoardPage() {
       setNewProjectName("");
       setNewProjectKey("");
       if (projectId) {
-        router.replace(`${pathname}?project=${projectId}`, { scroll: false });
+        writeSelectedProjectId(workspaceId, projectId);
       }
       toast.success(`Created "${name}"`);
     } catch (error) {

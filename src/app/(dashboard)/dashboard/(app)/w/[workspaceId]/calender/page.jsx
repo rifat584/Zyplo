@@ -12,10 +12,10 @@ import {
 } from "lucide-react";
 // file attach - helal / bayijid
 import { useMockStore, loadDashboard } from "@/components/dashboard/mockStore"; 
+import { readSelectedProjectId } from "@/components/dashboard/projectSelection";
 import TaskDetailsModal from "@/components/board/TaskDetailsModal";
 
 const WEEK_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const PROJECT_SELECTION_KEY_PREFIX = "dashboard.selectedProject.";
 
 function formatMonthLabel(date) {
   return new Intl.DateTimeFormat("en-US", {
@@ -204,14 +204,7 @@ export default function WorkspaceCalenderPage() {
   function openCreateModal(dateKey) {
     let preferredProjectId = "";
     if (typeof window !== "undefined" && workspaceId) {
-      try {
-        preferredProjectId =
-          window.localStorage.getItem(
-            `${PROJECT_SELECTION_KEY_PREFIX}${workspaceId}`,
-          ) || "";
-      } catch {
-        preferredProjectId = "";
-      }
+      preferredProjectId = readSelectedProjectId(workspaceId);
     }
     const preferredExists = filteredProjects.some(
       (project) => project.id === preferredProjectId,

@@ -854,7 +854,7 @@ export function AppShell({ children }) {
   }, [loaded, currentUser]);
 
   return (
-    <div className="flex min-h-screen bg-surface text-foreground dark:bg-background">
+    <div className="dashboard-shell flex min-h-screen bg-surface text-foreground dark:bg-background">
       <AppSidebar
         mobileOpen={mobileOpen}
         onCloseMobile={() => setMobileOpen(false)}

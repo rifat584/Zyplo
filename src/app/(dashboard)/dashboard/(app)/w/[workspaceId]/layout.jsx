@@ -15,6 +15,10 @@ import {
   useMockStore,
   useWorkspaceAccess,
 } from "@/components/dashboard/mockStore";
+import {
+  useWorkspaceProjectSelection,
+  writeSelectedProjectId,
+} from "@/components/dashboard/projectSelection";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -289,28 +293,27 @@ export default function WorkspaceLayout({ children }) {
     () => projects.filter((item) => item.workspaceId === workspaceId),
     [projects, workspaceId],
   );
-  const projectParam = searchParams.get("project") || "";
-  const selectedProject = useMemo(() => {
-    if (!workspaceProjects.length) return null;
-    return (
-      workspaceProjects.find(
-        (project) => String(project.id) === String(projectParam),
-      ) ||
-      workspaceProjects[0] ||
-      null
-    );
-  }, [workspaceProjects, projectParam]);
+  const { selectedProject, updateProjectSelection } =
+    useWorkspaceProjectSelection(workspaceId, workspaceProjects);
 
   useEffect(() => {
     loadDashboard({ force: true }).catch(() => {});
   }, []);
 
   useEffect(() => {
-    if (!workspaceProjects.length || selectedProject) return;
+    const projectParam = searchParams.get("project") || "";
+    if (!workspaceId || !projectParam) return;
+
+    writeSelectedProjectId(workspaceId, projectParam);
+
     const params = new URLSearchParams(searchParams.toString());
-    params.set("project", String(workspaceProjects[0].id));
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [pathname, router, searchParams, selectedProject, workspaceProjects]);
+    params.delete("project");
+    const query = params.toString();
+
+    router.replace(query ? `${pathname}?${query}` : pathname, {
+      scroll: false,
+    });
+  }, [pathname, router, searchParams, workspaceId]);
 
   useEffect(() => {
     setProjectError("");
@@ -348,26 +351,6 @@ export default function WorkspaceLayout({ children }) {
     return () =>
       window.removeEventListener("zyplo-open-project-dialog", openProjectDialog);
   }, [isAdmin]);
-
-  function updateProjectSelection(nextProjectId) {
-    const params = new URLSearchParams(searchParams.toString());
-    if (nextProjectId) {
-      params.set("project", nextProjectId);
-    } else {
-      params.delete("project");
-    }
-    const query = params.toString();
-    router.replace(query ? `${pathname}?${query}` : pathname, {
-      scroll: false,
-    });
-  }
-
-  function buildWorkspaceHref(baseHref) {
-    if (!selectedProject?.id) return baseHref;
-    const params = new URLSearchParams();
-    params.set("project", String(selectedProject.id));
-    return `${baseHref}?${params.toString()}`;
-  }
 
   async function handleCreateProject() {
     const name = projectName.trim();
@@ -435,9 +418,9 @@ export default function WorkspaceLayout({ children }) {
   return (
     <>
       <section className="-mx-3 border-b border-border/80 bg-background sm:-mx-4 md:-mx-6 lg:-mx-7">
-        <div className="px-3 py-3 sm:px-4 md:px-6 lg:px-7">
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div className="px-3 py-1 sm:px-4 md:px-6 lg:px-7 border border-green-500">
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
               <div className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 text-sm">
                 <span className="min-w-0 truncate font-heading text-[1.05rem] font-semibold tracking-tight text-foreground">
                   {workspace?.name || "Loading workspace..."}
@@ -482,7 +465,7 @@ export default function WorkspaceLayout({ children }) {
                                 setProjectSwitcherOpen(false);
                               }}
                               className={cn(
-                                "flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition",
+                                "flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition",
                                 active
                                   ? "bg-muted text-foreground"
                                   : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
@@ -535,7 +518,7 @@ export default function WorkspaceLayout({ children }) {
                 ) : null}
 
                 <Link
-                  href={buildWorkspaceHref(`/dashboard/w/${workspaceId}/settings`)}
+                  href={`/dashboard/w/${workspaceId}/settings`}
                   className={cn(
                     buttonVariants({ size: "sm", variant: "ghost" }),
                     "text-muted-foreground hover:text-foreground",
@@ -554,12 +537,11 @@ export default function WorkspaceLayout({ children }) {
               >
                 {NAV_ITEMS.map((item) => {
                   const baseHref = item.href(workspaceId);
-                  const href = buildWorkspaceHref(baseHref);
                   const active = pathname === baseHref;
                   return (
                     <Link
                       key={item.id}
-                      href={href}
+                      href={baseHref}
                       className={cn(
                         "inline-flex h-9 shrink-0 items-center border-b-2 px-0.5 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                         active
@@ -578,7 +560,7 @@ export default function WorkspaceLayout({ children }) {
         </div>
       </section>
 
-      <div className="pt-4 sm:pt-5">{children}</div>
+      <div className="pt-4 sm:pt-5 border-red-500 border">{children}</div>
 
       <ProjectCreateDialog
         open={projectDialogOpen}

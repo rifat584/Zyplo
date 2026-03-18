@@ -9,6 +9,7 @@ import {
   LayoutDashboard, CalendarDays, List, CornerDownLeft, Circle
 } from "lucide-react";
 import { useMockStore, loadDashboard } from "@/components/dashboard/mockStore";
+import { writeSelectedProjectId } from "@/components/dashboard/projectSelection";
 
 // --- API Helpers ---
 async function fetchJson(url, options = {}) {
@@ -213,7 +214,7 @@ export default function CommandPalette() {
           label: `Open Project: ${p.name}`,
           subtitle: isGlobalMode ? (workspaces.find(w => w.id === p.workspaceId)?.name || "Workspace") : "",
           action: () => {
-            localStorage.setItem(`dashboard.selectedProject.${p.workspaceId}`, p.id);
+            writeSelectedProjectId(p.workspaceId, p.id);
             router.push(`/dashboard/w/${p.workspaceId}/board`);
             setOpen(false);
           },
