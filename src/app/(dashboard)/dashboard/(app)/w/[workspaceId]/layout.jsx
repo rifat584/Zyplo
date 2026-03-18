@@ -418,11 +418,15 @@ export default function WorkspaceLayout({ children }) {
   return (
     <>
       <section className="-mx-3 border-b border-border/80 bg-background sm:-mx-4 md:-mx-6 lg:-mx-7">
-        <div className="px-3 py-1 sm:px-4 md:px-6 lg:px-7 border border-green-500">
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-              <div className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 text-sm">
-                <span className="min-w-0 truncate font-heading text-[1.05rem] font-semibold tracking-tight text-foreground">
+        <div className="px-3 py-1 sm:px-4 md:px-6 lg:px-7">
+          {/* grandparent of left-right*/}
+          <div className="flex flex-col"> 
+              {/* Direct parent of left-right*/}
+            <div className="flex flex-col gap-3  lg:flex-row lg:items-center lg:justify-between pt-2">
+
+              {/* left side workspace name & project */}
+              <div className="flex min-w-0 items-center flex-wrap gap-x-1.5 gap-y-1 text-sm">
+                <span className="min-w-0 truncate font-heading text-xl font-bold tracking-tight text-foreground">
                   {workspace?.name || "Loading workspace..."}
                 </span>
                 <span className="text-muted-foreground/55">/</span>
@@ -473,7 +477,7 @@ export default function WorkspaceLayout({ children }) {
                             >
                               <span className="truncate">{project.name}</span>
                               {active ? (
-                                <span className="ml-3 text-[11px] font-medium text-primary">
+                                <span className="ml-3 text-[12px] font-medium text-muted-foreground">
                                   Current
                                 </span>
                               ) : null}
@@ -499,8 +503,10 @@ export default function WorkspaceLayout({ children }) {
                 </div>
               </div>
 
+{/* right side settings &  new project*/}
+{isAdmin ? (
               <div className="flex items-center gap-2 lg:justify-end">
-                {isAdmin ? (
+                
                   <button
                     type="button"
                     onClick={() => {
@@ -508,14 +514,13 @@ export default function WorkspaceLayout({ children }) {
                       setProjectDialogOpen(true);
                     }}
                     className={cn(
-                      buttonVariants({ size: "sm", variant: "outline" }),
-                      "border-primary/20 text-primary hover:border-primary/30 hover:bg-primary/5 hover:text-primary",
+                      buttonVariants({ size: "sm" })
                     )}
                   >
                     <Plus className="size-4" />
                     New Project
                   </button>
-                ) : null}
+                
 
                 <Link
                   href={`/dashboard/w/${workspaceId}/settings`}
@@ -528,6 +533,7 @@ export default function WorkspaceLayout({ children }) {
                   Settings
                 </Link>
               </div>
+): null}
             </div>
 
             <div className="-mx-1 overflow-x-auto">
@@ -560,7 +566,7 @@ export default function WorkspaceLayout({ children }) {
         </div>
       </section>
 
-      <div className="pt-4 sm:pt-5 border-red-500 border">{children}</div>
+      <div className="pt-4 sm:pt-5">{children}</div>
 
       <ProjectCreateDialog
         open={projectDialogOpen}
