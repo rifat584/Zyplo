@@ -19,6 +19,14 @@ import {
   useWorkspaceProjectSelection,
   writeSelectedProjectId,
 } from "@/components/dashboard/projectSelection";
+import {
+  dashboardActiveSurfaceClasses,
+  dashboardContextButtonClasses,
+  dashboardInlineNavItemActiveClasses,
+  dashboardInlineNavItemClasses,
+  dashboardMenuItemClasses,
+  dashboardMenuItemDangerClasses,
+} from "@/components/dashboard/styles";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -438,7 +446,10 @@ export default function WorkspaceLayout({ children }) {
                     disabled={!workspaceProjects.length}
                     aria-haspopup="menu"
                     aria-expanded={projectSwitcherOpen}
-                    className="inline-flex max-w-full items-center gap-1 rounded-md px-1 py-0.5 text-sm text-muted-foreground transition hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                    className={cn(
+                      dashboardContextButtonClasses,
+                      "inline-flex max-w-full items-center gap-1 rounded-lg px-1.5 py-1 text-sm disabled:cursor-not-allowed disabled:opacity-60",
+                    )}
                   >
                     <span className="truncate font-medium">
                       {selectedProject?.name || "No project yet"}
@@ -469,15 +480,15 @@ export default function WorkspaceLayout({ children }) {
                                 setProjectSwitcherOpen(false);
                               }}
                               className={cn(
-                                "flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition",
                                 active
-                                  ? "bg-muted text-foreground"
-                                  : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
+                                  ? dashboardActiveSurfaceClasses
+                                  : dashboardMenuItemClasses,
+                                "flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm",
                               )}
                             >
                               <span className="truncate">{project.name}</span>
                               {active ? (
-                                <span className="ml-3 text-[12px] font-medium text-muted-foreground">
+                                <span className="ml-3 text-[12px] font-medium">
                                   Current
                                 </span>
                               ) : null}
@@ -491,7 +502,10 @@ export default function WorkspaceLayout({ children }) {
                             type="button"
                             onClick={handleDeleteProject}
                             disabled={deletingProject}
-                            className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm text-destructive transition hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-60"
+                            className={cn(
+                              dashboardMenuItemDangerClasses,
+                              "flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm disabled:cursor-not-allowed disabled:opacity-60",
+                            )}
                           >
                             <Trash2 className="size-4" />
                             {deletingProject ? "Deleting..." : "Delete project"}
@@ -514,7 +528,8 @@ export default function WorkspaceLayout({ children }) {
                       setProjectDialogOpen(true);
                     }}
                     className={cn(
-                      buttonVariants({ size: "sm" })
+                      buttonVariants({ size: "sm" }),
+                      "shadow-none hover:scale-100 hover:bg-primary/90 hover:shadow-none",
                     )}
                   >
                     <Plus className="size-4" />
@@ -525,8 +540,8 @@ export default function WorkspaceLayout({ children }) {
                 <Link
                   href={`/dashboard/w/${workspaceId}/settings`}
                   className={cn(
-                    buttonVariants({ size: "sm", variant: "ghost" }),
-                    "text-muted-foreground hover:text-foreground",
+                    dashboardContextButtonClasses,
+                    "inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm",
                   )}
                 >
                   <Settings className="size-4" />
@@ -536,10 +551,10 @@ export default function WorkspaceLayout({ children }) {
 ): null}
             </div>
 
-            <div className="-mx-1 overflow-x-auto">
+                <div className="-mx-1 overflow-x-auto">
               <nav
                 aria-label="Workspace navigation"
-                className="flex min-w-max items-center gap-5 px-1"
+                className="flex min-w-max items-center gap-1 px-1"
               >
                 {NAV_ITEMS.map((item) => {
                   const baseHref = item.href(workspaceId);
@@ -549,10 +564,10 @@ export default function WorkspaceLayout({ children }) {
                       key={item.id}
                       href={baseHref}
                       className={cn(
-                        "inline-flex h-9 shrink-0 items-center border-b-2 px-0.5 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                         active
-                          ? "border-primary font-medium text-foreground"
-                          : "border-transparent text-muted-foreground hover:text-foreground",
+                          ? dashboardInlineNavItemActiveClasses
+                          : dashboardInlineNavItemClasses,
+                        "inline-flex h-9 shrink-0 items-center rounded-md px-3 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                       )}
                       aria-current={active ? "page" : undefined}
                     >

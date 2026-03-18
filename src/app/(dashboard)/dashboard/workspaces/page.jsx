@@ -21,6 +21,11 @@ import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import AppShell from "@/components/dashboard/chrome";
 import {
+  dashboardChromeButtonClasses,
+  dashboardMenuItemClasses,
+  dashboardMenuItemDangerClasses,
+} from "@/components/dashboard/styles";
+import {
   createWorkspace,
   deleteWorkspace,
   getState,
@@ -28,6 +33,7 @@ import {
   resolveWorkspaceRole,
   useMockStore,
 } from "@/components/dashboard/mockStore";
+import { cn } from "@/lib/utils";
 
 export default function WorkspacesPage() {
   const router = useRouter();
@@ -235,7 +241,10 @@ export default function WorkspacesPage() {
                       current === workspace.id ? "" : workspace.id,
                     )
                   }
-                  className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:bg-muted/70 group-hover:block cursor-pointer"
+                  className={cn(
+                    dashboardChromeButtonClasses,
+                    "absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 group-hover:block",
+                  )}
                 >
                   <Ellipsis className="size-4" />
                 </button>
@@ -251,7 +260,10 @@ export default function WorkspacesPage() {
                         setMenuOpenFor("");
                         toast.info(`Added ${workspace.name} to starred`);
                       }}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-foreground hover:bg-muted dark:text-foreground dark:hover:bg-surface"
+                      className={cn(
+                        dashboardMenuItemClasses,
+                        "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
+                      )}
                     >
                       <Star className="size-4" />
                       Add to starred
@@ -264,7 +276,10 @@ export default function WorkspacesPage() {
                             setMenuOpenFor("");
                             router.push(`/dashboard/w/${workspace.id}/members`);
                           }}
-                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-foreground hover:bg-muted dark:text-foreground dark:hover:bg-surface"
+                          className={cn(
+                            dashboardMenuItemClasses,
+                            "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
+                          )}
                         >
                           <UserPlus className="size-4" />
                           Add people
@@ -275,7 +290,10 @@ export default function WorkspacesPage() {
                             setMenuOpenFor("");
                             router.push(`/dashboard/w/${workspace.id}/settings`);
                           }}
-                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-foreground hover:bg-muted dark:text-foreground dark:hover:bg-surface"
+                          className={cn(
+                            dashboardMenuItemClasses,
+                            "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
+                          )}
                         >
                           <Settings className="size-4" />
                           Workspace settings
@@ -286,7 +304,10 @@ export default function WorkspacesPage() {
                             setMenuOpenFor("");
                             setConfirmDeleteId(workspace.id);
                           }}
-                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-destructive hover:bg-destructive/10 dark:hover:bg-destructive/10"
+                          className={cn(
+                            dashboardMenuItemDangerClasses,
+                            "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
+                          )}
                         >
                           <Trash2 className="size-4" />
                           Delete workspace

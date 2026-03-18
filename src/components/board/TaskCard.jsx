@@ -2,10 +2,11 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Paperclip } from "lucide-react"; 
+import { Paperclip } from "lucide-react";
+import { dashboardTaskCardClasses } from "@/components/dashboard/styles";
 
 const PRIORITY_STYLES = {
-  P0: "bg-destructive/10 text-destructive dark:bg-destructive/100/20 dark:text-destructive",
+  P0: "bg-destructive/10 text-destructive",
   P1: "bg-warning/15 text-warning",
   P2: "bg-info/15 text-info",
   P3: "bg-muted text-muted-foreground",
@@ -28,7 +29,7 @@ function CardBody({ task }) {
           <p className="line-clamp-2 text-sm font-medium text-foreground">{task.title}</p>
           {task?.taskRef ? (
             <p className="mt-1">
-              <span className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground dark:bg-white/10 dark:text-muted-foreground">
+              <span className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground">
                 {task.taskRef}
               </span>
             </p>
@@ -44,7 +45,7 @@ function CardBody({ task }) {
       </div>
 
       {task.description ? (
-        <p className="mt-2 line-clamp-2 text-xs text-muted-foreground dark:text-muted-foreground">{task.description}</p>
+        <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{task.description}</p>
       ) : null}
 
       <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
@@ -88,7 +89,7 @@ function SortableTaskCard({ task, columnId, onClick }) {
       onClick={() => {
         if (!isDragging && onClick) onClick();
       }}
-      className={`touch-none cursor-pointer rounded-xl border border-border bg-white p-3 shadow-sm dark:border-white/10 dark:bg-card ${
+      className={`${dashboardTaskCardClasses} touch-none cursor-pointer rounded-xl border p-3 ${
         isDragging ? "opacity-40" : "opacity-100"
       }`}
     >
@@ -105,7 +106,7 @@ export default function TaskCard({
 }) {
   if (isDragOverlay) {
     return (
-      <article className="rounded-xl border border-border bg-white p-3 shadow-lg dark:border-white/10 dark:bg-card">
+      <article className={`${dashboardTaskCardClasses} rounded-xl border p-3 shadow-lg`}>
         <CardBody task={task} />
       </article>
     );

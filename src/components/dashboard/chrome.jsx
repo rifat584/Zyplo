@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "@/Context/ThemeContext";
+import { cn } from "@/lib/utils";
 import { Avatar } from "./ui";
 import Logo from "../Shared/Logo/Logo";
 import {
@@ -39,6 +40,14 @@ import {
   resolveWorkspaceRole,
   useMockStore,
 } from "./mockStore";
+import {
+  dashboardActiveSurfaceClasses,
+  dashboardChromeButtonClasses,
+  dashboardMenuItemClasses,
+  dashboardMenuItemDangerClasses,
+  dashboardSidebarNavItemActiveClasses,
+  dashboardSidebarNavItemClasses,
+} from "./styles";
 
 const SIDEBAR_KEY = "dashboard.sidebarCollapsed";
 const WORKSPACE_ROUTE_LABELS = {
@@ -121,7 +130,10 @@ function AvatarMenu() {
           <button
             type="button"
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="w-full rounded-lg px-2 py-2 text-left text-sm text-destructive hover:bg-destructive/10"
+            className={cn(
+              dashboardMenuItemDangerClasses,
+              "w-full rounded-lg px-2 py-2 text-left text-sm",
+            )}
           >
             Sign out
           </button>
@@ -243,16 +255,21 @@ function GlobalTimerControl() {
     tasks.find((task) => String(task.id) === String(activeTimer?.taskId || "")) || null;
   const hasActiveTimer = Boolean(activeTimer?.id);
 
-  const containerClasses = hasActiveTimer 
-    ? "border-primary/20 bg-primary/10" 
-    : "border-border bg-surface/80";
+  const containerClasses = hasActiveTimer
+    ? dashboardActiveSurfaceClasses
+    : dashboardChromeButtonClasses;
 
   const textClasses = hasActiveTimer
-    ? "text-primary"
+    ? "text-[var(--dashboard-active-foreground)]"
     : "text-muted-foreground";
 
   return (
-    <div className={`flex items-center gap-1.5 sm:gap-2 rounded-lg border px-1.5 sm:px-2 py-1 sm:py-1.5 ${containerClasses}`}>
+    <div
+      className={cn(
+        "flex items-center gap-1.5 rounded-lg border px-1.5 py-1 sm:gap-2 sm:px-2 sm:py-1.5",
+        containerClasses,
+      )}
+    >
       <span className={`inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold ${textClasses}`}>
         <Timer className="size-3.5 sm:size-4 shrink-0" />
         
@@ -328,7 +345,10 @@ function NotificationsMenu() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="relative rounded-lg border border-border p-1.5 text-muted-foreground hover:bg-surface sm:p-2"
+        className={cn(
+          dashboardChromeButtonClasses,
+          "relative rounded-lg p-1.5 sm:p-2",
+        )}
         aria-label="Open notifications"
       >
         <Bell className="size-4" />
@@ -358,7 +378,10 @@ function NotificationsMenu() {
                   setMarkingAllRead(false);
                 }
               }}
-              className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+              className={cn(
+                dashboardChromeButtonClasses,
+                "inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-foreground disabled:cursor-not-allowed disabled:opacity-50",
+              )}
             >
               <CheckCheck className="size-3.5" />
               Mark all read
@@ -369,11 +392,10 @@ function NotificationsMenu() {
               notifications.map((item) => (
                 <div
                   key={item.id}
-                  className={`mb-1 rounded-lg border px-3 py-2 last:mb-0 ${
-                    item.read
-                      ? "border-border bg-card"
-                      : "border-primary/20 bg-primary/10 dark:border-primary/40 dark:bg-primary/100/10"
-                  }`}
+                  className={cn(
+                    "mb-1 rounded-lg border px-3 py-2 last:mb-0",
+                    item.read ? "border-border bg-card" : dashboardActiveSurfaceClasses,
+                  )}
                 >
                   <p className="text-sm text-foreground">
                     {item.text || "Notification"}
@@ -413,7 +435,10 @@ function ThemeToggle() {
       onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-      className="inline-flex size-8 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition hover:bg-surface hover:text-foreground sm:size-9"
+      className={cn(
+        dashboardChromeButtonClasses,
+        "inline-flex size-8 items-center justify-center rounded-lg sm:size-9",
+      )}
     >
       {isDark ? (
         <Sun className="size-4 text-secondary" />
@@ -471,10 +496,13 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     <Link
       href="/dashboard/workspaces"
       onClick={onCloseMobile}
-      className={`group flex items-center rounded-xl transition ${pathname === "/dashboard/workspaces"
-          ? "bg-primary/10 text-primary dark:bg-primary/100/20 dark:text-primary"
-          : "text-muted-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-surface"
-        } ${effectiveCollapsed ? "size-10 justify-center" : "gap-2 px-3 py-2"}`}
+      className={cn(
+        pathname === "/dashboard/workspaces"
+          ? dashboardSidebarNavItemActiveClasses
+          : dashboardSidebarNavItemClasses,
+        "group flex items-center rounded-xl",
+        effectiveCollapsed ? "size-10 justify-center" : "gap-2 py-2 pl-4 pr-3",
+      )}
       title={effectiveCollapsed ? "Workspaces" : undefined}
     >
       <Building2 className="size-4 shrink-0" />
@@ -486,11 +514,13 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     <Link
       href="/dashboard/profile"
       onClick={onCloseMobile}
-      className={`group flex items-center rounded-xl transition ${
+      className={cn(
         pathname === "/dashboard/profile"
-          ? "bg-primary/10 text-primary dark:bg-primary/100/20 dark:text-primary"
-          : "text-muted-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-surface"
-      } ${effectiveCollapsed ? "size-10 justify-center" : "gap-2 px-3 py-2"}`}
+          ? dashboardSidebarNavItemActiveClasses
+          : dashboardSidebarNavItemClasses,
+        "group flex items-center rounded-xl",
+        effectiveCollapsed ? "size-10 justify-center" : "gap-2 py-2 pl-4 pr-3",
+      )}
       title={effectiveCollapsed ? "Profile" : undefined}
     >
       <UserCircle2 className="size-4 shrink-0" />
@@ -519,11 +549,13 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                 router.push(href);
                 onCloseMobile?.();
               }}
-              className={`flex w-full items-center rounded-xl transition cursor-pointer ${
+              className={cn(
                 active
-                  ? "bg-primary/10 text-primary dark:bg-primary/100/20 dark:text-primary"
-                  : "text-muted-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-surface"
-              } ${effectiveCollapsed ? "size-10 justify-center" : "gap-2 px-3 py-2 pr-10"}`}
+                  ? dashboardSidebarNavItemActiveClasses
+                  : dashboardSidebarNavItemClasses,
+                "flex w-full items-center rounded-xl",
+                effectiveCollapsed ? "size-10 justify-center" : "gap-2 py-2 pl-4 pr-10",
+              )}
               title={workspace.name}
             >
               <span className={`flex size-5 items-center justify-center rounded-md ${color}`}>
@@ -539,7 +571,10 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                   event.stopPropagation();
                   setActionsOpenFor((current) => (current === workspace.id ? "" : workspace.id));
                 }}
-                className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:bg-muted/70 group-hover:block"
+                className={cn(
+                  dashboardChromeButtonClasses,
+                  "absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 group-hover:block",
+                )}
               >
                 <Ellipsis className="size-4" />
               </button>
@@ -553,7 +588,10 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                     setActionsOpenFor("");
                     toast.info(`Added ${workspace.name} to starred`);
                   }}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-foreground hover:bg-muted dark:text-foreground dark:hover:bg-surface"
+                  className={cn(
+                    dashboardMenuItemClasses,
+                    "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
+                  )}
                 >
                   <Star className="size-4" />
                   Add to starred
@@ -566,7 +604,10 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                         setActionsOpenFor("");
                         router.push(`/dashboard/w/${workspace.id}/members`);
                       }}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-foreground hover:bg-muted dark:text-foreground dark:hover:bg-surface"
+                      className={cn(
+                        dashboardMenuItemClasses,
+                        "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
+                      )}
                     >
                       <UserPlus className="size-4" />
                       Add people
@@ -577,7 +618,10 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                         setActionsOpenFor("");
                         router.push(`/dashboard/w/${workspace.id}/settings`);
                       }}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-foreground hover:bg-muted dark:text-foreground dark:hover:bg-surface"
+                      className={cn(
+                        dashboardMenuItemClasses,
+                        "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
+                      )}
                     >
                       <Settings className="size-4" />
                       Workspace settings
@@ -588,7 +632,10 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                         setActionsOpenFor("");
                         setConfirmDeleteId(workspace.id);
                       }}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-destructive hover:bg-destructive/10 dark:hover:bg-destructive/10"
+                      className={cn(
+                        dashboardMenuItemDangerClasses,
+                        "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
+                      )}
                     >
                       <Trash2 className="size-4" />
                       Delete workspace
@@ -618,7 +665,10 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         <button
           type="button"
           onClick={toggle}
-          className="hidden rounded-lg border border-border p-1.5 text-muted-foreground hover:bg-muted md:block"
+          className={cn(
+            dashboardChromeButtonClasses,
+            "hidden rounded-lg p-1.5 md:block",
+          )}
         >
           <ChevronLeft
             className={`size-4 transition ${effectiveCollapsed ? "rotate-180" : ""}`}
@@ -638,7 +688,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   return (
     <>
       <aside
-        className={`relative z-40 hidden h-screen shrink-0 border-r border-border bg-card/90 md:sticky md:top-0 md:flex md:flex-col ${effectiveCollapsed ? "md:w-20" : "md:w-64"
+        className={`relative z-40 hidden h-screen shrink-0 border-r border-border bg-background md:sticky md:top-0 md:flex md:flex-col ${effectiveCollapsed ? "md:w-20" : "md:w-64"
           }`}
       >
         {content}
@@ -651,7 +701,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
             className="absolute inset-0 bg-card/35"
             onClick={onCloseMobile}
           />
-          <div className="absolute left-0 top-0 h-full w-20 border-r border-border bg-background shadow-xl">
+          <div className="absolute left-0 top-0 h-full w-20 border-r border-border bg-background">
             {content}
           </div>
         </div>
@@ -752,7 +802,10 @@ function Topbar({ onOpenSidebar }) {
           <button
             type="button"
             onClick={onOpenSidebar}
-            className="shrink-0 rounded-md border border-border p-1.5 text-muted-foreground md:hidden"
+            className={cn(
+              dashboardChromeButtonClasses,
+              "shrink-0 rounded-md p-1.5 md:hidden",
+            )}
           >
             <Menu className="size-4 sm:size-5" />
           </button>
@@ -764,7 +817,7 @@ function Topbar({ onOpenSidebar }) {
                   {item.href && index !== breadcrumb.length - 1 ? (
                     <Link
                       href={item.href}
-                      className="truncate text-muted-foreground transition-colors hover:text-foreground"
+                      className="truncate text-muted-foreground transition-colors hover:text-primary"
                     >
                       {item.label}
                     </Link>
@@ -854,7 +907,7 @@ export function AppShell({ children }) {
   }, [loaded, currentUser]);
 
   return (
-    <div className="dashboard-shell flex min-h-screen bg-surface text-foreground dark:bg-background">
+    <div className="dashboard-shell flex min-h-screen bg-base text-foreground">
       <AppSidebar
         mobileOpen={mobileOpen}
         onCloseMobile={() => setMobileOpen(false)}

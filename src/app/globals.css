@@ -63,6 +63,187 @@ body {
   font-family: var(--font-sans);
 }
 
+.dashboard-shell .dashboard-chrome-button,
+.dashboard-shell .dashboard-context-button,
+.dashboard-shell .dashboard-nav-item,
+.dashboard-shell .dashboard-menu-item,
+.dashboard-shell .dashboard-task-card {
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.dashboard-shell .dashboard-chrome-button:focus-visible,
+.dashboard-shell .dashboard-context-button:focus-visible,
+.dashboard-shell .dashboard-nav-item:focus-visible,
+.dashboard-shell .dashboard-menu-item:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.dashboard-shell .dashboard-chrome-button {
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  color: var(--muted-foreground);
+}
+
+.dashboard-shell .dashboard-chrome-button:hover {
+  border-color: var(--dashboard-hover-border);
+  background-color: var(--dashboard-hover);
+  color: var(--foreground);
+}
+
+.dashboard-shell .dashboard-context-button {
+  border: 1px solid transparent;
+  background-color: transparent;
+  color: var(--muted-foreground);
+}
+
+.dashboard-shell .dashboard-context-button:hover,
+.dashboard-shell .dashboard-context-button[aria-expanded="true"] {
+  background-color: var(--dashboard-hover);
+  color: var(--foreground);
+}
+
+.dashboard-shell .dashboard-nav-item {
+  border: 1px solid transparent;
+  background-color: transparent;
+  color: var(--muted-foreground);
+}
+
+.dashboard-shell .dashboard-nav-stack-item,
+.dashboard-shell .dashboard-nav-inline-item {
+  position: relative;
+}
+
+.dashboard-shell .dashboard-nav-item,
+.dashboard-shell .dashboard-menu-item,
+.dashboard-shell .dashboard-chrome-button,
+.dashboard-shell .dashboard-context-button,
+.dashboard-shell .dashboard-task-card {
+  background-repeat: no-repeat;
+}
+
+.dashboard-shell .dashboard-active-surface {
+  border-color: var(--dashboard-active-border);
+  background-color: var(--dashboard-active);
+  color: var(--dashboard-active-foreground);
+}
+
+.dashboard-shell .dashboard-nav-stack-item:hover {
+  border-color: transparent;
+  background-color: var(--dashboard-hover);
+  color: var(--foreground);
+}
+
+.dashboard-shell .dashboard-nav-stack-item-active {
+  border-color: transparent;
+  background-color: oklch(from var(--primary) l c h / 0.075);
+  color: var(--foreground);
+}
+
+.dashboard-shell .dashboard-nav-stack-item::before {
+  content: "";
+  position: absolute;
+  left: 0.65rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 2px;
+  border-radius: 9999px;
+  background-color: transparent;
+  opacity: 0;
+  transform: scaleY(0.55);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease,
+    background-color 160ms ease;
+}
+
+.dashboard-shell .dashboard-nav-stack-item:hover::before {
+  background-color: oklch(from var(--primary) l c h / 0.22);
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.dashboard-shell .dashboard-nav-stack-item-active::before {
+  background-color: var(--primary);
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.dashboard-shell .dashboard-nav-inline-item:hover {
+  border-color: transparent;
+  color: var(--foreground);
+}
+
+.dashboard-shell .dashboard-nav-inline-item-active {
+  border-color: transparent;
+  color: var(--foreground);
+}
+
+.dashboard-shell .dashboard-nav-inline-item::after {
+  content: "";
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.35rem;
+  height: 2px;
+  border-radius: 9999px;
+  background-color: transparent;
+  opacity: 0;
+  transform: scaleX(0.58);
+  transform-origin: center;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease,
+    background-color 160ms ease;
+}
+
+.dashboard-shell .dashboard-nav-inline-item:hover::after {
+  background-color: oklch(from var(--primary) l c h / 0.25);
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.dashboard-shell .dashboard-nav-inline-item-active::after {
+  background-color: var(--primary);
+  opacity: 1;
+  transform: scaleX(1);
+}
+
+.dashboard-shell .dashboard-menu-item {
+  border: 1px solid transparent;
+  color: var(--foreground);
+}
+
+.dashboard-shell .dashboard-menu-item:hover {
+  border-color: var(--dashboard-hover-border);
+  background-color: var(--dashboard-hover);
+}
+
+.dashboard-shell .dashboard-menu-item-danger {
+  color: var(--destructive);
+}
+
+.dashboard-shell .dashboard-menu-item-danger:hover {
+  border-color: oklch(from var(--destructive) l c h / 0.22);
+  background-color: oklch(from var(--destructive) l c h / 0.12);
+}
+
+.dashboard-shell .dashboard-task-card {
+  border-color: var(--border);
+  background-color: var(--dashboard-card-lifted);
+  box-shadow: 0 1px 0 0 oklch(from var(--foreground) l c h / 0.03);
+}
+
+.dashboard-shell .dashboard-task-card:hover {
+  border-color: var(--dashboard-hover-border);
+  background-color: var(--card);
+}
+
 .dashboard-shell button:not(:disabled),
 .dashboard-shell [role="button"]:not([aria-disabled="true"]),
 .dashboard-shell a[href],
@@ -123,6 +304,12 @@ body {
   --border: oklch(0.92 0.01 255);
   --input: oklch(0.94 0.008 255);
   --ring: oklch(58.5% 0.233 277.117 / 28%);
+  --dashboard-hover: oklch(0.958 0.01 252);
+  --dashboard-hover-border: oklch(0.91 0.012 252);
+  --dashboard-active: oklch(0.946 0.026 277);
+  --dashboard-active-border: oklch(0.875 0.05 277);
+  --dashboard-active-foreground: oklch(0.47 0.18 277);
+  --dashboard-card-lifted: oklch(0.999 0.001 255);
   --chart-primary: var(--primary);
   --chart-secondary: var(--secondary);
   --chart-success: var(--success);
@@ -137,7 +324,7 @@ body {
 /* --- DARK MODE VARIABLES --- */
 .dark {
   /* Base */
-  --background: oklch(0.17 0.015 265);
+  --background: oklch(0.205 0.013 264);
   --foreground: oklch(0.97 0.004 255);
 
   /* Primary */
@@ -148,16 +335,16 @@ body {
   --secondary: oklch(78.9% 0.154 211.53);
   --secondary-foreground: oklch(0.205 0 0);
 
-  --base: oklch(0.19 0.012 265);
-  --surface: oklch(0.24 0.014 265);
-  --card: oklch(0.22 0.013 265);
+  --base: oklch(0.222 0.013 264);
+  --surface: oklch(0.255 0.014 264);
+  --card: oklch(0.287 0.015 264);
   --card-foreground: var(--foreground);
-  --popover: oklch(0.2 0.012 265);
+  --popover: oklch(0.293 0.015 264);
   --popover-foreground: var(--foreground);
-  --muted: oklch(0.27 0.012 265);
-  --muted-foreground: oklch(0.75 0.01 255);
-  --accent: oklch(0.31 0.03 248);
-  --accent-foreground: oklch(0.93 0.02 245);
+  --muted: oklch(0.31 0.014 264);
+  --muted-foreground: oklch(0.785 0.011 255);
+  --accent: oklch(0.338 0.02 249);
+  --accent-foreground: oklch(0.95 0.017 247);
   --success: oklch(0.74 0.11 155);
   --success-foreground: oklch(0.18 0.02 155);
   --warning: oklch(0.79 0.11 82);
@@ -168,9 +355,15 @@ body {
   --info-foreground: oklch(0.18 0.01 235);
 
   /* Layout Essentials */
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 14%);
+  --border: oklch(0.37 0.012 264);
+  --input: oklch(0.322 0.014 264);
   --ring: oklch(58.5% 0.233 277.117 / 30%);
+  --dashboard-hover: oklch(0.325 0.014 264);
+  --dashboard-hover-border: oklch(0.405 0.015 264);
+  --dashboard-active: oklch(0.355 0.042 277);
+  --dashboard-active-border: oklch(0.49 0.085 277);
+  --dashboard-active-foreground: oklch(0.95 0.025 277);
+  --dashboard-card-lifted: oklch(0.315 0.014 264);
   --chart-primary: var(--primary);
   --chart-secondary: var(--secondary);
   --chart-success: var(--success);

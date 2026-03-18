@@ -7,6 +7,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Plus } from "lucide-react";
+import { dashboardChromeButtonClasses } from "@/components/dashboard/styles";
+import { cn } from "@/lib/utils";
 import TaskCard from "./TaskCard";
 
 function sortTasks(tasks = []) {
@@ -31,7 +33,7 @@ export default function Column({
   const itemIds = useMemo(() => tasks.map((task) => task.id), [tasks]);
 
   return (
-    <section className="w-[290px] shrink-0 rounded-2xl border border-border bg-surface/80 p-3">
+    <section className="w-[290px] shrink-0 rounded-2xl border border-border bg-surface/85 p-3">
       <header className="mb-3 flex items-center justify-between gap-2">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -45,7 +47,10 @@ export default function Column({
           type="button"
           onClick={() => onCreateTask(column.id)}
           disabled={disabled}
-          className="inline-flex size-8 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition hover:bg-accent hover:text-foreground disabled:opacity-50"
+          className={cn(
+            dashboardChromeButtonClasses,
+            "inline-flex size-8 items-center justify-center rounded-lg disabled:opacity-50",
+          )}
           aria-label={`Create task in ${column.name}`}
         >
           <Plus className="size-4" />
@@ -55,7 +60,7 @@ export default function Column({
       <div
         ref={setNodeRef}
         className={`max-h-[calc(100vh-16rem)] min-h-20 space-y-2 overflow-y-auto rounded-xl p-1 transition ${
-          isOver ? "bg-secondary/10" : ""
+          isOver ? "bg-primary/8" : ""
         }`}
       >
           <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
