@@ -599,7 +599,7 @@ export default function WorkspaceLayout({ children }) {
                 <div className="-mx-1 overflow-x-auto">
               <nav
                 aria-label="Workspace navigation"
-                className="flex min-w-max items-center gap-1 px-1"
+                className="flex min-w-max items-center gap-1 -ml-2"
               >
                 {NAV_ITEMS.map((item) => {
                   const baseHref = item.href(workspaceId);
