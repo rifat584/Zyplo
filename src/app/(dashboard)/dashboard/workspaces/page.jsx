@@ -29,6 +29,41 @@ import {
   useMockStore,
 } from "@/components/dashboard/mockStore";
 
+// --- SKELETON COMPONENT ---
+function WorkspacesSkeleton() {
+  return (
+    <div className="mx-auto max-w-5xl space-y-6 animate-pulse">
+      {/* Header Skeleton */}
+      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-slate-200 pb-4 dark:border-white/10">
+        <div className="space-y-2">
+          <div className="h-8 w-40 rounded-md bg-slate-200 dark:bg-slate-800"></div>
+          <div className="h-4 w-72 rounded-md bg-slate-200 dark:bg-slate-800"></div>
+        </div>
+        <div className="h-9 w-36 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
+      </div>
+
+      {/* List Skeleton */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
+        <div className="mb-4 h-4 w-40 rounded-md bg-slate-200 dark:bg-slate-800"></div>
+        <div className="space-y-2">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="flex items-center justify-between rounded-xl border border-slate-200 px-3 py-3 dark:border-white/10"
+            >
+              <div className="flex items-center gap-2">
+                <div className="size-6 rounded-md bg-slate-200 dark:bg-slate-800"></div>
+                <div className="h-5 w-32 rounded-md bg-slate-200 dark:bg-slate-800"></div>
+              </div>
+              <div className="h-4 w-20 rounded-md bg-slate-200 dark:bg-slate-800"></div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export default function WorkspacesPage() {
   const router = useRouter();
   const { status } = useSession();
@@ -172,147 +207,152 @@ export default function WorkspacesPage() {
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-5xl space-y-6">
-        <div className="flex flex-wrap items-end justify-between gap-3 border-b border-slate-200 pb-4 dark:border-white/10">
-          <div>
-            <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-              Workspaces
-            </h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              Create a workspace, then manage everything from its dedicated
-              route.
-            </p>
+      {!loaded || loading ? (
+        <WorkspacesSkeleton />
+      ) : (
+        <div className="mx-auto max-w-5xl space-y-6">
+          <div className="flex flex-wrap items-end justify-between gap-3 border-b border-slate-200 pb-4 dark:border-white/10">
+            <div>
+              <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+                Workspaces
+              </h1>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                Create a workspace, then manage everything from its dedicated
+                route.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setOnboardingOpen(true)}
+              className="inline-flex items-center gap-2 rounded-lg bg-indigo-500 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-600"
+            >
+              <Plus className="size-4" />
+              New workspace
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => setOnboardingOpen(true)}
-            className="inline-flex items-center gap-2 rounded-lg bg-indigo-500 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-600"
-          >
-            <Plus className="size-4" />
-            New workspace
-          </button>
-        </div>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            Existing Workspaces
-          </h2>
-          <div className="space-y-2">
-            {sortedWorkspaces.map((workspace) => (
-              <div
-                key={workspace.id}
-                className="group relative rounded-xl border border-slate-200 px-3 py-3 text-left hover:bg-slate-50 dark:border-white/10 dark:hover:bg-slate-800/40"
-              >
-                {(() => {
-                  const isAdmin = resolveWorkspaceRole(workspace, currentUser) === "admin";
-                  return (
-                    <>
-                <button
-                  type="button"
-                  onClick={() => router.push(`/dashboard/w/${workspace.id}`)}
-                  className="flex w-full items-center justify-between text-left"
+          <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              Existing Workspaces
+            </h2>
+            <div className="space-y-2">
+              {sortedWorkspaces.map((workspace) => (
+                <div
+                  key={workspace.id}
+                  className="group relative rounded-xl border border-slate-200 px-3 py-3 text-left hover:bg-slate-50 dark:border-white/10 dark:hover:bg-slate-800/40"
                 >
-                  <span className="flex items-center gap-2">
-                    {(() => {
-                      const { Icon, color } = pickWorkspaceIcon(workspace);
-                      return (
-                        <span
-                          className={`flex size-6 items-center justify-center rounded-md ${color}`}
-                        >
-                          <Icon className="size-4" />
-                        </span>
-                      );
-                    })()}
-                    <span className="font-medium text-slate-900 dark:text-slate-100">
-                      {workspace.name}
-                    </span>
-                  </span>
-                  <span className="pr-8 text-xs text-slate-500 dark:text-slate-400">
-                    {workspace.members?.length || 0} members
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setMenuOpenFor((current) =>
-                      current === workspace.id ? "" : workspace.id,
-                    )
-                  }
-                  className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 text-slate-500 hover:bg-slate-200/70 group-hover:block dark:text-slate-300 dark:hover:bg-slate-700 cursor-pointer"
-                >
-                  <Ellipsis className="size-4" />
-                </button>
-
-                {menuOpenFor === workspace.id ? (
-                  <div
-                    ref={actionsMenuRef}
-                    className="absolute right-2 top-12 z-20 w-56 rounded-xl border border-slate-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-slate-900"
-                  >
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMenuOpenFor("");
-                        toast.info(`Added ${workspace.name} to starred`);
-                      }}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
-                    >
-                      <Star className="size-4" />
-                      Add to starred
-                    </button>
-                    {isAdmin ? (
+                  {(() => {
+                    const isAdmin = resolveWorkspaceRole(workspace, currentUser) === "admin";
+                    return (
                       <>
                         <button
                           type="button"
-                          onClick={() => {
-                            setMenuOpenFor("");
-                            router.push(`/dashboard/w/${workspace.id}/members`);
-                          }}
-                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                          onClick={() => router.push(`/dashboard/w/${workspace.id}`)}
+                          className="flex w-full items-center justify-between text-left"
                         >
-                          <UserPlus className="size-4" />
-                          Add people
+                          <span className="flex items-center gap-2">
+                            {(() => {
+                              const { Icon, color } = pickWorkspaceIcon(workspace);
+                              return (
+                                <span
+                                  className={`flex size-6 items-center justify-center rounded-md ${color}`}
+                                >
+                                  <Icon className="size-4" />
+                                </span>
+                              );
+                            })()}
+                            <span className="font-medium text-slate-900 dark:text-slate-100">
+                              {workspace.name}
+                            </span>
+                          </span>
+                          <span className="pr-8 text-xs text-slate-500 dark:text-slate-400">
+                            {workspace.members?.length || 0} members
+                          </span>
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setMenuOpenFor("");
-                            router.push(`/dashboard/w/${workspace.id}/settings`);
-                          }}
-                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
-                        >
-                          <Settings className="size-4" />
-                          Workspace settings
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setMenuOpenFor("");
-                            setConfirmDeleteId(workspace.id);
-                          }}
-                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10"
-                        >
-                          <Trash2 className="size-4" />
-                          Delete workspace
-                        </button>
-                      </>
-                    ) : null}
-                  </div>
-                ) : null}
-                    </>
-                  );
-                })()}
-              </div>
-            ))}
-            {!sortedWorkspaces.length ? (
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                No workspace yet. Create your first workspace.
-              </p>
-            ) : null}
-          </div>
-        </section>
-      </div>
 
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setMenuOpenFor((current) =>
+                              current === workspace.id ? "" : workspace.id,
+                            )
+                          }
+                          className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 text-slate-500 hover:bg-slate-200/70 group-hover:block dark:text-slate-300 dark:hover:bg-slate-700 cursor-pointer"
+                        >
+                          <Ellipsis className="size-4" />
+                        </button>
+
+                        {menuOpenFor === workspace.id ? (
+                          <div
+                            ref={actionsMenuRef}
+                            className="absolute right-2 top-12 z-20 w-56 rounded-xl border border-slate-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-slate-900"
+                          >
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setMenuOpenFor("");
+                                toast.info(`Added ${workspace.name} to starred`);
+                              }}
+                              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                            >
+                              <Star className="size-4" />
+                              Add to starred
+                            </button>
+                            {isAdmin ? (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setMenuOpenFor("");
+                                    router.push(`/dashboard/w/${workspace.id}/members`);
+                                  }}
+                                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                                >
+                                  <UserPlus className="size-4" />
+                                  Add people
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setMenuOpenFor("");
+                                    router.push(`/dashboard/w/${workspace.id}/settings`);
+                                  }}
+                                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                                >
+                                  <Settings className="size-4" />
+                                  Workspace settings
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setMenuOpenFor("");
+                                    setConfirmDeleteId(workspace.id);
+                                  }}
+                                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10"
+                                >
+                                  <Trash2 className="size-4" />
+                                  Delete workspace
+                                </button>
+                              </>
+                            ) : null}
+                          </div>
+                        ) : null}
+                      </>
+                    );
+                  })()}
+                </div>
+              ))}
+              {!sortedWorkspaces.length ? (
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  No workspace yet. Create your first workspace.
+                </p>
+              ) : null}
+            </div>
+          </section>
+        </div>
+      )}
+
+      {/* --- MODALS (Always rendered to handle states correctly) --- */}
       {onboardingOpen ? (
         <div className="fixed inset-0 z-50">
           <button
@@ -413,10 +453,6 @@ export default function WorkspacesPage() {
             </div>
           </div>
         </div>
-      ) : null}
-
-      {!loaded || loading ? (
-        <div className="pointer-events-none fixed inset-0 z-40 bg-transparent" />
       ) : null}
     </AppShell>
   );
