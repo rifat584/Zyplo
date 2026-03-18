@@ -479,7 +479,7 @@ export default function WorkspaceLayout({ children }) {
 
               {/* left side workspace name & project */}
               <div className="flex min-w-0 items-center flex-wrap gap-x-1.5 gap-y-1 text-sm">
-                <span className="min-w-0 truncate font-heading text-xl font-bold tracking-tight text-foreground">
+                <span className="min-w-0 truncate text-xl font-bold tracking-tight text-foreground">
                   {workspace?.name || "Loading workspace..."}
                 </span>
                 <span className="text-muted-foreground/55">/</span>

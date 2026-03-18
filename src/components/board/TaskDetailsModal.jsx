@@ -477,7 +477,7 @@ useEffect(() => {
               </h2>
 
               {task?.taskRef && (
-      <span className="rounded-md bg-muted px-2 py-0.5 font-mono text-xs font-medium text-muted-foreground">
+      <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
         {task?.taskRef}
       </span>
     )}
@@ -1074,7 +1074,7 @@ useEffect(() => {
                           <>
                             {" "}
                             Mention{" "}
-                            <span className="font-mono font-semibold text-foreground">
+                            <span className="font-semibold text-foreground">
                               {task.taskRef}
                             </span>{" "}
                             in a PR title or commit message.
@@ -1123,7 +1123,7 @@ useEffect(() => {
                                 href={activity.meta.commitUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="font-mono text-[11px] font-medium text-primary hover:underline"
+                                className="text-[11px] font-medium text-primary hover:underline"
                               >
                                 {activity.meta.commitShort}
                               </a>

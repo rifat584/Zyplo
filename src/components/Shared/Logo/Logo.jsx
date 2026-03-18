@@ -16,7 +16,7 @@ export default function Logo({
                 className="rounded-full"
             />
             {showText && (
-                <span className="text-xl font-bold text-foreground font-serif">
+                <span className="text-xl font-bold text-foreground">
                     Zypl
                     <span className="text-transparent bg-clip-text bg-size-[200%_200%] bg-linear-to-r from-indigo-400 via-cyan-300 to-fuchsia-400 animate-gradient">
                         o

@@ -29,7 +29,7 @@ export default function FeatureSection() {
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="mx-auto max-w-3xl text-center"
           >
-            <h2 className="text-3xl sm:text-5xl font-serif font-semibold tracking-tight dark:text-gray-100 ">
+            <h2 className="text-3xl font-semibold tracking-tight dark:text-gray-100 sm:text-5xl">
               Everything your team ships{" "}
               <span className="relative inline-block">
                 in one place

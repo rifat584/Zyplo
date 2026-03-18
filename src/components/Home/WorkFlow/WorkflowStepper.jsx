@@ -266,7 +266,7 @@ export default function WorkflowStepper() {
                       <span className="text-sm font-semibold text-gray-900 dark:text-foreground">
                         {activeStep.content.previewTitle}
                       </span>
-                      <span className="text-[10px] text-muted-foreground font-mono lowercase tracking-wider">
+                      <span className="text-[10px] lowercase tracking-wider text-muted-foreground">
                         live preview
                       </span>
                     </div>

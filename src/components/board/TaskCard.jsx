@@ -29,7 +29,7 @@ function CardBody({ task }) {
           <p className="line-clamp-2 text-sm font-medium text-foreground">{task.title}</p>
           {task?.taskRef ? (
             <p className="mt-1">
-              <span className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground">
+              <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
                 {task.taskRef}
               </span>
             </p>

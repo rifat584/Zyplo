@@ -140,7 +140,7 @@ export default function TimeTracking() {
                   <div className="absolute inset-3 rounded-full border border-border dark:border-white/10" />
                   
                   {/* Timer Text */}
-                  <span className="z-10 text-2xl font-mono font-bold text-gray-900 tracking-wider dark:text-white">
+                  <span className="z-10 text-2xl font-bold tracking-wider text-gray-900 dark:text-white">
                     {timeTrackingData.runningTime}
                   </span>
                 </div>
@@ -226,7 +226,7 @@ export default function TimeTracking() {
                       <span className="text-sm font-medium text-gray-900 group-hover:text-primary dark:text-foreground dark:group-hover:text-blue-400 transition-colors">
                         {entry.task}
                       </span>
-                      <span className="text-sm font-mono font-medium text-muted-foreground group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                      <span className="text-sm font-medium text-muted-foreground transition-colors group-hover:text-gray-900 dark:group-hover:text-white">
                         {entry.duration}
                       </span>
                     </div>

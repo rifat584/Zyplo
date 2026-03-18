@@ -13,8 +13,9 @@
 
   /* --- FONT MAPPING --- */
   --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
-  --font-fancy: var(--font-creepster), cursive;
 
   /* --- Theme Colors (Mapped to Variables) --- */
   --color-background: var(--background);
@@ -50,9 +51,20 @@
   --color-ring: var(--ring);
 }
 
-/* Force Manrope on heading elements and explicit heading utility */
-h1, h2, h3, h4, h5, h6, .font-heading {
-  font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif !important;
+/* Keep body copy on Poppins and limit Manrope to semantic headings only. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+h1 *,
+h2 *,
+h3 *,
+h4 *,
+h5 *,
+h6 * {
+  font-family: var(--font-heading) !important;
 }
 
 html {

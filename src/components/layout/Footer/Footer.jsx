@@ -15,7 +15,7 @@ export default function Footer() {
           <div>
             <Link href="/" className="flex items-center mb-4">
               <Logo showText={false} size={65} className="-ml-1 -mt-2" />
-              <span className="ml-2 font-bold font-serif text-3xl text-foreground -mt-1">
+              <span className="ml-2 text-3xl font-bold text-foreground -mt-1">
                 Zyplo
               </span>
             </Link>
