@@ -162,6 +162,12 @@ body {
     background-color 160ms ease;
 }
 
+.dashboard-shell .dashboard-nav-stack-item[data-collapsed="true"]::before {
+  left: 0.4rem;
+  top: 0.6rem;
+  bottom: 0.6rem;
+}
+
 .dashboard-shell .dashboard-nav-stack-item:hover::before {
   background-color: oklch(from var(--primary) l c h / 0.22);
   opacity: 1;

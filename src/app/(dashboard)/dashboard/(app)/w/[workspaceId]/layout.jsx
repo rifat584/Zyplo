@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { motion } from "framer-motion";
 import {
   useParams,
   usePathname,
@@ -8,7 +9,20 @@ import {
   useSearchParams,
 } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertTriangle, ChevronDown, Plus, Settings, Trash2, X } from "lucide-react";
+import {
+  AlertTriangle,
+  CalendarDays,
+  ChevronDown,
+  Clock3,
+  GanttChartSquare,
+  KanbanSquare,
+  LayoutGrid,
+  List,
+  Plus,
+  Settings,
+  Trash2,
+  X,
+} from "lucide-react";
 import {
   createProject,
   loadDashboard,
@@ -32,12 +46,12 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 const NAV_ITEMS = [
-  { id: "overview", label: "Overview", href: (id) => `/dashboard/w/${id}` },
-  { id: "timeline", label: "Timeline", href: (id) => `/dashboard/w/${id}/timeline` },
-  { id: "board", label: "Board", href: (id) => `/dashboard/w/${id}/board` },
-  { id: "calender", label: "Calendar", href: (id) => `/dashboard/w/${id}/calender` },
-  { id: "list", label: "List", href: (id) => `/dashboard/w/${id}/list` },
-  { id: "timesheet", label: "Time Sheet", href: (id) => `/dashboard/w/${id}/timesheet` },
+  { id: "overview", label: "Overview", icon: LayoutGrid, href: (id) => `/dashboard/w/${id}` },
+  { id: "timeline", label: "Timeline", icon: GanttChartSquare, href: (id) => `/dashboard/w/${id}/timeline` },
+  { id: "board", label: "Board", icon: KanbanSquare, href: (id) => `/dashboard/w/${id}/board` },
+  { id: "calender", label: "Calendar", icon: CalendarDays, href: (id) => `/dashboard/w/${id}/calender` },
+  { id: "list", label: "List", icon: List, href: (id) => `/dashboard/w/${id}/list` },
+  { id: "timesheet", label: "Time Sheet", icon: Clock3, href: (id) => `/dashboard/w/${id}/timesheet` },
 ];
 
 function ProjectCreateDialog({
@@ -208,25 +222,27 @@ function DeleteProjectDialog({
         role="dialog"
         aria-modal="true"
         aria-labelledby="delete-project-title"
-        className="relative w-full max-w-lg rounded-xl border border-border/70 bg-card p-5 text-card-foreground"
+        className="relative w-full max-w-lg rounded-xl border border-border/70 bg-card p-6 text-card-foreground"
       >
         <div className="flex items-start gap-4">
           <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
             <AlertTriangle className="size-4" />
           </div>
 
-          <div className="min-w-0 flex-1">
-            <h2
-              id="delete-project-title"
-              className="font-heading text-lg font-semibold tracking-tight text-foreground"
-            >
-              Delete project “{projectName}”?
-            </h2>
-            <p className="mt-1.5 text-sm leading-6 text-muted-foreground">
-              This will permanently delete this project and all associated data. This action cannot be undone.
-            </p>
+          <div className="min-w-0 flex-1 space-y-4">
+            <div className="space-y-2">
+              <h2
+                id="delete-project-title"
+                className="font-heading text-lg font-semibold tracking-tight text-foreground"
+              >
+                Delete project “{projectName}”?
+              </h2>
+              <p className="text-sm leading-6 text-muted-foreground">
+                This will permanently delete this project and all associated data. This action cannot be undone.
+              </p>
+            </div>
 
-            <div className="mt-4 space-y-1.5">
+            <div className="space-y-1.5">
               <label
                 htmlFor="delete-project-confirmation"
                 className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground"
@@ -242,7 +258,7 @@ function DeleteProjectDialog({
               />
             </div>
 
-            <div className="mt-5 flex items-center justify-end gap-2">
+            <div className="flex items-center justify-end gap-2 pt-1">
               <button
                 ref={cancelButtonRef}
                 type="button"
@@ -288,6 +304,7 @@ export default function WorkspaceLayout({ children }) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteConfirmationValue, setDeleteConfirmationValue] = useState("");
   const [projectPendingDelete, setProjectPendingDelete] = useState(null);
+  const [headerVisible, setHeaderVisible] = useState(true);
   const switcherRef = useRef(null);
   const { isAdmin } = useWorkspaceAccess(workspaceId);
 
@@ -360,6 +377,29 @@ export default function WorkspaceLayout({ children }) {
       window.removeEventListener("zyplo-open-project-dialog", openProjectDialog);
   }, [isAdmin]);
 
+  useEffect(() => {
+    const main = document.querySelector("main");
+    let previousScrollY = main.scrollTop;
+    let timeoutId;
+
+    const onScroll = () => {
+      const currentScrollY = main.scrollTop;
+      setHeaderVisible(currentScrollY <= previousScrollY);
+      previousScrollY = currentScrollY;
+      clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => {
+        setHeaderVisible(true);
+      }, 150);
+    };
+
+    main.addEventListener("scroll", onScroll);
+
+    return () => {
+      main.removeEventListener("scroll", onScroll);
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
   async function handleCreateProject() {
     const name = projectName.trim();
     if (!name || !workspaceId || creatingProject) return;
@@ -425,8 +465,13 @@ export default function WorkspaceLayout({ children }) {
 
   return (
     <>
-      <section className="-mx-3 border-b border-border/80 bg-background sm:-mx-4 md:-mx-6 lg:-mx-7">
-        <div className="px-3 py-1 sm:px-4 md:px-6 lg:px-7">
+      <motion.div
+        animate={{ y: headerVisible ? 0 : "-100%" }}
+        transition={{ duration: 0.22, ease: "easeOut" }}
+        className="sticky top-0 z-20 -mx-3 sm:-mx-4 md:-mx-6 lg:-mx-7"
+      >
+        <section className="border-b border-border/80 bg-background">
+          <div className="px-3 py-1 sm:px-4 md:px-6 lg:px-7">
           {/* grandparent of left-right*/}
           <div className="flex flex-col"> 
               {/* Direct parent of left-right*/}
@@ -559,6 +604,7 @@ export default function WorkspaceLayout({ children }) {
                 {NAV_ITEMS.map((item) => {
                   const baseHref = item.href(workspaceId);
                   const active = pathname === baseHref;
+                  const Icon = item.icon;
                   return (
                     <Link
                       key={item.id}
@@ -567,10 +613,11 @@ export default function WorkspaceLayout({ children }) {
                         active
                           ? dashboardInlineNavItemActiveClasses
                           : dashboardInlineNavItemClasses,
-                        "inline-flex h-9 shrink-0 items-center rounded-md px-3 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-md px-3 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                       )}
                       aria-current={active ? "page" : undefined}
                     >
+                      <Icon className="size-4 shrink-0" />
                       {item.label}
                     </Link>
                   );
@@ -578,8 +625,9 @@ export default function WorkspaceLayout({ children }) {
               </nav>
             </div>
           </div>
-        </div>
-      </section>
+          </div>
+        </section>
+      </motion.div>
 
       <div className="pt-4 sm:pt-5">{children}</div>
 

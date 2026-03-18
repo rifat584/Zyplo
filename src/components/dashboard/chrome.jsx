@@ -1,25 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import {
   Bell,
-  BriefcaseBusiness,
   Building2,
   CheckCheck,
   ChevronLeft,
   Ellipsis,
-  Cpu,
-  FlaskConical,
-  Landmark,
-  Megaphone,
   Menu,
   Moon,
-  PenTool,
   UserCircle2,
-  Rocket,
   Settings,
   Sun,
   Star,
@@ -59,6 +53,19 @@ const WORKSPACE_ROUTE_LABELS = {
   members: "Invite Users",
   settings: "Settings",
 };
+
+const WORKSPACE_BADGE_GRADIENTS = [
+  "from-primary to-secondary text-primary-foreground",
+  "from-emerald-500 to-teal-400 text-white",
+  "from-amber-500 to-orange-500 text-white",
+  "from-rose-500 to-pink-500 text-white",
+  "from-sky-500 to-cyan-400 text-white",
+  "from-violet-500 to-fuchsia-500 text-white",
+  "from-lime-500 to-emerald-500 text-white",
+  "from-blue-500 to-indigo-500 text-white",
+  "from-red-500 to-orange-400 text-white",
+  "from-slate-500 to-zinc-400 text-white",
+];
 
 function useSidebarState() {
   const [collapsed, setCollapsed] = useState(false);
@@ -463,21 +470,19 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   const [deleting, setDeleting] = useState(false);
   const actionsMenuRef = useRef(null);
 
-  const workspaceIcons = [
-    { Icon: Rocket, color: "bg-primary/10 text-primary" },
-    { Icon: BriefcaseBusiness, color: "bg-success/15 text-success" },
-    { Icon: PenTool, color: "bg-warning/15 text-warning" },
-    { Icon: Megaphone, color: "bg-destructive/10 text-destructive" },
-    { Icon: FlaskConical, color: "bg-info/15 text-info" },
-    { Icon: Cpu, color: "bg-secondary/15 text-secondary" },
-    { Icon: Landmark, color: "bg-accent text-accent-foreground" },
-  ];
-
-  const pickWorkspaceIcon = (workspace) => {
+  const pickWorkspaceGradient = (workspace) => {
     const key = workspace?.id || workspace?.name || "workspace";
     let hash = 0;
     for (let i = 0; i < key.length; i += 1) hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
-    return workspaceIcons[hash % workspaceIcons.length];
+    return WORKSPACE_BADGE_GRADIENTS[hash % WORKSPACE_BADGE_GRADIENTS.length];
+  };
+
+  const getWorkspaceBadgeLabel = (workspace) => {
+    const name = String(workspace?.name || "").trim();
+    const parts = name.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return `${parts[0]?.[0] || ""}${parts[1]?.[0] || ""}`.toUpperCase();
+    const compact = name.replace(/\s+/g, "");
+    return (compact.slice(0, 2) || "WS").toUpperCase();
   };
 
   useEffect(() => {
@@ -496,12 +501,13 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     <Link
       href="/dashboard/workspaces"
       onClick={onCloseMobile}
+      data-collapsed={effectiveCollapsed ? "true" : "false"}
       className={cn(
         pathname === "/dashboard/workspaces"
           ? dashboardSidebarNavItemActiveClasses
           : dashboardSidebarNavItemClasses,
         "group flex items-center rounded-xl",
-        effectiveCollapsed ? "size-10 justify-center" : "gap-2 py-2 pl-4 pr-3",
+        effectiveCollapsed ? "h-10 w-11 justify-center px-0" : "gap-2 py-2 pl-4 pr-3",
       )}
       title={effectiveCollapsed ? "Workspaces" : undefined}
     >
@@ -514,12 +520,13 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     <Link
       href="/dashboard/profile"
       onClick={onCloseMobile}
+      data-collapsed={effectiveCollapsed ? "true" : "false"}
       className={cn(
         pathname === "/dashboard/profile"
           ? dashboardSidebarNavItemActiveClasses
           : dashboardSidebarNavItemClasses,
         "group flex items-center rounded-xl",
-        effectiveCollapsed ? "size-10 justify-center" : "gap-2 py-2 pl-4 pr-3",
+        effectiveCollapsed ? "h-10 w-11 justify-center px-0" : "gap-2 py-2 pl-4 pr-3",
       )}
       title={effectiveCollapsed ? "Profile" : undefined}
     >
@@ -537,7 +544,8 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
       ) : null}
       {workspaces.map((workspace) => {
         const isAdmin = resolveWorkspaceRole(workspace, currentUser) === "admin";
-        const { Icon, color } = pickWorkspaceIcon(workspace);
+        const badgeLabel = getWorkspaceBadgeLabel(workspace);
+        const badgeGradient = pickWorkspaceGradient(workspace);
         const href = `/dashboard/w/${workspace.id}`;
         const active = pathname === href || pathname.startsWith(`${href}/`);
         const menuOpen = actionsOpenFor === workspace.id;
@@ -549,17 +557,23 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                 router.push(href);
                 onCloseMobile?.();
               }}
+              data-collapsed={effectiveCollapsed ? "true" : "false"}
               className={cn(
                 active
                   ? dashboardSidebarNavItemActiveClasses
                   : dashboardSidebarNavItemClasses,
                 "flex w-full items-center rounded-xl",
-                effectiveCollapsed ? "size-10 justify-center" : "gap-2 py-2 pl-4 pr-10",
+                effectiveCollapsed ? "h-10 w-11 justify-center px-0" : "gap-2 py-2 pl-4 pr-10",
               )}
               title={workspace.name}
             >
-              <span className={`flex size-5 items-center justify-center rounded-md ${color}`}>
-                <Icon className="size-3.5" />
+              <span
+                className={cn(
+                  "flex size-6 shrink-0 items-center justify-center rounded-md border border-border/60 bg-linear-to-br font-sans text-[11px] font-semibold uppercase tracking-[0.06em]",
+                  badgeGradient,
+                )}
+              >
+                {badgeLabel}
               </span>
               {!effectiveCollapsed ? <span className="truncate text-sm">{workspace.name}</span> : null}
             </button>
@@ -763,6 +777,7 @@ function Topbar({ onOpenSidebar }) {
   const pathname = usePathname();
   const params = useParams();
   const workspaces = useMockStore((state) => state.workspaces || []);
+  const [hidden, setHidden] = useState(false);
 
   const workspaceId = typeof params.workspaceId === "string" ? params.workspaceId : "";
   const workspace = useMemo(
@@ -795,57 +810,96 @@ function Topbar({ onOpenSidebar }) {
     return [{ label: "Dashboard", href: "/dashboard/workspaces" }];
   }, [pathname, workspace?.name, workspaceId]);
 
+  useEffect(() => {
+    const main = document.querySelector("main");
+    let previousScrollY = main.scrollTop;
+    let timeoutId;
+
+    const onScroll = () => {
+      const currentScrollY = main.scrollTop;
+
+      if (currentScrollY > previousScrollY && currentScrollY > 0) {
+        setHidden(true);
+      } else {
+        setHidden(false);
+      }
+
+      previousScrollY = currentScrollY;
+      clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => {
+        setHidden(false);
+      }, 150);
+    };
+
+    main.addEventListener("scroll", onScroll);
+
+    return () => {
+      main.removeEventListener("scroll", onScroll);
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background px-3 sm:px-4 lg:px-7">
-      <div className="flex h-11 items-center justify-between gap-2 sm:gap-3">
-        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          <button
-            type="button"
-            onClick={onOpenSidebar}
-            className={cn(
-              dashboardChromeButtonClasses,
-              "shrink-0 rounded-md p-1.5 md:hidden",
-            )}
-          >
-            <Menu className="size-4 sm:size-5" />
-          </button>
-          <div className="min-w-0">
-            <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5 text-[11px]">
-              {breadcrumb.map((item, index) => (
-                <div key={`${item.label}-${index}`} className="flex min-w-0 items-center gap-1.5">
-                  {index > 0 ? <span className="text-muted-foreground/45">/</span> : null}
-                  {item.href && index !== breadcrumb.length - 1 ? (
-                    <Link
-                      href={item.href}
-                      className="truncate text-muted-foreground transition-colors hover:text-primary"
-                    >
-                      {item.label}
-                    </Link>
-                  ) : (
-                    <span
-                      className={`truncate ${
-                        index === breadcrumb.length - 1
-                          ? "font-medium text-foreground"
-                          : "text-muted-foreground"
-                      }`}
-                    >
-                      {item.label}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </nav>
+    <motion.div
+      animate={{ height: hidden ? 0 : 44 }}
+      transition={{ duration: 0.22, ease: "easeOut" }}
+      className="sticky top-0 z-30 overflow-hidden"
+    >
+      <motion.header
+        animate={{ y: hidden ? "-100%" : 0 }}
+        transition={{ duration: 0.22, ease: "easeOut" }}
+        className="border-b border-border bg-background px-3 sm:px-4 lg:px-7"
+      >
+        <div className="flex h-11 items-center justify-between gap-2 sm:gap-3">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+            <button
+              type="button"
+              onClick={onOpenSidebar}
+              className={cn(
+                dashboardChromeButtonClasses,
+                "shrink-0 rounded-md p-1.5 md:hidden",
+              )}
+            >
+              <Menu className="size-4 sm:size-5" />
+            </button>
+            <div className="min-w-0">
+              <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5 text-[11px]">
+                {breadcrumb.map((item, index) => (
+                  <div key={`${item.label}-${index}`} className="flex min-w-0 items-center gap-1.5">
+                    {index > 0 ? <span className="text-muted-foreground/45">/</span> : null}
+                    {item.href && index !== breadcrumb.length - 1 ? (
+                      <Link
+                        href={item.href}
+                        className="truncate text-muted-foreground transition-colors hover:text-primary"
+                      >
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <span
+                        className={`truncate ${
+                          index === breadcrumb.length - 1
+                            ? "font-medium text-foreground"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        {item.label}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </nav>
+            </div>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-1.5">
+            <ThemeToggle />
+            <GlobalTimerControl />
+            <NotificationsMenu />
+            <AvatarMenu />
           </div>
         </div>
-        
-        <div className="flex shrink-0 items-center gap-1.5">
-          <ThemeToggle />
-          <GlobalTimerControl />
-          <NotificationsMenu />
-          <AvatarMenu />
-        </div>
-      </div>
-    </header>
+      </motion.header>
+    </motion.div>
   );
 }
 
