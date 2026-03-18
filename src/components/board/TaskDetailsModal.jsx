@@ -460,12 +460,12 @@ useEffect(() => {
       <button
         type="button"
         onClick={() => (isBusy ? null : onClose())}
-        className="absolute inset-0 bg-background/70 backdrop-blur-[2px]"
+        className="absolute inset-0 bg-background/72"
         aria-label="Close task details modal"
       />
 
-      <div className="absolute left-1/2 top-1/2 w-[95vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-white shadow-2xl dark:border-white/10 dark:bg-card flex flex-col max-h-[90vh]">
-        <div className="border-b border-border bg-surface/70 px-5 py-4 dark:border-white/10 dark:bg-surface/60 shrink-0">
+      <div className="absolute left-1/2 top-1/2 flex max-h-[90vh] w-[95vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
+        <div className="shrink-0 border-b border-border bg-surface/75 px-5 py-4">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-wide text-muted-foreground">
@@ -477,13 +477,13 @@ useEffect(() => {
               </h2>
 
               {task?.taskRef && (
-      <span className="rounded-md bg-muted px-2 py-0.5 font-mono text-xs font-medium text-muted-foreground dark:bg-white/10 dark:text-muted-foreground">
+      <span className="rounded-md bg-muted px-2 py-0.5 font-mono text-xs font-medium text-muted-foreground">
         {task?.taskRef}
       </span>
     )}
               </div>
             </div>
-            <span className="rounded-full border border-border bg-white px-3 py-1 text-xs font-medium text-muted-foreground dark:border-white/10 dark:bg-card dark:text-muted-foreground">
+            <span className="rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
               {task.projectName || "Unknown Project"}
             </span>
           </div>
@@ -513,14 +513,14 @@ useEffect(() => {
               });
             }}
           >
-            <div className="rounded-xl border border-border bg-surface/60 p-4 dark:border-white/10 dark:bg-surface/60">
+            <div className="rounded-xl border border-border bg-surface/70 p-4">
               <div className="flex items-start justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => setIsTimeTrackingOpen((prev) => !prev)}
                   className="flex min-w-0 flex-1 items-start gap-2 text-left"
                 >
-                  <span className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary dark:bg-primary/100/20 dark:text-primary">
+                  <span className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
                     <Clock size={12} />
                   </span>
                   <span className="min-w-0">
@@ -533,12 +533,12 @@ useEffect(() => {
                         : "No time tracked yet"}
                     </span>
                     {hasOtherActiveTimer ? (
-                      <span className="mt-1 block text-xs text-amber-600 dark:text-amber-400">
+                      <span className="mt-1 block text-xs text-amber-400">
                         Another task has an active timer. Stop it to start this one.
                       </span>
                     ) : null}
                   </span>
-                  <span className="mt-0.5 shrink-0 text-muted-foreground dark:text-muted-foreground">
+                  <span className="mt-0.5 shrink-0 text-muted-foreground">
                     <ChevronDown
                       size={14}
                       className={`transition-transform duration-300 ${isTimeTrackingOpen ? "rotate-180" : "rotate-0"}`}
@@ -605,7 +605,7 @@ useEffect(() => {
                           setTimerBusy(false);
                         }
                       }}
-                      className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive transition hover:bg-destructive/10 disabled:opacity-50 dark:border-destructive/30 dark:bg-destructive/10 dark:text-destructive"
+                      className="rounded-lg border border-destructive/20 bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive transition hover:bg-destructive/10 disabled:opacity-50"
                     >
                       Stop timer
                     </button>
@@ -685,7 +685,7 @@ useEffect(() => {
                             }))
                           }
                           placeholder="e.g. 1h 30m, 90m, 5400s, 01:30:00"
-                          className="h-10 min-w-[360px] w-full whitespace-nowrap rounded-xl border border-border bg-white px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                          className="h-10 min-w-[360px] w-full whitespace-nowrap rounded-xl border border-border bg-surface px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                         />
                       </div>
                       <p className="text-[11px] text-muted-foreground">
@@ -698,7 +698,7 @@ useEffect(() => {
                       <button
                         type="button"
                         onClick={() => setIsManualEntryOpen((prev) => !prev)}
-                        className="flex w-full items-start justify-between gap-2 rounded-lg border border-transparent px-1 py-0.5 text-left hover:border-border hover:bg-surface dark:hover:border-white/10 dark:hover:bg-surface/40"
+                        className="flex w-full items-start justify-between gap-2 rounded-lg border border-transparent px-1 py-0.5 text-left hover:border-border hover:bg-surface"
                       >
                         <span>
                           <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -708,7 +708,7 @@ useEffect(() => {
                             Add a past work session by selecting the start and end time.
                           </span>
                         </span>
-                        <span className="mt-1 text-muted-foreground dark:text-muted-foreground">
+                        <span className="mt-1 text-muted-foreground">
                           <ChevronDown
                             size={14}
                             className={`transition-transform duration-300 ${isManualEntryOpen ? "rotate-180" : "rotate-0"}`}
@@ -724,7 +724,7 @@ useEffect(() => {
                         }`}
                         aria-hidden={!isManualEntryOpen}
                       >
-                      <div className="rounded-xl border border-border bg-white p-3 dark:border-white/10 dark:bg-card">
+                      <div className="rounded-xl border border-border bg-card p-3">
                         <div className="grid gap-3 sm:grid-cols-2">
                           <div className="space-y-1">
                             <label
@@ -743,7 +743,7 @@ useEffect(() => {
                                   startTime: event.target.value,
                                 }))
                               }
-                              className="h-10 w-full rounded-lg border border-border bg-white px-3 text-xs text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                              className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-xs text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                             />
                           </div>
 
@@ -764,7 +764,7 @@ useEffect(() => {
                                   endTime: event.target.value,
                                 }))
                               }
-                              className="h-10 w-full rounded-lg border border-border bg-white px-3 text-xs text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                              className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-xs text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                             />
                           </div>
                         </div>
@@ -788,7 +788,7 @@ useEffect(() => {
                                 }))
                               }
                               placeholder="What did you work on?"
-                              className="h-10 w-full rounded-lg border border-border bg-white px-3 text-xs text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                              className="h-10 w-full rounded-lg border border-border bg-surface px-3 text-xs text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                             />
                           </div>
 
@@ -859,7 +859,7 @@ useEffect(() => {
                                   setManualBusy(false);
                                 }
                               }}
-                              className="h-10 rounded-lg bg-card px-3 py-2 text-xs font-semibold text-white transition hover:bg-surface disabled:opacity-50 dark:bg-white/10 dark:text-foreground dark:hover:bg-white/20"
+                              className="h-10 rounded-lg bg-surface px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-muted disabled:opacity-50"
                             >
                               Save log
                             </button>
@@ -879,7 +879,7 @@ useEffect(() => {
                         {timeLogs.slice(0, 5).map((log) => (
                           <div
                             key={log.id}
-                            className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-white px-3 py-2 dark:border-white/10 dark:bg-card"
+                            className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-card px-3 py-2"
                           >
                             <span>
                               {log.startTime ? new Date(log.startTime).toLocaleString() : "Unknown"}{" "}
@@ -915,7 +915,7 @@ useEffect(() => {
                   setForm((prev) => ({ ...prev, title: event.target.value }))
                 }
                 placeholder="Enter a clear task title"
-                className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                className="h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                 required
               />
             </div>
@@ -935,17 +935,17 @@ useEffect(() => {
                   setForm((prev) => ({ ...prev, description: event.target.value }))
                 }
                 placeholder="Add details, acceptance criteria, or important context"
-                className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
             </div>
 
             {/* --- ATTACHMENTS COLLAPSIBLE SECTION --- */}
-            <div className="rounded-xl border border-border bg-surface/60 p-4 dark:border-white/10 dark:bg-surface/60">
+            <div className="rounded-xl border border-border bg-surface/70 p-4">
               <div className="flex items-center justify-between">
                 <button
                   type="button"
                   onClick={() => setIsAttachmentsOpen(!isAttachmentsOpen)}
-                  className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary dark:text-muted-foreground dark:hover:text-primary"
+                  className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary"
                 >
                   <Paperclip size={14} />
                   Attachments {form.attachments.length > 0 && `(${form.attachments.length})`}
@@ -964,7 +964,7 @@ useEffect(() => {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isUploading}
-                  className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary disabled:opacity-50 dark:text-primary dark:hover:text-primary"
+                  className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary disabled:opacity-50"
                 >
                   {isUploading ? <Loader2 size={14} className="animate-spin" /> : <Paperclip size={14} />}
                   {isUploading ? "Uploading..." : "Add File"}
@@ -974,10 +974,10 @@ useEffect(() => {
               {isAttachmentsOpen && form.attachments.length > 0 && (
                 <div className="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
                   {form.attachments.map((file, idx) => (
-                    <div key={idx} className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-white shadow-sm transition hover:shadow-md dark:border-white/10 dark:bg-card">
+                    <div key={idx} className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition hover:shadow-md">
                       
                       {/* Preview Area */}
-                      <div className="relative h-28 w-full bg-muted dark:bg-surface border-b border-border">
+                      <div className="relative h-28 w-full border-b border-border bg-muted">
                         {file.type.startsWith("image/") ? (
                           <img src={file.url} alt={file.name} className="h-full w-full object-cover" />
                         ) : file.type.startsWith("video/") ? (
@@ -1005,14 +1005,14 @@ useEffect(() => {
                       <div className="flex items-center justify-between p-2.5">
                         <div className="flex flex-1 items-center gap-2 truncate pr-2">
                           <span className="text-muted-foreground">{getFileIcon(file.type)}</span>
-                          <span className="truncate text-xs font-medium text-foreground dark:text-muted-foreground" title={file.name}>
+                          <span className="truncate text-xs font-medium text-foreground" title={file.name}>
                             {file.name}
                           </span>
                         </div>
                         <a
                           href={getDownloadUrl(file.url)}
                           download={file.name}
-                          className="flex shrink-0 items-center justify-center rounded bg-muted p-1.5 text-muted-foreground transition hover:bg-primary/10 hover:text-primary dark:bg-surface dark:text-muted-foreground dark:hover:bg-primary/100/20 dark:hover:text-primary"
+                          className="flex shrink-0 items-center justify-center rounded bg-muted p-1.5 text-muted-foreground transition hover:bg-primary/10 hover:text-primary"
                           title="Download file"
                         >
                           <Download size={14} />
@@ -1026,14 +1026,14 @@ useEffect(() => {
 
 
             {/* GitHub Activity Section */}
-            <div className="rounded-xl border border-border bg-surface/60 p-4 dark:border-white/10 dark:bg-surface/60">
+            <div className="rounded-xl border border-border bg-surface/70 p-4">
               <button
                 type="button"
                 onClick={() => setIsGithubOpen((prev) => !prev)}
                 className="flex w-full items-center justify-between gap-2 text-left"
               >
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-card dark:bg-white/10">
+                  <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-card">
                     <svg viewBox="0 0 24 24" fill="white" className="size-3.5">
                       <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12" />
                     </svg>
@@ -1041,7 +1041,7 @@ useEffect(() => {
                   <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     GitHub Activity
                     {githubActivities.length > 0 && (
-                      <span className="ml-1.5 rounded-full bg-muted px-1.5 py-0.5 text-[10px] dark:bg-white/10">
+                      <span className="ml-1.5 rounded-full bg-muted px-1.5 py-0.5 text-[10px]">
                         {githubActivities.length}
                       </span>
                     )}
@@ -1074,7 +1074,7 @@ useEffect(() => {
                           <>
                             {" "}
                             Mention{" "}
-                            <span className="font-mono font-semibold text-foreground dark:text-muted-foreground">
+                            <span className="font-mono font-semibold text-foreground">
                               {task.taskRef}
                             </span>{" "}
                             in a PR title or commit message.
@@ -1088,7 +1088,7 @@ useEffect(() => {
                     {githubActivities.map((activity) => (
                       <div
                         key={activity._id}
-                        className="flex items-start gap-3 rounded-lg border border-border bg-white p-3 dark:border-white/10 dark:bg-card"
+                        className="flex items-start gap-3 rounded-lg border border-border bg-card p-3"
                       >
                         {/* icon: commit vs PR */}
                         <span className="mt-0.5 shrink-0 text-muted-foreground">
@@ -1104,7 +1104,7 @@ useEffect(() => {
                         </span>
 
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs text-foreground dark:text-muted-foreground">
+                          <p className="text-xs text-foreground">
                             {activity.text}
                           </p>
                           <div className="mt-1.5 flex flex-wrap items-center gap-2">
@@ -1113,7 +1113,7 @@ useEffect(() => {
                                 href={activity.meta.pullRequestUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-[11px] font-medium text-primary hover:underline dark:text-primary"
+                                className="text-[11px] font-medium text-primary hover:underline"
                               >
                                 View PR #{activity.meta.pullRequestNumber}
                               </a>
@@ -1123,7 +1123,7 @@ useEffect(() => {
                                 href={activity.meta.commitUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="font-mono text-[11px] font-medium text-primary hover:underline dark:text-primary"
+                                className="font-mono text-[11px] font-medium text-primary hover:underline"
                               >
                                 {activity.meta.commitShort}
                               </a>
@@ -1164,7 +1164,7 @@ useEffect(() => {
                   onChange={(event) =>
                     setForm((prev) => ({ ...prev, assigneeId: event.target.value }))
                   }
-                  className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                  className="h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                 >
                   <option value="">Unassigned</option>
                   {members.map((member) => (
@@ -1189,7 +1189,7 @@ useEffect(() => {
                   onChange={(event) =>
                     setForm((prev) => ({ ...prev, dueDate: event.target.value }))
                   }
-                  className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                  className="h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                 />
               </div>
 
@@ -1206,7 +1206,7 @@ useEffect(() => {
                   onChange={(event) =>
                     setForm((prev) => ({ ...prev, priority: event.target.value }))
                   }
-                  className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                  className="h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                 >
                   {PRIORITY_OPTIONS.map((item) => (
                     <option key={item.value} value={item.value}>
@@ -1229,7 +1229,7 @@ useEffect(() => {
                   onChange={(event) =>
                     setForm((prev) => ({ ...prev, status: event.target.value }))
                   }
-                  className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                  className="h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                 >
                   {statusOptions.map((item) => (
                     <option key={item.value} value={item.value}>
@@ -1241,7 +1241,7 @@ useEffect(() => {
             </div>
 
             {/* --- ADDED: ACTIVITY / COMMENTS SECTION --- */}
-            <div className="mt-8 border-t border-border pt-6 dark:border-white/10">
+            <div className="mt-8 border-t border-border pt-6">
               <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 <MessageSquare size={14} />
                 Activity & Comments
@@ -1256,7 +1256,7 @@ useEffect(() => {
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     placeholder="Write a comment..."
-                    className="w-full rounded-xl border border-border bg-surface/60 p-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface/50 dark:text-foreground"
+                    className="w-full rounded-xl border border-border bg-surface p-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                     rows={2}
                   />
                   <button
@@ -1274,10 +1274,10 @@ useEffect(() => {
               <div className="mt-6 space-y-4">
                 {comments.map((c, i) => (
                   <div key={i} className="flex gap-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground dark:bg-surface dark:text-muted-foreground">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground">
                       {c.author?.slice(0, 2).toUpperCase()}
                     </div>
-                    <div className="flex-1 rounded-xl rounded-tl-none bg-surface p-3 dark:bg-surface/40">
+                    <div className="flex-1 rounded-xl rounded-tl-none bg-surface p-3">
                       <div className="mb-1 flex items-center justify-between">
                         <span className="text-xs font-bold text-foreground">{c.author}</span>
                         <span className="text-[10px] text-muted-foreground">{formatDateTime(c.createdAt)}</span>
@@ -1293,13 +1293,13 @@ useEffect(() => {
           </form>
         </div>
 
-        <div className="border-t border-border bg-surface px-5 py-4 dark:border-white/10 dark:bg-surface/60 shrink-0">
+        <div className="shrink-0 border-t border-border bg-surface px-5 py-4">
           <div className="flex items-center justify-between gap-2">
             <button
               type="button"
               onClick={() => onDelete?.(task)}
               disabled={isBusy || !onDelete}
-              className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive transition hover:bg-destructive/10 disabled:opacity-50 dark:border-destructive/30 dark:bg-destructive/10 dark:text-destructive dark:hover:bg-destructive/100/20"
+              className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive transition hover:bg-destructive/10 disabled:opacity-50"
             >
               {deleting ? "Deleting..." : "Delete Task"}
             </button>
@@ -1309,7 +1309,7 @@ useEffect(() => {
                 type="button"
                 onClick={onClose}
                 disabled={isBusy}
-                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-accent disabled:opacity-50 dark:border-border dark:text-foreground dark:hover:bg-accent"
+                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-accent disabled:opacity-50"
               >
                 Cancel
               </button>

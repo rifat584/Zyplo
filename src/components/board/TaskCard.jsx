@@ -106,7 +106,7 @@ export default function TaskCard({
 }) {
   if (isDragOverlay) {
     return (
-      <article className={`${dashboardTaskCardClasses} rounded-xl border p-3 shadow-lg`}>
+      <article className={`${dashboardTaskCardClasses} rounded-xl border p-3 shadow-sm`}>
         <CardBody task={task} />
       </article>
     );
