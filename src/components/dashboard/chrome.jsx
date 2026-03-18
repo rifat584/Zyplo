@@ -16,16 +16,19 @@ import {
   Landmark,
   Megaphone,
   Menu,
+  Moon,
   PenTool,
   UserCircle2,
   Rocket,
   Settings,
+  Sun,
   Star,
   Timer,
   Trash2,
   UserPlus,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTheme } from "@/Context/ThemeContext";
 import { Avatar } from "./ui";
 import Logo from "../Shared/Logo/Logo";
 import {
@@ -392,6 +395,35 @@ function NotificationsMenu() {
   );
 }
 
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  const isDark = theme === "dark";
+
+  return (
+    <button
+      type="button"
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      className="inline-flex size-8 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground transition hover:bg-surface hover:text-foreground sm:size-9"
+    >
+      {isDark ? (
+        <Sun className="size-4 text-secondary" />
+      ) : (
+        <Moon className="size-4" />
+      )}
+    </button>
+  );
+}
+
 function AppSidebar({ mobileOpen, onCloseMobile }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -754,6 +786,7 @@ function Topbar({ onOpenSidebar }) {
         </div>
         
         <div className="flex shrink-0 items-center gap-1.5">
+          <ThemeToggle />
           <GlobalTimerControl />
           <NotificationsMenu />
           <AvatarMenu />
