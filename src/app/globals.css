@@ -13,7 +13,7 @@
 
   /* --- FONT MAPPING --- */
   --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-manrope), ui-serif, Georgia, serif;
+  --font-heading: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
   --font-fancy: var(--font-creepster), cursive;
 
   /* --- Theme Colors (Mapped to Variables) --- */
@@ -51,8 +51,8 @@
 }
 
 /* Force Manrope on heading elements and explicit heading utility */
-h1, h2, h3, .font-heading {
-  font-family: var(--font-manrope), ui-serif, Georgia, serif !important;
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif !important;
 }
 
 html {
@@ -60,7 +60,7 @@ html {
 }
 
 body {
-  font-family: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
 }
 
 /* --- LIGHT MODE VARIABLES --- */
@@ -71,11 +71,11 @@ body {
   --background: oklch(0.985 0.004 255);
   --foreground: oklch(0.21 0.03 265);
 
-  /* Primary: Indigo (#4f46e5) */
+  /* Primary */
   --primary: oklch(0.56 0.22 278);
   --primary-foreground: oklch(0.985 0 0);
 
-  /* Secondary: Sky Blue (#0ea5e9) */
+  /* Secondary */
   --secondary: oklch(0.71 0.14 235);
   --secondary-foreground: oklch(0.985 0 0);
 
@@ -102,6 +102,15 @@ body {
   --border: oklch(0.92 0.01 255);
   --input: oklch(0.94 0.008 255);
   --ring: oklch(0.56 0.22 278 / 28%);
+  --chart-primary: var(--primary);
+  --chart-secondary: var(--secondary);
+  --chart-success: var(--success);
+  --chart-warning: var(--warning);
+  --chart-destructive: var(--destructive);
+  --chart-accent: oklch(0.64 0.18 315);
+  --chart-muted: var(--muted-foreground);
+  --chart-grid: oklch(0.88 0.01 255);
+  --chart-tick: var(--muted-foreground);
 }
 
 /* --- DARK MODE VARIABLES --- */
@@ -141,6 +150,15 @@ body {
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 14%);
   --ring: oklch(0.67 0.19 278 / 30%);
+  --chart-primary: var(--primary);
+  --chart-secondary: var(--secondary);
+  --chart-success: var(--success);
+  --chart-warning: var(--warning);
+  --chart-destructive: var(--destructive);
+  --chart-accent: oklch(0.72 0.17 315);
+  --chart-muted: var(--muted-foreground);
+  --chart-grid: oklch(1 0 0 / 16%);
+  --chart-tick: var(--muted-foreground);
 }
 
 @keyframes aurora-pan {

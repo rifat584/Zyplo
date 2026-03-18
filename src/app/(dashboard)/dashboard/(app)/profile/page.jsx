@@ -138,7 +138,7 @@ export default function DashboardProfilePage() {
             Update your personal information.
           </p>
         </div>
-        <div className="min-w-40 rounded-lg border border-border bg-white p-2 dark:border-white/10 dark:bg-card">
+        <div className="min-w-40 rounded-lg border border-border bg-card p-2 dark:border-white/10">
           <div className="mb-1 flex items-center justify-between text-xs">
             <span className="font-medium text-muted-foreground">
               Profile completion
@@ -147,7 +147,7 @@ export default function DashboardProfilePage() {
               {completion}%
             </span>
           </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-muted dark:bg-slate-700">
+          <div className="h-1.5 overflow-hidden rounded-full bg-muted">
             <div
               className="h-full rounded-full bg-primary/100 transition-all"
               style={{ width: `${Math.max(0, Math.min(completion, 100))}%` }}
@@ -158,7 +158,7 @@ export default function DashboardProfilePage() {
 
       <form
         onSubmit={handleSave}
-        className="space-y-5 rounded-2xl border border-border bg-white p-5 dark:border-white/10 dark:bg-card"
+        className="space-y-5 rounded-2xl border border-border bg-card p-5 dark:border-white/10"
       >
         <section className="rounded-xl border border-border p-3 dark:border-white/10">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">

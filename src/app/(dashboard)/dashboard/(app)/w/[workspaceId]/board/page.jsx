@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Trash2 } from "lucide-react";
-import Swal from "sweetalert2";
+import { Plus } from "lucide-react";
 import Board from "@/components/board/Board";
 import {
   createProject,
@@ -13,6 +11,9 @@ import {
   useMockStore,
   useWorkspaceAccess,
 } from "@/components/dashboard/mockStore";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const PROJECT_SELECTION_KEY_PREFIX = "dashboard.selectedProject.";
 
@@ -38,17 +39,17 @@ function createQueryClient() {
 
 export default function WorkspaceBoardPage() {
   const params = useParams();
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const workspaceId =
     typeof params.workspaceId === "string" ? params.workspaceId : "";
   const [queryClient] = useState(() => createQueryClient());
-  const [selectedProjectId, setSelectedProjectId] = useState("");
-  const [projectName, setProjectName] = useState("");
-  const [projectKey, setProjectKey] = useState("");
+  const [newProjectName, setNewProjectName] = useState("");
+  const [newProjectKey, setNewProjectKey] = useState("");
   const [creatingProject, setCreatingProject] = useState(false);
-  const [deletingProject, setDeletingProject] = useState(false);
   const [createError, setCreateError] = useState("");
-  const [deleteError, setDeleteError] = useState("");
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const firstProjectNameInputRef = useRef(null);
   const { isAdmin } = useWorkspaceAccess(workspaceId);
 
   const { loaded, loading, projects } = useMockStore((state) => ({
@@ -65,43 +66,10 @@ export default function WorkspaceBoardPage() {
     () => projects.filter((project) => project.workspaceId === workspaceId),
     [projects, workspaceId],
   );
-
-  useEffect(() => {
-    if (!workspaceId) return;
-    try {
-      const saved = window.localStorage.getItem(getProjectSelectionKey(workspaceId));
-      if (saved) setSelectedProjectId(saved);
-    } catch {
-      // no-op
-    }
-  }, [workspaceId]);
-
-  useEffect(() => {
-    if (!workspaceProjects.length) {
-      setSelectedProjectId("");
-      return;
-    }
-    const stillValid = workspaceProjects.some(
-      (project) => project.id === selectedProjectId,
-    );
-    if (!stillValid) {
-      try {
-        const saved = window.localStorage.getItem(
-          getProjectSelectionKey(workspaceId),
-        );
-        const savedStillValid = workspaceProjects.some(
-          (project) => project.id === saved,
-        );
-        if (savedStillValid) {
-          setSelectedProjectId(saved || "");
-          return;
-        }
-      } catch {
-        // no-op
-      }
-      setSelectedProjectId(workspaceProjects[0]?.id || "");
-    }
-  }, [workspaceId, workspaceProjects, selectedProjectId]);
+  const selectedProjectId =
+    searchParams.get("project") ||
+    workspaceProjects[0]?.id ||
+    "";
 
   useEffect(() => {
     if (!workspaceId || !selectedProjectId) return;
@@ -115,9 +83,40 @@ export default function WorkspaceBoardPage() {
     }
   }, [workspaceId, selectedProjectId]);
 
+  useEffect(() => {
+    if (!isAdmin || workspaceProjects.length) return;
+    requestAnimationFrame(() => {
+      firstProjectNameInputRef.current?.focus();
+    });
+  }, [isAdmin, workspaceProjects.length]);
+
+  async function handleCreateFirstProject() {
+    const name = newProjectName.trim();
+    if (!name || !workspaceId || creatingProject || !isAdmin) return;
+
+    try {
+      setCreatingProject(true);
+      setCreateError("");
+      const project = await createProject(workspaceId, name, newProjectKey.trim());
+      const projectId = String(project?.id || "");
+      setNewProjectName("");
+      setNewProjectKey("");
+      if (projectId) {
+        router.replace(`${pathname}?project=${projectId}`, { scroll: false });
+      }
+      toast.success(`Created "${name}"`);
+    } catch (error) {
+      const message = error?.message || "Failed to create project";
+      setCreateError(message);
+      toast.error(message);
+    } finally {
+      setCreatingProject(false);
+    }
+  }
+
   if (!workspaceId) {
     return (
-      <div className="rounded-2xl border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive dark:border-destructive/30 dark:bg-destructive/10 dark:text-destructive">
+      <div className="border-b border-border px-0 py-4 text-sm text-destructive">
         Invalid workspace route.
       </div>
     );
@@ -125,210 +124,114 @@ export default function WorkspaceBoardPage() {
 
   if (!loaded || loading) {
     return (
-      <div className="rounded-2xl border border-border bg-white p-4 text-sm text-slate-600 dark:border-white/10 dark:bg-card dark:text-muted-foreground">
+      <div className="border-b border-border px-0 py-4 text-sm text-muted-foreground">
         Loading board...
       </div>
     );
   }
 
-  async function handleCreateProject() {
-    const name = projectName.trim();
-    if (!name || !workspaceId) return;
-    if (!isAdmin) {
-      setCreateError("Only workspace admins can create projects.");
-      return;
-    }
-
-    try {
-      setCreateError("");
-      setCreatingProject(true);
-      const project = await createProject(workspaceId, name, projectKey.trim());
-      setProjectName("");
-      setProjectKey("");
-      setSelectedProjectId(project?.id || "");
-      setShowCreateForm(false);
-    } catch (error) {
-      setCreateError(error?.message || "Failed to create project");
-    } finally {
-      setCreatingProject(false);
-    }
-  }
-
-  async function handleDeleteProject() {
-    if (!selectedProjectId || deletingProject) return;
-    if (!isAdmin) {
-      setDeleteError("Only workspace admins can delete projects.");
-      return;
-    }
-    const selectedProject = workspaceProjects.find(
-      (project) => project.id === selectedProjectId,
-    );
-    if (!selectedProject) return;
-
-    const result = await Swal.fire({
-      title: "Delete project?",
-      text: `Delete "${selectedProject.name}" and all related tasks/board data?`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, delete",
-      cancelButtonText: "Cancel",
-      reverseButtons: true,
-      background: "#0f172a",
-      color: "#e2e8f0",
-      confirmButtonColor: "#dc2626",
-      cancelButtonColor: "#334155",
-    });
-    if (!result.isConfirmed) return;
-
-    try {
-      setDeleteError("");
-      setDeletingProject(true);
-      const response = await fetch(`/api/dashboard/projects/${selectedProjectId}`, {
-        method: "DELETE",
-      });
-      const text = await response.text();
-      let data = null;
-      try {
-        data = text ? JSON.parse(text) : null;
-      } catch {
-        data = text ? { message: text } : null;
-      }
-
-      if (!response.ok) {
-        throw new Error(data?.error || data?.message || "Failed to delete project");
-      }
-
-      setSelectedProjectId((current) =>
-        current === selectedProjectId ? "" : current,
-      );
-      await loadDashboard({ force: true });
-    } catch (error) {
-      setDeleteError(error?.message || "Failed to delete project");
-    } finally {
-      setDeletingProject(false);
-    }
-  }
-
   return (
     <QueryClientProvider client={queryClient}>
-      <section className="mb-4 flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-border bg-white p-4 dark:border-white/10 dark:bg-card">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">
-            Workspace Board
-          </p>
-          <h2 className="text-lg font-semibold text-foreground">
-            Select Project
-          </h2>
-        </div>
-
-        <div className="flex w-full flex-wrap items-center justify-end gap-2">
-          <div className="w-full sm:w-72">
-            <select
-              value={selectedProjectId}
-              onChange={(event) => setSelectedProjectId(event.target.value)}
-              disabled={!workspaceProjects.length || deletingProject}
-              className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-secondary/30 disabled:opacity-60 dark:border-white/10 dark:bg-surface dark:text-slate-100"
-            >
-              {workspaceProjects.length ? (
-                workspaceProjects.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.name}
-                  </option>
-                ))
-              ) : (
-                <option value="">No projects yet</option>
-              )}
-            </select>
-          </div>
-          {isAdmin ? (
-            <>
-              <button
-                type="button"
-                onClick={() => {
-                  setCreateError("");
-                  setDeleteError("");
-                  setShowCreateForm((current) => !current);
-                }}
-                className="inline-flex items-center h-10 rounded-lg bg-primary px-3 text-sm font-medium text-white hover:bg-primary"
-              >
-                {showCreateForm ? "Cancel" : "New Project"}
-              </button>
-              <button
-                type="button"
-                onClick={handleDeleteProject}
-                disabled={!selectedProjectId || deletingProject}
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 px-3 text-sm font-medium text-destructive hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-50 dark:border-destructive/30 dark:bg-destructive/10 dark:text-destructive dark:hover:bg-destructive/100/20"
-              >
-                <Trash2 className="size-4" />
-                {deletingProject ? "Deleting..." : "Delete Project"}
-              </button>
-            </>
-          ) : null}
-        </div>
-      </section>
-
-      {deleteError ? (
-        <p className="mb-4 text-sm text-destructive dark:text-destructive">
-          {deleteError}
-        </p>
-      ) : null}
-
-      {(isAdmin && showCreateForm) || (isAdmin && !workspaceProjects.length) ? (
-        <section className="mb-4 rounded-2xl border border-border bg-white p-5 dark:border-white/10 dark:bg-card">
-          <h2 className="text-lg font-semibold text-foreground">
-            Create Project
-          </h2>
-          <p className="mt-1 text-sm text-slate-600 dark:text-muted-foreground">
-            Add a new project to this workspace.
-          </p>
-          <div className="mt-4 space-y-3">
-            <input
-              value={projectName}
-              onChange={(event) => setProjectName(event.target.value)}
-              placeholder="Project name"
-              className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-secondary/30 dark:border-white/10 dark:bg-surface dark:text-slate-100"
-            />
-            <input
-              value={projectKey}
-              onChange={(event) => setProjectKey(event.target.value)}
-              placeholder="Project key (optional)"
-              className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-secondary/30 dark:border-white/10 dark:bg-surface dark:text-slate-100"
-            />
-            <button
-              type="button"
-              onClick={handleCreateProject}
-              disabled={!projectName.trim() || creatingProject}
-              className="inline-flex rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary disabled:opacity-50"
-            >
-              {creatingProject ? "Creating..." : "Create Project"}
-            </button>
-            {createError ? (
-              <p className="text-sm text-destructive dark:text-destructive">
-                {createError}
-              </p>
-            ) : null}
-          </div>
-        </section>
-      ) : null}
-
       {!workspaceProjects.length ? (
-        <div className="rounded-2xl border border-border bg-white p-5 dark:border-white/10 dark:bg-card">
-          <h2 className="text-lg font-semibold text-foreground">
-            No Project Found
-          </h2>
-          <p className="mt-1 text-sm text-slate-600 dark:text-muted-foreground">
-            {isAdmin
-              ? "Create a project first, then open the board."
-              : "No project is available in this workspace yet."}
-          </p>
-          <div className="mt-4">
-            <Link
-              href={`/dashboard/w/${workspaceId}`}
-              className="inline-flex rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary"
-            >
-              Go to Workspace Overview
-            </Link>
-          </div>
+        <div className="grid min-h-[22rem] place-items-center py-4 sm:py-6">
+          {isAdmin ? (
+            <section className="w-full max-w-md rounded-xl border border-border bg-card">
+              <div className="px-5 py-4">
+                <h2 className="font-heading text-lg font-semibold tracking-tight text-foreground">
+                  Create your first project
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  Start by creating a project to organize tasks, timelines, and boards in this workspace.
+                </p>
+              </div>
+
+              <div className="space-y-3 px-5 pb-4">
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="first-project-name"
+                    className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground"
+                  >
+                    Project name
+                  </label>
+                  <input
+                    ref={firstProjectNameInputRef}
+                    id="first-project-name"
+                    value={newProjectName}
+                    onChange={(event) => {
+                      setNewProjectName(event.target.value);
+                      if (createError) setCreateError("");
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        handleCreateFirstProject();
+                      }
+                    }}
+                    placeholder="Project Name"
+                    className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary"
+                  />
+                  {!createError ? (
+                    <p className="text-xs text-muted-foreground">
+                      You can change this later.
+                    </p>
+                  ) : null}
+                </div>
+
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="first-project-key"
+                    className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground"
+                  >
+                    Key
+                  </label>
+                  <input
+                    id="first-project-key"
+                    value={newProjectKey}
+                    onChange={(event) => {
+                      setNewProjectKey(event.target.value);
+                      if (createError) setCreateError("");
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        handleCreateFirstProject();
+                      }
+                    }}
+                    placeholder="Project Key (Optional)"
+                    className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary"
+                  />
+                </div>
+
+                {createError ? (
+                  <p className="text-sm text-destructive">{createError}</p>
+                ) : null}
+              </div>
+
+              <div className="flex items-center justify-end border-t border-border px-5 py-4">
+                <button
+                  type="button"
+                  onClick={handleCreateFirstProject}
+                  disabled={!newProjectName.trim() || creatingProject}
+                  className={cn(
+                    buttonVariants({ size: "sm" }),
+                    "bg-primary text-primary-foreground shadow-none hover:scale-100 hover:bg-primary hover:shadow-none",
+                  )}
+                >
+                  <Plus className="size-4" />
+                  {creatingProject ? "Creating..." : "Create project"}
+                </button>
+              </div>
+            </section>
+          ) : (
+            <section className="w-full max-w-md rounded-xl border border-border bg-card px-5 py-4">
+              <h2 className="font-heading text-lg font-semibold tracking-tight text-foreground">
+                Create your first project
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                Ask a workspace admin to create the first project.
+              </p>
+            </section>
+          )}
         </div>
       ) : null}
 

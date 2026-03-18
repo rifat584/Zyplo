@@ -431,11 +431,11 @@ export default function CommandPalette() {
         <button
           onClick={() => setOpen(true)}
           title="Open Command Palette"
-          className="fixed bottom-6 right-6 z-[90] flex items-center justify-center gap-2 rounded-full border border-border/80 bg-white/90 p-3 text-xs font-bold uppercase tracking-widest text-muted-foreground shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-md transition-all hover:scale-105 hover:bg-white hover:text-foreground hover:shadow-[0_8px_30px_rgb(0,0,0,0.16)] sm:bottom-8 sm:right-8 sm:px-4 sm:py-2.5 dark:border-white/20 dark:bg-card/80 dark:text-muted-foreground dark:hover:bg-surface dark:hover:text-foreground"
+          className="fixed bottom-6 right-6 z-[90] flex items-center justify-center gap-2 rounded-full border border-border/80 bg-card/90 p-3 text-xs font-bold uppercase tracking-widest text-muted-foreground shadow-lg backdrop-blur-md transition-all hover:scale-105 hover:bg-card hover:text-foreground hover:shadow-xl sm:bottom-8 sm:right-8 sm:px-4 sm:py-2.5"
         >
           <Command className="size-5 sm:size-4" />
           <span className="hidden sm:inline">Press</span>
-          <span className="hidden rounded bg-muted/80 px-1.5 py-0.5 text-[10px] text-foreground sm:inline dark:bg-white/10 dark:text-foreground">
+          <span className="hidden rounded bg-muted/80 px-1.5 py-0.5 text-[10px] text-foreground sm:inline dark:bg-surface">
             Ctrl K
           </span>
           <span className="hidden sm:inline">to search</span>
@@ -452,22 +452,22 @@ export default function CommandPalette() {
           />
 
           {/* Modal */}
-          <div className="relative w-full max-w-[640px] transform overflow-hidden rounded-2xl border border-border bg-white shadow-2xl transition-all dark:border-white/10 dark:bg-[#0B0F19] mx-4 flex flex-col max-h-[65vh]">
+          <div className="relative mx-4 flex max-h-[65vh] w-full max-w-[640px] transform flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl transition-all">
             
             {/* Input Area */}
-            <div className="flex items-center border-b border-border px-4 py-4 dark:border-white/10">
+            <div className="flex items-center border-b border-border px-4 py-4">
               
               {/* Breadcrumbs for Sub-menus */}
               {view.type !== "root" ? (
                  <div className="flex shrink-0 items-center gap-2 mr-2">
                    <button 
                      onClick={() => { setView({type: "root"}); setQuery(""); setSelectedIndex(0); }}
-                     className="flex h-6 items-center rounded bg-muted px-2 text-xs font-medium text-muted-foreground hover:bg-muted dark:bg-white/10 dark:text-muted-foreground dark:hover:bg-white/20 transition-colors"
+                     className="flex h-6 items-center rounded bg-muted px-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent"
                    >
                      Root
                    </button>
-                   <span className="text-muted-foreground dark:text-muted-foreground">/</span>
-                   <div className="flex h-6 max-w-[160px] items-center rounded bg-primary/10 px-2 text-xs font-medium text-primary dark:bg-primary/100/20 dark:text-primary truncate">
+                   <span className="text-muted-foreground">/</span>
+                   <div className="flex h-6 max-w-[160px] items-center rounded bg-primary/10 px-2 text-xs font-medium text-primary truncate">
                      {view.type === 'task' ? view.task.title : 
                       view.type === 'create' ? 'Create Task' : view.actionLabel}
                    </div>
@@ -488,7 +488,7 @@ export default function CommandPalette() {
                   view.type === "select_task" ? "Search for task to apply..." :
                   "Search project..."
                 }
-                className="ml-2 flex-1 bg-transparent text-[17px] text-foreground placeholder-slate-400 outline-none dark:text-foreground min-w-0"
+                className="ml-2 min-w-0 flex-1 bg-transparent text-[17px] text-foreground outline-none placeholder:text-muted-foreground/80"
                 disabled={isProcessing}
               />
               {isProcessing ? (
@@ -497,7 +497,7 @@ export default function CommandPalette() {
                 <button 
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-[10px] font-semibold text-muted-foreground dark:bg-surface dark:text-muted-foreground uppercase tracking-wider hover:bg-muted dark:hover:bg-slate-700 transition-colors"
+                  className="flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:bg-accent"
                 >
                   ESC <span className="hidden sm:inline lowercase font-medium tracking-normal text-[11px]"> to close</span>
                 </button>
@@ -532,12 +532,12 @@ export default function CommandPalette() {
                             }}
                             className={`group flex cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 text-sm transition-colors ${
                               isSelected
-                                ? "bg-primary/10 text-primary dark:bg-primary/100/15 dark:text-primary"
-                                : "text-foreground hover:bg-surface dark:text-muted-foreground dark:hover:bg-white/5"
+                                ? "bg-primary/10 text-primary"
+                                : "text-foreground hover:bg-surface dark:text-muted-foreground dark:hover:bg-surface"
                             }`}
                           >
                             <div className="flex items-center gap-3 min-w-0">
-                              <div className={`flex size-6 shrink-0 items-center justify-center rounded-md ${isSelected ? "bg-white shadow-sm dark:bg-[#161b26]" : ""}`}>
+                              <div className={`flex size-6 shrink-0 items-center justify-center rounded-md ${isSelected ? "bg-card shadow-sm dark:bg-surface" : ""}`}>
                                 {cmd.icon}
                               </div>
                               <span className="truncate font-medium">{cmd.label}</span>
@@ -548,7 +548,7 @@ export default function CommandPalette() {
                               )}
                             </div>
                             {isSelected && (
-                              <span className="flex shrink-0 items-center gap-1 text-[11px] font-semibold text-primary dark:text-primary">
+                              <span className="flex shrink-0 items-center gap-1 text-[11px] font-semibold text-primary">
                                 {view.type === "root" && !cmd.id.includes("nav") && !cmd.id.includes("proj") && !cmd.id.includes("ws") ? (
                                    <>Select <CornerDownLeft className="size-3 ml-0.5" /></>
                                 ) : (
@@ -566,22 +566,22 @@ export default function CommandPalette() {
             </div>
             
             {/* Footer */}
-            <div className="hidden sm:flex shrink-0 items-center justify-between border-t border-border bg-surface/60 px-4 py-3 text-[11px] text-muted-foreground dark:border-white/10 dark:bg-[#050505]/50 dark:text-muted-foreground">
+            <div className="hidden shrink-0 items-center justify-between border-t border-border bg-surface/60 px-4 py-3 text-[11px] text-muted-foreground sm:flex dark:bg-surface/70">
               <div className="flex items-center gap-4">
                  <div className="flex items-center gap-1.5">
                    <div className="flex items-center gap-0.5">
-                     <kbd className="flex h-5 items-center justify-center rounded border border-border bg-white px-1 font-sans dark:border-white/10 dark:bg-surface shadow-sm">↑</kbd>
-                     <kbd className="flex h-5 items-center justify-center rounded border border-border bg-white px-1 font-sans dark:border-white/10 dark:bg-surface shadow-sm">↓</kbd>
+                     <kbd className="flex h-5 items-center justify-center rounded border border-border bg-card px-1 font-sans shadow-sm">↑</kbd>
+                     <kbd className="flex h-5 items-center justify-center rounded border border-border bg-card px-1 font-sans shadow-sm">↓</kbd>
                    </div>
                    <span>Navigate</span>
                  </div>
                  <div className="flex items-center gap-1.5">
-                   <kbd className="flex h-5 items-center justify-center rounded border border-border bg-white px-1.5 font-sans font-medium dark:border-white/10 dark:bg-surface shadow-sm">↵</kbd>
+                   <kbd className="flex h-5 items-center justify-center rounded border border-border bg-card px-1.5 font-sans font-medium shadow-sm">↵</kbd>
                    <span>Select</span>
                  </div>
                  {view.type !== "root" && (
                     <div className="flex items-center gap-1.5">
-                      <kbd className="flex h-5 items-center justify-center rounded border border-border bg-white px-1.5 font-sans font-medium dark:border-white/10 dark:bg-surface shadow-sm">Backspace</kbd>
+                      <kbd className="flex h-5 items-center justify-center rounded border border-border bg-card px-1.5 font-sans font-medium shadow-sm">Backspace</kbd>
                       <span>Go back</span>
                     </div>
                  )}

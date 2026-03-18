@@ -19,7 +19,16 @@ import {
 } from "recharts";
 import { loadDashboard, useMockStore } from "@/components/dashboard/mockStore";
 
-const COLORS = ["#2563eb", "#06b6d4", "#14b8a6", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
+const CHART_COLORS = [
+  "var(--chart-primary)",
+  "var(--chart-secondary)",
+  "var(--chart-success)",
+  "var(--chart-warning)",
+  "var(--chart-destructive)",
+  "var(--chart-accent)",
+  "var(--info)",
+  "var(--chart-muted)",
+];
 const EMPTY_ARR = [];
 
 function safeDate(value) {
@@ -80,19 +89,19 @@ function TooltipCard({ active, payload, label, keyName = "seconds" }) {
   if (!active || !payload?.length) return null;
   const row = payload[0]?.payload || {};
   return (
-    <div className="rounded-lg border border-border bg-white px-3 py-2 text-xs shadow dark:border-white/10 dark:bg-card">
+    <div className="rounded-lg border border-border bg-card px-3 py-2 text-xs shadow">
       <p className="text-muted-foreground">{label}</p>
-      <p className="font-semibold text-foreground dark:text-foreground">{fmtSeconds(row[keyName] || 0)}</p>
+      <p className="font-semibold text-foreground">{fmtSeconds(row[keyName] || 0)}</p>
     </div>
   );
 }
 
 function StatCard({ title, value, subtitle, Icon }) {
   return (
-    <div className="rounded-2xl border border-border bg-white/90 p-4 shadow-sm dark:border-white/10 dark:bg-card/90">
+    <div className="rounded-2xl border border-border bg-card/90 p-4 shadow-sm">
       <div className="flex items-center justify-between">
         <p className="text-xs uppercase tracking-wide text-muted-foreground">{title}</p>
-        <span className="inline-flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary dark:bg-primary/100/20 dark:text-primary">
+        <span className="inline-flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <Icon className="size-4" />
         </span>
       </div>
@@ -311,7 +320,7 @@ export default function WorkspaceTimesheetPage() {
           name: nameMap.get(String(row.projectId || "")) || "Unknown project",
           seconds,
           hours: toHours(seconds),
-          fill: COLORS[index % COLORS.length],
+          fill: CHART_COLORS[index % CHART_COLORS.length],
         };
       })
       .filter((row) => row.seconds > 0);
@@ -366,32 +375,32 @@ export default function WorkspaceTimesheetPage() {
 
   return (
     <div className="space-y-4">
-      <section className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-sky-50 via-white to-cyan-50 p-4 shadow-sm dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-cyan-950/20">
-        <div className="pointer-events-none absolute -right-16 -top-20 size-48 rounded-full bg-primary/100/15 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-20 -left-16 size-56 rounded-full bg-cyan-500/10 blur-3xl" />
+      <section className="relative overflow-hidden rounded-2xl border border-border bg-surface/70 p-4 shadow-sm">
+        <div className="pointer-events-none absolute -right-16 -top-20 size-48 rounded-full bg-primary/15 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-20 -left-16 size-56 rounded-full bg-info/10 blur-3xl" />
         <div className="relative">
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Reports</p>
-          <h2 className="text-xl font-semibold text-foreground">Time Sheet Analytics</h2>
+          <h2 className="font-heading text-xl font-semibold text-foreground">Time Sheet Analytics</h2>
           <p className="mt-1 text-xs text-muted-foreground">Charts + member contribution overview</p>
           <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <label className="space-y-1 text-[11px] font-medium text-muted-foreground">
               <span>Start date</span>
               <div className="relative">
                 <CalendarRange className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-10 w-full rounded-lg border border-border bg-white pl-8 pr-3 text-sm outline-none focus:border-primary dark:border-white/10 dark:bg-surface dark:text-foreground" />
+                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-10 w-full rounded-lg border border-border bg-background pl-8 pr-3 text-sm outline-none focus:border-primary" />
               </div>
             </label>
             <label className="space-y-1 text-[11px] font-medium text-muted-foreground">
               <span>End date</span>
               <div className="relative">
                 <CalendarRange className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="h-10 w-full rounded-lg border border-border bg-white pl-8 pr-3 text-sm outline-none focus:border-primary dark:border-white/10 dark:bg-surface dark:text-foreground" />
+                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="h-10 w-full rounded-lg border border-border bg-background pl-8 pr-3 text-sm outline-none focus:border-primary" />
               </div>
             </label>
             <label className="space-y-1 text-[11px] font-medium text-muted-foreground">
               <span>Project</span>
               <div className="relative">
-                <select value={selectedProjectId} onChange={(e) => setSelectedProjectId(e.target.value)} className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary dark:border-white/10 dark:bg-surface dark:text-foreground">
+                <select value={selectedProjectId} onChange={(e) => setSelectedProjectId(e.target.value)} className="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary">
                   {!projects.length ? <option value="">No project</option> : null}
                   {projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
                 </select>
@@ -400,7 +409,7 @@ export default function WorkspaceTimesheetPage() {
             <label className="space-y-1 text-[11px] font-medium text-muted-foreground">
               <span>Task</span>
               <div className="relative">
-                <select value={selectedTaskId} onChange={(e) => setSelectedTaskId(e.target.value)} className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary dark:border-white/10 dark:bg-surface dark:text-foreground">
+                <select value={selectedTaskId} onChange={(e) => setSelectedTaskId(e.target.value)} className="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary">
                   {!tasksForProject.length ? <option value="">No task</option> : null}
                   {tasksForProject.map((task) => <option key={task.id} value={task.id}>{task.title}</option>)}
                 </select>
@@ -418,10 +427,10 @@ export default function WorkspaceTimesheetPage() {
       </section>
 
       {error ? <div className="rounded-2xl border border-destructive/20 bg-destructive/10 p-3 text-sm text-destructive dark:border-destructive/30 dark:bg-destructive/10 dark:text-destructive">{error}</div> : null}
-      {memberError ? <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">{memberError}</div> : null}
+      {memberError ? <div className="rounded-2xl border border-warning/25 bg-warning/10 p-3 text-sm text-warning">{memberError}</div> : null}
 
       <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
-        <div className="rounded-2xl border border-border bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-card/95">
+        <div className="rounded-2xl border border-border bg-card/95 p-4 shadow-sm">
           <div className="mb-2 flex items-center justify-between">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Timesheet Trend</h3>
             <span className="text-xs text-muted-foreground">Hours by day</span>
@@ -434,15 +443,15 @@ export default function WorkspaceTimesheetPage() {
                 <AreaChart data={trendData} margin={{ top: 8, right: 8, left: -8, bottom: 8 }}>
                   <defs>
                     <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#2563eb" stopOpacity={0.35} />
-                      <stop offset="95%" stopColor="#2563eb" stopOpacity={0.03} />
+                      <stop offset="5%" stopColor="var(--chart-primary)" stopOpacity={0.35} />
+                      <stop offset="95%" stopColor="var(--chart-primary)" stopOpacity={0.03} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" opacity={0.5} />
-                  <XAxis dataKey="label" tick={{ fill: "#64748b", fontSize: 11 }} tickLine={false} axisLine={false} />
-                  <YAxis tickFormatter={(v) => `${v}h`} tick={{ fill: "#64748b", fontSize: 11 }} tickLine={false} axisLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" opacity={0.5} />
+                  <XAxis dataKey="label" tick={{ fill: "var(--chart-tick)", fontSize: 11 }} tickLine={false} axisLine={false} />
+                  <YAxis tickFormatter={(v) => `${v}h`} tick={{ fill: "var(--chart-tick)", fontSize: 11 }} tickLine={false} axisLine={false} />
                   <Tooltip content={<TooltipCard keyName="seconds" />} />
-                  <Area type="monotone" dataKey="hours" stroke="#2563eb" strokeWidth={2.5} fill="url(#trendFill)" dot={{ r: 3, fill: "#2563eb" }} activeDot={{ r: 5 }} />
+                  <Area type="monotone" dataKey="hours" stroke="var(--chart-primary)" strokeWidth={2.5} fill="url(#trendFill)" dot={{ r: 3, fill: "var(--chart-primary)" }} activeDot={{ r: 5 }} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -451,7 +460,7 @@ export default function WorkspaceTimesheetPage() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-border bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-card/95">
+        <div className="rounded-2xl border border-border bg-card/95 p-4 shadow-sm">
           <div className="mb-2 flex items-center justify-between">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Project Distribution</h3>
             <PieIcon className="size-4 text-muted-foreground" />
@@ -487,7 +496,7 @@ export default function WorkspaceTimesheetPage() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-2">
-        <div className="rounded-2xl border border-border bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-card/95">
+        <div className="rounded-2xl border border-border bg-card/95 p-4 shadow-sm">
           <div className="mb-2 flex items-center justify-between">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Selected Project Contribution</h3>
             <span className="text-xs text-muted-foreground">{selectedProject?.name || "Select project"}</span>
@@ -496,12 +505,12 @@ export default function WorkspaceTimesheetPage() {
             <div className="h-72 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={selectedProjectContrib} layout="vertical" margin={{ top: 4, right: 12, left: 12, bottom: 4 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" opacity={0.4} />
-                  <XAxis type="number" tickFormatter={(v) => `${v}h`} tick={{ fill: "#64748b", fontSize: 11 }} tickLine={false} axisLine={false} />
-                  <YAxis type="category" dataKey="name" width={120} tick={{ fill: "#64748b", fontSize: 11 }} tickLine={false} axisLine={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" opacity={0.4} />
+                  <XAxis type="number" tickFormatter={(v) => `${v}h`} tick={{ fill: "var(--chart-tick)", fontSize: 11 }} tickLine={false} axisLine={false} />
+                  <YAxis type="category" dataKey="name" width={120} tick={{ fill: "var(--chart-tick)", fontSize: 11 }} tickLine={false} axisLine={false} />
                   <Tooltip content={<TooltipCard keyName="seconds" />} />
                   <Bar dataKey="hours" radius={[0, 6, 6, 0]}>
-                    {selectedProjectContrib.map((row, index) => <Cell key={row.key} fill={COLORS[index % COLORS.length]} />)}
+                    {selectedProjectContrib.map((row, index) => <Cell key={row.key} fill={CHART_COLORS[index % CHART_COLORS.length]} />)}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
@@ -511,7 +520,7 @@ export default function WorkspaceTimesheetPage() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-border bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-card/95">
+        <div className="rounded-2xl border border-border bg-card/95 p-4 shadow-sm">
           <div className="mb-2 flex items-center justify-between">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">All Members Contribution</h3>
             <span className="text-xs text-muted-foreground">All projects (all-time)</span>
@@ -523,19 +532,19 @@ export default function WorkspaceTimesheetPage() {
               <div className="h-72 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={allMemberChart} margin={{ top: 4, right: 8, left: -12, bottom: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" opacity={0.35} />
-                    <XAxis dataKey="name" angle={-20} textAnchor="end" height={60} interval={0} tick={{ fill: "#64748b", fontSize: 10 }} tickLine={false} axisLine={false} />
-                    <YAxis tickFormatter={(v) => `${v}h`} tick={{ fill: "#64748b", fontSize: 11 }} tickLine={false} axisLine={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" opacity={0.35} />
+                    <XAxis dataKey="name" angle={-20} textAnchor="end" height={60} interval={0} tick={{ fill: "var(--chart-tick)", fontSize: 10 }} tickLine={false} axisLine={false} />
+                    <YAxis tickFormatter={(v) => `${v}h`} tick={{ fill: "var(--chart-tick)", fontSize: 11 }} tickLine={false} axisLine={false} />
                     <Tooltip content={<TooltipCard keyName="seconds" />} />
-                    <Bar dataKey="hours" radius={[6, 6, 0, 0]} fill="#06b6d4" />
+                    <Bar dataKey="hours" radius={[6, 6, 0, 0]} fill="var(--chart-secondary)" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
               <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
                 {allMemberRows.map((row) => (
-                  <div key={row.key} className="flex items-center justify-between rounded-xl border border-border bg-white/80 px-3 py-2 text-sm dark:border-white/10 dark:bg-card/70">
+                  <div key={row.key} className="flex items-center justify-between rounded-xl border border-border bg-card/80 px-3 py-2 text-sm">
                     <div className="min-w-0">
-                      <p className="truncate font-medium text-foreground dark:text-foreground">{row.name}</p>
+                      <p className="truncate font-medium text-foreground">{row.name}</p>
                       <p className="truncate text-xs text-muted-foreground">{row.email || "No email"}</p>
                     </div>
                     <p className="ml-2 shrink-0 font-semibold text-foreground">{fmtSeconds(row.seconds)}</p>
@@ -550,47 +559,47 @@ export default function WorkspaceTimesheetPage() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-2xl border border-border bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-card/95">
+        <div className="rounded-2xl border border-border bg-card/95 p-4 shadow-sm">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Snapshot</h3>
           <div className="mt-3 space-y-3 text-sm">
-            <div className="rounded-xl border border-border p-3 dark:border-white/10">
+            <div className="rounded-xl border border-border p-3">
               <p className="text-xs text-muted-foreground">Top Contributor</p>
-              <p className="mt-1 font-semibold text-foreground dark:text-foreground">{topContributor?.name || "N/A"}</p>
+              <p className="mt-1 font-semibold text-foreground">{topContributor?.name || "N/A"}</p>
               <p className="text-xs text-muted-foreground">{topContributor ? fmtSeconds(topContributor.seconds) : "No data"}</p>
             </div>
-            <div className="rounded-xl border border-border p-3 dark:border-white/10">
+            <div className="rounded-xl border border-border p-3">
               <p className="text-xs text-muted-foreground">Selected Project</p>
-              <p className="mt-1 font-semibold text-foreground dark:text-foreground">{selectedProject?.name || "N/A"}</p>
+              <p className="mt-1 font-semibold text-foreground">{selectedProject?.name || "N/A"}</p>
               <p className="text-xs text-muted-foreground">{fmtSeconds(projectRows.reduce((sum, row) => sum + Number(row.totalTime || 0), 0))}</p>
             </div>
-            <div className="rounded-xl border border-border p-3 dark:border-white/10">
+            <div className="rounded-xl border border-border p-3">
               <p className="text-xs text-muted-foreground">Selected Task</p>
-              <p className="mt-1 font-semibold text-foreground dark:text-foreground">{selectedTask?.title || "N/A"}</p>
+              <p className="mt-1 font-semibold text-foreground">{selectedTask?.title || "N/A"}</p>
               <p className="text-xs text-muted-foreground">{taskReport ? `${fmtSeconds(taskReport.totalTimeSpent || 0)} spent` : "No task report"}</p>
             </div>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-card/95">
+        <div className="rounded-2xl border border-border bg-card/95 p-4 shadow-sm">
           <div className="mb-2 flex items-center justify-between">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Task Report</h3>
             <Clock3 className="size-4 text-muted-foreground" />
           </div>
           {taskReport ? (
             <div className="space-y-4">
-              <p className="text-sm font-medium text-foreground dark:text-foreground">{selectedTask?.title || "Selected task"}</p>
+              <p className="text-sm font-medium text-foreground">{selectedTask?.title || "Selected task"}</p>
               <div className="grid gap-2 sm:grid-cols-3">
                 <div className="rounded-lg bg-surface p-2 dark:bg-surface/50">
                   <p className="text-[11px] text-muted-foreground">Estimated</p>
-                  <p className="text-sm font-semibold text-foreground dark:text-foreground">{fmtSeconds(taskReport.estimatedTime)}</p>
+                  <p className="text-sm font-semibold text-foreground">{fmtSeconds(taskReport.estimatedTime)}</p>
                 </div>
                 <div className="rounded-lg bg-surface p-2 dark:bg-surface/50">
                   <p className="text-[11px] text-muted-foreground">Spent</p>
-                  <p className="text-sm font-semibold text-foreground dark:text-foreground">{fmtSeconds(taskReport.totalTimeSpent)}</p>
+                  <p className="text-sm font-semibold text-foreground">{fmtSeconds(taskReport.totalTimeSpent)}</p>
                 </div>
                 <div className="rounded-lg bg-surface p-2 dark:bg-surface/50">
                   <p className="text-[11px] text-muted-foreground">Remaining</p>
-                  <p className="text-sm font-semibold text-foreground dark:text-foreground">{fmtSeconds(taskReport.remainingTime)}</p>
+                  <p className="text-sm font-semibold text-foreground">{fmtSeconds(taskReport.remainingTime)}</p>
                 </div>
               </div>
               <div>
@@ -599,7 +608,7 @@ export default function WorkspaceTimesheetPage() {
                   <span>{taskProgress}%</span>
                 </div>
                 <div className="h-2.5 rounded-full bg-muted dark:bg-surface">
-                  <div className="h-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-cyan-500" style={{ width: `${taskProgress}%` }} />
+                  <div className="h-2.5 rounded-full bg-gradient-to-r from-primary to-secondary" style={{ width: `${taskProgress}%` }} />
                 </div>
               </div>
               <div>

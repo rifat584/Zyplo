@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import {
   Bell,
@@ -16,19 +16,16 @@ import {
   Landmark,
   Megaphone,
   Menu,
-  Moon,
   PenTool,
   UserCircle2,
   Rocket,
   Settings,
   Star,
-  Sun,
   Timer,
   Trash2,
   UserPlus,
 } from "lucide-react";
 import { toast } from "sonner";
-import { useTheme } from "@/Context/ThemeContext";
 import { Avatar } from "./ui";
 import Logo from "../Shared/Logo/Logo";
 import {
@@ -41,6 +38,15 @@ import {
 } from "./mockStore";
 
 const SIDEBAR_KEY = "dashboard.sidebarCollapsed";
+const WORKSPACE_ROUTE_LABELS = {
+  timeline: "Timeline",
+  board: "Board",
+  calender: "Calendar",
+  list: "List",
+  timesheet: "Time Sheet",
+  members: "Invite Users",
+  settings: "Settings",
+};
 
 function useSidebarState() {
   const [collapsed, setCollapsed] = useState(false);
@@ -94,14 +100,14 @@ function AvatarMenu() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="rounded-full p-0.5 ring-2 ring-transparent transition hover:ring-cyan-200 dark:hover:ring-cyan-500/40"
+        className="rounded-full p-0.5 ring-2 ring-transparent transition hover:ring-primary/20 dark:hover:ring-primary/30"
       >
         <Avatar name={displayName} src={displayAvatarUrl} />
       </button>
 
       {open ? (
-        <div className="absolute right-0 top-11 z-30 w-56 rounded-xl border border-border bg-white p-2 shadow-lg dark:border-white/10 dark:bg-card">
-          <div className="mb-2 border-b border-border pb-2 dark:border-white/10">
+        <div className="absolute right-0 top-11 z-30 w-56 rounded-xl border border-border bg-card p-2">
+          <div className="mb-2 border-b border-border pb-2">
             <p className="text-sm font-medium text-foreground">
               {displayName}
             </p>
@@ -235,11 +241,11 @@ function GlobalTimerControl() {
   const hasActiveTimer = Boolean(activeTimer?.id);
 
   const containerClasses = hasActiveTimer 
-    ? "border-primary/20 bg-primary/10 dark:border-indigo-400/30 dark:bg-primary/100/10" 
-    : "border-border bg-surface dark:border-white/10 dark:bg-surface/50";
+    ? "border-primary/20 bg-primary/10" 
+    : "border-border bg-surface/80";
 
   const textClasses = hasActiveTimer
-    ? "text-primary dark:text-indigo-200"
+    ? "text-primary"
     : "text-muted-foreground";
 
   return (
@@ -286,7 +292,7 @@ function GlobalTimerControl() {
               }
             }}
             disabled={stopping || loading}
-            className="rounded-md bg-destructive px-1.5 py-0.5 sm:px-2 sm:py-1 text-[10px] sm:text-[11px] font-medium text-white hover:bg-destructive disabled:opacity-50"
+            className="rounded-md bg-destructive px-1.5 py-0.5 text-[10px] font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50 sm:px-2 sm:py-1 sm:text-[11px]"
           >
             {stopping ? "..." : "Stop"}
           </button>
@@ -319,20 +325,20 @@ function NotificationsMenu() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="relative rounded-lg border border-border p-1.5 sm:p-2 text-muted-foreground hover:bg-surface dark:border-white/10 dark:text-muted-foreground dark:hover:bg-card"
+        className="relative rounded-lg border border-border p-1.5 text-muted-foreground hover:bg-surface sm:p-2"
         aria-label="Open notifications"
       >
         <Bell className="size-4" />
         {unreadCount > 0 ? (
-          <span className="absolute -right-1 -top-1 inline-flex min-w-[18px] items-center justify-center rounded-full bg-destructive/100 px-1 text-[10px] font-semibold text-white">
+          <span className="absolute -right-1 -top-1 inline-flex min-w-[18px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-destructive-foreground">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         ) : null}
       </button>
 
       {open ? (
-        <div className="absolute right-0 top-11 z-40 w-[92vw] max-w-sm overflow-hidden rounded-xl border border-border bg-white shadow-lg dark:border-white/10 dark:bg-card">
-          <div className="flex items-center justify-between border-b border-border px-3 py-2 dark:border-white/10">
+        <div className="absolute right-0 top-11 z-40 w-[92vw] max-w-sm overflow-hidden rounded-xl border border-border bg-card">
+          <div className="flex items-center justify-between border-b border-border px-3 py-2">
             <p className="text-sm font-semibold text-foreground">
               Notifications
             </p>
@@ -349,7 +355,7 @@ function NotificationsMenu() {
                   setMarkingAllRead(false);
                 }
               }}
-              className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:text-foreground dark:hover:bg-surface"
+              className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
             >
               <CheckCheck className="size-3.5" />
               Mark all read
@@ -362,11 +368,11 @@ function NotificationsMenu() {
                   key={item.id}
                   className={`mb-1 rounded-lg border px-3 py-2 last:mb-0 ${
                     item.read
-                      ? "border-border bg-white dark:border-white/10 dark:bg-card"
+                      ? "border-border bg-card"
                       : "border-primary/20 bg-primary/10 dark:border-primary/40 dark:bg-primary/100/10"
                   }`}
                 >
-                  <p className="text-sm text-foreground dark:text-foreground">
+                  <p className="text-sm text-foreground">
                     {item.text || "Notification"}
                   </p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
@@ -401,13 +407,13 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   const actionsMenuRef = useRef(null);
 
   const workspaceIcons = [
-    { Icon: Rocket, color: "bg-blue-100 text-blue-700 dark:bg-primary/15 dark:text-blue-300" },
-    { Icon: BriefcaseBusiness, color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300" },
-    { Icon: PenTool, color: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300" },
-    { Icon: Megaphone, color: "bg-destructive/10 text-destructive dark:bg-destructive/100/20 dark:text-destructive" },
-    { Icon: FlaskConical, color: "bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300" },
-    { Icon: Cpu, color: "bg-cyan-100 text-secondary dark:bg-cyan-500/20 dark:text-secondary" },
-    { Icon: Landmark, color: "bg-primary/10 text-primary dark:bg-primary/100/20 dark:text-primary" },
+    { Icon: Rocket, color: "bg-primary/10 text-primary" },
+    { Icon: BriefcaseBusiness, color: "bg-success/15 text-success" },
+    { Icon: PenTool, color: "bg-warning/15 text-warning" },
+    { Icon: Megaphone, color: "bg-destructive/10 text-destructive" },
+    { Icon: FlaskConical, color: "bg-info/15 text-info" },
+    { Icon: Cpu, color: "bg-secondary/15 text-secondary" },
+    { Icon: Landmark, color: "bg-accent text-accent-foreground" },
   ];
 
   const pickWorkspaceIcon = (workspace) => {
@@ -501,14 +507,14 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                   event.stopPropagation();
                   setActionsOpenFor((current) => (current === workspace.id ? "" : workspace.id));
                 }}
-                className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:bg-muted/70 group-hover:block dark:text-muted-foreground dark:hover:bg-slate-700 cursor-pointer"
+                className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:bg-muted/70 group-hover:block"
               >
                 <Ellipsis className="size-4" />
               </button>
             ) : null}
 
             {menuOpen ? (
-              <div ref={actionsMenuRef} className="absolute right-0 top-10 z-50 w-52 rounded-xl border border-border bg-white p-1 shadow-lg dark:border-white/10 dark:bg-card">
+              <div ref={actionsMenuRef} className="absolute right-0 top-10 z-50 w-52 rounded-xl border border-border bg-card p-1 shadow-lg">
                 <button
                   type="button"
                   onClick={() => {
@@ -580,7 +586,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         <button
           type="button"
           onClick={toggle}
-          className="hidden rounded-lg border border-border p-1.5 text-muted-foreground hover:bg-muted dark:border-white/10 dark:text-muted-foreground dark:hover:bg-surface md:block"
+          className="hidden rounded-lg border border-border p-1.5 text-muted-foreground hover:bg-muted md:block"
         >
           <ChevronLeft
             className={`size-4 transition ${effectiveCollapsed ? "rotate-180" : ""}`}
@@ -600,7 +606,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   return (
     <>
       <aside
-        className={`relative z-40 hidden h-screen shrink-0 border-r border-border bg-white/90 dark:border-white/10 dark:bg-card/80 md:sticky md:top-0 md:flex md:flex-col ${effectiveCollapsed ? "md:w-20" : "md:w-64"
+        className={`relative z-40 hidden h-screen shrink-0 border-r border-border bg-card/90 md:sticky md:top-0 md:flex md:flex-col ${effectiveCollapsed ? "md:w-20" : "md:w-64"
           }`}
       >
         {content}
@@ -613,7 +619,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
             className="absolute inset-0 bg-card/35"
             onClick={onCloseMobile}
           />
-          <div className="absolute left-0 top-0 h-full w-20 border-r border-border bg-white shadow-xl dark:border-white/10 dark:bg-background">
+          <div className="absolute left-0 top-0 h-full w-20 border-r border-border bg-background shadow-xl">
             {content}
           </div>
         </div>
@@ -626,9 +632,9 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
             className="absolute inset-0 bg-card/45"
             onClick={() => (deleting ? null : setConfirmDeleteId(""))}
           />
-          <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-card">
+          <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-card p-5 shadow-2xl">
             <h3 className="text-lg font-semibold text-foreground">Delete workspace?</h3>
-            <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
+            <p className="mt-2 text-sm text-muted-foreground">
               This action will remove the workspace and related projects/tasks permanently.
             </p>
             <div className="mt-5 flex justify-end gap-2">
@@ -636,7 +642,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                 type="button"
                 onClick={() => setConfirmDeleteId("")}
                 disabled={deleting}
-                className="rounded-lg border border-border px-3 py-2 text-sm text-foreground dark:border-white/10 dark:text-foreground"
+                className="rounded-lg border border-border px-3 py-2 text-sm text-foreground"
               >
                 Cancel
               </button>
@@ -659,7 +665,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                     setDeleting(false);
                   }
                 }}
-                className="rounded-lg bg-destructive px-3 py-2 text-sm font-medium text-white hover:bg-destructive disabled:opacity-50"
+                className="rounded-lg bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
               >
                 {deleting ? "Deleting..." : "Delete Workspace"}
               </button>
@@ -672,49 +678,84 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
 }
 
 function Topbar({ onOpenSidebar }) {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+  const params = useParams();
+  const workspaces = useMockStore((state) => state.workspaces || []);
 
-  useEffect(() => setMounted(true), []);
+  const workspaceId = typeof params.workspaceId === "string" ? params.workspaceId : "";
+  const workspace = useMemo(
+    () => workspaces.find((item) => item.id === workspaceId) || null,
+    [workspaces, workspaceId],
+  );
+  const breadcrumb = useMemo(() => {
+    if (pathname === "/dashboard/workspaces") {
+      return [
+        { label: "Dashboard", href: "/dashboard/workspaces" },
+        { label: "Workspaces" },
+      ];
+    }
+    if (pathname === "/dashboard/profile") {
+      return [
+        { label: "Dashboard", href: "/dashboard/workspaces" },
+        { label: "Profile" },
+      ];
+    }
+    if (pathname.startsWith("/dashboard/w/")) {
+      const routeKey = pathname.split("/").filter(Boolean)[3] || "overview";
+      const currentLabel =
+        routeKey === "overview" ? "Overview" : WORKSPACE_ROUTE_LABELS[routeKey] || "Workspace";
+      return [
+        { label: "Dashboard", href: "/dashboard/workspaces" },
+        { label: workspace?.name || "Workspace", href: `/dashboard/w/${workspaceId}` },
+        { label: currentLabel },
+      ];
+    }
+    return [{ label: "Dashboard", href: "/dashboard/workspaces" }];
+  }, [pathname, workspace?.name, workspaceId]);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-white/90 px-3 py-3 sm:px-4 backdrop-blur dark:border-white/10 dark:bg-card/80 lg:px-7">
-      <div className="flex items-center justify-between gap-2 sm:gap-3">
+    <header className="sticky top-0 z-30 border-b border-border bg-background px-3 sm:px-4 lg:px-7">
+      <div className="flex h-11 items-center justify-between gap-2 sm:gap-3">
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <button
             type="button"
             onClick={onOpenSidebar}
-            className="shrink-0 rounded-lg border border-border p-1.5 sm:p-2 text-muted-foreground md:hidden dark:border-white/10 dark:text-muted-foreground"
+            className="shrink-0 rounded-md border border-border p-1.5 text-muted-foreground md:hidden"
           >
             <Menu className="size-4 sm:size-5" />
           </button>
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-foreground">
-              Workspace
-            </p>
-            {/* Hide subtitle on mobile so it doesn't push the right side off screen */}
-            <p className="hidden truncate text-xs text-muted-foreground sm:block dark:text-muted-foreground">
-              Overview, timeline, board, and members.
-            </p>
+            <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5 text-[11px]">
+              {breadcrumb.map((item, index) => (
+                <div key={`${item.label}-${index}`} className="flex min-w-0 items-center gap-1.5">
+                  {index > 0 ? <span className="text-muted-foreground/45">/</span> : null}
+                  {item.href && index !== breadcrumb.length - 1 ? (
+                    <Link
+                      href={item.href}
+                      className="truncate text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      {item.label}
+                    </Link>
+                  ) : (
+                    <span
+                      className={`truncate ${
+                        index === breadcrumb.length - 1
+                          ? "font-medium text-foreground"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {item.label}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </nav>
           </div>
         </div>
         
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+        <div className="flex shrink-0 items-center gap-1.5">
           <GlobalTimerControl />
           <NotificationsMenu />
-          {mounted ? (
-            <button
-              type="button"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="rounded-lg border border-border p-1.5 sm:p-2 text-muted-foreground hover:bg-surface dark:border-white/10 dark:text-muted-foreground dark:hover:bg-card"
-            >
-              {theme === "dark" ? (
-                <Sun className="size-4 text-cyan-400" />
-              ) : (
-                <Moon className="size-4" />
-              )}
-            </button>
-          ) : null}
           <AvatarMenu />
         </div>
       </div>
@@ -780,14 +821,14 @@ export function AppShell({ children }) {
   }, [loaded, currentUser]);
 
   return (
-    <div className="flex min-h-screen bg-surface text-foreground dark:bg-background dark:text-foreground">
+    <div className="flex min-h-screen bg-surface text-foreground dark:bg-background">
       <AppSidebar
         mobileOpen={mobileOpen}
         onCloseMobile={() => setMobileOpen(false)}
       />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar onOpenSidebar={() => setMobileOpen(true)} />
-        <main className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 lg:px-7 dark:bg-background/30">
+        <main className="min-h-0 flex-1 overflow-y-auto px-3 pb-4 pt-0 sm:px-4 sm:pb-5 md:px-6 md:pb-6 lg:px-7">
           {children}
         </main>
       </div>

@@ -71,14 +71,14 @@ const PRIORITIES = [
     label: "High",
     icon: ArrowUp,
     color: "text-warning",
-    bg: "bg-orange-50 dark:bg-orange-500/10",
+    bg: "bg-warning/10",
   },
   {
     value: "P2",
     label: "Medium",
     icon: ArrowRight,
-    color: "text-warning dark:text-yellow-400",
-    bg: "bg-yellow-50 dark:bg-yellow-500/10",
+    color: "text-info",
+    bg: "bg-info/10",
   },
   {
     value: "P3",
@@ -151,6 +151,25 @@ async function fetchJson(url, options = {}) {
   }
 
   return data;
+}
+
+function getAlertPalette() {
+  if (typeof window === "undefined") {
+    return {
+      background: "var(--card)",
+      color: "var(--card-foreground)",
+      confirmButtonColor: "var(--destructive)",
+      cancelButtonColor: "var(--muted-foreground)",
+    };
+  }
+
+  const styles = getComputedStyle(document.documentElement);
+  return {
+    background: styles.getPropertyValue("--card").trim(),
+    color: styles.getPropertyValue("--card-foreground").trim(),
+    confirmButtonColor: styles.getPropertyValue("--destructive").trim(),
+    cancelButtonColor: styles.getPropertyValue("--muted-foreground").trim(),
+  };
 }
 
 export default function TaskListView() {
@@ -413,6 +432,7 @@ export default function TaskListView() {
     );
     const singleTask = targets.length === 1 ? targets[0] : null;
 
+    const alertPalette = getAlertPalette();
     const result = await Swal.fire({
       title: singleTask ? "Delete task?" : "Delete selected tasks?",
       text: singleTask
@@ -423,10 +443,10 @@ export default function TaskListView() {
       confirmButtonText: "Yes, delete",
       cancelButtonText: "Cancel",
       reverseButtons: true,
-      background: "#0f172a",
-      color: "#e2e8f0",
-      confirmButtonColor: "#dc2626",
-      cancelButtonColor: "#334155",
+      background: alertPalette.background,
+      color: alertPalette.color,
+      confirmButtonColor: alertPalette.confirmButtonColor,
+      cancelButtonColor: alertPalette.cancelButtonColor,
     });
 
     if (!result.isConfirmed) return;
@@ -465,17 +485,17 @@ export default function TaskListView() {
         icon: "success",
         timer: 1500,
         showConfirmButton: false,
-        background: "#0f172a",
-        color: "#e2e8f0",
+        background: alertPalette.background,
+        color: alertPalette.color,
       });
     } catch (error) {
       await Swal.fire({
         title: "Delete failed",
         text: error?.message || "Failed to delete task",
         icon: "error",
-        confirmButtonColor: "#dc2626",
-        background: "#0f172a",
-        color: "#e2e8f0",
+        confirmButtonColor: alertPalette.confirmButtonColor,
+        background: alertPalette.background,
+        color: alertPalette.color,
       });
     } finally {
       setDeletingIds((prev) => {
@@ -575,7 +595,7 @@ export default function TaskListView() {
 
   return (
     <>
-      <div className="relative rounded-2xl border border-border bg-white shadow-sm dark:border-white/10 dark:bg-[#0B0F19] overflow-hidden min-h-150">
+      <div className="relative min-h-150 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
       <div className="flex flex-col border-b border-border">
         <div className="px-6 py-4">
           <h2 className="text-lg font-semibold text-foreground">
@@ -596,7 +616,7 @@ export default function TaskListView() {
                 placeholder="Filter tasks..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="block w-full rounded-lg border border-border bg-white py-1.5 pl-9 pr-3 text-sm text-foreground placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/10 dark:bg-[#050505] dark:text-white dark:placeholder-slate-500"
+                className="block w-full rounded-lg border border-border bg-background py-1.5 pl-9 pr-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/20 placeholder:text-muted-foreground/80"
               />
             </div>
           </div>
@@ -606,7 +626,7 @@ export default function TaskListView() {
             <div className="relative">
               <button
                 onClick={() => setDisplayMenuOpen(!displayMenuOpen)}
-                className="flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-surface dark:border-white/10 dark:bg-transparent dark:text-muted-foreground dark:hover:bg-white/5"
+                className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-surface"
               >
                 <Filter size={16} /> Display
               </button>
@@ -618,7 +638,7 @@ export default function TaskListView() {
                     className="fixed inset-0 z-10"
                     onClick={() => setDisplayMenuOpen(false)}
                   />
-                  <div className="absolute right-0 top-10 z-20 w-48 rounded-lg border border-border bg-white p-2 shadow-xl dark:border-white/10 dark:bg-card">
+                  <div className="absolute right-0 top-10 z-20 w-48 rounded-lg border border-border bg-popover p-2 shadow-xl">
                     <p className="px-2 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                       Visible Columns
                     </p>
@@ -626,7 +646,7 @@ export default function TaskListView() {
                       <button
                         key={col}
                         onClick={() => toggleColumn(col)}
-                        className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm text-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-white/5 capitalize"
+                        className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm text-foreground capitalize hover:bg-muted"
                       >
                         {col.replace(/([A-Z])/g, " $1").trim()}
                         {visibleCols[col] && (
@@ -641,13 +661,13 @@ export default function TaskListView() {
 
             <CreateTaskLauncher
               workspaceId={workspaceId}
-              buttonClassName="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:opacity-60 dark:bg-primary/100 dark:hover:bg-primary"
+              buttonClassName="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90 disabled:opacity-60"
               label="Create Task"
             />
           </div>
         </div>
 
-        <div className="border-t border-border bg-surface/60 p-4 dark:border-white/10 dark:bg-surface/20">
+        <div className="border-t border-border bg-surface/60 p-4">
           <div className="flex flex-wrap gap-2">
             <input
               type="text"
@@ -659,7 +679,7 @@ export default function TaskListView() {
                 }))
               }
               placeholder="Task Name"
-              className="h-10 min-w-42.5 rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
+              className="h-10 min-w-42.5 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary/30"
             />
 
             {visibleCols.status && (
@@ -671,7 +691,7 @@ export default function TaskListView() {
                     status: event.target.value,
                   }))
                 }
-                className="h-10 min-w-32.5 rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                className="h-10 min-w-32.5 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary/30"
               >
                 <option value="all">Status</option>
                 <option value="todo">To Do</option>
@@ -690,7 +710,7 @@ export default function TaskListView() {
                     priority: event.target.value,
                   }))
                 }
-                className="h-10 min-w-27.5 rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                className="h-10 min-w-27.5 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary/30"
               >
                 <option value="all">Priority</option>
                 <option value="P0">P0</option>
@@ -709,7 +729,7 @@ export default function TaskListView() {
                     assigneeId: event.target.value,
                   }))
                 }
-                className="h-10 min-w-37.5 rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                className="h-10 min-w-37.5 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary/30"
               >
                 <option value="all">Assignee</option>
                 {workspaceMembers.map((member) => (
@@ -724,7 +744,7 @@ export default function TaskListView() {
               <button
                 type="button"
                 onClick={() => setMoreFiltersOpen((prev) => !prev)}
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-white px-3 text-sm text-foreground hover:bg-surface dark:border-white/10 dark:bg-surface dark:text-foreground dark:hover:bg-slate-700"
+                className="inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm text-foreground hover:bg-surface"
               >
                 <Filter className="size-4" />
                 More filters
@@ -736,7 +756,7 @@ export default function TaskListView() {
                     className="fixed inset-0 z-40"
                     onClick={() => setMoreFiltersOpen(false)}
                   />
-                  <div className="absolute right-0 top-11 z-50 w-[320px] space-y-3 rounded-xl border border-border bg-white p-3 shadow-xl dark:border-white/10 dark:bg-card">
+                  <div className="absolute right-0 top-11 z-50 w-[320px] space-y-3 rounded-xl border border-border bg-popover p-3 shadow-xl">
                     {visibleCols.reporter && (
                       <div className="space-y-1">
                         <label className="text-xs font-medium text-muted-foreground">
@@ -752,7 +772,7 @@ export default function TaskListView() {
                             }))
                           }
                           placeholder="Filter by reporter"
-                          className="h-9 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                          className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary/30"
                         />
                       </div>
                     )}
@@ -771,7 +791,7 @@ export default function TaskListView() {
                               updatedAt: event.target.value,
                             }))
                           }
-                          className="h-9 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                          className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary/30"
                         />
                       </div>
                     )}
@@ -790,7 +810,7 @@ export default function TaskListView() {
                               createdAt: event.target.value,
                             }))
                           }
-                          className="h-9 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                          className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary/30"
                         />
                       </div>
                     )}
@@ -809,7 +829,7 @@ export default function TaskListView() {
                               dueDate: event.target.value,
                             }))
                           }
-                          className="h-9 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                          className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary/30"
                         />
                       </div>
                     )}
@@ -824,7 +844,7 @@ export default function TaskListView() {
       {/* === INTERACTIVE DATA GRID === */}
       <div className="overflow-x-auto pb-32 min-h-100">
         <table className="min-w-7xl w-full text-left text-sm text-muted-foreground dark:text-muted-foreground">
-          <thead className="border-b border-border bg-surface/60 text-xs uppercase tracking-wider text-muted-foreground dark:border-white/10 dark:bg-surface/50 dark:text-muted-foreground">
+          <thead className="border-b border-border bg-surface/60 text-xs uppercase tracking-wider text-muted-foreground">
             <tr>
               <th className="px-6 py-3 font-medium w-10">
                 <input
@@ -834,7 +854,7 @@ export default function TaskListView() {
                     selectedIds.size === filteredTasks.length
                   }
                   onChange={toggleSelectAll}
-                  className="rounded border-border text-primary focus:ring-indigo-600 dark:border-slate-600 dark:bg-card"
+                  className="rounded border-border bg-card text-primary focus:ring-primary/30"
                 />
               </th>
               <th className="px-4 py-3 font-medium">Task Name</th>
@@ -863,7 +883,7 @@ export default function TaskListView() {
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-slate-200 dark:divide-white/10">
+          <tbody className="divide-y divide-border">
             {filteredTasks.map((task) => {
               const rawStatus = (task.status || "todo")
                 .toLowerCase()
@@ -877,14 +897,14 @@ export default function TaskListView() {
               return (
                 <tr
                   key={task.id}
-                  className={`group transition-colors hover:bg-surface dark:hover:bg-surface/50 ${selectedIds.has(task.id) ? "bg-primary/10/50 dark:bg-primary/100/10" : ""}`}
+                  className={`group transition-colors hover:bg-surface dark:hover:bg-surface/50 ${selectedIds.has(task.id) ? "bg-primary/10 dark:bg-primary/100/10" : ""}`}
                 >
                   <td className="px-6 py-4">
                     <input
                       type="checkbox"
                       checked={selectedIds.has(task.id)}
                       onChange={() => toggleSelect(task.id)}
-                      className="rounded border-border text-primary focus:ring-indigo-600 dark:border-slate-600 dark:bg-card"
+                      className="rounded border-border bg-card text-primary focus:ring-primary/30"
                     />
                   </td>
 
@@ -911,7 +931,7 @@ export default function TaskListView() {
                             setInlineEdit(null);
                           }
                         }}
-                        className="h-8 w-full rounded-md border border-border bg-white px-2 text-sm outline-none focus:border-primary dark:border-white/10 dark:bg-card dark:text-foreground"
+                        className="h-8 w-full rounded-md border border-border bg-background px-2 text-sm outline-none focus:border-primary"
                       />
                     ) : (
                       <button
@@ -948,7 +968,7 @@ export default function TaskListView() {
                               : `status-${task.id}`,
                           )
                         }
-                        className="flex items-center gap-2 rounded-md px-2 py-1 -ml-2 hover:bg-muted dark:hover:bg-white/5 transition-colors relative z-20"
+                        className="relative z-20 -ml-2 flex items-center gap-2 rounded-md px-2 py-1 transition-colors hover:bg-muted dark:hover:bg-surface"
                       >
                         <currentStatus.icon
                           size={14}
@@ -960,17 +980,17 @@ export default function TaskListView() {
                       </button>
 
                       {activeDropdown === `status-${task.id}` && (
-                        <div className="absolute top-10 left-4 z-30 w-40 rounded-lg border border-border bg-white p-1 shadow-xl dark:border-white/10 dark:bg-card">
+                        <div className="absolute top-10 left-4 z-30 w-40 rounded-lg border border-border bg-popover p-1 shadow-xl">
                           {STATUSES.map((s) => (
                             <button
                               key={s.value}
                               onClick={() =>
                                 handleInlineEdit(task, "status", s.value)
                               }
-                              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted dark:hover:bg-white/5"
+                              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
                             >
                               <s.icon size={14} className={s.color} />
-                              <span className="text-foreground dark:text-muted-foreground">
+                              <span className="text-foreground">
                                 {s.label}
                               </span>
                             </button>
@@ -1004,17 +1024,17 @@ export default function TaskListView() {
                       </button>
 
                       {activeDropdown === `priority-${task.id}` && (
-                        <div className="absolute top-10 left-4 z-30 w-36 rounded-lg border border-border bg-white p-1 shadow-xl dark:border-white/10 dark:bg-card">
+                        <div className="absolute top-10 left-4 z-30 w-36 rounded-lg border border-border bg-popover p-1 shadow-xl">
                           {PRIORITIES.map((p) => (
                             <button
                               key={p.value}
                               onClick={() =>
                                 handleInlineEdit(task, "priority", p.value)
                               }
-                              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted dark:hover:bg-white/5"
+                              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
                             >
                               <p.icon size={14} className={p.color} />
-                              <span className="text-foreground dark:text-muted-foreground">
+                              <span className="text-foreground">
                                 {p.label}
                               </span>
                             </button>
@@ -1042,7 +1062,7 @@ export default function TaskListView() {
                               : `assignee-${task.id}`,
                           )
                         }
-                        className="relative z-20 flex w-full items-center gap-2 rounded-md px-2 py-1 -ml-2 hover:bg-muted dark:hover:bg-white/5 transition-colors"
+                        className="relative z-20 -ml-2 flex w-full items-center gap-2 rounded-md px-2 py-1 transition-colors hover:bg-muted dark:hover:bg-surface"
                       >
                         <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary dark:bg-primary/100/20 dark:text-primary">
                           {task.assigneeName
@@ -1055,7 +1075,7 @@ export default function TaskListView() {
                       </button>
 
                       {activeDropdown === `assignee-${task.id}` && (
-                        <div className="absolute top-10 left-4 z-30 w-48 rounded-lg border border-border bg-white p-1 shadow-xl dark:border-white/10 dark:bg-card">
+                        <div className="absolute top-10 left-4 z-30 w-48 rounded-lg border border-border bg-popover p-1 shadow-xl">
                           <button
                             type="button"
                             onClick={() =>
@@ -1064,9 +1084,9 @@ export default function TaskListView() {
                                 assigneeName: "Unassigned",
                               })
                             }
-                            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted dark:hover:bg-white/5"
+                            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
                           >
-                            <span className="text-foreground dark:text-muted-foreground">
+                            <span className="text-foreground">
                               Unassigned
                             </span>
                           </button>
@@ -1081,9 +1101,9 @@ export default function TaskListView() {
                                     member.name || member.email || "Unassigned",
                                 })
                               }
-                              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted dark:hover:bg-white/5"
+                              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
                             >
-                              <span className="text-foreground dark:text-muted-foreground">
+                              <span className="text-foreground">
                                 {member.name || member.email || "Unknown"}
                               </span>
                             </button>
@@ -1142,7 +1162,7 @@ export default function TaskListView() {
                               setInlineEdit(null);
                             }
                           }}
-                          className="h-8 rounded-md border border-border bg-white px-2 text-xs outline-none focus:border-primary dark:border-white/10 dark:bg-card dark:text-foreground"
+                          className="h-8 rounded-md border border-border bg-background px-2 text-xs outline-none focus:border-primary"
                         />
                       ) : (
                         <button
@@ -1156,7 +1176,7 @@ export default function TaskListView() {
                                 : "",
                             )
                           }
-                          className="flex items-center gap-1.5 rounded-md px-1 py-0.5 hover:bg-muted dark:hover:bg-white/5"
+                          className="flex items-center gap-1.5 rounded-md px-1 py-0.5 hover:bg-muted dark:hover:bg-surface"
                         >
                           {task.dueDate ? (
                             <>
@@ -1177,7 +1197,7 @@ export default function TaskListView() {
                         onClick={() => setSelectedTask(task)}
                         aria-label="Open task details"
                         title="Open task details"
-                        className="inline-flex items-center justify-center rounded-lg border border-border bg-white p-2 text-muted-foreground hover:bg-muted dark:border-white/10 dark:bg-card dark:text-muted-foreground dark:hover:bg-white/10"
+                        className="inline-flex items-center justify-center rounded-lg border border-border bg-card p-2 text-muted-foreground hover:bg-muted"
                       >
                         <Eye size={14} />
                       </button>
@@ -1187,7 +1207,7 @@ export default function TaskListView() {
                         disabled={deletingIds.has(String(task.id))}
                         aria-label="Delete task"
                         title="Delete task"
-                        className="inline-flex items-center justify-center rounded-lg border border-red-200 bg-destructive/10 p-2 text-red-600 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-500/30 dark:bg-destructive/10 dark:text-red-400 dark:hover:bg-destructive/100/20"
+                        className="inline-flex items-center justify-center rounded-lg border border-destructive/20 bg-destructive/10 p-2 text-destructive hover:bg-destructive/15 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         <Trash2
                           size={14}
@@ -1227,9 +1247,9 @@ export default function TaskListView() {
             : "translate-y-10 opacity-0 pointer-events-none"
         }`}
       >
-        <div className="flex items-center gap-4 rounded-full border border-border/50 bg-white/90 px-5 py-3 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-surface/90">
-          <div className="flex items-center gap-2 border-r border-border pr-4 dark:border-white/10">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white dark:bg-primary/100">
+        <div className="flex items-center gap-4 rounded-full border border-border/50 bg-card/90 px-5 py-3 shadow-2xl backdrop-blur-xl">
+          <div className="flex items-center gap-2 border-r border-border pr-4">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
               {selectedIds.size}
             </div>
             <span className="text-sm font-medium text-foreground">
@@ -1250,21 +1270,21 @@ export default function TaskListView() {
                 onClick={() =>
                   setBulkDropdown(bulkDropdown === "status" ? null : "status")
                 }
-                className="relative z-20 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-white/10 transition-colors"
+                className="relative z-20 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted dark:hover:bg-surface"
               >
                 <Circle size={16} /> Set Status
               </button>
 
               {bulkDropdown === "status" && (
-                <div className="absolute bottom-full mb-2 left-0 z-30 w-40 rounded-lg border border-border bg-white p-1 shadow-xl dark:border-white/10 dark:bg-card">
+                <div className="absolute bottom-full left-0 z-30 mb-2 w-40 rounded-lg border border-border bg-popover p-1 shadow-xl">
                   {STATUSES.map((s) => (
                     <button
                       key={s.value}
                       onClick={() => handleBulkStatus(s.value)}
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted dark:hover:bg-white/5"
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
                     >
                       <s.icon size={14} className={s.color} />
-                      <span className="text-foreground dark:text-muted-foreground">
+                      <span className="text-foreground">
                         {s.label}
                       </span>
                     </button>
@@ -1285,18 +1305,18 @@ export default function TaskListView() {
                 onClick={() =>
                   setBulkDropdown(bulkDropdown === "assign" ? null : "assign")
                 }
-                className="relative z-20 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-white/10 transition-colors"
+                className="relative z-20 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted dark:hover:bg-surface"
               >
                 <UserPlus size={16} /> Assign
               </button>
 
               {bulkDropdown === "assign" && (
-                <div className="absolute bottom-full mb-2 left-0 z-30 w-48 rounded-lg border border-border bg-white p-1 shadow-xl dark:border-white/10 dark:bg-card">
+                <div className="absolute bottom-full left-0 z-30 mb-2 w-48 rounded-lg border border-border bg-popover p-1 shadow-xl">
                   <button
                     onClick={() => handleBulkAssign("", "Unassigned")}
-                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted dark:hover:bg-white/5"
+                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
                   >
-                    <span className="text-foreground dark:text-muted-foreground">
+                    <span className="text-foreground">
                       Unassigned
                     </span>
                   </button>
@@ -1309,9 +1329,9 @@ export default function TaskListView() {
                           member.name || member.email || "Unknown",
                         )
                       }
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted dark:hover:bg-white/5"
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
                     >
-                      <span className="text-foreground dark:text-muted-foreground">
+                      <span className="text-foreground">
                         {member.name || member.email || "Unknown"}
                       </span>
                     </button>
@@ -1331,7 +1351,7 @@ export default function TaskListView() {
               }
               aria-label="Delete selected tasks"
               title="Delete selected tasks"
-              className="flex items-center justify-center rounded-lg p-2 text-red-600 hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400 dark:hover:bg-destructive/10 transition-colors"
+              className="flex items-center justify-center rounded-lg p-2 text-destructive transition-colors hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Trash2 size={16} />
             </button>
@@ -1339,7 +1359,7 @@ export default function TaskListView() {
 
           <button
             onClick={() => setSelectedIds(new Set())}
-            className="ml-2 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-muted-foreground dark:hover:bg-white/10 dark:hover:text-muted-foreground"
+            className="ml-2 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-muted-foreground dark:hover:bg-surface"
           >
             <X size={16} />
           </button>

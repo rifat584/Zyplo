@@ -63,8 +63,8 @@ export default function CreateTaskModal({
         aria-label="Close create task modal"
       />
 
-      <div className="absolute left-1/2 top-1/2 w-[94vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-white shadow-2xl dark:border-white/10 dark:bg-card">
-        <div className="border-b border-border bg-surface/70 px-5 py-4 dark:border-white/10 dark:bg-surface/60">
+      <div className="absolute left-1/2 top-1/2 w-[94vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
+        <div className="border-b border-border bg-surface/70 px-5 py-4">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-wide text-muted-foreground">
@@ -74,7 +74,7 @@ export default function CreateTaskModal({
                 Create Task
               </h2>
             </div>
-            <span className="rounded-full border border-border bg-white px-3 py-1 text-xs font-medium text-muted-foreground dark:border-white/10 dark:bg-card dark:text-muted-foreground">
+            <span className="rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
               {columnName || "Unknown Column"}
             </span>
           </div>
@@ -112,7 +112,7 @@ export default function CreateTaskModal({
                 setForm((prev) => ({ ...prev, title: event.target.value }))
               }
               placeholder="Enter a clear task title"
-              className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
+              className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
               required
             />
           </div>
@@ -132,7 +132,7 @@ export default function CreateTaskModal({
                 setForm((prev) => ({ ...prev, description: event.target.value }))
               }
               placeholder="Describe the task context, expected outcome, or notes"
-              className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
+              className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
           </div>
 
@@ -150,7 +150,7 @@ export default function CreateTaskModal({
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, assigneeId: event.target.value }))
                 }
-                className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
               >
                 <option value="">Auto assignee</option>
                 {members.map((member) => (
@@ -175,7 +175,7 @@ export default function CreateTaskModal({
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, dueDate: event.target.value }))
                 }
-                className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
             </div>
 
@@ -192,7 +192,7 @@ export default function CreateTaskModal({
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, priority: event.target.value }))
                 }
-                className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
               >
                 <option value="P0">P0 (Critical)</option>
                 <option value="P1">P1 (High)</option>
@@ -219,12 +219,12 @@ export default function CreateTaskModal({
                   }))
                 }
                 placeholder="0"
-                className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 border-t border-border pt-4 dark:border-white/10">
+          <div className="flex justify-end gap-2 border-t border-border pt-4">
             <button
               type="button"
               onClick={onClose}

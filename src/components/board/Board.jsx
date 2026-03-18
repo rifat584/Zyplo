@@ -10,7 +10,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { RefreshCw, Plus } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
 import { loadDashboard } from "@/components/dashboard/mockStore";
@@ -188,6 +188,25 @@ async function fetchJson(url, options = {}) {
   }
 
   return data;
+}
+
+function getAlertPalette() {
+  if (typeof window === "undefined") {
+    return {
+      background: "var(--card)",
+      color: "var(--card-foreground)",
+      confirmButtonColor: "var(--destructive)",
+      cancelButtonColor: "var(--muted-foreground)",
+    };
+  }
+
+  const styles = getComputedStyle(document.documentElement);
+  return {
+    background: styles.getPropertyValue("--card").trim(),
+    color: styles.getPropertyValue("--card-foreground").trim(),
+    confirmButtonColor: styles.getPropertyValue("--destructive").trim(),
+    cancelButtonColor: styles.getPropertyValue("--muted-foreground").trim(),
+  };
 }
 
 export default function Board({ workspaceId, projectId }) {
@@ -584,6 +603,7 @@ export default function Board({ workspaceId, projectId }) {
 
   async function handleTaskDelete() {
     if (!selectedTask?.id || deleteTaskMutation.isPending) return;
+    const alertPalette = getAlertPalette();
     const result = await Swal.fire({
       title: "Delete task?",
       text: `Delete "${selectedTask.title || "Untitled Task"}"?`,
@@ -592,10 +612,10 @@ export default function Board({ workspaceId, projectId }) {
       confirmButtonText: "Yes, delete",
       cancelButtonText: "Cancel",
       reverseButtons: true,
-      background: "#0f172a",
-      color: "#e2e8f0",
-      confirmButtonColor: "#dc2626",
-      cancelButtonColor: "#334155",
+      background: alertPalette.background,
+      color: alertPalette.color,
+      confirmButtonColor: alertPalette.confirmButtonColor,
+      cancelButtonColor: alertPalette.cancelButtonColor,
     });
     if (!result.isConfirmed) return;
 
@@ -604,7 +624,7 @@ export default function Board({ workspaceId, projectId }) {
 
   if (boardQuery.isLoading) {
     return (
-      <div className="rounded-2xl border border-border bg-white p-6 dark:border-white/10 dark:bg-card">
+      <div className="rounded-2xl border border-border bg-card p-6">
         <p className="text-sm text-muted-foreground">
           Loading board...
         </p>
@@ -621,7 +641,7 @@ export default function Board({ workspaceId, projectId }) {
         <button
           type="button"
           onClick={() => boardQuery.refetch()}
-          className="mt-3 inline-flex items-center gap-2 rounded-lg border border-rose-300 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 dark:border-rose-500/40 dark:text-destructive dark:hover:bg-destructive/100/20"
+          className="mt-3 inline-flex items-center gap-2 rounded-lg border border-destructive/25 px-3 py-2 text-sm text-destructive hover:bg-destructive/10"
         >
           <RefreshCw className="size-4" />
           Retry
@@ -632,27 +652,6 @@ export default function Board({ workspaceId, projectId }) {
 
   return (
     <>
-      <section className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">
-            Project Board
-          </p>
-          <h1 className="text-2xl font-semibold text-foreground">
-            {boardData?.board?.name || "Kanban Board"}
-          </h1>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => openCreateModal(columns[0]?.id || "")}
-          disabled={!columns.length}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary disabled:opacity-50"
-        >
-          <Plus className="size-4" />
-          Create Task
-        </button>
-      </section>
-
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -660,7 +659,7 @@ export default function Board({ workspaceId, projectId }) {
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
       >
-        <section className="overflow-x-auto pb-2">
+        <section aria-label="Kanban board" className="overflow-x-auto pb-1">
           <div className="flex min-w-full gap-3">
             {columns.map((column) => (
               <Column
@@ -673,7 +672,7 @@ export default function Board({ workspaceId, projectId }) {
             ))}
 
             {!columns.length ? (
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-sm text-muted-foreground dark:border-white/15 dark:bg-card dark:text-muted-foreground">
+              <div className="rounded-2xl border border-dashed border-border bg-card p-6 text-sm text-muted-foreground">
                 No columns available for this board.
               </div>
             ) : null}

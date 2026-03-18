@@ -91,17 +91,15 @@ export default function WorkspacesPage() {
   const workspaceIcons = [
     {
       Icon: Rocket,
-      color: "bg-blue-100 text-blue-700 dark:bg-primary/15 dark:text-blue-300",
+      color: "bg-primary/10 text-primary",
     },
     {
       Icon: BriefcaseBusiness,
-      color:
-        "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300",
+      color: "bg-success/15 text-success",
     },
     {
       Icon: PenTool,
-      color:
-        "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
+      color: "bg-warning/15 text-warning",
     },
     {
       Icon: Megaphone,
@@ -109,17 +107,15 @@ export default function WorkspacesPage() {
     },
     {
       Icon: FlaskConical,
-      color:
-        "bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300",
+      color: "bg-info/15 text-info",
     },
     {
       Icon: Cpu,
-      color: "bg-cyan-100 text-secondary dark:bg-cyan-500/20 dark:text-secondary",
+      color: "bg-secondary/15 text-secondary",
     },
     {
       Icon: Landmark,
-      color:
-        "bg-primary/10 text-primary dark:bg-primary/100/20 dark:text-primary",
+      color: "bg-accent text-accent-foreground",
     },
   ];
 
@@ -173,12 +169,12 @@ export default function WorkspacesPage() {
   return (
     <AppShell>
       <div className="mx-auto max-w-5xl space-y-6">
-        <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border pb-4 dark:border-white/10">
+        <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border pb-4">
           <div>
-            <h1 className="text-2xl font-semibold text-foreground">
+            <h1 className="font-heading text-2xl font-semibold text-foreground">
               Workspaces
             </h1>
-            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Create a workspace, then manage everything from its dedicated
               route.
             </p>
@@ -186,14 +182,14 @@ export default function WorkspacesPage() {
           <button
             type="button"
             onClick={() => setOnboardingOpen(true)}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary/100 px-3 py-2 text-sm font-medium text-white hover:bg-primary"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             <Plus className="size-4" />
             New workspace
           </button>
         </div>
 
-        <section className="rounded-2xl border border-border bg-white p-4 dark:border-white/10 dark:bg-card">
+        <section className="rounded-2xl border border-border bg-card p-4">
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Existing Workspaces
           </h2>
@@ -201,7 +197,7 @@ export default function WorkspacesPage() {
             {sortedWorkspaces.map((workspace) => (
               <div
                 key={workspace.id}
-                className="group relative rounded-xl border border-border px-3 py-3 text-left hover:bg-surface dark:border-white/10 dark:hover:bg-surface/40"
+                className="group relative rounded-xl border border-border px-3 py-3 text-left hover:bg-surface"
               >
                 {(() => {
                   const isAdmin = resolveWorkspaceRole(workspace, currentUser) === "admin";
@@ -239,7 +235,7 @@ export default function WorkspacesPage() {
                       current === workspace.id ? "" : workspace.id,
                     )
                   }
-                  className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:bg-muted/70 group-hover:block dark:text-muted-foreground dark:hover:bg-slate-700 cursor-pointer"
+                  className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:bg-muted/70 group-hover:block cursor-pointer"
                 >
                   <Ellipsis className="size-4" />
                 </button>
@@ -247,7 +243,7 @@ export default function WorkspacesPage() {
                 {menuOpenFor === workspace.id ? (
                   <div
                     ref={actionsMenuRef}
-                    className="absolute right-2 top-12 z-20 w-56 rounded-xl border border-border bg-white p-1 shadow-lg dark:border-white/10 dark:bg-card"
+                    className="absolute right-2 top-12 z-20 w-56 rounded-xl border border-border bg-card p-1 shadow-lg"
                   >
                     <button
                       type="button"
@@ -320,11 +316,11 @@ export default function WorkspacesPage() {
             className="absolute inset-0 bg-card/40"
             onClick={() => setOnboardingOpen(false)}
           />
-          <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-card">
-            <h3 className="text-base font-semibold text-foreground">
+          <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-card p-5 shadow-2xl">
+            <h3 className="font-heading text-base font-semibold text-foreground">
               Create Workspace
             </h3>
-            <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
+            <p className="mt-1 text-sm text-muted-foreground">
               Add workspace name and optional member emails.
             </p>
             <div className="mt-4 space-y-3">
@@ -332,21 +328,21 @@ export default function WorkspacesPage() {
                 value={workspaceName}
                 onChange={(event) => setWorkspaceName(event.target.value)}
                 placeholder="Workspace name"
-                className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-secondary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus:border-secondary/30"
               />
               <textarea
                 rows={3}
                 value={onboardingEmails}
                 onChange={(event) => setOnboardingEmails(event.target.value)}
                 placeholder="member1@company.com, member2@company.com"
-                className="w-full rounded-xl border border-border bg-white px-3 py-2 text-sm outline-none focus:border-secondary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
+                className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-secondary/30"
               />
             </div>
             <div className="mt-4 flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setOnboardingOpen(false)}
-                className="rounded-lg border border-border px-3 py-2 text-sm text-foreground dark:border-white/10 dark:text-foreground"
+                className="rounded-lg border border-border px-3 py-2 text-sm text-foreground"
               >
                 Cancel
               </button>
@@ -354,7 +350,7 @@ export default function WorkspacesPage() {
                 type="button"
                 onClick={handleCreateWorkspace}
                 disabled={!workspaceName.trim() || submitting}
-                className="rounded-lg bg-primary/100 px-3 py-2 text-sm font-medium text-white hover:bg-primary disabled:opacity-50"
+                className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
               >
                 Create
               </button>
@@ -373,11 +369,11 @@ export default function WorkspacesPage() {
             className="absolute inset-0 bg-card/45"
             onClick={() => (deleting ? null : setConfirmDeleteId(""))}
           />
-          <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-card">
-            <h3 className="text-lg font-semibold text-foreground">
+          <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-card p-5 shadow-2xl">
+            <h3 className="font-heading text-lg font-semibold text-foreground">
               Delete workspace?
             </h3>
-            <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
+            <p className="mt-2 text-sm text-muted-foreground">
               This action will remove the workspace and related projects/tasks
               permanently.
             </p>
@@ -386,7 +382,7 @@ export default function WorkspacesPage() {
                 type="button"
                 onClick={() => setConfirmDeleteId("")}
                 disabled={deleting}
-                className="rounded-lg border border-border px-3 py-2 text-sm text-foreground dark:border-white/10 dark:text-foreground"
+                className="rounded-lg border border-border px-3 py-2 text-sm text-foreground"
               >
                 Cancel
               </button>
@@ -406,7 +402,7 @@ export default function WorkspacesPage() {
                     setDeleting(false);
                   }
                 }}
-                className="rounded-lg bg-destructive px-3 py-2 text-sm font-medium text-white hover:bg-destructive disabled:opacity-50"
+                className="rounded-lg bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
               >
                 {deleting ? "Deleting..." : "Delete Workspace"}
               </button>

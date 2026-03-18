@@ -64,7 +64,6 @@ export default function WorkspaceMembersPage() {
       toast.error("Only workspace admins can send invites.");
       return;
     }
-// added this comment
     const sendData = await fetch(`/api/workspaces/${workspaceId}/invites`, {
       method: "POST",
       headers: {
@@ -135,7 +134,7 @@ export default function WorkspaceMembersPage() {
   });
 
   return (
-    <section className="space-y-6 rounded-2xl border border-border bg-white p-5 dark:border-white/10 dark:bg-card">
+    <section className="space-y-6 rounded-2xl border border-border bg-card p-5">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
         {isAdmin ? "Invite Users" : "Members"}
       </h2>
@@ -147,10 +146,10 @@ export default function WorkspaceMembersPage() {
               type="email"
               placeholder="member@company.com"
               {...register("email")}
-              className="h-10 rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-secondary/30 md:col-span-3 dark:border-white/10 dark:bg-surface dark:text-slate-100"
+              className="h-10 rounded-xl border border-border bg-background px-3 text-sm outline-none focus:border-secondary/30 md:col-span-3"
             />
             <select
-              className="h-10 rounded-xl border border-border bg-white px-3 text-sm outline-none focus:border-secondary/30 dark:border-white/10 dark:bg-surface dark:text-slate-100"
+              className="h-10 rounded-xl border border-border bg-background px-3 text-sm outline-none focus:border-secondary/30"
               {...register("role")}
             >
               <option value="member">Member</option>
@@ -165,7 +164,7 @@ export default function WorkspaceMembersPage() {
             type="button"
             onClick={handleSubmit(onSubmit)}
             disabled={isSubmitting}
-            className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting ? "Sending..." : "Send invite"}
           </button>
@@ -180,7 +179,7 @@ export default function WorkspaceMembersPage() {
         {members.map((member, i) => (
           <div
             key={member?.id || i}
-            className="rounded-xl border border-border bg-white px-4 py-3 shadow-sm dark:border-white/10 dark:bg-black/20"
+            className="rounded-xl border border-border bg-card px-4 py-3 shadow-sm"
           >
             <div className="flex items-center justify-between gap-4">
               <div className="space-y-1">
@@ -188,10 +187,10 @@ export default function WorkspaceMembersPage() {
                   {member?.name || member?.email}
                 </p>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span className="rounded-md bg-muted px-2 py-0.5 dark:bg-white/10">
+                  <span className="rounded-md bg-muted px-2 py-0.5">
                     {String(member?.role || "member")}
                   </span>
-                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
+                  <span className="rounded-full border border-success/25 bg-success/10 px-2 py-0.5 text-success">
                     accepted
                   </span>
                 </div>
@@ -214,7 +213,7 @@ export default function WorkspaceMembersPage() {
           {pendingOrRevokedInvites.map((invite, i) => (
             <div
               key={invite?._id || i}
-              className="rounded-xl border border-border bg-white px-4 py-3 shadow-sm dark:border-white/10 dark:bg-black/20"
+              className="rounded-xl border border-border bg-card px-4 py-3 shadow-sm"
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="space-y-1">
@@ -223,11 +222,11 @@ export default function WorkspaceMembersPage() {
                   </p>
 
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span className="rounded-md bg-muted px-2 py-0.5 dark:bg-white/10">
+                    <span className="rounded-md bg-muted px-2 py-0.5">
                       {invite.role}
                     </span>
 
-                    <span className="rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-sky-700 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300">
+                    <span className="rounded-full border border-info/25 bg-info/10 px-2 py-0.5 text-info">
                       {invite.status}
                     </span>
                   </div>

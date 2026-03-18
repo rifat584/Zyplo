@@ -6,9 +6,9 @@ import { Paperclip } from "lucide-react";
 
 const PRIORITY_STYLES = {
   P0: "bg-destructive/10 text-destructive dark:bg-destructive/100/20 dark:text-destructive",
-  P1: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
-  P2: "bg-cyan-100 text-secondary dark:bg-cyan-500/20 dark:text-secondary",
-  P3: "bg-muted text-foreground dark:bg-slate-700 dark:text-muted-foreground",
+  P1: "bg-warning/15 text-warning",
+  P2: "bg-info/15 text-info",
+  P3: "bg-muted text-muted-foreground",
 };
 
 function formatDueDate(value) {

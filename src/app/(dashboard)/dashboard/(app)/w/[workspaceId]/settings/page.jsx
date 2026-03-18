@@ -121,11 +121,11 @@ export default function WorkspaceSettingsPage() {
 
   if (!isAdmin) {
     return (
-      <section className="space-y-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">
+      <section className="space-y-4 rounded-2xl border border-warning/25 bg-warning/10 p-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-warning">
           Workspace Settings
         </h2>
-        <p className="text-sm text-amber-700 dark:text-amber-300">
+        <p className="text-sm text-warning">
           You do not have access to workspace settings.
         </p>
       </section>
@@ -133,7 +133,7 @@ export default function WorkspaceSettingsPage() {
   }
 
   return (
-    <section className="space-y-4 rounded-2xl border border-border bg-white p-4 dark:border-white/10 dark:bg-card">
+    <section className="space-y-4 rounded-2xl border border-border bg-card p-4 dark:border-white/10">
       <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
         Workspace Settings
       </h2>
@@ -142,14 +142,14 @@ export default function WorkspaceSettingsPage() {
         const githubParam = String(searchParams.get("github") || "");
         if (githubParam === "connected") {
           return (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
+            <div className="rounded-xl border border-success/25 bg-success/10 p-3 text-sm text-success">
               GitHub connected successfully.
             </div>
           );
         }
         if (githubParam === "cancelled") {
           return (
-            <div className="rounded-xl border border-border bg-slate-50 p-3 text-sm text-slate-700 dark:border-white/10 dark:bg-white/5 dark:text-foreground">
+            <div className="rounded-xl border border-border bg-muted/50 p-3 text-sm text-foreground">
               GitHub connection was cancelled.
             </div>
           );
@@ -169,14 +169,14 @@ export default function WorkspaceSettingsPage() {
         <input
           value={name}
           onChange={(event) => setName(event.target.value)}
-          className="h-10 w-full rounded-xl border border-border bg-white px-3 text-sm outline-none dark:border-white/10 dark:bg-surface dark:text-slate-100"
+          className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none dark:border-white/10 dark:bg-surface dark:text-foreground"
         />
         <p className="text-xs text-muted-foreground">
           Rename is UI-only right now. Tell me and I will wire backend update endpoint.
         </p>
       </div>
 
-      <div className="rounded-xl border border-border bg-slate-50 p-3 text-xs text-slate-600 dark:border-white/10 dark:bg-surface/40 dark:text-muted-foreground">
+      <div className="rounded-xl border border-border bg-muted/50 p-3 text-xs text-muted-foreground dark:border-white/10 dark:bg-surface/40">
         <p>Workspace ID: {workspaceId}</p>
         <p>Members: {workspace?.members?.length || 0}</p>
       </div>
@@ -214,7 +214,7 @@ export default function WorkspaceSettingsPage() {
 
         {githubStatus?.connected ? (
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
+            <span className="rounded-full bg-success/10 px-3 py-1 text-xs font-medium text-success">
               Connected
             </span>
             <button
@@ -234,7 +234,7 @@ export default function WorkspaceSettingsPage() {
               if (!connectUrl) event.preventDefault();
             }}
             className={[
-              "cursor-pointer rounded-lg bg-card px-3 py-2 text-xs font-semibold text-white hover:bg-slate-700 dark:bg-white/10 dark:hover:bg-white/20",
+              "cursor-pointer rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary dark:bg-primary dark:hover:bg-primary",
               !connectUrl ? "cursor-not-allowed opacity-50 pointer-events-none" : "",
             ].join(" ")}
             title={!appSlug ? "NEXT_PUBLIC_GITHUB_APP_SLUG is missing" : undefined}

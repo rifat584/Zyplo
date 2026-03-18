@@ -113,14 +113,14 @@ export default function WorkspaceOverviewPage() {
   const maxPriority = Math.max(1, priorityCounts.P1, priorityCounts.P2, priorityCounts.P3);
   const typeTotal = Math.max(1, typeCounts.feature + typeCounts.bug + typeCounts.chore);
   const typeRows = [
-    { id: "feature", label: "Feature", value: typeCounts.feature, color: "bg-primary" },
-    { id: "bug", label: "Bug", value: typeCounts.bug, color: "bg-destructive" },
-    { id: "chore", label: "Chore", value: typeCounts.chore, color: "bg-slate-600" },
+    { id: "feature", label: "Feature", value: typeCounts.feature, color: "bg-primary", textClass: "text-primary-foreground" },
+    { id: "bug", label: "Bug", value: typeCounts.bug, color: "bg-destructive", textClass: "text-destructive-foreground" },
+    { id: "chore", label: "Chore", value: typeCounts.chore, color: "bg-muted", textClass: "text-foreground" },
   ];
   const priorityRows = [
-    { id: "p1", label: "High", value: priorityCounts.P1, color: "bg-destructive" },
-    { id: "p2", label: "Medium", value: priorityCounts.P2, color: "bg-amber-600" },
-    { id: "p3", label: "Low", value: priorityCounts.P3, color: "bg-emerald-600" },
+    { id: "p1", label: "High", value: priorityCounts.P1, color: "bg-destructive", textClass: "text-destructive-foreground" },
+    { id: "p2", label: "Medium", value: priorityCounts.P2, color: "bg-warning", textClass: "text-warning-foreground" },
+    { id: "p3", label: "Low", value: priorityCounts.P3, color: "bg-success", textClass: "text-success-foreground" },
   ];
 
   return (
@@ -133,7 +133,7 @@ export default function WorkspaceOverviewPage() {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[380px_minmax(0,1fr)]">
-        <div className="rounded-2xl border border-border bg-white p-4 dark:border-white/10 dark:bg-card">
+        <div className="rounded-2xl border border-border bg-card p-4">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Status Overview
           </h2>
@@ -141,32 +141,32 @@ export default function WorkspaceOverviewPage() {
             <div
               className="relative size-40 rounded-full"
               style={{
-                background: `conic-gradient(#16a34a 0% ${donePct}%, #0891b2 ${donePct}% ${donePct + inProgressPct}%, #7c3aed ${donePct + inProgressPct}% ${donePct + inProgressPct + reviewPct}%, #94a3b8 ${donePct + inProgressPct + reviewPct}% 100%)`,
+                background: `conic-gradient(var(--chart-success) 0% ${donePct}%, var(--chart-secondary) ${donePct}% ${donePct + inProgressPct}%, var(--chart-primary) ${donePct + inProgressPct}% ${donePct + inProgressPct + reviewPct}%, var(--chart-muted) ${donePct + inProgressPct + reviewPct}% 100%)`,
               }}
             >
-              <div className="absolute inset-5 flex flex-col items-center justify-center rounded-full bg-white text-center dark:bg-card">
+              <div className="absolute inset-5 flex flex-col items-center justify-center rounded-full bg-card text-center">
                 <p className="text-2xl font-semibold text-foreground">{totalTasks}</p>
                 <p className="text-xs text-muted-foreground">Total tasks</p>
               </div>
             </div>
             <div className="space-y-2 text-sm">
-              <Legend label={`Done: ${counts.done}`} color="bg-green-600" />
+              <Legend label={`Done: ${counts.done}`} color="bg-success" />
               <Legend label={`In Progress: ${counts.inprogress}`} color="bg-secondary" />
-              <Legend label={`In Review: ${counts.inreview}`} color="bg-violet-600" />
-              <Legend label={`To Do: ${counts.todo}`} color="bg-slate-400" />
+              <Legend label={`In Review: ${counts.inreview}`} color="bg-primary" />
+              <Legend label={`To Do: ${counts.todo}`} color="bg-muted" />
             </div>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-white p-4 dark:border-white/10 dark:bg-card">
+        <div className="rounded-2xl border border-border bg-card p-4">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Throughput (Tasks by Stage)
           </h2>
           <div className="mt-6 space-y-4">
-            <Bar label="Done" value={counts.done} total={Math.max(1, totalTasks)} color="bg-green-600" />
+            <Bar label="Done" value={counts.done} total={Math.max(1, totalTasks)} color="bg-success" />
             <Bar label="In Progress" value={counts.inprogress} total={Math.max(1, totalTasks)} color="bg-secondary" />
-            <Bar label="In Review" value={counts.inreview} total={Math.max(1, totalTasks)} color="bg-violet-600" />
-            <Bar label="To Do" value={counts.todo} total={Math.max(1, totalTasks)} color="bg-surface0" />
+            <Bar label="In Review" value={counts.inreview} total={Math.max(1, totalTasks)} color="bg-primary" />
+            <Bar label="To Do" value={counts.todo} total={Math.max(1, totalTasks)} color="bg-muted" />
           </div>
           <p className="mt-5 text-xs text-muted-foreground">
             Completion rate: {donePct}% | In-progress load: {inProgressPct}% | Pending: {todoPct}%
@@ -174,13 +174,13 @@ export default function WorkspaceOverviewPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-border bg-white p-4 dark:border-white/10 dark:bg-card">
+      <section className="rounded-2xl border border-border bg-card p-4">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           Recent Activity
         </h2>
         <div className="max-h-72 space-y-3 overflow-y-auto pr-1">
           {recentItems.map((task) => (
-            <div key={task.id} className="flex items-start gap-3 rounded-xl border border-border p-3 dark:border-white/10">
+            <div key={task.id} className="flex items-start gap-3 rounded-xl border border-border p-3">
               <div className="mt-0.5 flex size-7 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary dark:bg-primary/100/20 dark:text-primary">
                 {(task.assigneeName || "U").slice(0, 1).toUpperCase()}
               </div>
@@ -200,14 +200,14 @@ export default function WorkspaceOverviewPage() {
       </section>
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-white p-4 dark:border-white/10 dark:bg-card">
+        <div className="rounded-2xl border border-border bg-card p-4">
           <h3 className="text-lg font-semibold text-foreground">Priority breakdown</h3>
           <p className="mt-0.5 text-sm text-muted-foreground">
             How work is currently prioritized.
           </p>
 
           <div className="mt-5">
-            <div className="grid h-40 grid-cols-3 items-end gap-3 rounded-xl border border-border p-3 dark:border-white/10">
+            <div className="grid h-40 grid-cols-3 items-end gap-3 rounded-xl border border-border p-3">
               {priorityRows.map((item) => (
                 <div key={item.id} className="flex flex-col items-center gap-2">
                   <div className="flex h-28 w-full items-end">
@@ -231,7 +231,7 @@ export default function WorkspaceOverviewPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-white p-4 dark:border-white/10 dark:bg-card">
+        <div className="rounded-2xl border border-border bg-card p-4">
           <h3 className="text-lg font-semibold text-foreground">Types of work</h3>
           <p className="mt-0.5 text-sm text-muted-foreground">
             Distribution by task type.
@@ -249,7 +249,7 @@ export default function WorkspaceOverviewPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-white p-4 dark:border-white/10 dark:bg-card">
+        <div className="rounded-2xl border border-border bg-card p-4">
           <h3 className="text-lg font-semibold text-foreground">Team workload</h3>
           <p className="mt-0.5 text-sm text-muted-foreground">
             Active work distribution per assignee.
@@ -301,7 +301,7 @@ function InsightCard({ title, value, subtitle, href }) {
   return (
     <Link
       href={href}
-      className="rounded-2xl border border-border bg-white p-4 transition hover:border-primary/30 hover:shadow-sm dark:border-white/10 dark:bg-card dark:hover:border-primary/40"
+      className="rounded-2xl border border-border bg-card p-4 transition hover:border-primary/30 hover:shadow-sm"
     >
       <p className="text-xs uppercase tracking-wide text-muted-foreground">{title}</p>
       <p className="mt-1 text-2xl font-semibold text-foreground">{value}</p>
@@ -310,7 +310,7 @@ function InsightCard({ title, value, subtitle, href }) {
   );
 }
 
-function DistRow({ label, value, total, color, rightLabel }) {
+function DistRow({ label, value, total, color, textClass = "text-primary-foreground", rightLabel }) {
   const pct = Math.round((value / Math.max(1, total)) * 100);
   return (
     <div>
@@ -320,7 +320,7 @@ function DistRow({ label, value, total, color, rightLabel }) {
       </div>
       <div className="h-6 rounded-md bg-muted dark:bg-surface">
         <div
-          className={`h-6 rounded-md ${color} px-2 text-xs font-medium leading-6 text-white`}
+          className={`h-6 rounded-md ${color} ${textClass} px-2 text-xs font-medium leading-6`}
           style={{ width: `${Math.max(10, pct)}%` }}
         >
           {pct}%

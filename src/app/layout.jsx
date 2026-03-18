@@ -1,10 +1,13 @@
-import Navbar from "@/components/layout/Navbar/Navbar";
 import "./globals.css";
 import ThemeProviders from "@/Context/ThemeProviders";
-import Footer from "@/components/layout/Footer/Footer";
-
-import { Poppins, Playfair_Display, Creepster } from "next/font/google";
+import { Manrope, Poppins, Playfair_Display, Creepster } from "next/font/google";
 import NextAuthProvider from "@/Provider/NextAuthProvider";
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-manrope",
+});
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -32,11 +35,13 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="h-full">
-      <body className={`${poppins.className} ${poppins.variable} ${playfair.variable} ${creepster.variable} min-h-screen bg-background text-foreground antialiased`}>
+      <body
+        className={`${manrope.variable} ${poppins.variable} ${playfair.variable} ${creepster.variable} min-h-screen bg-background font-sans text-foreground antialiased`}
+      >
         <NextAuthProvider>
           <ThemeProviders>
-        {children}
-        </ThemeProviders>
+            {children}
+          </ThemeProviders>
         </NextAuthProvider>
       </body>
     </html>
