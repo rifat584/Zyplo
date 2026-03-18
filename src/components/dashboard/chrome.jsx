@@ -507,7 +507,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
           ? dashboardSidebarNavItemActiveClasses
           : dashboardSidebarNavItemClasses,
         "group flex items-center rounded-xl",
-        effectiveCollapsed ? "h-10 w-11 justify-center px-0" : "gap-2 py-2 pl-4 pr-3",
+        effectiveCollapsed ? "size-9 justify-center px-0" : "gap-2 py-2 pl-4 pr-3",
       )}
       title={effectiveCollapsed ? "Workspaces" : undefined}
     >
@@ -526,7 +526,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
           ? dashboardSidebarNavItemActiveClasses
           : dashboardSidebarNavItemClasses,
         "group flex items-center rounded-xl",
-        effectiveCollapsed ? "h-10 w-11 justify-center px-0" : "gap-2 py-2 pl-4 pr-3",
+        effectiveCollapsed ? "size-9 justify-center px-0" : "gap-2 py-2 pl-4 pr-3",
       )}
       title={effectiveCollapsed ? "Profile" : undefined}
     >
@@ -563,13 +563,14 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                   ? dashboardSidebarNavItemActiveClasses
                   : dashboardSidebarNavItemClasses,
                 "flex w-full items-center rounded-xl",
-                effectiveCollapsed ? "h-10 w-11 justify-center px-0" : "gap-2 py-2 pl-4 pr-10",
+                effectiveCollapsed ? "size-9 justify-center px-0" : "gap-2 py-2 pl-4 pr-10",
               )}
               title={workspace.name}
             >
               <span
                 className={cn(
-                  "flex size-6 shrink-0 items-center justify-center rounded-md border border-border/60 bg-linear-to-br font-sans text-[11px] font-semibold uppercase tracking-[0.06em]",
+                  "flex shrink-0 items-center justify-center rounded-md border border-border/60 bg-linear-to-br font-sans font-semibold uppercase tracking-[0.06em]",
+                  "size-6 text-[11px]",
                   badgeGradient,
                 )}
               >
@@ -665,9 +666,17 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   );
 
   const content = (
-    <div className="flex h-full flex-col overflow-visible p-3">
+    <div
+      className={cn(
+        "flex h-full flex-col overflow-visible",
+        mobileOpen ? "p-3" : effectiveCollapsed ? "p-0" : "p-3",
+      )}
+    >
       <div
-        className={`mb-3 flex items-center ${effectiveCollapsed ? "justify-center" : "justify-between"}`}
+        className={cn(
+          "mb-3 flex h-[45px] items-center",
+          effectiveCollapsed ? "justify-center" : "justify-between",
+        )}
       >
         {!effectiveCollapsed ? (
           <div className="text-xs font-semibold tracking-wide text-muted-foreground">
@@ -702,7 +711,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   return (
     <>
       <aside
-        className={`relative z-40 hidden h-screen shrink-0 border-r border-border bg-background md:sticky md:top-0 md:flex md:flex-col ${effectiveCollapsed ? "md:w-20" : "md:w-64"
+        className={`relative z-40 hidden h-screen shrink-0 border-r border-border bg-background md:sticky md:top-0 md:flex md:flex-col ${effectiveCollapsed ? "md:w-12" : "md:w-64"
           }`}
       >
         {content}

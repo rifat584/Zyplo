@@ -148,7 +148,7 @@ body {
 .dashboard-shell .dashboard-nav-stack-item::before {
   content: "";
   position: absolute;
-  left: 0.65rem;
+  left: 0.45rem;
   top: 0.5rem;
   bottom: 0.5rem;
   width: 2px;
@@ -163,9 +163,9 @@ body {
 }
 
 .dashboard-shell .dashboard-nav-stack-item[data-collapsed="true"]::before {
-  left: 0.4rem;
-  top: 0.6rem;
-  bottom: 0.6rem;
+  left: 0.12rem;
+  top: 0.45rem;
+  bottom: 0.45rem;
 }
 
 .dashboard-shell .dashboard-nav-stack-item:hover::before {
@@ -193,9 +193,9 @@ body {
 .dashboard-shell .dashboard-nav-inline-item::after {
   content: "";
   position: absolute;
-  left: 0.75rem;
-  right: 0.75rem;
-  bottom: 0.35rem;
+  left: 0.65rem;
+  right: 0.65rem;
+  bottom: 0.15rem;
   height: 2px;
   border-radius: 9999px;
   background-color: transparent;
