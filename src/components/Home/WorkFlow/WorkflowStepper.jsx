@@ -121,7 +121,7 @@ export default function WorkflowStepper() {
   return (
 
     <section 
-      className="relative w-full overflow-hidden bg-card py-20 [--feature-dot-color:rgba(15,23,42,0.15)] [--feature-vignette-edge:rgba(255,255,255,1)] dark:bg-[#0B0F19] dark:[--feature-dot-color:rgba(148,163,184,0.25)] dark:[--feature-vignette-edge:rgba(11,15,25,1)] sm:py-24 transition-colors duration-300"
+      className="relative w-full overflow-hidden bg-white py-20 [--feature-dot-color:rgba(15,23,42,0.15)] [--feature-vignette-edge:rgba(255,255,255,1)] dark:bg-[#0B0F19] dark:[--feature-dot-color:rgba(148,163,184,0.25)] dark:[--feature-vignette-edge:rgba(11,15,25,1)] sm:py-24 transition-colors duration-300"
       style={{
         backgroundImage: `
           linear-gradient(to right, var(--feature-vignette-edge) 0%, transparent 15%, transparent 85%, var(--feature-vignette-edge) 100%),
@@ -180,8 +180,8 @@ export default function WorkflowStepper() {
                   className={`group relative flex w-full items-center gap-4 rounded-2xl border p-6 text-left transition-all duration-300 backdrop-blur-md
                     ${
                       isActive
-                        ? "border-blue-500 bg-card/90 ring-1 ring-primary shadow-xl dark:border-blue-500/50 dark:bg-[#111827]/80 dark:ring-primary/50 dark:shadow-[0_0_30px_rgba(59,130,246,0.1)]"
-                        : "border-border bg-card/50 hover:bg-card/80 dark:border/5 dark:bg-[#0B0F19]/60 dark:hover:border/10 dark:hover:bg-card/5"
+                        ? "border-blue-500 bg-white/90 ring-1 ring-primary shadow-xl dark:border-blue-500/50 dark:bg-[#111827]/80 dark:ring-primary/50 dark:shadow-[0_0_30px_rgba(59,130,246,0.1)]"
+                        : "border-border bg-white/50 hover:bg-white/80 dark:border-white/5 dark:bg-[#0B0F19]/60 dark:hover:border-white/10 dark:hover:bg-white/5"
                     }`}
                 >
                   {/* Icon */}
@@ -223,7 +223,7 @@ export default function WorkflowStepper() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card/80 backdrop-blur-xl shadow-2xl h-full dark:border/10 dark:bg-[#111827]/80"
+            className="relative flex flex-col overflow-hidden rounded-2xl border border-border bg-white/80 backdrop-blur-xl shadow-2xl h-full dark:border-white/10 dark:bg-[#111827]/80"
           >
             <div className="p-8 flex flex-col h-full relative z-10">
               <AnimatePresence mode="wait">
@@ -253,7 +253,7 @@ export default function WorkflowStepper() {
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: idx * 0.1 }}
-                        className="inline-flex items-center rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-foreground dark:border/10 dark:bg-card/5 dark:text-muted-foreground transition-colors"
+                        className="inline-flex items-center rounded-full border border-border bg-white px-3 py-1 text-xs font-medium text-foreground dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground transition-colors"
                       >
                         {badge}
                       </motion.span>
@@ -261,7 +261,7 @@ export default function WorkflowStepper() {
                   </div>
 
                   {/* --- Inner Preview Box --- */}
-                  <div className="mt-auto rounded-xl border border-border bg-surface/50 p-6 dark:border/5 dark:bg-black/30 transition-colors">
+                  <div className="mt-auto rounded-xl border border-border bg-surface/50 p-6 dark:border-white/5 dark:bg-black/30 transition-colors">
                     <div className="mb-4 flex items-center justify-between">
                       <span className="text-sm font-semibold text-gray-900 dark:text-foreground">
                         {activeStep.content.previewTitle}
@@ -279,7 +279,7 @@ export default function WorkflowStepper() {
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.2 + (idx * 0.1) }}
-                          className="w-full rounded-lg border border-border bg-card px-4 py-3 text-sm text-foreground shadow-sm dark:border/5 dark:bg-card/5 dark:text-muted-foreground transition-colors"
+                          className="w-full rounded-lg border border-border bg-white px-4 py-3 text-sm text-foreground shadow-sm dark:border-white/5 dark:bg-white/5 dark:text-muted-foreground transition-colors"
                         >
                           {item}
                         </motion.div>

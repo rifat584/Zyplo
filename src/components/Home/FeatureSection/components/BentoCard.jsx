@@ -17,7 +17,7 @@ export function BentoCard({ title, right, className = "", children, delay = 0 })
     >
       <div className="absolute inset-x-8 top-0 h-16 bg-linear-to-b from-cyan-400/40 to-transparent opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100" />
       <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-indigo-500/0 via-cyan-400/0 to-cyan-400/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:from-indigo-500/30 group-hover:via-cyan-400/18 group-hover:to-cyan-400/24" />
-      <div className="relative h-full rounded-2xl bg-card/92 p-4 shadow-sm transition-shadow duration-300 group-hover:shadow-[inset_0_0_0_1px_rgba(79,70,229,0.36)] dark:bg-[#0E1733]/92 dark:group-hover:shadow-[inset_0_0_0_1px_rgba(34,211,238,0.48)]">
+      <div className="relative h-full rounded-2xl bg-white/92 p-4 shadow-sm transition-shadow duration-300 group-hover:shadow-[inset_0_0_0_1px_rgba(79,70,229,0.36)] dark:bg-[#0E1733]/92 dark:group-hover:shadow-[inset_0_0_0_1px_rgba(34,211,238,0.48)]">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-zinc-900 dark:text-gray-100">{title}</h3>
           {right}

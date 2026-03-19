@@ -30,9 +30,9 @@ export default function ResourcesHubPage() {
           <Link 
             key={item.title} 
             href={item.href}
-            className="group flex flex-col items-start justify-between rounded-2xl border border-border bg-card p-8 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md hover:border-primary dark:hover:border-primary"
+            className="group flex flex-col items-start justify-between rounded-2xl border border-border bg-card p-8 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 dark:bg-primary/30 text-primary dark:text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-primary dark:text-indigo-400 group-hover:bg-primary group-hover:text-white transition-colors">
               <Icon size={24} />
             </div>
             <div className="mt-6">

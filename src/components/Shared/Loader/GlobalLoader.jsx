@@ -74,9 +74,9 @@ export default function GlobalLoader() {
   const config = {
     syncing: {
       text: "Syncing data...",
-      icon: <RefreshCw className="size-3.5 animate-spin text-primary dark:text-primary" />,
-      bg: "bg-card/90 dark:bg-card/90",
-      border: "border-primary dark:border-primary/30",
+      icon: <RefreshCw className="size-3.5 animate-spin text-indigo-500 dark:text-indigo-400" />,
+      bg: "bg-white/90 dark:bg-slate-900/90",
+      border: "border-indigo-200 dark:border-indigo-500/30",
     },
     saving: {
       text: "Saving changes...",
@@ -127,7 +127,7 @@ export default function GlobalLoader() {
       {/* 2. The Contextual Floating Pill (Like Linear/Superhuman) */}
       <div className={`fixed bottom-8 left-1/2 z-[99999] flex -translate-x-1/2 items-center gap-2.5 rounded-full border px-4 py-2 shadow-xl backdrop-blur-md transition-all duration-300 animate-fade-in-up ${currentConfig.bg} ${currentConfig.border}`}>
         {currentConfig.icon}
-        <span className="text-xs font-semibold tracking-wide text-foreground dark:text-muted-foreground">
+        <span className="text-xs font-semibold tracking-wide text-slate-700 dark:text-slate-200">
           {currentConfig.text}
         </span>
       </div>

@@ -129,7 +129,7 @@ export default function DashboardProfilePage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4 dark:border/10">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4 dark:border-white/10">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">
             Profile
@@ -138,7 +138,7 @@ export default function DashboardProfilePage() {
             Update your personal information.
           </p>
         </div>
-        <div className="min-w-40 rounded-lg border border-border bg-card p-2 dark:border/10">
+        <div className="min-w-40 rounded-lg border border-border bg-card p-2 dark:border-white/10">
           <div className="mb-1 flex items-center justify-between text-xs">
             <span className="font-medium text-muted-foreground">
               Profile completion
@@ -158,9 +158,9 @@ export default function DashboardProfilePage() {
 
       <form
         onSubmit={handleSave}
-        className="space-y-5 rounded-2xl border border-border bg-card p-5 dark:border/10"
+        className="space-y-5 rounded-2xl border border-border bg-card p-5 dark:border-white/10"
       >
-        <section className="rounded-xl border border-border p-3 dark:border/10">
+        <section className="rounded-xl border border-border p-3 dark:border-white/10">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             Profile Image
           </p>
@@ -169,11 +169,11 @@ export default function DashboardProfilePage() {
               <img
                 src={form.avatarUrl}
                 alt="Profile preview"
-                className="size-14 rounded-full border border-border object-cover dark:border/10"
+                className="size-14 rounded-full border border-border object-cover dark:border-white/10"
                 referrerPolicy="no-referrer"
               />
             ) : (
-              <div className="flex size-14 items-center justify-center rounded-full border border-border bg-muted text-xs text-muted-foreground dark:border/10 dark:bg-surface dark:text-muted-foreground text-center">
+              <div className="flex size-14 items-center justify-center rounded-full border border-border bg-muted text-xs text-muted-foreground dark:border-white/10 dark:bg-surface dark:text-muted-foreground text-center">
                 No image
               </div>
             )}
@@ -183,7 +183,7 @@ export default function DashboardProfilePage() {
                 accept="image/*"
                 disabled={uploadingAvatar}
                 onChange={handleAvatarFileChange}
-                className="block w-full cursor-pointer rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground file:mr-3 file:rounded-md file:border-0 file:bg-primary/10 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-primary hover:file:bg-primary/10 disabled:opacity-50 dark:border/10 dark:bg-surface dark:text-foreground dark:file:bg-primary/100/20 dark:file:text-primary"
+                className="block w-full cursor-pointer rounded-lg border border-border bg-white px-3 py-2 text-sm text-foreground file:mr-3 file:rounded-md file:border-0 file:bg-primary/10 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-primary hover:file:bg-primary/10 disabled:opacity-50 dark:border-white/10 dark:bg-surface dark:text-foreground dark:file:bg-primary/100/20 dark:file:text-primary"
               />
               <p className="mt-1 text-xs text-muted-foreground">
                 {uploadingAvatar
@@ -202,7 +202,7 @@ export default function DashboardProfilePage() {
             <input
               value={form.fullName}
               onChange={(event) => updateField("fullName", event.target.value)}
-              className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-primary/30 dark:border/10 dark:bg-surface dark:text-foreground"
+              className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
               placeholder="Your full name"
             />
           </div>
@@ -213,7 +213,7 @@ export default function DashboardProfilePage() {
             <input
               value={email}
               disabled
-              className="h-10 w-full cursor-not-allowed rounded-lg border border-border bg-muted px-3 text-sm text-muted-foreground dark:border/10 dark:bg-surface/60 dark:text-muted-foreground"
+              className="h-10 w-full cursor-not-allowed rounded-lg border border-border bg-muted px-3 text-sm text-muted-foreground dark:border-white/10 dark:bg-surface/60 dark:text-muted-foreground"
               placeholder="Email"
             />
           </div>
@@ -227,7 +227,7 @@ export default function DashboardProfilePage() {
             <input
               value={form.phone}
               onChange={(event) => updateField("phone", event.target.value)}
-              className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-primary/30 dark:border/10 dark:bg-surface dark:text-foreground"
+              className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
               placeholder="+880..."
             />
           </div>
@@ -238,7 +238,7 @@ export default function DashboardProfilePage() {
             <input
               value={form.roleTitle}
               onChange={(event) => updateField("roleTitle", event.target.value)}
-              className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-primary/30 dark:border/10 dark:bg-surface dark:text-foreground"
+              className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
               placeholder="Product Manager"
             />
           </div>
@@ -252,7 +252,7 @@ export default function DashboardProfilePage() {
             <input
               value={form.company}
               onChange={(event) => updateField("company", event.target.value)}
-              className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-primary/30 dark:border/10 dark:bg-surface dark:text-foreground"
+              className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
               placeholder="Zyplo Inc."
             />
           </div>
@@ -263,7 +263,7 @@ export default function DashboardProfilePage() {
             <input
               value={form.location}
               onChange={(event) => updateField("location", event.target.value)}
-              className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-primary/30 dark:border/10 dark:bg-surface dark:text-foreground"
+              className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
               placeholder="Dhaka, Bangladesh"
             />
           </div>
@@ -277,7 +277,7 @@ export default function DashboardProfilePage() {
             <input
               value={form.website}
               onChange={(event) => updateField("website", event.target.value)}
-              className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-primary/30 dark:border/10 dark:bg-surface dark:text-foreground"
+              className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
               placeholder="https://..."
             />
           </div>
@@ -288,7 +288,7 @@ export default function DashboardProfilePage() {
             <input
               value={form.avatarUrl}
               onChange={(event) => updateField("avatarUrl", event.target.value)}
-              className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-primary/30 dark:border/10 dark:bg-surface dark:text-foreground"
+              className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
               placeholder="https://image..."
             />
           </div>
@@ -302,7 +302,7 @@ export default function DashboardProfilePage() {
             rows={5}
             value={form.bio}
             onChange={(event) => updateField("bio", event.target.value)}
-            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm outline-none focus:border-primary/30 dark:border/10 dark:bg-surface dark:text-foreground"
+            className="w-full rounded-lg border border-border bg-white px-3 py-2 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
             placeholder="Tell your team about yourself..."
           />
         </div>

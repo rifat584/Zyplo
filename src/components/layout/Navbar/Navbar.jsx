@@ -111,7 +111,7 @@ const Navbar = () => {
     profile?.avatarUrl || session.data?.user?.image || "";
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-card/80 dark:bg-[#0F1629]/80 backdrop-blur-md transition-colors duration-300">
+    <nav className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-[#0F1629]/80 backdrop-blur-md transition-colors duration-300">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
@@ -222,12 +222,12 @@ const Navbar = () => {
                   </button>
 
                   {profileOpen ? (
-                    <div className="absolute right-0 top-12 z-30 w-56 rounded-xl border border bg-card p-2 shadow-lg dark:border/10 dark:bg-card">
-                      <div className="mb-2 border-b border pb-2 px-2 dark:border/10">
-                        <p className="text-sm font-medium text-foreground dark:text-muted-foreground truncate">
+                    <div className="absolute right-0 top-12 z-30 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg dark:border-white/10 dark:bg-slate-900">
+                      <div className="mb-2 border-b border-slate-200 pb-2 px-2 dark:border-white/10">
+                        <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
                           {displayName}
                         </p>
-                        <p className="text-xs text-muted-foreground dark:text-muted-foreground truncate">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                           {displayEmail}
                         </p>
                       </div>
@@ -236,14 +236,14 @@ const Navbar = () => {
                         <Link
                           href="/dashboard"
                           onClick={() => setProfileOpen(false)}
-                          className="w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-card/5 transition-colors"
+                          className="w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5 transition-colors"
                         >
                           Dashboard
                         </Link>
                         <Link
                           href="/dashboard/profile"
                           onClick={() => setProfileOpen(false)}
-                          className="w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-card/5 transition-colors"
+                          className="w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5 transition-colors"
                         >
                           Profile
                         </Link>
@@ -278,7 +278,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-card dark:bg-[#0F1629] px-6 py-4 space-y-4 shadow-xl">
+        <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0F1629] px-6 py-4 space-y-4 shadow-xl">
           {/* Top Links */}
           <div className="flex flex-col space-y-2">
             <Link
@@ -375,8 +375,8 @@ const Navbar = () => {
                 </Link>
 
                 {/* Mobile User Info & Logout */}
-                <div className="mt-2 rounded-xl border border bg-muted p-3 dark:border/10 dark:bg-card/50">
-                  <div className="mb-3 border-b border pb-3 dark:border/10 flex items-center gap-3">
+                <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-800/50">
+                  <div className="mb-3 border-b border-slate-200 pb-3 dark:border-white/10 flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-bold text-primary dark:bg-primary/20 dark:text-primary">
                       {displayAvatarUrl ? (
                         <img
@@ -391,10 +391,10 @@ const Navbar = () => {
                       )}
                     </div>
                     <div className="overflow-hidden">
-                      <p className="text-sm font-medium text-foreground dark:text-muted-foreground truncate">
+                      <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
                         {displayName}
                       </p>
-                      <p className="text-xs text-muted-foreground dark:text-muted-foreground truncate">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                         {displayEmail}
                       </p>
                     </div>

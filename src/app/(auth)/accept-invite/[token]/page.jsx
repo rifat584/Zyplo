@@ -150,7 +150,7 @@ function AcceptInvitePage() {
       <BackToHomeLink />
 
       {loadingInvite ? (
-        <div className="space-y-3 rounded-xl border border-border/80 bg-card/60 p-3 text-sm dark:border/10 dark:bg-black/20">
+        <div className="space-y-3 rounded-xl border border-border/80 bg-white/60 p-3 text-sm dark:border-white/10 dark:bg-black/20">
           <p className="text-foreground">Checking invitation...</p>
         </div>
       ) : null}
@@ -172,7 +172,7 @@ function AcceptInvitePage() {
 
       {!loadingInvite && !inviteError && workspace ? (
         <>
-          <div className="space-y-3 rounded-xl border border-border/80 bg-card/60 p-3 text-sm dark:border/10 dark:bg-black/20">
+          <div className="space-y-3 rounded-xl border border-border/80 bg-white/60 p-3 text-sm dark:border-white/10 dark:bg-black/20">
             <p className="text-foreground">
               Invitee email:{" "}
               <span className="font-semibold">{workspace?.inviteeEmail}</span>

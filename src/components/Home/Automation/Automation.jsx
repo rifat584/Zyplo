@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export default function Automation() {
   return (
-    <section className="bg-card dark:bg-[#0B0f19] py-20 overflow-hidden transition-colors duration-300">
+    <section className="bg-white dark:bg-[#0B0f19] py-20 overflow-hidden transition-colors duration-300">
       <div className="max-w-[1280px] mx-auto px-6">
 
         {/* Heading Animation */}
@@ -64,7 +64,7 @@ export default function Automation() {
               transition={{ duration: 0.6 }}
               whileHover={{ scale: 1.05 }}
               className="p-8 rounded-2xl border transition-all duration-300
-              bg-card dark:bg-surface
+              bg-white dark:bg-surface
               border-border dark:border-border
               hover:border-primary/35 dark:hover:border-primary/45
               hover:shadow-xl dark:hover:shadow-indigo-500/10"
