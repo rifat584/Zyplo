@@ -323,7 +323,12 @@ export default function Board({ workspaceId, projectId }) {
 
   const membersQuery = useQuery({
     queryKey: ["dashboard-workspace-members", workspaceId],
-    queryFn: () => fetchJson("/api/dashboard/bootstrap"),
+    queryFn: () => 
+      fetchJson("/api/dashboard/bootstrap", {
+        headers: {
+          "x-silent-fetch": "true" // <--- This hides it from the Global Loader!
+        }
+      }),
     select: (data) =>
       data?.workspaces?.find((workspace) => workspace.id === workspaceId)
         ?.members || [],
