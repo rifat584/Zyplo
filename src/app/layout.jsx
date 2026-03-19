@@ -34,13 +34,15 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className="h-full">
-      <body className={`${poppins.className} ${poppins.variable} ${manrope.variable} ${creepster.variable} min-h-screen bg-background text-foreground antialiased`}>
+      <body
+        className={`${poppins.className} ${poppins.variable} ${manrope.variable} ${creepster.variable} min-h-screen bg-background text-foreground antialiased`}
+      >
         <NextAuthProvider>
           <ThemeProviders>
             <GlobalLoader />
             <CommandPalette />
-        {children}
-        </ThemeProviders>
+            {children}
+          </ThemeProviders>
         </NextAuthProvider>
       </body>
     </html>
