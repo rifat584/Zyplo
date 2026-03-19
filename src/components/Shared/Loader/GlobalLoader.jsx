@@ -25,12 +25,18 @@ export default function GlobalLoader() {
       const url = typeof resource === "string" ? resource : resource?.url;
       const method = (config?.method || "GET").toUpperCase();
 
-      // Silent fetches (like background timers) should not trigger the UI
+      // Silent fetches
       const isSilent = 
         config?.headers?.["x-silent-fetch"] === "true" || 
-        url?.includes("/time/active");
+        url?.includes("/time/active") ||              // <--- Changed ; to ||
+        url?.includes("/api/auth/session") ||         // Ignore NextAuth background checks
+        url?.includes("/__nextjs") ||                 // Ignore Next.js local dev server pings
+        url?.includes("/api/dashboard/bootstrap");    // Ignore background workspace syncing
 
       if (!isSilent) {
+
+        console.log(`[Loader Spy] Fetching: ${method} ${url}`);
+
         activeRequests += 1;
         
         // Determine what kind of action is happening based on the HTTP Method
