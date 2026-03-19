@@ -3,7 +3,7 @@ import Aurora from "@/components/Aurora";
 function AuthBackground() {
   return (
     <div className="absolute inset-0">
-      <div className="absolute inset-0 bg-slate-100 dark:bg-[#070b16]" />
+      <div className="absolute inset-0 bg-muted dark:bg-[#070b16]" />
 
       <div className="absolute inset-0 opacity-65 dark:opacity-80">
         <Aurora colorStops={["#6366f1", "#22d3ee", "#4f46e5"]} amplitude={1.0} blend={0.45} speed={0.55} />

@@ -57,9 +57,9 @@ function ResetPasswordForm() {
         {isSubmitting ? "Resetting password..." : "Reset password"}
       </Button>
 
-      <p className="text-center text-sm text-slate-600 dark:text-slate-300">
+      <p className="text-center text-sm text-muted-foreground">
         Return to{" "}
-        <Link href="/login" className="cursor-pointer text-cyan-600 transition-colors hover:text-cyan-700 dark:text-cyan-300 dark:hover:text-cyan-200">
+        <Link href="/login" className="cursor-pointer text-secondary transition-colors hover:text-secondary dark:text-secondary dark:hover:text-secondary">
           sign in
         </Link>
       </p>

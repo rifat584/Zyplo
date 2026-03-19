@@ -44,7 +44,7 @@ export default function GuidePage() {
 
                 {section.subsections?.map((sub) => (
                   <div key={sub.id} id={sub.id} className="mt-12">
-                    <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-base-200/40 p-6 md:p-8">
+                    <div className="rounded-2xl border border-border dark:border-border bg-base-200/40 p-6 md:p-8">
                       <h3 className="text-2xl font-semibold mb-4">
                         {sub.title}
                       </h3>

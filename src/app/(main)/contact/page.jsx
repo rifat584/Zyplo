@@ -5,7 +5,7 @@ export default function ContactPage() {
       {/* Hero Section */}
       <section className="text-center mb-16">
         <h1 className="text-5xl font-bold mb-4">Contact Us</h1>
-        <p className="text-gray-600 dark:text-gray-300 text-lg">
+        <p className="text-muted-foreground text-lg">
           We’d love to hear from you! Fill out the form below or reach out via email or phone.
         </p>
       </section>
@@ -14,14 +14,14 @@ export default function ContactPage() {
       <section className="grid md:grid-cols-2 gap-12">
 
         {/* Form */}
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-lg shadow">
+        <div className="bg-card p-8 rounded-lg shadow">
           <form className="space-y-6">
             <div>
               <label htmlFor="name" className="block text-sm font-medium mb-1">Name</label>
               <input
                 type="text"
                 id="name"
-                className="w-full border border-gray-300 dark:border-gray-700 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-border p-3 rounded focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="Your Name"
               />
             </div>
@@ -31,7 +31,7 @@ export default function ContactPage() {
               <input
                 type="email"
                 id="email"
-                className="w-full border border-gray-300 dark:border-gray-700 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-border p-3 rounded focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="Your Email"
               />
             </div>
@@ -41,14 +41,14 @@ export default function ContactPage() {
               <textarea
                 id="message"
                 rows="5"
-                className="w-full border border-gray-300 dark:border-gray-700 p-3 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-border p-3 rounded focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="Write your message..."
               />
             </div>
 
             <button
               type="submit"
-              className="bg-linear-to-br from-indigo-500 to-cyan-400 px-6 py-3 rounded hover:bg-blue-900 transition"
+              className="bg-linear-to-br from-primary to-secondary px-6 py-3 rounded hover:bg-primary/90 transition"
             >
               Send Message
             </button>
@@ -57,19 +57,19 @@ export default function ContactPage() {
 
         {/* Contact Info */}
         <div className="space-y-6">
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
+          <div className="bg-card p-6 rounded-lg shadow">
             <h3 className="text-xl font-bold mb-2">Email</h3>
-            <p className="text-gray-600 dark:text-gray-300">contact@company.com</p>
+            <p className="text-muted-foreground">contact@company.com</p>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
+          <div className="bg-card p-6 rounded-lg shadow">
             <h3 className="text-xl font-bold mb-2">Phone</h3>
-            <p className="text-gray-600 dark:text-gray-300">+880 1234 567 890</p>
+            <p className="text-muted-foreground">+880 1234 567 890</p>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 p-6 rounded-lg shadow">
+          <div className="bg-card p-6 rounded-lg shadow">
             <h3 className="text-xl font-bold mb-2">Address</h3>
-            <p className="text-gray-600 dark:text-gray-300">
+            <p className="text-muted-foreground">
               123 Main Street, Kaliganj, Bangladesh
             </p>
           </div>

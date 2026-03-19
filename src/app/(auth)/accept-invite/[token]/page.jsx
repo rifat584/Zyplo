@@ -150,15 +150,15 @@ function AcceptInvitePage() {
       <BackToHomeLink />
 
       {loadingInvite ? (
-        <div className="space-y-3 rounded-xl border border-slate-200/80 bg-white/60 p-3 text-sm dark:border-white/10 dark:bg-black/20">
-          <p className="text-slate-700 dark:text-slate-200">Checking invitation...</p>
+        <div className="space-y-3 rounded-xl border border-border/80 bg-white/60 p-3 text-sm dark:border-white/10 dark:bg-black/20">
+          <p className="text-foreground">Checking invitation...</p>
         </div>
       ) : null}
 
       {!loadingInvite && inviteError ? (
-        <div className="space-y-3 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm dark:border-rose-500/30 dark:bg-rose-500/10">
-          <p className="font-semibold text-rose-700 dark:text-rose-300">Invite issue</p>
-          <p className="text-rose-700 dark:text-rose-300">{inviteError}</p>
+        <div className="space-y-3 rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-sm dark:border-destructive/30 dark:bg-destructive/10">
+          <p className="font-semibold text-destructive dark:text-destructive">Invite issue</p>
+          <p className="text-destructive dark:text-destructive">{inviteError}</p>
           <div className="grid gap-2 sm:grid-cols-2">
             <Button type="button" variant="outline" className="cursor-pointer" onClick={() => router.push("/")}>
               Go home
@@ -172,22 +172,22 @@ function AcceptInvitePage() {
 
       {!loadingInvite && !inviteError && workspace ? (
         <>
-          <div className="space-y-3 rounded-xl border border-slate-200/80 bg-white/60 p-3 text-sm dark:border-white/10 dark:bg-black/20">
-            <p className="text-slate-700 dark:text-slate-200">
+          <div className="space-y-3 rounded-xl border border-border/80 bg-white/60 p-3 text-sm dark:border-white/10 dark:bg-black/20">
+            <p className="text-foreground">
               Invitee email:{" "}
               <span className="font-semibold">{workspace?.inviteeEmail}</span>
             </p>
-            <p className="text-slate-700 dark:text-slate-200">
+            <p className="text-foreground">
               Workspace:{" "}
               <span className="font-semibold">{workspaceLabel}</span>
             </p>
-            <p className="text-slate-700 dark:text-slate-200">
+            <p className="text-foreground">
               Role: <span className="font-semibold">{workspace?.role}</span>
             </p>
-            <p className="text-slate-700 dark:text-slate-200">
+            <p className="text-foreground">
               Status: <span className="font-semibold">{workspace?.status}</span>
             </p>
-            <p className="text-slate-700 dark:text-slate-200">
+            <p className="text-foreground">
               Expiry:{" "}
               <span className="font-semibold text-red-400 dark:text-red-300">
                 {expiryLabel}

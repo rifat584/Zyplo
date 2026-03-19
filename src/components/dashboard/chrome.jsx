@@ -1,34 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import {
   Bell,
-  BriefcaseBusiness,
   Building2,
   CheckCheck,
   ChevronLeft,
   Ellipsis,
-  Cpu,
-  FlaskConical,
-  Landmark,
-  Megaphone,
   Menu,
   Moon,
-  PenTool,
   UserCircle2,
-  Rocket,
   Settings,
-  Star,
   Sun,
+  Star,
   Timer,
   Trash2,
   UserPlus,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTheme } from "@/Context/ThemeContext";
+import { cn } from "@/lib/utils";
 import { Avatar } from "./ui";
 import Logo from "../Shared/Logo/Logo";
 import {
@@ -39,8 +34,38 @@ import {
   resolveWorkspaceRole,
   useMockStore,
 } from "./mockStore";
+import {
+  dashboardActiveSurfaceClasses,
+  dashboardChromeButtonClasses,
+  dashboardMenuItemClasses,
+  dashboardMenuItemDangerClasses,
+  dashboardSidebarNavItemActiveClasses,
+  dashboardSidebarNavItemClasses,
+} from "./styles";
 
 const SIDEBAR_KEY = "dashboard.sidebarCollapsed";
+const WORKSPACE_ROUTE_LABELS = {
+  timeline: "Timeline",
+  board: "Board",
+  calender: "Calendar",
+  list: "List",
+  timesheet: "Time Sheet",
+  members: "Members",
+  settings: "Settings",
+};
+
+const WORKSPACE_BADGE_GRADIENTS = [
+  "from-primary to-secondary text-primary-foreground",
+  "from-emerald-500 to-teal-400 text-white",
+  "from-amber-500 to-orange-500 text-white",
+  "from-rose-500 to-pink-500 text-white",
+  "from-sky-500 to-cyan-400 text-white",
+  "from-violet-500 to-fuchsia-500 text-white",
+  "from-lime-500 to-emerald-500 text-white",
+  "from-blue-500 to-indigo-500 text-white",
+  "from-red-500 to-orange-400 text-white",
+  "from-slate-500 to-zinc-400 text-white",
+];
 
 function useSidebarState() {
   const [collapsed, setCollapsed] = useState(false);
@@ -94,25 +119,28 @@ function AvatarMenu() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="rounded-full p-0.5 ring-2 ring-transparent transition hover:ring-cyan-200 dark:hover:ring-cyan-500/40"
+        className="rounded-full p-0.5 ring-2 ring-transparent transition hover:ring-primary/20 dark:hover:ring-primary/30"
       >
         <Avatar name={displayName} src={displayAvatarUrl} />
       </button>
 
       {open ? (
-        <div className="absolute right-0 top-11 z-30 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg dark:border-white/10 dark:bg-slate-900">
-          <div className="mb-2 border-b border-slate-200 pb-2 dark:border-white/10">
-            <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
+        <div className="absolute right-0 top-11 z-30 w-56 rounded-xl border border-border bg-card p-2">
+          <div className="mb-2 border-b border-border pb-2">
+            <p className="text-sm font-medium text-foreground">
               {displayName}
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-muted-foreground">
               {displayEmail}
             </p>
           </div>
           <button
             type="button"
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="w-full rounded-lg px-2 py-2 text-left text-sm text-rose-600 hover:bg-rose-50"
+            className={cn(
+              dashboardMenuItemDangerClasses,
+              "w-full rounded-lg px-2 py-2 text-left text-sm",
+            )}
           >
             Sign out
           </button>
@@ -234,16 +262,21 @@ function GlobalTimerControl() {
     tasks.find((task) => String(task.id) === String(activeTimer?.taskId || "")) || null;
   const hasActiveTimer = Boolean(activeTimer?.id);
 
-  const containerClasses = hasActiveTimer 
-    ? "border-indigo-200 bg-indigo-50 dark:border-indigo-400/30 dark:bg-indigo-500/10" 
-    : "border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-slate-800/50";
+  const containerClasses = hasActiveTimer
+    ? dashboardActiveSurfaceClasses
+    : dashboardChromeButtonClasses;
 
   const textClasses = hasActiveTimer
-    ? "text-indigo-700 dark:text-indigo-200"
-    : "text-slate-500 dark:text-slate-400";
+    ? "text-[var(--dashboard-active-foreground)]"
+    : "text-muted-foreground";
 
   return (
-    <div className={`flex items-center gap-1.5 sm:gap-2 rounded-lg border px-1.5 sm:px-2 py-1 sm:py-1.5 ${containerClasses}`}>
+    <div
+      className={cn(
+        "flex items-center gap-1.5 rounded-lg border px-1.5 py-1 sm:gap-2 sm:px-2 sm:py-1.5",
+        containerClasses,
+      )}
+    >
       <span className={`inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold ${textClasses}`}>
         <Timer className="size-3.5 sm:size-4 shrink-0" />
         
@@ -254,7 +287,7 @@ function GlobalTimerControl() {
 
       {hasActiveTimer && (
         <>
-          <span className="hidden max-w-20 truncate text-[11px] text-slate-700 md:max-w-36 md:inline dark:text-slate-200">
+          <span className="hidden max-w-20 truncate text-[11px] text-foreground md:max-w-36 md:inline dark:text-foreground">
             {activeTask?.title || "No task"}
           </span>
           <button
@@ -286,7 +319,7 @@ function GlobalTimerControl() {
               }
             }}
             disabled={stopping || loading}
-            className="rounded-md bg-rose-600 px-1.5 py-0.5 sm:px-2 sm:py-1 text-[10px] sm:text-[11px] font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+            className="rounded-md bg-destructive px-1.5 py-0.5 text-[10px] font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50 sm:px-2 sm:py-1 sm:text-[11px]"
           >
             {stopping ? "..." : "Stop"}
           </button>
@@ -319,21 +352,24 @@ function NotificationsMenu() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="relative rounded-lg border border-slate-200 p-1.5 sm:p-2 text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-900"
+        className={cn(
+          dashboardChromeButtonClasses,
+          "relative rounded-lg p-1.5 sm:p-2",
+        )}
         aria-label="Open notifications"
       >
         <Bell className="size-4" />
         {unreadCount > 0 ? (
-          <span className="absolute -right-1 -top-1 inline-flex min-w-[18px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-semibold text-white">
+          <span className="absolute -right-1 -top-1 inline-flex min-w-[18px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-destructive-foreground">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         ) : null}
       </button>
 
       {open ? (
-        <div className="absolute right-0 top-11 z-40 w-[92vw] max-w-sm overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-white/10 dark:bg-slate-900">
-          <div className="flex items-center justify-between border-b border-slate-200 px-3 py-2 dark:border-white/10">
-            <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+        <div className="absolute right-0 top-11 z-40 w-[92vw] max-w-sm overflow-hidden rounded-xl border border-border bg-card">
+          <div className="flex items-center justify-between border-b border-border px-3 py-2">
+            <p className="text-sm font-semibold text-foreground">
               Notifications
             </p>
             <button
@@ -349,7 +385,10 @@ function NotificationsMenu() {
                   setMarkingAllRead(false);
                 }
               }}
-              className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-1 text-xs text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
+              className={cn(
+                dashboardChromeButtonClasses,
+                "inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-foreground disabled:cursor-not-allowed disabled:opacity-50",
+              )}
             >
               <CheckCheck className="size-3.5" />
               Mark all read
@@ -360,22 +399,21 @@ function NotificationsMenu() {
               notifications.map((item) => (
                 <div
                   key={item.id}
-                  className={`mb-1 rounded-lg border px-3 py-2 last:mb-0 ${
-                    item.read
-                      ? "border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900"
-                      : "border-indigo-200 bg-indigo-50 dark:border-indigo-500/40 dark:bg-indigo-500/10"
-                  }`}
+                  className={cn(
+                    "mb-1 rounded-lg border px-3 py-2 last:mb-0",
+                    item.read ? "border-border bg-card" : dashboardActiveSurfaceClasses,
+                  )}
                 >
-                  <p className="text-sm text-slate-800 dark:text-slate-100">
+                  <p className="text-sm text-foreground">
                     {item.text || "Notification"}
                   </p>
-                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                  <p className="mt-0.5 text-xs text-muted-foreground">
                     {formatNotificationTime(item.createdAt)}
                   </p>
                 </div>
               ))
             ) : (
-              <p className="px-2 py-4 text-sm text-slate-500 dark:text-slate-400">
+              <p className="px-2 py-4 text-sm text-muted-foreground">
                 No notifications yet.
               </p>
             )}
@@ -383,6 +421,38 @@ function NotificationsMenu() {
         </div>
       ) : null}
     </div>
+  );
+}
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  const isDark = theme === "dark";
+
+  return (
+    <button
+      type="button"
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      className={cn(
+        dashboardChromeButtonClasses,
+        "inline-flex size-8 items-center justify-center rounded-lg sm:size-9",
+      )}
+    >
+      {isDark ? (
+        <Sun className="size-4 text-secondary" />
+      ) : (
+        <Moon className="size-4" />
+      )}
+    </button>
   );
 }
 
@@ -400,21 +470,19 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   const [deleting, setDeleting] = useState(false);
   const actionsMenuRef = useRef(null);
 
-  const workspaceIcons = [
-    { Icon: Rocket, color: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300" },
-    { Icon: BriefcaseBusiness, color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300" },
-    { Icon: PenTool, color: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300" },
-    { Icon: Megaphone, color: "bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300" },
-    { Icon: FlaskConical, color: "bg-violet-100 text-violet-700 dark:bg-violet-500/20 dark:text-violet-300" },
-    { Icon: Cpu, color: "bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300" },
-    { Icon: Landmark, color: "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300" },
-  ];
-
-  const pickWorkspaceIcon = (workspace) => {
+  const pickWorkspaceGradient = (workspace) => {
     const key = workspace?.id || workspace?.name || "workspace";
     let hash = 0;
     for (let i = 0; i < key.length; i += 1) hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
-    return workspaceIcons[hash % workspaceIcons.length];
+    return WORKSPACE_BADGE_GRADIENTS[hash % WORKSPACE_BADGE_GRADIENTS.length];
+  };
+
+  const getWorkspaceBadgeLabel = (workspace) => {
+    const name = String(workspace?.name || "").trim();
+    const parts = name.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return `${parts[0]?.[0] || ""}${parts[1]?.[0] || ""}`.toUpperCase();
+    const compact = name.replace(/\s+/g, "");
+    return (compact.slice(0, 2) || "WS").toUpperCase();
   };
 
   useEffect(() => {
@@ -433,10 +501,14 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     <Link
       href="/dashboard/workspaces"
       onClick={onCloseMobile}
-      className={`group flex items-center rounded-xl transition ${pathname === "/dashboard/workspaces"
-          ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
-          : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-        } ${effectiveCollapsed ? "size-10 justify-center" : "gap-2 px-3 py-2"}`}
+      data-collapsed={effectiveCollapsed ? "true" : "false"}
+      className={cn(
+        pathname === "/dashboard/workspaces"
+          ? dashboardSidebarNavItemActiveClasses
+          : dashboardSidebarNavItemClasses,
+        "group flex items-center rounded-xl",
+        effectiveCollapsed ? "size-9 justify-center px-0" : "gap-2 py-2 pl-4 pr-3",
+      )}
       title={effectiveCollapsed ? "Workspaces" : undefined}
     >
       <Building2 className="size-4 shrink-0" />
@@ -448,11 +520,14 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     <Link
       href="/dashboard/profile"
       onClick={onCloseMobile}
-      className={`group flex items-center rounded-xl transition ${
+      data-collapsed={effectiveCollapsed ? "true" : "false"}
+      className={cn(
         pathname === "/dashboard/profile"
-          ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
-          : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-      } ${effectiveCollapsed ? "size-10 justify-center" : "gap-2 px-3 py-2"}`}
+          ? dashboardSidebarNavItemActiveClasses
+          : dashboardSidebarNavItemClasses,
+        "group flex items-center rounded-xl",
+        effectiveCollapsed ? "size-9 justify-center px-0" : "gap-2 py-2 pl-4 pr-3",
+      )}
       title={effectiveCollapsed ? "Profile" : undefined}
     >
       <UserCircle2 className="size-4 shrink-0" />
@@ -463,13 +538,14 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   const workspaceItems = (
     <div className={`mt-3 space-y-1 ${effectiveCollapsed ? "flex flex-col items-center" : ""}`}>
       {!effectiveCollapsed ? (
-        <p className="px-3 text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+        <p className="px-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           Your Workspaces
         </p>
       ) : null}
       {workspaces.map((workspace) => {
         const isAdmin = resolveWorkspaceRole(workspace, currentUser) === "admin";
-        const { Icon, color } = pickWorkspaceIcon(workspace);
+        const badgeLabel = getWorkspaceBadgeLabel(workspace);
+        const badgeGradient = pickWorkspaceGradient(workspace);
         const href = `/dashboard/w/${workspace.id}`;
         const active = pathname === href || pathname.startsWith(`${href}/`);
         const menuOpen = actionsOpenFor === workspace.id;
@@ -481,15 +557,24 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                 router.push(href);
                 onCloseMobile?.();
               }}
-              className={`flex w-full items-center rounded-xl transition cursor-pointer ${
+              data-collapsed={effectiveCollapsed ? "true" : "false"}
+              className={cn(
                 active
-                  ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300"
-                  : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
-              } ${effectiveCollapsed ? "size-10 justify-center" : "gap-2 px-3 py-2 pr-10"}`}
+                  ? dashboardSidebarNavItemActiveClasses
+                  : dashboardSidebarNavItemClasses,
+                "flex w-full items-center rounded-xl",
+                effectiveCollapsed ? "size-9 justify-center px-0" : "gap-2 py-2 pl-4 pr-10",
+              )}
               title={workspace.name}
             >
-              <span className={`flex size-5 items-center justify-center rounded-md ${color}`}>
-                <Icon className="size-3.5" />
+              <span
+                className={cn(
+                  "flex shrink-0 items-center justify-center rounded-md border border-border/60 bg-linear-to-br font-sans font-semibold uppercase tracking-[0.06em]",
+                  "size-6 text-[11px]",
+                  badgeGradient,
+                )}
+              >
+                {badgeLabel}
               </span>
               {!effectiveCollapsed ? <span className="truncate text-sm">{workspace.name}</span> : null}
             </button>
@@ -501,21 +586,27 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                   event.stopPropagation();
                   setActionsOpenFor((current) => (current === workspace.id ? "" : workspace.id));
                 }}
-                className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 text-slate-500 hover:bg-slate-200/70 group-hover:block dark:text-slate-300 dark:hover:bg-slate-700 cursor-pointer"
+                className={cn(
+                  dashboardChromeButtonClasses,
+                  "absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 group-hover:block",
+                )}
               >
                 <Ellipsis className="size-4" />
               </button>
             ) : null}
 
             {menuOpen ? (
-              <div ref={actionsMenuRef} className="absolute right-0 top-10 z-50 w-52 rounded-xl border border-slate-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-slate-900">
+              <div ref={actionsMenuRef} className="absolute right-0 top-10 z-50 w-52 rounded-xl border border-border bg-card p-1 shadow-lg">
                 <button
                   type="button"
                   onClick={() => {
                     setActionsOpenFor("");
                     toast.info(`Added ${workspace.name} to starred`);
                   }}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                  className={cn(
+                    dashboardMenuItemClasses,
+                    "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
+                  )}
                 >
                   <Star className="size-4" />
                   Add to starred
@@ -528,7 +619,10 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                         setActionsOpenFor("");
                         router.push(`/dashboard/w/${workspace.id}/members`);
                       }}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className={cn(
+                        dashboardMenuItemClasses,
+                        "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
+                      )}
                     >
                       <UserPlus className="size-4" />
                       Add people
@@ -539,7 +633,10 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                         setActionsOpenFor("");
                         router.push(`/dashboard/w/${workspace.id}/settings`);
                       }}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                      className={cn(
+                        dashboardMenuItemClasses,
+                        "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
+                      )}
                     >
                       <Settings className="size-4" />
                       Workspace settings
@@ -550,7 +647,10 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                         setActionsOpenFor("");
                         setConfirmDeleteId(workspace.id);
                       }}
-                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10"
+                      className={cn(
+                        dashboardMenuItemDangerClasses,
+                        "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
+                      )}
                     >
                       <Trash2 className="size-4" />
                       Delete workspace
@@ -566,12 +666,20 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   );
 
   const content = (
-    <div className="flex h-full flex-col overflow-visible p-3">
+    <div
+      className={cn(
+        "flex h-full flex-col overflow-visible",
+        mobileOpen ? "p-3" : effectiveCollapsed ? "p-0" : "p-3",
+      )}
+    >
       <div
-        className={`mb-3 flex items-center ${effectiveCollapsed ? "justify-center" : "justify-between"}`}
+        className={cn(
+          "mb-3 flex h-[45px] items-center",
+          effectiveCollapsed ? "justify-center" : "justify-between",
+        )}
       >
         {!effectiveCollapsed ? (
-          <div className="text-xs font-semibold tracking-wide text-slate-500 dark:text-slate-400">
+          <div className="text-xs font-semibold tracking-wide text-muted-foreground">
             <Link href={"/"}>
               <Logo size={45} className="ml-0.5" />
             </Link>
@@ -580,7 +688,10 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         <button
           type="button"
           onClick={toggle}
-          className="hidden rounded-lg border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-100 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800 md:block"
+          className={cn(
+            dashboardChromeButtonClasses,
+            "hidden rounded-lg p-1.5 md:block",
+          )}
         >
           <ChevronLeft
             className={`size-4 transition ${effectiveCollapsed ? "rotate-180" : ""}`}
@@ -600,7 +711,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   return (
     <>
       <aside
-        className={`relative z-40 hidden h-screen shrink-0 border-r border-slate-200 bg-white/90 dark:border-white/10 dark:bg-slate-950/80 md:sticky md:top-0 md:flex md:flex-col ${effectiveCollapsed ? "md:w-20" : "md:w-64"
+        className={`relative z-40 hidden h-screen shrink-0 border-r border-border bg-background md:sticky md:top-0 md:flex md:flex-col ${effectiveCollapsed ? "md:w-12" : "md:w-64"
           }`}
       >
         {content}
@@ -610,10 +721,10 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         <div className="fixed inset-0 z-50 md:hidden">
           <button
             type="button"
-            className="absolute inset-0 bg-slate-900/35"
+            className="absolute inset-0 bg-card/35"
             onClick={onCloseMobile}
           />
-          <div className="absolute left-0 top-0 h-full w-20 border-r border-slate-200 bg-white shadow-xl dark:border-white/10 dark:bg-slate-950">
+          <div className="absolute left-0 top-0 h-full w-20 border-r border-border bg-background">
             {content}
           </div>
         </div>
@@ -623,12 +734,12 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         <div className="fixed inset-0 z-[70]">
           <button
             type="button"
-            className="absolute inset-0 bg-slate-900/45"
+            className="absolute inset-0 bg-card/45"
             onClick={() => (deleting ? null : setConfirmDeleteId(""))}
           />
-          <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-slate-900">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Delete workspace?</h3>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+          <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-card p-5 shadow-2xl">
+            <h3 className="text-lg font-semibold text-foreground">Delete workspace?</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
               This action will remove the workspace and related projects/tasks permanently.
             </p>
             <div className="mt-5 flex justify-end gap-2">
@@ -636,7 +747,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                 type="button"
                 onClick={() => setConfirmDeleteId("")}
                 disabled={deleting}
-                className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 dark:border-white/10 dark:text-slate-200"
+                className="rounded-lg border border-border px-3 py-2 text-sm text-foreground"
               >
                 Cancel
               </button>
@@ -659,7 +770,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                     setDeleting(false);
                   }
                 }}
-                className="rounded-lg bg-rose-600 px-3 py-2 text-sm font-medium text-white hover:bg-rose-700 disabled:opacity-50"
+                className="rounded-lg bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
               >
                 {deleting ? "Deleting..." : "Delete Workspace"}
               </button>
@@ -672,53 +783,132 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
 }
 
 function Topbar({ onOpenSidebar }) {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const pathname = usePathname();
+  const params = useParams();
+  const workspaces = useMockStore((state) => state.workspaces || []);
+  const [hidden, setHidden] = useState(false);
 
-  useEffect(() => setMounted(true), []);
+  const workspaceId = typeof params.workspaceId === "string" ? params.workspaceId : "";
+  const workspace = useMemo(
+    () => workspaces.find((item) => item.id === workspaceId) || null,
+    [workspaces, workspaceId],
+  );
+  const breadcrumb = useMemo(() => {
+    if (pathname === "/dashboard/workspaces") {
+      return [
+        { label: "Dashboard", href: "/dashboard/workspaces" },
+        { label: "Workspaces" },
+      ];
+    }
+    if (pathname === "/dashboard/profile") {
+      return [
+        { label: "Dashboard", href: "/dashboard/workspaces" },
+        { label: "Profile" },
+      ];
+    }
+    if (pathname.startsWith("/dashboard/w/")) {
+      const routeKey = pathname.split("/").filter(Boolean)[3] || "overview";
+      const currentLabel =
+        routeKey === "overview" ? "Overview" : WORKSPACE_ROUTE_LABELS[routeKey] || "Workspace";
+      return [
+        { label: "Dashboard", href: "/dashboard/workspaces" },
+        { label: workspace?.name || "Workspace", href: `/dashboard/w/${workspaceId}` },
+        { label: currentLabel },
+      ];
+    }
+    return [{ label: "Dashboard", href: "/dashboard/workspaces" }];
+  }, [pathname, workspace?.name, workspaceId]);
+
+  useEffect(() => {
+    const main = document.querySelector("main");
+    let previousScrollY = main.scrollTop;
+    let timeoutId;
+
+    const onScroll = () => {
+      const currentScrollY = main.scrollTop;
+
+      if (currentScrollY > previousScrollY && currentScrollY > 0) {
+        setHidden(true);
+      } else {
+        setHidden(false);
+      }
+
+      previousScrollY = currentScrollY;
+      clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => {
+        setHidden(false);
+      }, 150);
+    };
+
+    main.addEventListener("scroll", onScroll);
+
+    return () => {
+      main.removeEventListener("scroll", onScroll);
+      clearTimeout(timeoutId);
+    };
+  }, []);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 px-3 py-3 sm:px-4 backdrop-blur dark:border-white/10 dark:bg-slate-950/80 lg:px-7">
-      <div className="flex items-center justify-between gap-2 sm:gap-3">
-        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          <button
-            type="button"
-            onClick={onOpenSidebar}
-            className="shrink-0 rounded-lg border border-slate-200 p-1.5 sm:p-2 text-slate-600 md:hidden dark:border-white/10 dark:text-slate-300"
-          >
-            <Menu className="size-4 sm:size-5" />
-          </button>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-slate-900 dark:text-slate-100">
-              Workspace
-            </p>
-            {/* Hide subtitle on mobile so it doesn't push the right side off screen */}
-            <p className="hidden truncate text-xs text-slate-500 sm:block dark:text-slate-400">
-              Overview, timeline, board, and members.
-            </p>
-          </div>
-        </div>
-        
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-          <GlobalTimerControl />
-          <NotificationsMenu />
-          {mounted ? (
+    <motion.div
+      animate={{ height: hidden ? 0 : 44 }}
+      transition={{ duration: 0.22, ease: "easeOut" }}
+      className="sticky top-0 z-30 overflow-hidden border-b border-accent"
+    >
+      <motion.header
+        animate={{ y: hidden ? "-100%" : 0 }}
+        transition={{ duration: 0.22, ease: "easeOut" }}
+        className="border-b border-border bg-background px-3 sm:px-4 lg:px-7"
+      >
+        <div className="flex h-11 items-center justify-between gap-2 sm:gap-3">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <button
               type="button"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="rounded-lg border border-slate-200 p-1.5 sm:p-2 text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-900"
-            >
-              {theme === "dark" ? (
-                <Sun className="size-4 text-cyan-400" />
-              ) : (
-                <Moon className="size-4" />
+              onClick={onOpenSidebar}
+              className={cn(
+                dashboardChromeButtonClasses,
+                "shrink-0 rounded-md p-1.5 md:hidden",
               )}
+            >
+              <Menu className="size-4 sm:size-5" />
             </button>
-          ) : null}
-          <AvatarMenu />
+            <div className="min-w-0">
+              <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5 text-[11px]">
+                {breadcrumb.map((item, index) => (
+                  <div key={`${item.label}-${index}`} className="flex min-w-0 items-center gap-1.5">
+                    {index > 0 ? <span className="text-muted-foreground/45">/</span> : null}
+                    {item.href && index !== breadcrumb.length - 1 ? (
+                      <Link
+                        href={item.href}
+                        className="truncate text-muted-foreground transition-colors hover:text-primary"
+                      >
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <span
+                        className={`truncate ${
+                          index === breadcrumb.length - 1
+                            ? "font-medium text-foreground"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        {item.label}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </nav>
+            </div>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-1.5">
+            <ThemeToggle />
+            <GlobalTimerControl />
+            <NotificationsMenu />
+            <AvatarMenu />
+          </div>
         </div>
-      </div>
-    </header>
+      </motion.header>
+    </motion.div>
   );
 }
 
@@ -780,14 +970,14 @@ export function AppShell({ children }) {
   }, [loaded, currentUser]);
 
   return (
-    <div className="flex min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    <div className="dashboard-shell flex min-h-screen bg-base text-foreground">
       <AppSidebar
         mobileOpen={mobileOpen}
         onCloseMobile={() => setMobileOpen(false)}
       />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar onOpenSidebar={() => setMobileOpen(true)} />
-        <main className="min-h-0 flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 lg:px-7 dark:bg-slate-950/30">
+        <main className="min-h-0 flex-1 overflow-y-auto px-3 pb-4 pt-0 sm:px-4 sm:pb-5 md:px-6 md:pb-6 lg:px-7">
           {children}
         </main>
       </div>
