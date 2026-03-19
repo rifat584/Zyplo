@@ -14,16 +14,16 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false); 
-  
+  const [profileOpen, setProfileOpen] = useState(false);
+
   const pathname = usePathname();
   const dropdownRef = useRef(null);
-  const profileRef = useRef(null); 
-  
+  const profileRef = useRef(null);
+
   const session = useSession();
-  const isAuthenticated = session.status === "authenticated"; 
+  const isAuthenticated = session.status === "authenticated";
   const [profile, setProfile] = useState(null);
-  
+
   // Theme state
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -70,7 +70,9 @@ const Navbar = () => {
         return;
       }
       try {
-        const res = await fetch("/api/dashboard/profile", { cache: "no-store" });
+        const res = await fetch("/api/dashboard/profile", {
+          cache: "no-store",
+        });
         const text = await res.text();
         const data = text ? JSON.parse(text) : null;
         if (!res.ok || !data?.currentUser) return;
@@ -98,12 +100,15 @@ const Navbar = () => {
 
   // --- TRICK TO OPEN COMMAND PALETTE ---
   const openCommandPalette = () => {
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }));
+    document.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }),
+    );
   };
 
   const displayName = profile?.name || session.data?.user?.name || "User";
   const displayEmail = profile?.email || session.data?.user?.email || "";
-  const displayAvatarUrl = profile?.avatarUrl || session.data?.user?.image || "";
+  const displayAvatarUrl =
+    profile?.avatarUrl || session.data?.user?.image || "";
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-[#0F1629]/80 backdrop-blur-md transition-colors duration-300">
@@ -114,20 +119,29 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-2 relative" ref={dropdownRef}>
-          <Link href="/" className={getLinkClass("/")}>Home</Link>
-          <Link href="/pricing" className={getLinkClass("/pricing")}>Pricing</Link>
-          <Link href="/blog" className={getLinkClass("/blog")}>Blog</Link>
+        <div
+          className="hidden md:flex items-center gap-2 relative"
+          ref={dropdownRef}
+        >
+          <Link href="/" className={getLinkClass("/")}>
+            Home
+          </Link>
+          <Link href="/pricing" className={getLinkClass("/pricing")}>
+            Pricing
+          </Link>
+          <Link href="/blog" className={getLinkClass("/blog")}>
+            Blog
+          </Link>
 
           {/* Resources Button (Click only) */}
           <button
             onClick={() => setResourcesOpen((p) => !p)}
             className={`${getLinkClass("/resources")} flex items-center gap-1 cursor-pointer outline-none`}
           >
-            Resources 
-            <ChevronDown 
-              size={16} 
-              className={`transition-transform duration-200 ${resourcesOpen ? "rotate-180" : ""}`} 
+            Resources
+            <ChevronDown
+              size={16}
+              className={`transition-transform duration-200 ${resourcesOpen ? "rotate-180" : ""}`}
             />
           </button>
 
@@ -137,14 +151,13 @@ const Navbar = () => {
             resourcesOpen={resourcesOpen}
             setResourcesOpen={setResourcesOpen}
             mobileResourcesOpen={false}
-            setMobileResourcesOpen={() => { }}
-            closeAll={() => { }}
+            setMobileResourcesOpen={() => {}}
+            closeAll={() => {}}
           />
         </div>
 
         {/* Right Actions */}
         <div className="flex items-center gap-4">
-
           {/* --- Theme Toggle --- */}
           {mounted && (
             <button
@@ -161,7 +174,7 @@ const Navbar = () => {
           )}
 
           {/* Desktop Search Button */}
-          <button 
+          <button
             onClick={openCommandPalette}
             className="hidden sm:flex items-center gap-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 transition hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
           >
@@ -172,10 +185,16 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-4">
             {!isAuthenticated ? (
               <>
-                <Link href="/login" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-secondary">
+                <Link
+                  href="/login"
+                  className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-secondary"
+                >
                   Sign in
                 </Link>
-                <Link href="/register" className="flex items-center justify-center rounded-lg bg-linear-to-br from-indigo-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-indigo-500/40 active:scale-95">
+                <Link
+                  href="/register"
+                  className="flex items-center justify-center rounded-lg bg-linear-to-br from-indigo-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-indigo-500/40 active:scale-95"
+                >
                   Get started
                 </Link>
               </>
@@ -183,15 +202,21 @@ const Navbar = () => {
               <>
                 {/* --- Profile Dropdown (Desktop) --- */}
                 <div className="relative" ref={profileRef}>
-                  <button 
+                  <button
                     onClick={() => setProfileOpen(!profileOpen)}
                     className="flex items-center gap-2 outline-none"
                   >
-                    <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 hover:ring-2 hover:ring-indigo-500/50 transition-all cursor-pointer">
+                    <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-bold text-primary dark:bg-primary/20 dark:text-primary hover:ring-2 hover:ring-primary/50 transition-all cursor-pointer">
                       {displayAvatarUrl ? (
-                        <img src={displayAvatarUrl} alt={displayName} className="h-full w-full object-cover" />
+                        <img
+                          src={displayAvatarUrl}
+                          alt={displayName}
+                          className="h-full w-full object-cover"
+                        />
                       ) : (
-                        <span>{(displayName?.charAt(0) || "U").toUpperCase()}</span>
+                        <span>
+                          {(displayName?.charAt(0) || "U").toUpperCase()}
+                        </span>
                       )}
                     </div>
                   </button>
@@ -206,7 +231,7 @@ const Navbar = () => {
                           {displayEmail}
                         </p>
                       </div>
-                      
+
                       <div className="flex flex-col gap-1">
                         <Link
                           href="/dashboard"
@@ -222,7 +247,7 @@ const Navbar = () => {
                         >
                           Profile
                         </Link>
-                        
+
                         <button
                           type="button"
                           onClick={() => signOut({ callbackUrl: "/login" })}
@@ -256,9 +281,27 @@ const Navbar = () => {
         <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0F1629] px-6 py-4 space-y-4 shadow-xl">
           {/* Top Links */}
           <div className="flex flex-col space-y-2">
-            <Link href="/" onClick={closeAllMobile} className={getLinkClass("/")}>Home</Link>
-            <Link href="/pricing" onClick={closeAllMobile} className={getLinkClass("/pricing")}>Pricing</Link>
-            <Link href="/blog" onClick={closeAllMobile} className={getLinkClass("/blog")}>Blog</Link>
+            <Link
+              href="/"
+              onClick={closeAllMobile}
+              className={getLinkClass("/")}
+            >
+              Home
+            </Link>
+            <Link
+              href="/pricing"
+              onClick={closeAllMobile}
+              className={getLinkClass("/pricing")}
+            >
+              Pricing
+            </Link>
+            <Link
+              href="/blog"
+              onClick={closeAllMobile}
+              className={getLinkClass("/blog")}
+            >
+              Blog
+            </Link>
 
             {/* Resources Toggle */}
             <button
@@ -266,13 +309,16 @@ const Navbar = () => {
               className="w-full flex items-center justify-between px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground dark:text-gray-300 hover:bg-secondary/20"
             >
               Resources
-              <ChevronDown size={16} className={`${mobileResourcesOpen ? "rotate-180" : ""} transition-transform`} />
+              <ChevronDown
+                size={16}
+                className={`${mobileResourcesOpen ? "rotate-180" : ""} transition-transform`}
+              />
             </button>
 
             <ResourcesMenu
               resources={resources}
               resourcesOpen={false}
-              setResourcesOpen={() => { }}
+              setResourcesOpen={() => {}}
               mobileResourcesOpen={mobileResourcesOpen}
               setMobileResourcesOpen={setMobileResourcesOpen}
               closeAll={closeAllMobile}
@@ -282,7 +328,7 @@ const Navbar = () => {
           {/* Divider */}
           <div className="border-t border-gray-100 dark:border-gray-800 pt-4 flex flex-col gap-3">
             {/* Mobile Search Button */}
-            <button 
+            <button
               onClick={() => {
                 closeAllMobile();
                 openCommandPalette();
@@ -316,26 +362,32 @@ const Navbar = () => {
                 <Link
                   href="/dashboard"
                   onClick={closeAllMobile}
-                  className="flex w-full items-center justify-center rounded-lg border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 py-2 text-sm font-medium text-indigo-700 dark:text-indigo-300"
+                  className="flex w-full items-center justify-center rounded-lg border border-primary/30 dark:border-primary/30 bg-primary/5 dark:bg-primary/10 py-2 text-sm font-medium text-primary dark:text-primary"
                 >
                   Dashboard
                 </Link>
                 <Link
                   href="/dashboard/profile"
                   onClick={closeAllMobile}
-                  className="flex w-full items-center justify-center rounded-lg border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 py-2 text-sm font-medium text-indigo-700 dark:text-indigo-300"
+                  className="flex w-full items-center justify-center rounded-lg border border-primary/30 dark:border-primary/30 bg-primary/5 dark:bg-primary/10 py-2 text-sm font-medium text-primary dark:text-primary"
                 >
                   Profile
                 </Link>
-                
+
                 {/* Mobile User Info & Logout */}
                 <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-800/50">
                   <div className="mb-3 border-b border-slate-200 pb-3 dark:border-white/10 flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+                    <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-bold text-primary dark:bg-primary/20 dark:text-primary">
                       {displayAvatarUrl ? (
-                        <img src={displayAvatarUrl} alt={displayName} className="h-full w-full object-cover" />
+                        <img
+                          src={displayAvatarUrl}
+                          alt={displayName}
+                          className="h-full w-full object-cover"
+                        />
                       ) : (
-                        <span>{(displayName?.charAt(0) || "U").toUpperCase()}</span>
+                        <span>
+                          {(displayName?.charAt(0) || "U").toUpperCase()}
+                        </span>
                       )}
                     </div>
                     <div className="overflow-hidden">

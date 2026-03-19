@@ -29,7 +29,7 @@ export default function Footer() {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition duration-300"
+                className="bg-slate-800 p-3 rounded-full hover:bg-primary transition duration-300"
               >
                 <FaFacebookF size={14} />
               </Link>
@@ -38,7 +38,7 @@ export default function Footer() {
                 href="https://x.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition duration-300"
+                className="bg-slate-800 p-3 rounded-full hover:bg-primary transition duration-300"
               >
                 <FaXTwitter size={14} />
               </Link>
@@ -47,7 +47,7 @@ export default function Footer() {
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition duration-300"
+                className="bg-slate-800 p-3 rounded-full hover:bg-primary transition duration-300"
               >
                 <FaLinkedinIn size={14} />
               </Link>
@@ -56,37 +56,36 @@ export default function Footer() {
                 href="https://github.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-slate-800 p-3 rounded-full hover:bg-sky-500 transition duration-300"
+                className="bg-slate-800 p-3 rounded-full hover:bg-primary transition duration-300"
               >
                 <FaGithub size={14} />
               </Link>
             </div>
           </div>
 
-   
           <div>
             <h4 className="font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2 text-slate-400">
               <li>
-                <Link href="/" className="hover:text-sky-400 transition">
+                <Link href="/" className="hover:text-primary transition">
                   Home
                 </Link>
               </li>
               <li>
-                <Link href="/pricing" className="hover:text-sky-400 transition">
+                <Link href="/pricing" className="hover:text-primary transition">
                   Pricing
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="hover:text-sky-400 transition">
+                <Link href="/blog" className="hover:text-primary transition">
                   Blog
                 </Link>
               </li>
-                <li>
-        <Link href="/contact" className="hover:text-sky-400 transition">
-          Contact
-        </Link>
-      </li>
+              <li>
+                <Link href="/contact" className="hover:text-primary transition">
+                  Contact
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -95,14 +94,14 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">Resources & Support</h4>
             <ul className="space-y-2 text-slate-400">
               <li>
-                <Link href="/guide" className="hover:text-sky-400 transition">
+                <Link href="/guide" className="hover:text-primary transition">
                   User Guide
                 </Link>
               </li>
               <li>
                 <Link
                   href="/resources/help"
-                  className="hover:text-sky-400 transition"
+                  className="hover:text-primary transition"
                 >
                   Help Center
                 </Link>
@@ -110,7 +109,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/resources/developers"
-                  className="hover:text-sky-400 transition"
+                  className="hover:text-primary transition"
                 >
                   Developers
                 </Link>
@@ -118,7 +117,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/resources/customer-stories"
-                  className="hover:text-sky-400 transition"
+                  className="hover:text-primary transition"
                 >
                   Customer Stories
                 </Link>
@@ -126,7 +125,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/resources/webinars"
-                  className="hover:text-sky-400 transition"
+                  className="hover:text-primary transition"
                 >
                   Webinars
                 </Link>
@@ -134,7 +133,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/resources/remote-work"
-                  className="hover:text-sky-400 transition"
+                  className="hover:text-primary transition"
                 >
                   Careers
                 </Link>
