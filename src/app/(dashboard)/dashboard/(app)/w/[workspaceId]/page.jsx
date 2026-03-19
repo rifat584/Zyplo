@@ -149,7 +149,7 @@ export default function WorkspaceOverviewPage() {
                 <p className="text-xs text-muted-foreground">Total tasks</p>
               </div>
             </div>
-            <div className="mx-auto w-full max-w-[12rem] space-y-2 text-sm sm:mx-0 sm:w-auto sm:max-w-none">
+            <div className="mx-auto w-full max-w-48 space-y-2 text-sm sm:mx-0 sm:w-auto sm:max-w-none">
               <Legend label={`Done: ${counts.done}`} color="bg-success" />
               <Legend label={`In Progress: ${counts.inprogress}`} color="bg-secondary" />
               <Legend label={`In Review: ${counts.inreview}`} color="bg-primary" />
