@@ -1752,13 +1752,14 @@ export default function TaskDetailsModal({
               disabled={isBusy || !onDelete}
               title={deleting ? "Deleting..." : "Delete Task"}
               aria-label={deleting ? "Deleting task" : "Delete task"}
-              className="inline-flex size-10 items-center justify-center rounded-lg border border-rose-200 bg-rose-50 text-rose-700 transition hover:bg-rose-100 disabled:opacity-50 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20"
+              className="inline-flex items-center px-1.5 text-sm py-1 justify-center rounded-lg border border-rose-200 bg-rose-50 text-rose-700 transition hover:bg-rose-100 disabled:opacity-50 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300 dark:hover:bg-rose-500/20"
             >
-              {deleting ? (
+              {/* {deleting ? (
                 <Loader2 className="size-4 animate-spin" />
               ) : (
-                <Trash2 className="size-4" />
-              )}
+                <Trash2 className="size-4" /> 
+              )} */}
+              <Trash2 className="size-3 mr-1" /> Delete
             </button>
 
             <div className="flex items-center justify-end gap-2">
@@ -1768,13 +1769,15 @@ export default function TaskDetailsModal({
                 disabled={!form.title.trim() || isBusy}
                 title={submitting ? "Saving..." : "Save Changes"}
                 aria-label={submitting ? "Saving changes" : "Save changes"}
-                className="inline-flex size-10 items-center justify-center rounded-lg bg-indigo-500 text-white transition hover:bg-indigo-600 disabled:opacity-50"
+                className="inline-flex px-1.5 py-1 text-sm items-center justify-center rounded-lg bg-indigo-500 text-white transition hover:bg-indigo-600 disabled:opacity-50"
               >
-                {submitting ? (
+                {/* {submitting ? (
                   <Loader2 className="size-4 animate-spin" />
                 ) : (
                   <CheckCircle2 className="size-4" />
-                )}
+                )} */}
+                <CheckCircle2 className="size-3 mr-1" />
+                Save
               </button>
             </div>
           </div>

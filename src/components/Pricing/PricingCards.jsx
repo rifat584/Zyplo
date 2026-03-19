@@ -2,9 +2,20 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Check, Sparkles } from "lucide-react";
+import { Check, LoaderCircle, Sparkles } from "lucide-react";
 
-export default function PricingCards({ plans, yearly, onBillingChange }) {
+export default function PricingCards({
+  plans,
+  yearly,
+  onBillingChange,
+  planActions = {},
+  currentPlanId = "",
+  currentBillingCycle = "",
+  subscriptionStatus = "",
+  selectedWorkspaceName = "",
+}) {
+  const selectedBillingCycle = yearly ? "yearly" : "monthly";
+
   return (
     <section id="pricing-cards" className="py-10 sm:py-14">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -13,6 +24,10 @@ export default function PricingCards({ plans, yearly, onBillingChange }) {
             <h2 className="text-center text-5xl font-heading font-semibold tracking-tight text-foreground">
               Choose your plan
             </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+              Hosted Stripe checkout will use the billing cycle shown here and attach the subscription to
+              {selectedWorkspaceName ? ` ${selectedWorkspaceName}` : " your selected workspace"}.
+            </p>
           </div>
           <div className="mx-auto inline-flex w-full max-w-70 items-center rounded-xl border border-border bg-card/80 p-1 dark:border-slate-700 dark:bg-card sm:w-auto sm:max-w-none">
             <button
@@ -39,6 +54,10 @@ export default function PricingCards({ plans, yearly, onBillingChange }) {
         <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-3">
           {plans.map((plan, index) => {
             const price = yearly ? plan.yearlyPrice : plan.monthlyPrice;
+            const action = planActions[plan.id] || {};
+            const isCurrentPlan = currentPlanId === plan.id;
+            const isCurrentCycle = isCurrentPlan && currentBillingCycle === selectedBillingCycle;
+            const showWorkspaceBadge = isCurrentPlan && subscriptionStatus && subscriptionStatus !== "inactive";
 
             return (
               <motion.article
@@ -59,6 +78,13 @@ export default function PricingCards({ plans, yearly, onBillingChange }) {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h3 className="text-xl font-semibold text-foreground">{plan.name}</h3>
+                    {showWorkspaceBadge ? (
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center rounded-full border border-success/25 bg-success/10 px-2.5 py-1 text-[11px] font-semibold text-success">
+                          {isCurrentCycle ? "Current Setup" : "Current Workspace Plan"}
+                        </span>
+                      </div>
+                    ) : null}
                   </div>
                   {plan.highlight ? (
                     <span className="inline-flex items-center gap-1 rounded-full border border-secondary/30 bg-cyan-50 px-2.5 py-1 text-[11px] font-semibold text-secondary dark:border-cyan-800 dark:bg-cyan-950/40 dark:text-secondary">
@@ -87,16 +113,46 @@ export default function PricingCards({ plans, yearly, onBillingChange }) {
                   ))}
                 </ul>
 
-                <Link
-                  href={plan.id === "studio" ? "/contact" : "/login"}
-                  className={`mt-6 inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold transition ${
-                    plan.highlight
-                      ? "bg-primary text-white hover:bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
-                      : "border border-slate-300 bg-white/85 text-slate-900 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary dark:border-slate-700 dark:bg-card dark:text-slate-100 dark:hover:bg-surface"
-                  }`}
-                >
-                  {plan.cta}
-                </Link>
+                {action.kind === "link" ? (
+                  <Link
+                    href={action.href || "/pricing"}
+                    className={`mt-6 inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold transition ${
+                      plan.highlight
+                        ? "bg-primary text-white hover:bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                        : "border border-slate-300 bg-white/85 text-slate-900 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary dark:border-slate-700 dark:bg-card dark:text-slate-100 dark:hover:bg-surface"
+                    }`}
+                  >
+                    {action.label || plan.cta}
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={action.onClick}
+                    disabled={action.disabled || action.busy}
+                    className={`mt-6 inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                      action.variant === "current"
+                        ? "border border-success/30 bg-success/10 text-success"
+                        : plan.highlight
+                          ? "bg-primary text-white hover:bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+                          : "border border-slate-300 bg-white/85 text-slate-900 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary dark:border-slate-700 dark:bg-card dark:text-slate-100 dark:hover:bg-surface"
+                    }`}
+                  >
+                    {action.busy ? (
+                      <>
+                        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                        {action.label || "Loading..."}
+                      </>
+                    ) : (
+                      action.label || plan.cta
+                    )}
+                  </button>
+                )}
+
+                {action.note ? (
+                  <p className="mt-3 min-h-10 text-xs leading-relaxed text-muted-foreground">{action.note}</p>
+                ) : (
+                  <div className="mt-3 min-h-10" />
+                )}
               </motion.article>
             );
           })}
