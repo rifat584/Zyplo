@@ -156,7 +156,7 @@ export default function Footer() {
               />
               <button
                 className="px-4 rounded-r-lg text-sm font-semibold text-white
-                bg-gradient-to-br from-indigo-500 to-cyan-400
+                bg-linear-to-br from-primary to-secondary
                 shadow-lg shadow-indigo-500/20
                 transition-all duration-300
                 hover:scale-[1.02] hover:shadow-indigo-500/40
