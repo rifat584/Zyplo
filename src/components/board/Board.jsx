@@ -84,6 +84,7 @@ export function BoardSkeleton() {
                   <div className="flex items-center justify-between">
                     <div className="h-5 w-16 rounded bg-muted"></div>
                     <div className="h-6 w-6 rounded-full border-2 border-card bg-muted"></div>
+                    <div className="h-6 w-6 rounded-full border-2 border-card bg-muted"></div>
                   </div>
                 </div>
               ))}
@@ -577,6 +578,7 @@ export default function Board({ workspaceId, projectId }) {
       dueDate: values.dueDate || "",
       priority: values.priority || "P2",
       status: nextStatus,
+      status: nextStatus,
       attachments: values.attachments || [],
     });
   }
@@ -740,7 +742,6 @@ export default function Board({ workspaceId, projectId }) {
     setPendingDeleteTask(null);
     deleteTaskMutation.mutate(taskId);
   }
-
   // --- SHOW SKELETON ON LOAD ---
   if (boardQuery.isLoading) {
     return <BoardSkeleton />;
