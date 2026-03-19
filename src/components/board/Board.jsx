@@ -19,6 +19,76 @@ import TaskCard from "./TaskCard";
 import CreateTaskModal from "./CreateTaskModal";
 import TaskDetailsModal from "./TaskDetailsModal";
 
+// --- SMART BOARD SKELETON ---
+function BoardSkeleton() {
+  const columnTaskCounts = [3, 2, 4, 1]; // Creates a staggered, natural look
+
+  return (
+    <div className="animate-pulse space-y-4">
+      {/* Header Skeleton */}
+      <section className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <div className="mb-2 h-3 w-24 rounded bg-slate-200 dark:bg-slate-800"></div>
+          <div className="h-8 w-48 rounded bg-slate-200 dark:bg-slate-800"></div>
+        </div>
+        <div className="h-10 w-32 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
+      </section>
+
+      {/* Filter Bar Skeleton */}
+      <section className="mb-4 rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
+        <div className="border-t border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/20">
+          <div className="flex flex-wrap gap-2">
+            <div className="h-10 w-40 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
+            <div className="h-10 w-32 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
+            <div className="h-10 w-28 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
+            <div className="h-10 w-36 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
+            <div className="h-10 w-32 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
+          </div>
+        </div>
+      </section>
+
+      {/* Columns & Tasks Skeleton */}
+      <section className="flex gap-3 overflow-x-hidden pb-2">
+        {columnTaskCounts.map((taskCount, colIndex) => (
+          <div
+            key={colIndex}
+            className="flex h-fit w-80 shrink-0 flex-col rounded-2xl border border-slate-200 bg-slate-50/50 p-3 dark:border-white/10 dark:bg-slate-800/20"
+          >
+            {/* Column Header */}
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="h-5 w-5 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                <div className="h-5 w-24 rounded bg-slate-200 dark:bg-slate-700"></div>
+              </div>
+              <div className="h-5 w-8 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+            </div>
+
+            {/* Task Cards */}
+            <div className="flex flex-col gap-2">
+              {Array.from({ length: taskCount }).map((_, taskIndex) => (
+                <div
+                  key={taskIndex}
+                  className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-white/10 dark:bg-slate-900"
+                >
+                  <div className="mb-2 flex items-start justify-between">
+                    <div className="h-4 w-3/4 rounded bg-slate-200 dark:bg-slate-800"></div>
+                    <div className="h-4 w-4 rounded bg-slate-200 dark:bg-slate-800"></div>
+                  </div>
+                  <div className="mb-4 h-3 w-1/2 rounded bg-slate-200 dark:bg-slate-800"></div>
+                  <div className="flex items-center justify-between">
+                    <div className="h-5 w-16 rounded bg-slate-200 dark:bg-slate-800"></div>
+                    <div className="h-6 w-6 rounded-full border-2 border-white bg-slate-200 dark:border-slate-900 dark:bg-slate-700"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
+    </div>
+  );
+}
+
 function sortColumns(columns = []) {
   return [...columns].sort(
     (a, b) => Number(a.order || 0) - Number(b.order || 0),
@@ -238,6 +308,11 @@ export default function Board({ workspaceId, projectId }) {
   const boardQuery = useQuery({
     queryKey: boardQueryKey,
     queryFn: async () => {
+      
+      // 🛑 ADD THIS LINE TEMPORARILY TO TEST THE SKELETON
+      // using for better skeleton
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      
       const data = await fetchJson(`/api/dashboard/boards/${projectId}`);
       return normalizeBoardResponse(data);
     },
@@ -511,7 +586,7 @@ export default function Board({ workspaceId, projectId }) {
       priority: values.priority || "P2",
       status: getStatusFromColumnName(selectedColumn.name, "todo") || "todo",
       estimatedTime: values.estimatedTime || 0,
-      attachments: values.attachments || [], // <--- FIXED: Sent attachments!
+      attachments: values.attachments || [],
     });
   }
 
@@ -655,7 +730,7 @@ export default function Board({ workspaceId, projectId }) {
         assigneeId: values.assigneeId,
         assigneeName,
         estimatedTime: values.estimatedTime,
-        attachments: values.attachments || [], // <--- FIXED: Sent attachments!
+        attachments: values.attachments || [],
       },
     });
   }
@@ -680,14 +755,9 @@ export default function Board({ workspaceId, projectId }) {
     deleteTaskMutation.mutate(selectedTask.id);
   }
 
+  // --- SHOW SKELETON ON LOAD ---
   if (boardQuery.isLoading) {
-    return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900">
-        <p className="text-sm text-slate-600 dark:text-slate-300">
-          Loading board...
-        </p>
-      </div>
-    );
+    return <BoardSkeleton />;
   }
 
   if (boardQuery.isError) {
