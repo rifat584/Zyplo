@@ -25,7 +25,7 @@ export default function PricingFAQ({ faqs }) {
               <button
                 type="button"
                 onClick={() => setOpen(open === i ? -1 : i)}
-                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium text-slate-900 transition hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary dark:text-slate-100 dark:hover:text-secondary"
+                className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium text-foreground transition hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary dark:text-muted-foreground dark:hover:text-secondary"
               >
                 {item.q}
                 <ChevronDown
@@ -35,7 +35,7 @@ export default function PricingFAQ({ faqs }) {
                 />
               </button>
               {open === i && (
-                <div className="border-t border-border px-4 py-3 text-sm leading-relaxed text-slate-600 dark:border-border dark:text-muted-foreground">
+                <div className="border-t border-border px-4 py-3 text-sm leading-relaxed text-muted-foreground dark:border-border dark:text-muted-foreground">
                   {item.a}
                 </div>
               )}

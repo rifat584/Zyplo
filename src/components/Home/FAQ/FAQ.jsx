@@ -39,7 +39,7 @@ export default function FAQ() {
   };
 
   return (
-    <section className="bg-white dark:bg-[#0B0f19] py-20 transition-colors duration-300">
+    <section className="bg-card dark:bg-[#0B0f19] py-20 transition-colors duration-300">
       <div className="max-w-[1280px] mx-auto px-6">
 
         {/* Heading */}

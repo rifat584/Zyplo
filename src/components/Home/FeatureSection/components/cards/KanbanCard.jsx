@@ -19,7 +19,7 @@ export function KanbanCard({ columns }) {
             {column.tasks.map((task) => (
               <div
                 key={task.title}
-                className="flex min-h-18.5 flex-col justify-between rounded-lg border border-zinc-200 bg-white p-2.5 text-[11px] dark:border-border dark:bg-[#0F1629]"
+                className="flex min-h-18.5 flex-col justify-between rounded-lg border border-zinc-200 bg-card p-2.5 text-[11px] dark:border-border dark:bg-[#0F1629]"
               >
                 <p className="line-clamp-2 font-medium leading-snug text-zinc-800 dark:text-foreground">
                   {task.title}

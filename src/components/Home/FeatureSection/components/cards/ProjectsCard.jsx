@@ -7,7 +7,7 @@ export function ProjectsCard({ projects }) {
         {projects.map((project) => (
           <div
             key={project.name}
-            className="rounded-lg border border-zinc-200 bg-white px-2.5 py-2 dark:border-border dark:bg-[#0F1629]"
+            className="rounded-lg border border-zinc-200 bg-card px-2.5 py-2 dark:border-border dark:bg-[#0F1629]"
           >
             <div className="mb-1.5 flex items-center justify-between text-xs">
               <p className="font-medium text-foreground">{project.name}</p>

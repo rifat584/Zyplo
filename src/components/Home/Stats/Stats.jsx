@@ -62,7 +62,7 @@ export default function Stats() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
                 viewport={{ once: true }}
-                className="group relative px-8 py-12 flex flex-col items-center justify-center text-center transition-colors hover:bg-white/50 dark:hover:bg-white/[0.02]"
+                className="group relative px-8 py-12 flex flex-col items-center justify-center text-center transition-colors hover:bg-card/50 dark:hover:bg-card/[0.02]"
               >
                 {/* Indicator */}
                 <div className="absolute top-6 flex h-1.5 w-1.5 items-center justify-center rounded-full bg-primary/15 dark:bg-secondary/15 opacity-0 group-hover:opacity-100 transition-opacity">

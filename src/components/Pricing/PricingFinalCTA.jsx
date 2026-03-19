@@ -6,7 +6,7 @@ export default function PricingFinalCTA() {
     <section className="py-10 sm:py-14">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="relative overflow-hidden rounded-2xl border border-border bg-muted p-5 dark:border-border dark:bg-card sm:p-7">
-          <div className="pointer-events-none absolute -left-12 top-1/2 h-44 w-44 -translate-y-1/2 rounded-full bg-primary/15 blur-3xl dark:bg-indigo-400/20" />
+          <div className="pointer-events-none absolute -left-12 top-1/2 h-44 w-44 -translate-y-1/2 rounded-full bg-primary/15 blur-3xl dark:bg-primary/20" />
           <div className="pointer-events-none absolute -right-10 top-2 h-40 w-40 rounded-full bg-cyan-400/18 blur-3xl dark:bg-secondary/15" />
 
           <div className="relative flex flex-col gap-4">
@@ -34,7 +34,7 @@ export default function PricingFinalCTA() {
               </StarBorder>
               <Link
                 href="/contact"
-                className="inline-flex w-full items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary sm:w-auto dark:border-slate-700 dark:bg-background dark:text-slate-100 dark:hover:bg-surface"
+                className="inline-flex w-full items-center justify-center rounded-lg border border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary sm:w-auto dark:border-foreground dark:bg-background dark:text-muted-foreground dark:hover:bg-surface"
               >
                 Talk to sales
               </Link>

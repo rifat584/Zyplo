@@ -15,7 +15,7 @@ export function RoadmapCard({ milestones }) {
             className={[
               "rounded-lg border px-2.5 py-2",
               milestone.status === "In Progress"
-                ? "border-indigo-300 bg-indigo-50 text-primary dark:border-indigo-800 dark:bg-indigo-950/40 dark:text-primary"
+                ? "border-primary bg-primary/10 text-primary dark:border-primary dark:bg-primary/40 dark:text-primary"
                 : "border-zinc-200 bg-zinc-50/70 text-zinc-700 dark:border-border dark:bg-[#111A2E] dark:text-muted-foreground",
             ].join(" ")}
           >

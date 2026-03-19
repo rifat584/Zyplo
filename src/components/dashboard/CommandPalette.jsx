@@ -30,7 +30,7 @@ const normalizeStatusKey = (value) => String(value || "").toLowerCase().replace(
 
 // --- Constants ---
 const STATUSES = [
-  { value: "todo", label: "To Do", icon: Circle, color: "text-slate-400" },
+  { value: "todo", label: "To Do", icon: Circle, color: "text-muted-foreground" },
   { value: "inprogress", label: "In Progress", icon: Clock, color: "text-blue-500" },
   { value: "inreview", label: "In Review", icon: Eye, color: "text-purple-500" },
   { value: "done", label: "Done", icon: CheckCircle2, color: "text-emerald-500" },
@@ -40,7 +40,7 @@ const PRIORITIES = [
   { value: "P0", label: "Critical", icon: AlertCircle, color: "text-red-500" },
   { value: "P1", label: "High", icon: ArrowUp, color: "text-orange-500" },
   { value: "P2", label: "Medium", icon: ArrowRight, color: "text-yellow-600" },
-  { value: "P3", label: "Low", icon: ArrowDown, color: "text-slate-500" },
+  { value: "P3", label: "Low", icon: ArrowDown, color: "text-muted-foreground" },
 ];
 const FAB_POSITION_KEY = "dashboard.commandPalette.fabPosition";
 
@@ -301,7 +301,7 @@ export default function CommandPalette() {
         list.push({
           id: `public-nav-${n.path}`,
           group: "Pages",
-          icon: <n.icon className="size-4 text-slate-500" />,
+          icon: <n.icon className="size-4 text-muted-foreground" />,
           label: n.name,
           action: () => { router.push(n.path); setOpen(false); }
         });
@@ -317,7 +317,7 @@ export default function CommandPalette() {
           list.push({
             id: "create-task",
             group: "Create",
-            icon: <Plus className="size-4 text-indigo-500" />,
+            icon: <Plus className="size-4 text-primary" />,
             label: `Create Task: "${q}"`,
             action: () => {
               setView({ type: "create", title: q });
@@ -362,7 +362,7 @@ export default function CommandPalette() {
           list.push({
             id: `g-assign-${m.id}`,
             group: "Workflow Commands",
-            icon: <User className="size-4 text-slate-400" />,
+            icon: <User className="size-4 text-muted-foreground" />,
             label: `Assign to ${name}`,
             subtitle: "Apply to a specific task...",
             action: () => { 
@@ -384,7 +384,7 @@ export default function CommandPalette() {
             list.push({
               id: `nav-${n.path}`,
               group: "Navigation",
-              icon: <n.icon className="size-4 text-slate-500" />,
+              icon: <n.icon className="size-4 text-muted-foreground" />,
               label: `Go to ${n.name}`,
               action: () => { router.push(`/dashboard/w/${currentWorkspaceId}/${n.path}`); setOpen(false); }
             });
@@ -398,7 +398,7 @@ export default function CommandPalette() {
             list.push({
               id: `nav-${n.path}`,
               group: "Navigation",
-              icon: <n.icon className="size-4 text-slate-500" />,
+              icon: <n.icon className="size-4 text-muted-foreground" />,
               label: `Go to ${n.name}`,
               action: () => { router.push(n.path); setOpen(false); }
             });
@@ -409,7 +409,7 @@ export default function CommandPalette() {
           list.push({
             id: `proj-${p.id}`,
             group: "Projects",
-            icon: <Folder className="size-4 text-sky-500" />,
+            icon: <Folder className="size-4 text-primary" />,
             label: `Open Project: ${p.name}`,
             subtitle: isGlobalMode ? (workspaces.find(w => w.id === p.workspaceId)?.name || "Workspace") : "",
             action: () => {
@@ -436,7 +436,7 @@ export default function CommandPalette() {
           list.push({
             id: `task-${t.id}`,
             group: "Manage Specific Tasks",
-            icon: <CheckCircle2 className="size-4 text-slate-400" />,
+            icon: <CheckCircle2 className="size-4 text-muted-foreground" />,
             label: t.title,
             subtitle: `${t.projectName || "No Project"} (${t.status || "todo"})`,
             action: () => {
@@ -475,7 +475,7 @@ export default function CommandPalette() {
           list.push({
             id: `t-assign-${m.id}`,
             group: "Reassign Task",
-            icon: <User className="size-4 text-slate-400" />,
+            icon: <User className="size-4 text-muted-foreground" />,
             label: m.name || m.email.split('@')[0],
             action: () => executeTaskUpdate(task, { assigneeId: m.id, assigneeName: m.name || m.email }),
           });
@@ -487,7 +487,7 @@ export default function CommandPalette() {
           list.push({
             id: `apply-${t.id}`,
             group: `Select a task to apply changes`,
-            icon: <CheckCircle2 className="size-4 text-slate-400" />,
+            icon: <CheckCircle2 className="size-4 text-muted-foreground" />,
             label: t.title,
             subtitle: t.projectName,
             action: () => executeTaskUpdate(t, view.patch)
@@ -500,7 +500,7 @@ export default function CommandPalette() {
           list.push({
             id: `create-in-${p.id}`,
             group: "Select Project for new task",
-            icon: <Folder className="size-4 text-indigo-500" />,
+            icon: <Folder className="size-4 text-primary" />,
             label: p.name,
             subtitle: isGlobalMode ? (workspaces.find(w => w.id === p.workspaceId)?.name || "Workspace") : "",
             action: () => executeTaskCreate(p.id, p.workspaceId, view.title),
@@ -643,7 +643,7 @@ export default function CommandPalette() {
           onPointerUp={handleFabPointerUp}
           onPointerCancel={handleFabPointerUp}
           title="Open Command Palette"
-          className={`fixed bottom-6 right-6 z-[90] flex items-center justify-center gap-2 rounded-full border border-slate-200/80 bg-white/90 p-3 text-xs font-bold uppercase tracking-widest text-slate-500 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-md transition-all hover:scale-105 hover:bg-white hover:text-slate-700 hover:shadow-[0_8px_30px_rgb(0,0,0,0.16)] sm:bottom-8 sm:right-8 sm:px-4 sm:py-2.5 dark:border-white/20 dark:bg-slate-900/80 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 ${isDraggingFab ? "cursor-grabbing select-none" : "cursor-grab"}`}
+          className={`fixed bottom-6 right-6 z-[90] flex items-center justify-center gap-2 rounded-full border border/80 bg-card/90 p-3 text-xs font-bold uppercase tracking-widest text-muted-foreground shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-md transition-all hover:scale-105 hover:bg-card hover:text-foreground hover:shadow-[0_8px_30px_rgb(0,0,0,0.16)] sm:bottom-8 sm:right-8 sm:px-4 sm:py-2.5 dark:border/20 dark:bg-card/80 dark:text-muted-foreground dark:hover:bg-card dark:hover:text-muted-foreground ${isDraggingFab ? "cursor-grabbing select-none" : "cursor-grab"}`}
           style={(() => {
             const drag = dragStateRef.current;
             if (drag) {
@@ -669,7 +669,7 @@ export default function CommandPalette() {
         >
           <Command className="size-5 sm:size-4" />
           <span className="hidden sm:inline">Press</span>
-          <span className="hidden rounded bg-slate-200/80 px-1.5 py-0.5 text-[10px] text-slate-700 sm:inline dark:bg-white/10 dark:text-slate-200">
+          <span className="hidden rounded bg-muted/80 px-1.5 py-0.5 text-[10px] text-foreground sm:inline dark:bg-card/10 dark:text-muted-foreground">
             Ctrl K
           </span>
           <span className="hidden sm:inline">to search</span>
@@ -681,33 +681,33 @@ export default function CommandPalette() {
         <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[15vh] sm:pt-[20vh]">
           {/* Backdrop */}
           <div 
-            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" 
+            className="absolute inset-0 bg-card/40 backdrop-blur-sm transition-opacity" 
             onClick={() => setOpen(false)}
           />
 
           {/* Modal */}
-          <div className="relative w-full max-w-[640px] transform overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl transition-all dark:border-white/10 dark:bg-[#0B0F19] mx-4 flex flex-col max-h-[65vh]">
+          <div className="relative w-full max-w-[640px] transform overflow-hidden rounded-2xl border border bg-card shadow-2xl transition-all dark:border/10 dark:bg-[#0B0F19] mx-4 flex flex-col max-h-[65vh]">
             
             {/* Input Area */}
-            <div className="flex items-center border-b border-slate-200 px-4 py-4 dark:border-white/10">
+            <div className="flex items-center border-b border px-4 py-4 dark:border/10">
               
               {/* Breadcrumbs for Sub-menus */}
               {view.type !== "root" ? (
                  <div className="flex shrink-0 items-center gap-2 mr-2">
                    <button 
                      onClick={() => { setView({type: "root"}); setQuery(""); setSelectedIndex(0); }}
-                     className="flex h-6 items-center rounded bg-slate-100 px-2 text-xs font-medium text-slate-600 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-300 dark:hover:bg-white/20 transition-colors"
+                     className="flex h-6 items-center rounded bg-muted px-2 text-xs font-medium text-muted-foreground hover:bg-muted dark:bg-card/10 dark:text-muted-foreground dark:hover:bg-card/20 transition-colors"
                    >
                      Root
                    </button>
-                   <span className="text-slate-300 dark:text-slate-600">/</span>
-                   <div className="flex h-6 max-w-[160px] items-center rounded bg-indigo-50 px-2 text-xs font-medium text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-300 truncate">
+                   <span className="text-muted-foreground dark:text-muted-foreground">/</span>
+                   <div className="flex h-6 max-w-[160px] items-center rounded bg-primary/10 px-2 text-xs font-medium text-primary dark:bg-primary/20 dark:text-primary truncate">
                      {view.type === 'task' ? view.task.title : 
                       view.type === 'create' ? 'Create Task' : view.actionLabel}
                    </div>
                  </div>
               ) : (
-                <Search className="size-5 text-slate-400 shrink-0" />
+                <Search className="size-5 text-muted-foreground shrink-0" />
               )}
               
               <input
@@ -723,16 +723,16 @@ export default function CommandPalette() {
                     : view.type === "select_task" ? "Search for task to apply..." 
                     : "Search project..."
                 }
-                className="ml-2 flex-1 bg-transparent text-[17px] text-slate-900 placeholder-slate-400 outline-none dark:text-slate-100 min-w-0"
+                className="ml-2 flex-1 bg-transparent text-[17px] text-foreground placeholder-slate-400 outline-none dark:text-muted-foreground min-w-0"
                 disabled={isProcessing}
               />
               {isProcessing ? (
-                <div className="ml-3 h-4 w-4 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent" />
+                <div className="ml-3 h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
               ) : (
                 <button 
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-1 rounded-md bg-slate-100 px-2 py-1 text-[10px] font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400 uppercase tracking-wider hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                  className="flex items-center gap-1 rounded-md bg-muted px-2 py-1 text-[10px] font-semibold text-muted-foreground dark:bg-card dark:text-muted-foreground uppercase tracking-wider hover:bg-muted dark:hover:bg-card transition-colors"
                 >
                   ESC <span className="hidden sm:inline lowercase font-medium tracking-normal text-[11px]"> to close</span>
                 </button>
@@ -742,13 +742,13 @@ export default function CommandPalette() {
             {/* Results Area */}
             <div className="flex-1 overflow-y-auto p-2 scroll-smooth">
               {commands.length === 0 ? (
-                <div className="py-14 text-center text-sm text-slate-500 dark:text-slate-400">
+                <div className="py-14 text-center text-sm text-muted-foreground dark:text-muted-foreground">
                   No results found for "{query}"
                 </div>
               ) : (
                 Object.entries(groupedCommands).map(([group, items]) => (
                   <div key={group} className="mb-4 last:mb-1">
-                    <div className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    <div className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
                       {group}
                     </div>
                     <ul className="space-y-0.5">
@@ -767,23 +767,23 @@ export default function CommandPalette() {
                             }}
                             className={`group flex cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 text-sm transition-colors ${
                               isSelected
-                                ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300"
-                                : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-white/5"
+                                ? "bg-primary/10 text-primary dark:bg-primary/15 dark:text-primary"
+                                : "text-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-card/5"
                             }`}
                           >
                             <div className="flex items-center gap-3 min-w-0">
-                              <div className={`flex size-6 shrink-0 items-center justify-center rounded-md ${isSelected ? "bg-white shadow-sm dark:bg-[#161b26]" : ""}`}>
+                              <div className={`flex size-6 shrink-0 items-center justify-center rounded-md ${isSelected ? "bg-card shadow-sm dark:bg-[#161b26]" : ""}`}>
                                 {cmd.icon}
                               </div>
                               <span className="truncate font-medium">{cmd.label}</span>
                               {cmd.subtitle && (
-                                <span className="truncate text-xs text-slate-400 dark:text-slate-500 hidden sm:inline-block">
+                                <span className="truncate text-xs text-muted-foreground dark:text-muted-foreground hidden sm:inline-block">
                                   — {cmd.subtitle}
                                 </span>
                               )}
                             </div>
                             {isSelected && (
-                              <span className="flex shrink-0 items-center gap-1 text-[11px] font-semibold text-indigo-500 dark:text-indigo-400">
+                              <span className="flex shrink-0 items-center gap-1 text-[11px] font-semibold text-primary dark:text-primary">
                                 {view.type === "root" && !cmd.id.includes("nav") && !cmd.id.includes("proj") && !cmd.id.includes("ws") && !cmd.id.includes("public") ? (
                                    <>Select <CornerDownLeft className="size-3 ml-0.5" /></>
                                 ) : (
@@ -801,27 +801,27 @@ export default function CommandPalette() {
             </div>
             
             {/* Footer */}
-            <div className="hidden sm:flex shrink-0 items-center justify-between border-t border-slate-200 bg-slate-50/50 px-4 py-3 text-[11px] text-slate-500 dark:border-white/10 dark:bg-[#050505]/50 dark:text-slate-400">
+            <div className="hidden sm:flex shrink-0 items-center justify-between border-t border bg-muted/50 px-4 py-3 text-[11px] text-muted-foreground dark:border/10 dark:bg-[#050505]/50 dark:text-muted-foreground">
               <div className="flex items-center gap-4">
                  <div className="flex items-center gap-1.5">
                    <div className="flex items-center gap-0.5">
-                     <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1 font-sans dark:border-white/10 dark:bg-slate-800 shadow-sm">↑</kbd>
-                     <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1 font-sans dark:border-white/10 dark:bg-slate-800 shadow-sm">↓</kbd>
+                     <kbd className="flex h-5 items-center justify-center rounded border border bg-card px-1 font-sans dark:border/10 dark:bg-card shadow-sm">↑</kbd>
+                     <kbd className="flex h-5 items-center justify-center rounded border border bg-card px-1 font-sans dark:border/10 dark:bg-card shadow-sm">↓</kbd>
                    </div>
                    <span>Navigate</span>
                  </div>
                  <div className="flex items-center gap-1.5">
-                   <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1.5 font-sans font-medium dark:border-white/10 dark:bg-slate-800 shadow-sm">↵</kbd>
+                   <kbd className="flex h-5 items-center justify-center rounded border border bg-card px-1.5 font-sans font-medium dark:border/10 dark:bg-card shadow-sm">↵</kbd>
                    <span>Select</span>
                  </div>
                  {view.type !== "root" && (
                     <div className="flex items-center gap-1.5">
-                      <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1.5 font-sans font-medium dark:border-white/10 dark:bg-slate-800 shadow-sm">Backspace</kbd>
+                      <kbd className="flex h-5 items-center justify-center rounded border border bg-card px-1.5 font-sans font-medium dark:border/10 dark:bg-card shadow-sm">Backspace</kbd>
                       <span>Go back</span>
                     </div>
                  )}
               </div>
-              <div className="flex items-center gap-1.5 font-semibold text-slate-400 dark:text-slate-500">
+              <div className="flex items-center gap-1.5 font-semibold text-muted-foreground dark:text-muted-foreground">
                 <Command className="size-3" /> Zyplo OS
               </div>
             </div>

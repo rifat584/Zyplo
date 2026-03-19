@@ -682,8 +682,8 @@ export default function Board({ workspaceId, projectId }) {
 
   if (boardQuery.isLoading) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900">
-        <p className="text-sm text-slate-600 dark:text-slate-300">
+      <div className="rounded-2xl border border bg-card p-6 dark:border/10 dark:bg-card">
+        <p className="text-sm text-muted-foreground dark:text-muted-foreground">
           Loading board...
         </p>
       </div>
@@ -712,10 +712,10 @@ export default function Board({ workspaceId, projectId }) {
     <>
       <section className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          <p className="text-xs uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
             Project Board
           </p>
-          <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+          <h1 className="text-2xl font-semibold text-foreground dark:text-muted-foreground">
             {boardData?.board?.name || "Kanban Board"}
           </h1>
         </div>
@@ -724,15 +724,15 @@ export default function Board({ workspaceId, projectId }) {
           type="button"
           onClick={() => openCreateModal(columns[0]?.id || "")}
           disabled={!columns.length}
-          className="inline-flex items-center gap-2 rounded-lg bg-indigo-500 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary disabled:opacity-50"
         >
           <Plus className="size-4" />
           Create Task
         </button>
       </section>
 
-      <section className="mb-4 rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
-        <div className="border-t border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/20">
+      <section className="mb-4 rounded-2xl border border bg-card dark:border/10 dark:bg-card">
+        <div className="border-t border bg-muted/50 p-4 dark:border/10 dark:bg-card/20">
           <div className="flex flex-wrap gap-2">
             <input
               type="text"
@@ -744,7 +744,7 @@ export default function Board({ workspaceId, projectId }) {
                 }))
               }
               placeholder="Task Name"
-              className="h-10 min-w-42.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 min-w-42.5 rounded-lg border border bg-card px-3 text-sm outline-none focus:border-primary dark:border/10 dark:bg-card dark:text-muted-foreground"
             />
 
             <select
@@ -755,7 +755,7 @@ export default function Board({ workspaceId, projectId }) {
                   status: event.target.value,
                 }))
               }
-              className="h-10 min-w-32.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 min-w-32.5 rounded-lg border border bg-card px-3 text-sm outline-none focus:border-primary dark:border/10 dark:bg-card dark:text-muted-foreground"
             >
               <option value="all">Status</option>
               <option value="todo">To Do</option>
@@ -772,7 +772,7 @@ export default function Board({ workspaceId, projectId }) {
                   priority: event.target.value,
                 }))
               }
-              className="h-10 min-w-27.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 min-w-27.5 rounded-lg border border bg-card px-3 text-sm outline-none focus:border-primary dark:border/10 dark:bg-card dark:text-muted-foreground"
             >
               <option value="all">Priority</option>
               <option value="P0">P0</option>
@@ -789,7 +789,7 @@ export default function Board({ workspaceId, projectId }) {
                   assigneeId: event.target.value,
                 }))
               }
-              className="h-10 min-w-37.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 min-w-37.5 rounded-lg border border bg-card px-3 text-sm outline-none focus:border-primary dark:border/10 dark:bg-card dark:text-muted-foreground"
             >
               <option value="all">Assignee</option>
               {(membersQuery.data || []).map((member) => (
@@ -803,7 +803,7 @@ export default function Board({ workspaceId, projectId }) {
               <button
                 type="button"
                 onClick={() => setMoreFiltersOpen((prev) => !prev)}
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                className="inline-flex h-10 items-center gap-2 rounded-lg border border bg-card px-3 text-sm text-foreground hover:bg-muted dark:border/10 dark:bg-card dark:text-muted-foreground dark:hover:bg-card"
               >
                 <Filter className="size-4" />
                 More filters
@@ -815,9 +815,9 @@ export default function Board({ workspaceId, projectId }) {
                     className="fixed inset-0 z-40"
                     onClick={() => setMoreFiltersOpen(false)}
                   />
-                  <div className="absolute right-0 top-11 z-50 w-[320px] space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                  <div className="absolute right-0 top-11 z-50 w-[320px] space-y-3 rounded-xl border border bg-card p-3 shadow-xl dark:border/10 dark:bg-card">
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                      <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                         Reporter
                       </label>
                       <input
@@ -830,12 +830,12 @@ export default function Board({ workspaceId, projectId }) {
                           }))
                         }
                         placeholder="Filter by reporter"
-                        className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        className="h-9 w-full rounded-lg border border bg-card px-3 text-sm outline-none focus:border-primary dark:border/10 dark:bg-card dark:text-muted-foreground"
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                      <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                         Updated At
                       </label>
                       <input
@@ -847,12 +847,12 @@ export default function Board({ workspaceId, projectId }) {
                             updatedAt: event.target.value,
                           }))
                         }
-                        className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        className="h-9 w-full rounded-lg border border bg-card px-3 text-sm outline-none focus:border-primary dark:border/10 dark:bg-card dark:text-muted-foreground"
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                      <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                         Created At
                       </label>
                       <input
@@ -864,12 +864,12 @@ export default function Board({ workspaceId, projectId }) {
                             createdAt: event.target.value,
                           }))
                         }
-                        className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        className="h-9 w-full rounded-lg border border bg-card px-3 text-sm outline-none focus:border-primary dark:border/10 dark:bg-card dark:text-muted-foreground"
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                      <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                         Due Date
                       </label>
                       <input
@@ -881,7 +881,7 @@ export default function Board({ workspaceId, projectId }) {
                             dueDate: event.target.value,
                           }))
                         }
-                        className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        className="h-9 w-full rounded-lg border border bg-card px-3 text-sm outline-none focus:border-primary dark:border/10 dark:bg-card dark:text-muted-foreground"
                       />
                     </div>
                   </div>
@@ -912,7 +912,7 @@ export default function Board({ workspaceId, projectId }) {
             ))}
 
             {!columns.length ? (
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-500 dark:border-white/15 dark:bg-slate-900 dark:text-slate-400">
+              <div className="rounded-2xl border border-dashed border bg-card p-6 text-sm text-muted-foreground dark:border/15 dark:bg-card dark:text-muted-foreground">
                 No columns available for this board.
               </div>
             ) : null}

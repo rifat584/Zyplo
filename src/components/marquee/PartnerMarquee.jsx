@@ -42,7 +42,7 @@ const darkModeWhiteLogos = new Set([
 const PartnerLogo = ({ partner, subtle = false }) => (
   <div
     className={[
-      "flex h-14 w-20 shrink-0 items-center justify-center rounded-xl border border-zinc-200/70 bg-white/80 p-2.5 sm:h-16 sm:w-24 sm:p-3",
+      "flex h-14 w-20 shrink-0 items-center justify-center rounded-xl border border-zinc-200/70 bg-card/80 p-2.5 sm:h-16 sm:w-24 sm:p-3",
       "dark:border-border dark:bg-[#0F1629]/80",
       subtle ? "opacity-85" : "",
     ].join(" ")}

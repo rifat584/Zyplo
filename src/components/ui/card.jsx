@@ -9,7 +9,7 @@ function CardHeader({ className, ...props }) {
 }
 
 function CardTitle({ className, ...props }) {
-  return <h3 className={cn("text-xl font-semibold text-slate-900 dark:text-white", className)} {...props} />;
+  return <h3 className={cn("text-xl font-semibold text-foreground dark:text-white", className)} {...props} />;
 }
 
 function CardDescription({ className, ...props }) {

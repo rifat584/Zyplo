@@ -170,11 +170,11 @@ function getStatusLabel(options, value) {
 function OverviewRow({ label, children, alignTop = false }) {
   return (
     <div
-      className={`grid gap-2 border-b border-slate-200/80 py-4 last:border-b-0 dark:border-white/10 sm:grid-cols-[112px_minmax(0,1fr)] lg:grid-cols-[128px_minmax(0,1fr)] ${
+      className={`grid gap-2 border-b border/80 py-4 last:border-b-0 dark:border/10 sm:grid-cols-[112px_minmax(0,1fr)] lg:grid-cols-[128px_minmax(0,1fr)] ${
         alignTop ? "items-start" : "items-center"
       }`}
     >
-      <div className="pt-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
+      <div className="pt-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground dark:text-muted-foreground">
         {label}
       </div>
       <div className="min-w-0">{children}</div>
@@ -189,8 +189,8 @@ function TaskTabButton({ active, icon: Icon, label, onClick, badge }) {
       onClick={onClick}
       className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1.5 text-xs font-semibold transition ${
         active
-          ? "border-slate-900 bg-slate-900 text-white shadow-lg shadow-slate-900/10 dark:border-white dark:bg-white dark:text-slate-900"
-          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-white/20 dark:hover:bg-slate-800"
+          ? "border-foreground bg-card text-white shadow-lg shadow-slate-900/10 dark:border dark:bg-card dark:text-foreground"
+          : "border bg-card text-muted-foreground hover:border hover:bg-muted dark:border/10 dark:bg-card dark:text-muted-foreground dark:hover:border/20 dark:hover:bg-card"
       }`}
       aria-pressed={active}
     >
@@ -202,8 +202,8 @@ function TaskTabButton({ active, icon: Icon, label, onClick, badge }) {
         <span
           className={`rounded-full px-2 py-0.5 text-[10px] ${
             active
-              ? "bg-white/20 text-white dark:bg-slate-900/10 dark:text-slate-900"
-              : "bg-slate-100 text-slate-500 dark:bg-white/10 dark:text-slate-300"
+              ? "bg-card/20 text-white dark:bg-card/10 dark:text-foreground"
+              : "bg-muted text-muted-foreground dark:bg-card/10 dark:text-muted-foreground"
           }`}
         >
           {badge}
@@ -225,7 +225,7 @@ function EditableValueButton({
     <button
       type="button"
       onClick={onClick}
-      className={`group -mx-2 w-[calc(100%+1rem)] rounded-xl px-2 py-2 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800/60 ${
+      className={`group -mx-2 w-[calc(100%+1rem)] rounded-xl px-2 py-2 text-left transition hover:bg-muted dark:hover:bg-card/60 ${
         multiline ? "min-h-20" : ""
       }`}
     >
@@ -234,19 +234,19 @@ function EditableValueButton({
           <div
             className={`${
               hasValue
-                ? "text-sm font-medium text-slate-900 dark:text-slate-100"
-                : "text-sm text-slate-400 dark:text-slate-500"
+                ? "text-sm font-medium text-foreground dark:text-muted-foreground"
+                : "text-sm text-muted-foreground dark:text-muted-foreground"
             } ${multiline ? "whitespace-pre-wrap" : "break-words"}`}
           >
             {hasValue ? value : placeholder}
           </div>
           {secondaryText ? (
-            <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            <div className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
               {secondaryText}
             </div>
           ) : null}
         </div>
-        <span className="mt-0.5 shrink-0 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400 opacity-0 transition group-hover:opacity-100 dark:text-slate-500">
+        <span className="mt-0.5 shrink-0 text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground opacity-0 transition group-hover:opacity-100 dark:text-muted-foreground">
           Edit
         </span>
       </div>
@@ -616,29 +616,29 @@ export default function TaskDetailsModal({
       <button
         type="button"
         onClick={() => (isBusy ? null : onClose())}
-        className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px]"
+        className="absolute inset-0 bg-card/45 backdrop-blur-[2px]"
         aria-label="Close task details modal"
       />
 
-      <div className="absolute left-1/2 top-1/2 w-[96vw] max-w-6xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-900 flex max-h-[90vh] flex-col">
-        <div className="border-b border-slate-200 px-5 py-3.5 dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shrink-0">
+      <div className="absolute left-1/2 top-1/2 w-[96vw] max-w-6xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border bg-card shadow-2xl dark:border/10 dark:bg-card flex max-h-[90vh] flex-col">
+        <div className="border-b border px-5 py-3.5 dark:border/10 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shrink-0">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 space-y-2.5">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-slate-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-white dark:bg-white dark:text-slate-900">
+                <span className="rounded-full bg-card px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-white dark:bg-card dark:text-foreground">
                   {task.projectName || "Unknown Project"}
                 </span>
                 {task?.taskRef ? (
-                  <span className="rounded-full border border-slate-200 bg-white px-3 py-1 font-mono text-[11px] font-semibold text-slate-600 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300">
+                  <span className="rounded-full border border bg-card px-3 py-1 font-mono text-[11px] font-semibold text-muted-foreground dark:border/10 dark:bg-card dark:text-muted-foreground">
                     {task.taskRef}
                   </span>
                 ) : null}
-                <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-medium text-slate-500 dark:border-white/10 dark:bg-slate-900 dark:text-slate-400">
+                <span className="rounded-full border border bg-card px-3 py-1 text-[11px] font-medium text-muted-foreground dark:border/10 dark:bg-card dark:text-muted-foreground">
                   Reporter: {reporterDisplayName}
                 </span>
               </div>
               <div className="space-y-1">
-                <h2 className="truncate text-xl font-semibold tracking-tight text-slate-950 dark:text-slate-50">
+                <h2 className="truncate text-xl font-semibold tracking-tight text-foreground dark:text-muted-foreground">
                   {form.title || task.title || "Untitled Task"}
                 </h2>
               </div>
@@ -648,7 +648,7 @@ export default function TaskDetailsModal({
               type="button"
               onClick={onClose}
               disabled={isBusy}
-              className="inline-flex size-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:text-slate-700 disabled:opacity-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-white/20 dark:hover:text-slate-100"
+              className="inline-flex size-9 items-center justify-center rounded-2xl border border bg-card text-muted-foreground transition hover:border hover:text-foreground disabled:opacity-50 dark:border/10 dark:bg-card dark:text-muted-foreground dark:hover:border/20 dark:hover:text-muted-foreground"
               aria-label="Close task details modal"
             >
               <X className="size-4" />
@@ -676,14 +676,14 @@ export default function TaskDetailsModal({
             }}
           >
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.95fr)]">
-              <section className="min-w-0 overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-900">
-                <div className="border-b border-slate-200 bg-gradient-to-br from-slate-50 via-white to-slate-100 px-5 py-5 dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
+              <section className="min-w-0 overflow-hidden rounded-[28px] border border bg-card shadow-sm dark:border/10 dark:bg-card">
+                <div className="border-b border bg-gradient-to-br from-slate-50 via-white to-slate-100 px-5 py-5 dark:border/10 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
                   <div className="flex flex-col gap-4">
                     <div className="space-y-1">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground dark:text-muted-foreground">
                         Sections
                       </p>
-                      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      <h3 className="text-lg font-semibold text-foreground dark:text-muted-foreground">
                         Task Workspace
                       </h3>
                     </div>
@@ -733,21 +733,21 @@ export default function TaskDetailsModal({
 
                 <div className="space-y-5 p-5">
                   {activeTab === "time" ? (
-                    <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
+                    <div className="rounded-xl border border bg-muted/50 p-4 dark:border/10 dark:bg-card/30">
                       <div className="flex items-start justify-between gap-3">
                         <button
                           type="button"
                           onClick={() => setIsTimeTrackingOpen((prev) => !prev)}
                           className="flex min-w-0 flex-1 items-start gap-2 text-left"
                         >
-                          <span className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+                          <span className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-primary text-primary dark:bg-primary/20 dark:text-primary">
                             <Clock size={12} />
                           </span>
                           <span className="min-w-0">
-                            <span className="block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                            <span className="block text-xs font-semibold uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                               Time Tracking
                             </span>
-                            <span className="mt-1 block truncate text-xs text-slate-500 dark:text-slate-400">
+                            <span className="mt-1 block truncate text-xs text-muted-foreground dark:text-muted-foreground">
                               {timeSummary
                                 ? `Estimated ${formatDurationHMS(timeSummary.estimated)} | Spent ${formatDurationHMS(timeSummary.spent)} | Remaining ${formatDurationHMS(timeSummary.remaining)}`
                                 : "No time tracked yet"}
@@ -759,7 +759,7 @@ export default function TaskDetailsModal({
                               </span>
                             ) : null}
                           </span>
-                          <span className="mt-0.5 shrink-0 text-slate-500 dark:text-slate-300">
+                          <span className="mt-0.5 shrink-0 text-muted-foreground dark:text-muted-foreground">
                             <ChevronDown
                               size={14}
                               className={`transition-transform duration-300 ${isTimeTrackingOpen ? "rotate-180" : "rotate-0"}`}
@@ -903,7 +903,7 @@ export default function TaskDetailsModal({
                                   setTimerBusy(false);
                                 }
                               }}
-                              className="rounded-lg bg-indigo-500 px-3 py-2 text-xs font-semibold text-white transition hover:bg-indigo-600 disabled:opacity-50"
+                              className="rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-white transition hover:bg-primary disabled:opacity-50"
                             >
                               Start timer
                             </button>
@@ -923,7 +923,7 @@ export default function TaskDetailsModal({
                           <div className="space-y-1.5">
                             <label
                               htmlFor="task-details-estimated-time"
-                              className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300"
+                              className="text-xs font-semibold uppercase tracking-wide text-muted-foreground dark:text-muted-foreground"
                             >
                               Estimate (h / m / s)
                             </label>
@@ -939,10 +939,10 @@ export default function TaskDetailsModal({
                                   }))
                                 }
                                 placeholder="e.g. 1h 30m, 90m, 5400s, 01:30:00"
-                                className="h-10 min-w-[360px] w-full whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                                className="h-10 min-w-[360px] w-full whitespace-nowrap rounded-xl border border bg-card px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border/10 dark:bg-card dark:text-muted-foreground"
                               />
                             </div>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                            <p className="text-[11px] text-muted-foreground dark:text-muted-foreground">
                               You can type `h/m/s` (example: `1h 20m 30s`) or
                               `hh:mm:ss`. If you enter only a number, it is
                               treated as minutes.
@@ -955,18 +955,18 @@ export default function TaskDetailsModal({
                               onClick={() =>
                                 setIsManualEntryOpen((prev) => !prev)
                               }
-                              className="flex w-full items-start justify-between gap-2 rounded-lg border border-transparent px-1 py-0.5 text-left hover:border-slate-200 hover:bg-slate-50 dark:hover:border-white/10 dark:hover:bg-slate-800/40"
+                              className="flex w-full items-start justify-between gap-2 rounded-lg border border-transparent px-1 py-0.5 text-left hover:border hover:bg-muted dark:hover:border/10 dark:hover:bg-card/40"
                             >
                               <span>
-                                <span className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                                <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                                   Manual Time Entry
                                 </span>
-                                <span className="mt-0.5 block text-[11px] text-slate-500 dark:text-slate-400">
+                                <span className="mt-0.5 block text-[11px] text-muted-foreground dark:text-muted-foreground">
                                   Add a past work session by selecting the start
                                   and end time.
                                 </span>
                               </span>
-                              <span className="mt-1 text-slate-500 dark:text-slate-300">
+                              <span className="mt-1 text-muted-foreground dark:text-muted-foreground">
                                 <ChevronDown
                                   size={14}
                                   className={`transition-transform duration-300 ${isManualEntryOpen ? "rotate-180" : "rotate-0"}`}
@@ -982,12 +982,12 @@ export default function TaskDetailsModal({
                               }`}
                               aria-hidden={!isManualEntryOpen}
                             >
-                              <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-slate-900">
+                              <div className="rounded-xl border border bg-card p-3 dark:border/10 dark:bg-card">
                                 <div className="grid gap-3 sm:grid-cols-2">
                                   <div className="space-y-1">
                                     <label
                                       htmlFor="task-details-manual-start-time"
-                                      className="text-[11px] font-medium text-slate-600 dark:text-slate-300"
+                                      className="text-[11px] font-medium text-muted-foreground dark:text-muted-foreground"
                                     >
                                       Start time
                                     </label>
@@ -1001,14 +1001,14 @@ export default function TaskDetailsModal({
                                           startTime: event.target.value,
                                         }))
                                       }
-                                      className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                                      className="h-10 w-full rounded-lg border border bg-card px-3 text-xs text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border/10 dark:bg-card dark:text-muted-foreground"
                                     />
                                   </div>
 
                                   <div className="space-y-1">
                                     <label
                                       htmlFor="task-details-manual-end-time"
-                                      className="text-[11px] font-medium text-slate-600 dark:text-slate-300"
+                                      className="text-[11px] font-medium text-muted-foreground dark:text-muted-foreground"
                                     >
                                       End time
                                     </label>
@@ -1022,7 +1022,7 @@ export default function TaskDetailsModal({
                                           endTime: event.target.value,
                                         }))
                                       }
-                                      className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                                      className="h-10 w-full rounded-lg border border bg-card px-3 text-xs text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border/10 dark:bg-card dark:text-muted-foreground"
                                     />
                                   </div>
                                 </div>
@@ -1031,7 +1031,7 @@ export default function TaskDetailsModal({
                                   <div className="flex-1 space-y-1">
                                     <label
                                       htmlFor="task-details-manual-note"
-                                      className="text-[11px] font-medium text-slate-600 dark:text-slate-300"
+                                      className="text-[11px] font-medium text-muted-foreground dark:text-muted-foreground"
                                     >
                                       Work note (optional)
                                     </label>
@@ -1046,7 +1046,7 @@ export default function TaskDetailsModal({
                                         }))
                                       }
                                       placeholder="What did you work on?"
-                                      className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                                      className="h-10 w-full rounded-lg border border bg-card px-3 text-xs text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border/10 dark:bg-card dark:text-muted-foreground"
                                     />
                                   </div>
 
@@ -1141,7 +1141,7 @@ export default function TaskDetailsModal({
                                           setManualBusy(false);
                                         }
                                       }}
-                                      className="h-10 rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50 dark:bg-white/10 dark:text-slate-100 dark:hover:bg-white/20"
+                                      className="h-10 rounded-lg bg-card px-3 py-2 text-xs font-semibold text-white transition hover:bg-card disabled:opacity-50 dark:bg-card/10 dark:text-muted-foreground dark:hover:bg-card/20"
                                     >
                                       Save log
                                     </button>
@@ -1154,14 +1154,14 @@ export default function TaskDetailsModal({
 
                         {timeLogs.length ? (
                           <div className="mt-4 space-y-2">
-                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                               Recent Logs
                             </p>
-                            <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                            <div className="space-y-2 text-xs text-muted-foreground dark:text-muted-foreground">
                               {timeLogs.slice(0, 5).map((log) => (
                                 <div
                                   key={log.id}
-                                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-white/10 dark:bg-slate-900"
+                                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border bg-card px-3 py-2 dark:border/10 dark:bg-card"
                                 >
                                   <span>
                                     {log.startTime
@@ -1176,7 +1176,7 @@ export default function TaskDetailsModal({
                                     {formatDurationHMS(log.duration)}
                                   </span>
                                   {log.description ? (
-                                    <span className="w-full text-[11px] text-slate-500 dark:text-slate-400">
+                                    <span className="w-full text-[11px] text-muted-foreground dark:text-muted-foreground">
                                       {log.description}
                                     </span>
                                   ) : null}
@@ -1190,14 +1190,14 @@ export default function TaskDetailsModal({
                   ) : null}
 
                   {activeTab === "attachments" ? (
-                    <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
+                    <div className="rounded-xl border border bg-muted/50 p-4 dark:border/10 dark:bg-card/30">
                       <div className="flex items-center justify-between">
                         <button
                           type="button"
                           onClick={() =>
                             setIsAttachmentsOpen(!isAttachmentsOpen)
                           }
-                          className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600 transition-colors hover:text-indigo-600 dark:text-slate-300 dark:hover:text-indigo-400"
+                          className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary dark:text-muted-foreground dark:hover:text-primary"
                         >
                           <Paperclip size={14} />
                           Attachments{" "}
@@ -1222,7 +1222,7 @@ export default function TaskDetailsModal({
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
                           disabled={isUploading}
-                          className="flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-700 disabled:opacity-50 dark:text-indigo-400 dark:hover:text-indigo-300"
+                          className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary disabled:opacity-50 dark:text-primary dark:hover:text-primary"
                         >
                           {isUploading ? (
                             <Loader2 size={14} className="animate-spin" />
@@ -1238,10 +1238,10 @@ export default function TaskDetailsModal({
                           {form.attachments.map((file, idx) => (
                             <div
                               key={idx}
-                              className="group relative flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md dark:border-white/10 dark:bg-slate-900"
+                              className="group relative flex flex-col overflow-hidden rounded-xl border border bg-card shadow-sm transition hover:shadow-md dark:border/10 dark:bg-card"
                             >
                               {/* Preview Area */}
-                              <div className="relative h-28 w-full bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-white/10">
+                              <div className="relative h-28 w-full bg-muted dark:bg-card border-b border dark:border/10">
                                 {file.type.startsWith("image/") ? (
                                   <img
                                     src={file.url}
@@ -1259,13 +1259,13 @@ export default function TaskDetailsModal({
                                   <div className="flex h-full w-full items-center justify-center">
                                     <FileText
                                       size={32}
-                                      className="text-slate-400 dark:text-slate-500"
+                                      className="text-muted-foreground dark:text-muted-foreground"
                                     />
                                   </div>
                                 )}
 
                                 {/* Hover Overlay with Delete */}
-                                <div className="absolute inset-0 bg-slate-900/60 opacity-0 transition-opacity duration-200 group-hover:opacity-100 flex items-center justify-center">
+                                <div className="absolute inset-0 bg-card/60 opacity-0 transition-opacity duration-200 group-hover:opacity-100 flex items-center justify-center">
                                   <button
                                     type="button"
                                     onClick={() => removeAttachment(idx)}
@@ -1280,11 +1280,11 @@ export default function TaskDetailsModal({
                               {/* File Info Footer */}
                               <div className="flex items-center justify-between p-2.5">
                                 <div className="flex flex-1 items-center gap-2 truncate pr-2">
-                                  <span className="text-slate-500">
+                                  <span className="text-muted-foreground">
                                     {getFileIcon(file.type)}
                                   </span>
                                   <span
-                                    className="truncate text-xs font-medium text-slate-700 dark:text-slate-300"
+                                    className="truncate text-xs font-medium text-foreground dark:text-muted-foreground"
                                     title={file.name}
                                   >
                                     {file.name}
@@ -1293,7 +1293,7 @@ export default function TaskDetailsModal({
                                 <a
                                   href={getDownloadUrl(file.url)}
                                   download={file.name}
-                                  className="flex shrink-0 items-center justify-center rounded bg-slate-100 p-1.5 text-slate-500 transition hover:bg-indigo-50 hover:text-indigo-600 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-indigo-500/20 dark:hover:text-indigo-300"
+                                  className="flex shrink-0 items-center justify-center rounded bg-muted p-1.5 text-muted-foreground transition hover:bg-primary/10 hover:text-primary dark:bg-card dark:text-muted-foreground dark:hover:bg-primary/20 dark:hover:text-primary"
                                   title="Download file"
                                 >
                                   <Download size={14} />
@@ -1307,14 +1307,14 @@ export default function TaskDetailsModal({
                   ) : null}
 
                   {activeTab === "github" ? (
-                    <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
+                    <div className="rounded-xl border border bg-muted/50 p-4 dark:border/10 dark:bg-card/30">
                       <button
                         type="button"
                         onClick={() => setIsGithubOpen((prev) => !prev)}
                         className="flex w-full items-center justify-between gap-2 text-left"
                       >
                         <div className="flex items-center gap-2">
-                          <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-slate-900 dark:bg-white/10">
+                          <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-card dark:bg-card/10">
                             <svg
                               viewBox="0 0 24 24"
                               fill="white"
@@ -1323,10 +1323,10 @@ export default function TaskDetailsModal({
                               <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12" />
                             </svg>
                           </span>
-                          <span className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                             GitHub Activity
                             {githubActivities.length > 0 && (
-                              <span className="ml-1.5 rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] dark:bg-white/10">
+                              <span className="ml-1.5 rounded-full bg-muted px-1.5 py-0.5 text-[10px] dark:bg-card/10">
                                 {githubActivities.length}
                               </span>
                             )}
@@ -1334,7 +1334,7 @@ export default function TaskDetailsModal({
                         </div>
                         <ChevronDown
                           size={14}
-                          className={`text-slate-500 transition-transform duration-300 ${isGithubOpen ? "rotate-180" : "rotate-0"}`}
+                          className={`text-muted-foreground transition-transform duration-300 ${isGithubOpen ? "rotate-180" : "rotate-0"}`}
                         />
                       </button>
 
@@ -1346,7 +1346,7 @@ export default function TaskDetailsModal({
                         }`}
                       >
                         {githubActivities.length === 0 ? (
-                          <p className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+                          <p className="mt-4 text-xs text-muted-foreground dark:text-muted-foreground">
                             {githubLoading ? (
                               <span className="inline-flex items-center gap-2">
                                 <Loader2 className="size-3.5 animate-spin" />
@@ -1361,7 +1361,7 @@ export default function TaskDetailsModal({
                                   <>
                                     {" "}
                                     Mention{" "}
-                                    <span className="font-mono font-semibold text-slate-700 dark:text-slate-300">
+                                    <span className="font-mono font-semibold text-foreground dark:text-muted-foreground">
                                       {task.taskRef}
                                     </span>{" "}
                                     in a PR title or commit message.
@@ -1375,10 +1375,10 @@ export default function TaskDetailsModal({
                             {githubActivities.map((activity) => (
                               <div
                                 key={activity._id}
-                                className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-slate-900"
+                                className="flex items-start gap-3 rounded-lg border border bg-card p-3 dark:border/10 dark:bg-card"
                               >
                                 {/* icon: commit vs PR */}
-                                <span className="mt-0.5 shrink-0 text-slate-400">
+                                <span className="mt-0.5 shrink-0 text-muted-foreground">
                                   {activity.action ===
                                   "github_commit_pushed" ? (
                                     <svg
@@ -1400,7 +1400,7 @@ export default function TaskDetailsModal({
                                 </span>
 
                                 <div className="min-w-0 flex-1">
-                                  <p className="text-xs text-slate-700 dark:text-slate-300">
+                                  <p className="text-xs text-foreground dark:text-muted-foreground">
                                     {activity.text}
                                   </p>
                                   <div className="mt-1.5 flex flex-wrap items-center gap-2">
@@ -1409,7 +1409,7 @@ export default function TaskDetailsModal({
                                         href={activity.meta.pullRequestUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-[11px] font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+                                        className="text-[11px] font-medium text-primary hover:underline dark:text-primary"
                                       >
                                         View PR #
                                         {activity.meta.pullRequestNumber}
@@ -1420,12 +1420,12 @@ export default function TaskDetailsModal({
                                         href={activity.meta.commitUrl}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="font-mono text-[11px] font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+                                        className="font-mono text-[11px] font-medium text-primary hover:underline dark:text-primary"
                                       >
                                         {activity.meta.commitShort}
                                       </a>
                                     )}
-                                    <span className="text-[11px] text-slate-400">
+                                    <span className="text-[11px] text-muted-foreground">
                                       {formatDateTime(activity.createdAt)}
                                     </span>
                                   </div>
@@ -1437,7 +1437,7 @@ export default function TaskDetailsModal({
                                     src={activity.meta.githubAvatarUrl}
                                     alt={activity.meta.githubUsername}
                                     title={`@${activity.meta.githubUsername}`}
-                                    className="size-6 shrink-0 rounded-full border border-slate-200 dark:border-white/10"
+                                    className="size-6 shrink-0 rounded-full border border dark:border/10"
                                   />
                                 )}
                               </div>
@@ -1449,14 +1449,14 @@ export default function TaskDetailsModal({
                   ) : null}
 
                   {activeTab === "comments" ? (
-                    <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
-                      <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
+                    <div className="rounded-xl border border bg-muted/50 p-4 dark:border/10 dark:bg-card/30">
+                      <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                         <MessageSquare size={14} />
                         Activity & Comments
                       </h3>
 
                       <div className="mt-4 flex gap-3">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-500 text-[10px] font-bold text-white">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
                           {session?.user?.name?.slice(0, 2).toUpperCase() ||
                             "U"}
                         </div>
@@ -1465,14 +1465,14 @@ export default function TaskDetailsModal({
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
                             placeholder="Write a comment..."
-                            className="w-full rounded-xl border border-slate-200 bg-slate-50/50 p-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800/50 dark:text-slate-100"
+                            className="w-full rounded-xl border border bg-muted/50 p-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 dark:border/10 dark:bg-card/50 dark:text-muted-foreground"
                             rows={2}
                           />
                           <button
                             type="button"
                             onClick={handleAddComment}
                             disabled={!comment.trim() || isCommentsBusy}
-                            className="flex items-center gap-2 rounded-lg bg-indigo-500 px-4 py-1.5 text-xs font-bold text-white transition hover:bg-indigo-600 disabled:opacity-50"
+                            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-1.5 text-xs font-bold text-white transition hover:bg-primary disabled:opacity-50"
                           >
                             {isCommentsBusy ? (
                               <Loader2 size={12} className="animate-spin" />
@@ -1487,19 +1487,19 @@ export default function TaskDetailsModal({
                       <div className="mt-6 space-y-4">
                         {comments.map((c, i) => (
                           <div key={i} className="flex gap-3">
-                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-200 text-[10px] font-bold text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground dark:bg-card dark:text-muted-foreground">
                               {c.author?.slice(0, 2).toUpperCase()}
                             </div>
-                            <div className="flex-1 rounded-xl rounded-tl-none bg-slate-50 p-3 dark:bg-slate-800/40">
+                            <div className="flex-1 rounded-xl rounded-tl-none bg-muted p-3 dark:bg-card/40">
                               <div className="mb-1 flex items-center justify-between">
-                                <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                                <span className="text-xs font-bold text-foreground dark:text-muted-foreground">
                                   {c.author}
                                 </span>
-                                <span className="text-[10px] text-slate-400">
+                                <span className="text-[10px] text-muted-foreground">
                                   {formatDateTime(c.createdAt)}
                                 </span>
                               </div>
-                              <p className="text-sm text-slate-600 dark:text-slate-300">
+                              <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                                 {c.text}
                               </p>
                             </div>
@@ -1511,18 +1511,18 @@ export default function TaskDetailsModal({
                 </div>
               </section>
 
-              <aside className="h-fit rounded-[28px] border border-slate-200 bg-white shadow-sm xl:sticky xl:top-0 xl:self-start dark:border-white/10 dark:bg-slate-900">
-                <div className="border-b rounded-t-[28px] border-slate-200 px-5 py-5 dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
+              <aside className="h-fit rounded-[28px] border border bg-card shadow-sm xl:sticky xl:top-0 xl:self-start dark:border/10 dark:bg-card">
+                <div className="border-b rounded-t-[28px] border px-5 py-5 dark:border/10 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground dark:text-muted-foreground">
                         Overview
                       </p>
-                      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      <h3 className="text-lg font-semibold text-foreground dark:text-muted-foreground">
                         Task Information
                       </h3>
                     </div>
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-medium text-slate-500 dark:bg-white/10 dark:text-slate-400">
+                    <span className="rounded-full bg-muted px-3 py-1 text-[11px] font-medium text-muted-foreground dark:bg-card/10 dark:text-muted-foreground">
                       Click text to edit
                     </span>
                   </div>
@@ -1547,7 +1547,7 @@ export default function TaskDetailsModal({
                           if (event.key === "Escape") setEditingField("");
                         }}
                         placeholder="Enter a clear task title"
-                        className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        className="h-11 w-full rounded-xl border border bg-card px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border/10 dark:bg-card dark:text-muted-foreground"
                         required
                       />
                     ) : (
@@ -1574,7 +1574,7 @@ export default function TaskDetailsModal({
                         }
                         onBlur={() => setEditingField("")}
                         placeholder="Add details, acceptance criteria, or important context"
-                        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        className="w-full rounded-xl border border bg-card px-3 py-2.5 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border/10 dark:bg-card dark:text-muted-foreground"
                       />
                     ) : (
                       <EditableValueButton
@@ -1599,7 +1599,7 @@ export default function TaskDetailsModal({
                           }))
                         }
                         onBlur={() => setEditingField("")}
-                        className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        className="h-11 w-full rounded-xl border border bg-card px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border/10 dark:bg-card dark:text-muted-foreground"
                       >
                         <option value="">Unassigned</option>
                         {members.map((member) => (
@@ -1619,11 +1619,11 @@ export default function TaskDetailsModal({
 
                   <OverviewRow label="Reporter" alignTop>
                     <div className="space-y-1 py-2">
-                      <div className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                      <div className="text-sm font-medium text-foreground dark:text-muted-foreground">
                         {reporterDisplayName}
                       </div>
                       {reporterSecondary ? (
-                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                        <div className="text-xs text-muted-foreground dark:text-muted-foreground">
                           {reporterSecondary}
                         </div>
                       ) : null}
@@ -1644,7 +1644,7 @@ export default function TaskDetailsModal({
                           }))
                         }
                         onBlur={() => setEditingField("")}
-                        className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        className="h-11 w-full rounded-xl border border bg-card px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border/10 dark:bg-card dark:text-muted-foreground"
                       />
                     ) : (
                       <EditableValueButton
@@ -1668,7 +1668,7 @@ export default function TaskDetailsModal({
                           }))
                         }
                         onBlur={() => setEditingField("")}
-                        className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        className="h-11 w-full rounded-xl border border bg-card px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border/10 dark:bg-card dark:text-muted-foreground"
                       >
                         {PRIORITY_OPTIONS.map((item) => (
                           <option key={item.value} value={item.value}>
@@ -1698,7 +1698,7 @@ export default function TaskDetailsModal({
                           }))
                         }
                         onBlur={() => setEditingField("")}
-                        className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        className="h-11 w-full rounded-xl border border bg-card px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15 dark:border/10 dark:bg-card dark:text-muted-foreground"
                       >
                         {statusOptions.map((item) => (
                           <option key={item.value} value={item.value}>
@@ -1716,25 +1716,25 @@ export default function TaskDetailsModal({
                   </OverviewRow>
 
                   <OverviewRow label="Project">
-                    <div className="py-2 text-sm font-medium text-slate-900 dark:text-slate-100">
+                    <div className="py-2 text-sm font-medium text-foreground dark:text-muted-foreground">
                       {task.projectName || "Unknown Project"}
                     </div>
                   </OverviewRow>
 
                   <OverviewRow label="Task Ref">
-                    <div className="break-all py-2 font-mono text-sm text-slate-700 dark:text-slate-300">
+                    <div className="break-all py-2 font-mono text-sm text-foreground dark:text-muted-foreground">
                       {task.taskRef || "Not assigned"}
                     </div>
                   </OverviewRow>
 
                   <OverviewRow label="Created">
-                    <div className="py-2 text-sm text-slate-700 dark:text-slate-300">
+                    <div className="py-2 text-sm text-foreground dark:text-muted-foreground">
                       {formatDateTime(task.createdAt)}
                     </div>
                   </OverviewRow>
 
                   <OverviewRow label="Updated">
-                    <div className="py-2 text-sm text-slate-700 dark:text-slate-300">
+                    <div className="py-2 text-sm text-foreground dark:text-muted-foreground">
                       {formatDateTime(updatedAtValue)}
                     </div>
                   </OverviewRow>
@@ -1744,7 +1744,7 @@ export default function TaskDetailsModal({
           </form>
         </div>
 
-        <div className="border-t border-slate-200 bg-slate-50 px-5 py-3 dark:border-white/10 dark:bg-slate-800/30 shrink-0">
+        <div className="border-t border bg-muted px-5 py-3 dark:border/10 dark:bg-card/30 shrink-0">
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"
@@ -1768,7 +1768,7 @@ export default function TaskDetailsModal({
                 disabled={!form.title.trim() || isBusy}
                 title={submitting ? "Saving..." : "Save Changes"}
                 aria-label={submitting ? "Saving changes" : "Save changes"}
-                className="inline-flex size-10 items-center justify-center rounded-lg bg-indigo-500 text-white transition hover:bg-indigo-600 disabled:opacity-50"
+                className="inline-flex size-10 items-center justify-center rounded-lg bg-primary text-white transition hover:bg-primary disabled:opacity-50"
               >
                 {submitting ? (
                   <Loader2 className="size-4 animate-spin" />

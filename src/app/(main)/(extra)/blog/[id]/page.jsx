@@ -31,7 +31,7 @@ export default async function BlogArticlePage({ params }) {
       <article className="mx-auto max-w-4xl px-6 py-12 md:py-16">
         <Link
           href="/blog"
-          className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-secondary dark:text-slate-300"
+          className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition hover:text-secondary dark:text-muted-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to blog
@@ -46,7 +46,7 @@ export default async function BlogArticlePage({ params }) {
               ? post.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1 text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                    className="rounded-full border border bg-muted px-2.5 py-1 text-xs text-foreground dark:border-foreground dark:bg-card dark:text-muted-foreground"
                   >
                     #{tag}
                   </span>
@@ -57,9 +57,9 @@ export default async function BlogArticlePage({ params }) {
           <h1 className="text-4xl font-heading font-bold leading-tight sm:text-5xl md:text-6xl">
             {post.title}
           </h1>
-          <p className="mt-4 text-base text-slate-600 dark:text-slate-300 md:text-lg">{post.excerpt}</p>
+          <p className="mt-4 text-base text-muted-foreground dark:text-muted-foreground md:text-lg">{post.excerpt}</p>
 
-          <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+          <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground dark:text-muted-foreground">
             <span className="inline-flex items-center gap-1.5">
               <User2 className="h-4 w-4" />
               {post.author?.name || "Zyplo Team"}

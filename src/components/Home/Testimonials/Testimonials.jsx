@@ -8,7 +8,7 @@ const AUTO_SLIDE_MS = 4000;
 
 function SkeletonCard() {
     return (
-        <div className="animate-pulse rounded-xl border border-border bg-white dark:bg-[#0B0f19] p-6">
+        <div className="animate-pulse rounded-xl border border-border bg-card dark:bg-[#0B0f19] p-6">
             <div className="mb-3 h-4 w-3/4 rounded bg-muted dark:bg-surface" />
             <div className="mb-2 h-3 w-full rounded bg-muted dark:bg-surface" />
             <div className="mb-2 h-3 w-5/6 rounded bg-muted dark:bg-surface" />
@@ -98,7 +98,7 @@ export default function Testimonials() {
     const x = -index * cardWidth;
 
     return (
-        <section className="bg-white py-20 dark:bg-[#0B0f19]">
+        <section className="bg-card py-20 dark:bg-[#0B0f19]">
             <div className="mx-auto max-w-7xl px-6">
                 <h2 className="text-center text-3xl md:text-5xl font-bold text-foreground">
                     Loved by modern teams

@@ -38,7 +38,7 @@ const formatDate = (dateString) => {
 };
 
 const STATUSES = [
-  { value: "todo", label: "Todo", icon: Circle, color: "text-slate-500" },
+  { value: "todo", label: "Todo", icon: Circle, color: "text-muted-foreground" },
   {
     value: "inprogress",
     label: "In Progress",
@@ -85,8 +85,8 @@ const PRIORITIES = [
     value: "P3",
     label: "Low",
     icon: ArrowDown,
-    color: "text-slate-500",
-    bg: "bg-slate-50 dark:bg-slate-500/10",
+    color: "text-muted-foreground",
+    bg: "bg-muted dark:bg-muted/10",
   },
 ];
 
@@ -576,28 +576,28 @@ export default function TaskListView() {
 
   return (
     <>
-      <div className="relative rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#0B0F19] overflow-hidden min-h-150">
-      <div className="flex flex-col border-b border-slate-200 dark:border-white/10">
+      <div className="relative rounded-2xl border border bg-card shadow-sm dark:border/10 dark:bg-[#0B0F19] overflow-hidden min-h-150">
+      <div className="flex flex-col border-b border dark:border/10">
         <div className="px-6 py-4">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+          <h2 className="text-lg font-semibold text-foreground dark:text-muted-foreground">
             All Tasks
           </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-muted-foreground dark:text-muted-foreground">
             {workspaceTasks.length} tasks in this workspace
           </p>
         </div>
 
-        <div className="flex flex-col gap-4 bg-slate-50/50 p-4 dark:bg-slate-800/20 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 bg-muted/50 p-4 dark:bg-card/20 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-1 items-center gap-3">
             {/* Live Search */}
             <div className="relative max-w-xs flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Filter tasks..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="block w-full rounded-lg border border-slate-200 bg-white py-1.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/10 dark:bg-[#050505] dark:text-white dark:placeholder-slate-500"
+                className="block w-full rounded-lg border border bg-card py-1.5 pl-9 pr-3 text-sm text-foreground placeholder-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border/10 dark:bg-[#050505] dark:text-white dark:placeholder-slate-500"
               />
             </div>
           </div>
@@ -607,7 +607,7 @@ export default function TaskListView() {
             <div className="relative">
               <button
                 onClick={() => setDisplayMenuOpen(!displayMenuOpen)}
-                className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:bg-transparent dark:text-slate-300 dark:hover:bg-white/5"
+                className="flex items-center gap-1.5 rounded-lg border border bg-card px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted dark:border/10 dark:bg-transparent dark:text-muted-foreground dark:hover:bg-card/5"
               >
                 <Filter size={16} /> Display
               </button>
@@ -619,19 +619,19 @@ export default function TaskListView() {
                     className="fixed inset-0 z-10"
                     onClick={() => setDisplayMenuOpen(false)}
                   />
-                  <div className="absolute right-0 top-10 z-20 w-48 rounded-lg border border-slate-200 bg-white p-2 shadow-xl dark:border-white/10 dark:bg-slate-900">
-                    <p className="px-2 py-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  <div className="absolute right-0 top-10 z-20 w-48 rounded-lg border border bg-card p-2 shadow-xl dark:border/10 dark:bg-card">
+                    <p className="px-2 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                       Visible Columns
                     </p>
                     {Object.keys(visibleCols).map((col) => (
                       <button
                         key={col}
                         onClick={() => toggleColumn(col)}
-                        className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5 capitalize"
+                        className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm text-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-card/5 capitalize"
                       >
                         {col.replace(/([A-Z])/g, " $1").trim()}
                         {visibleCols[col] && (
-                          <Check size={14} className="text-indigo-500" />
+                          <Check size={14} className="text-primary" />
                         )}
                       </button>
                     ))}
@@ -642,13 +642,13 @@ export default function TaskListView() {
 
             <CreateTaskLauncher
               workspaceId={workspaceId}
-              buttonClassName="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-600"
+              buttonClassName="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-primary disabled:opacity-60 dark:bg-primary dark:hover:bg-primary"
               label="Create Task"
             />
           </div>
         </div>
 
-        <div className="border-t border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/20">
+        <div className="border-t border bg-muted/50 p-4 dark:border/10 dark:bg-card/20">
           <div className="flex flex-wrap gap-2">
             <input
               type="text"
@@ -660,7 +660,7 @@ export default function TaskListView() {
                 }))
               }
               placeholder="Task Name"
-              className="h-10 min-w-42.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 min-w-42.5 rounded-lg border border bg-card px-3 text-sm outline-none focus:border-primary dark:border/10 dark:bg-card dark:text-muted-foreground"
             />
 
             {visibleCols.status && (
@@ -672,7 +672,7 @@ export default function TaskListView() {
                     status: event.target.value,
                   }))
                 }
-                className="h-10 min-w-32.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                className="h-10 min-w-32.5 rounded-lg border border bg-card px-3 text-sm outline-none focus:border-primary dark:border/10 dark:bg-card dark:text-muted-foreground"
               >
                 <option value="all">Status</option>
                 <option value="todo">To Do</option>
@@ -691,7 +691,7 @@ export default function TaskListView() {
                     priority: event.target.value,
                   }))
                 }
-                className="h-10 min-w-27.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                className="h-10 min-w-27.5 rounded-lg border border bg-card px-3 text-sm outline-none focus:border-primary dark:border/10 dark:bg-card dark:text-muted-foreground"
               >
                 <option value="all">Priority</option>
                 <option value="P0">P0</option>
@@ -710,7 +710,7 @@ export default function TaskListView() {
                     assigneeId: event.target.value,
                   }))
                 }
-                className="h-10 min-w-37.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                className="h-10 min-w-37.5 rounded-lg border border bg-card px-3 text-sm outline-none focus:border-primary dark:border/10 dark:bg-card dark:text-muted-foreground"
               >
                 <option value="all">Assignee</option>
                 {workspaceMembers.map((member) => (
@@ -725,7 +725,7 @@ export default function TaskListView() {
               <button
                 type="button"
                 onClick={() => setMoreFiltersOpen((prev) => !prev)}
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                className="inline-flex h-10 items-center gap-2 rounded-lg border border bg-card px-3 text-sm text-foreground hover:bg-muted dark:border/10 dark:bg-card dark:text-muted-foreground dark:hover:bg-card"
               >
                 <Filter className="size-4" />
                 More filters
@@ -737,10 +737,10 @@ export default function TaskListView() {
                     className="fixed inset-0 z-40"
                     onClick={() => setMoreFiltersOpen(false)}
                   />
-                  <div className="absolute right-0 top-11 z-50 w-[320px] space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                  <div className="absolute right-0 top-11 z-50 w-[320px] space-y-3 rounded-xl border border bg-card p-3 shadow-xl dark:border/10 dark:bg-card">
                     {visibleCols.reporter && (
                       <div className="space-y-1">
-                        <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                        <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                           Reporter
                         </label>
                         <input
@@ -753,14 +753,14 @@ export default function TaskListView() {
                             }))
                           }
                           placeholder="Filter by reporter"
-                          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                          className="h-9 w-full rounded-lg border border bg-card px-3 text-sm outline-none focus:border-primary dark:border/10 dark:bg-card dark:text-muted-foreground"
                         />
                       </div>
                     )}
 
                     {visibleCols.updated && (
                       <div className="space-y-1">
-                        <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                        <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                           Updated At
                         </label>
                         <input
@@ -772,14 +772,14 @@ export default function TaskListView() {
                               updatedAt: event.target.value,
                             }))
                           }
-                          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                          className="h-9 w-full rounded-lg border border bg-card px-3 text-sm outline-none focus:border-primary dark:border/10 dark:bg-card dark:text-muted-foreground"
                         />
                       </div>
                     )}
 
                     {visibleCols.createdAt && (
                       <div className="space-y-1">
-                        <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                        <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                           Created At
                         </label>
                         <input
@@ -791,14 +791,14 @@ export default function TaskListView() {
                               createdAt: event.target.value,
                             }))
                           }
-                          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                          className="h-9 w-full rounded-lg border border bg-card px-3 text-sm outline-none focus:border-primary dark:border/10 dark:bg-card dark:text-muted-foreground"
                         />
                       </div>
                     )}
 
                     {visibleCols.dueDate && (
                       <div className="space-y-1">
-                        <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                        <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                           Due Date
                         </label>
                         <input
@@ -810,7 +810,7 @@ export default function TaskListView() {
                               dueDate: event.target.value,
                             }))
                           }
-                          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                          className="h-9 w-full rounded-lg border border bg-card px-3 text-sm outline-none focus:border-primary dark:border/10 dark:bg-card dark:text-muted-foreground"
                         />
                       </div>
                     )}
@@ -824,8 +824,8 @@ export default function TaskListView() {
 
       {/* === INTERACTIVE DATA GRID === */}
       <div className="overflow-x-auto pb-32 min-h-100">
-        <table className="min-w-7xl w-full text-left text-sm text-slate-600 dark:text-slate-400">
-          <thead className="border-b border-slate-200 bg-slate-50/50 text-xs uppercase tracking-wider text-slate-500 dark:border-white/10 dark:bg-slate-800/50 dark:text-slate-400">
+        <table className="min-w-7xl w-full text-left text-sm text-muted-foreground dark:text-muted-foreground">
+          <thead className="border-b border bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground dark:border/10 dark:bg-card/50 dark:text-muted-foreground">
             <tr>
               <th className="px-6 py-3 font-medium w-10">
                 <input
@@ -835,7 +835,7 @@ export default function TaskListView() {
                     selectedIds.size === filteredTasks.length
                   }
                   onChange={toggleSelectAll}
-                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 dark:border-slate-600 dark:bg-slate-900"
+                  className="rounded border text-primary focus:ring-primary dark:border dark:bg-card"
                 />
               </th>
               <th className="px-4 py-3 font-medium">Task Name</th>
@@ -878,18 +878,18 @@ export default function TaskListView() {
               return (
                 <tr
                   key={task.id}
-                  className={`group transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 ${selectedIds.has(task.id) ? "bg-indigo-50/50 dark:bg-indigo-500/10" : ""}`}
+                  className={`group transition-colors hover:bg-muted dark:hover:bg-card/50 ${selectedIds.has(task.id) ? "bg-primary/10/50 dark:bg-primary/10" : ""}`}
                 >
                   <td className="px-6 py-4">
                     <input
                       type="checkbox"
                       checked={selectedIds.has(task.id)}
                       onChange={() => toggleSelect(task.id)}
-                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 dark:border-slate-600 dark:bg-slate-900"
+                      className="rounded border text-primary focus:ring-primary dark:border dark:bg-card"
                     />
                   </td>
 
-                  <td className="px-4 py-4 font-medium text-slate-900 dark:text-slate-100">
+                  <td className="px-4 py-4 font-medium text-foreground dark:text-muted-foreground">
                     {inlineEdit?.taskId === task.id &&
                     inlineEdit?.field === "title" ? (
                       <input
@@ -912,7 +912,7 @@ export default function TaskListView() {
                             setInlineEdit(null);
                           }
                         }}
-                        className="h-8 w-full rounded-md border border-slate-300 bg-white px-2 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100"
+                        className="h-8 w-full rounded-md border border bg-card px-2 text-sm outline-none focus:border-primary dark:border/10 dark:bg-card dark:text-muted-foreground"
                       />
                     ) : (
                       <button
@@ -926,7 +926,7 @@ export default function TaskListView() {
                       </button>
                     )}
                     {task.projectName && (
-                      <div className="mt-0.5 text-xs font-normal text-slate-500">
+                      <div className="mt-0.5 text-xs font-normal text-muted-foreground">
                         {task.projectName}
                       </div>
                     )}
@@ -949,29 +949,29 @@ export default function TaskListView() {
                               : `status-${task.id}`,
                           )
                         }
-                        className="flex items-center gap-2 rounded-md px-2 py-1 -ml-2 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors relative z-20"
+                        className="flex items-center gap-2 rounded-md px-2 py-1 -ml-2 hover:bg-muted dark:hover:bg-card/5 transition-colors relative z-20"
                       >
                         <currentStatus.icon
                           size={14}
                           className={currentStatus.color}
                         />
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        <span className="text-sm font-medium text-foreground dark:text-muted-foreground">
                           {currentStatus.label}
                         </span>
                       </button>
 
                       {activeDropdown === `status-${task.id}` && (
-                        <div className="absolute top-10 left-4 z-30 w-40 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                        <div className="absolute top-10 left-4 z-30 w-40 rounded-lg border border bg-card p-1 shadow-xl dark:border/10 dark:bg-card">
                           {STATUSES.map((s) => (
                             <button
                               key={s.value}
                               onClick={() =>
                                 handleInlineEdit(task, "status", s.value)
                               }
-                              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
+                              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted dark:hover:bg-card/5"
                             >
                               <s.icon size={14} className={s.color} />
-                              <span className="text-slate-700 dark:text-slate-300">
+                              <span className="text-foreground dark:text-muted-foreground">
                                 {s.label}
                               </span>
                             </button>
@@ -1005,17 +1005,17 @@ export default function TaskListView() {
                       </button>
 
                       {activeDropdown === `priority-${task.id}` && (
-                        <div className="absolute top-10 left-4 z-30 w-36 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                        <div className="absolute top-10 left-4 z-30 w-36 rounded-lg border border bg-card p-1 shadow-xl dark:border/10 dark:bg-card">
                           {PRIORITIES.map((p) => (
                             <button
                               key={p.value}
                               onClick={() =>
                                 handleInlineEdit(task, "priority", p.value)
                               }
-                              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
+                              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted dark:hover:bg-card/5"
                             >
                               <p.icon size={14} className={p.color} />
-                              <span className="text-slate-700 dark:text-slate-300">
+                              <span className="text-foreground dark:text-muted-foreground">
                                 {p.label}
                               </span>
                             </button>
@@ -1043,9 +1043,9 @@ export default function TaskListView() {
                               : `assignee-${task.id}`,
                           )
                         }
-                        className="relative z-20 flex w-full items-center gap-2 rounded-md px-2 py-1 -ml-2 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                        className="relative z-20 flex w-full items-center gap-2 rounded-md px-2 py-1 -ml-2 hover:bg-muted dark:hover:bg-card/5 transition-colors"
                       >
-                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary dark:bg-primary/20 dark:text-primary">
                           {task.assigneeName
                             ? task.assigneeName.charAt(0).toUpperCase()
                             : "?"}
@@ -1056,7 +1056,7 @@ export default function TaskListView() {
                       </button>
 
                       {activeDropdown === `assignee-${task.id}` && (
-                        <div className="absolute top-10 left-4 z-30 w-48 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                        <div className="absolute top-10 left-4 z-30 w-48 rounded-lg border border bg-card p-1 shadow-xl dark:border/10 dark:bg-card">
                           <button
                             type="button"
                             onClick={() =>
@@ -1065,9 +1065,9 @@ export default function TaskListView() {
                                 assigneeName: "Unassigned",
                               })
                             }
-                            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
+                            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted dark:hover:bg-card/5"
                           >
-                            <span className="text-slate-700 dark:text-slate-300">
+                            <span className="text-foreground dark:text-muted-foreground">
                               Unassigned
                             </span>
                           </button>
@@ -1082,9 +1082,9 @@ export default function TaskListView() {
                                     member.name || member.email || "Unassigned",
                                 })
                               }
-                              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
+                              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted dark:hover:bg-card/5"
                             >
-                              <span className="text-slate-700 dark:text-slate-300">
+                              <span className="text-foreground dark:text-muted-foreground">
                                 {member.name || member.email || "Unknown"}
                               </span>
                             </button>
@@ -1097,7 +1097,7 @@ export default function TaskListView() {
                   {/* Reporter */}
                   {visibleCols.reporter && (
                     <td className="px-4 py-4 truncate max-w-25">
-                      <span className="text-slate-500 dark:text-slate-400">
+                      <span className="text-muted-foreground dark:text-muted-foreground">
                         {task.reporterName || "Admin"}
                       </span>
                     </td>
@@ -1105,21 +1105,21 @@ export default function TaskListView() {
 
                   {/* Updated Date */}
                   {visibleCols.updated && (
-                    <td className="px-4 py-4 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
+                    <td className="px-4 py-4 whitespace-nowrap text-xs text-muted-foreground dark:text-muted-foreground">
                       {formatDate(task.updatedAt)}
                     </td>
                   )}
 
                   {/* Created At */}
                   {visibleCols.createdAt && (
-                    <td className="px-4 py-4 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
+                    <td className="px-4 py-4 whitespace-nowrap text-xs text-muted-foreground dark:text-muted-foreground">
                       {formatDate(task.createdAt)}
                     </td>
                   )}
 
                   {/* Due Date */}
                   {visibleCols.dueDate && (
-                    <td className="px-4 py-4 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
+                    <td className="px-4 py-4 whitespace-nowrap text-xs text-muted-foreground dark:text-muted-foreground">
                       {inlineEdit?.taskId === task.id &&
                       inlineEdit?.field === "dueDate" ? (
                         <input
@@ -1143,7 +1143,7 @@ export default function TaskListView() {
                               setInlineEdit(null);
                             }
                           }}
-                          className="h-8 rounded-md border border-slate-300 bg-white px-2 text-xs outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100"
+                          className="h-8 rounded-md border border bg-card px-2 text-xs outline-none focus:border-primary dark:border/10 dark:bg-card dark:text-muted-foreground"
                         />
                       ) : (
                         <button
@@ -1157,7 +1157,7 @@ export default function TaskListView() {
                                 : "",
                             )
                           }
-                          className="flex items-center gap-1.5 rounded-md px-1 py-0.5 hover:bg-slate-100 dark:hover:bg-white/5"
+                          className="flex items-center gap-1.5 rounded-md px-1 py-0.5 hover:bg-muted dark:hover:bg-card/5"
                         >
                           {task.dueDate ? (
                             <>
@@ -1189,20 +1189,20 @@ export default function TaskListView() {
                       }
                       aria-label="Open task actions"
                       title="Task actions"
-                      className="relative z-20 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-100 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-white/10"
+                      className="relative z-20 inline-flex items-center justify-center rounded-lg border border bg-card p-2 text-muted-foreground hover:bg-muted dark:border/10 dark:bg-card dark:text-muted-foreground dark:hover:bg-card/10"
                     >
                       <MoreHorizontal size={16} />
                     </button>
 
                     {activeDropdown === `actions-${task.id}` && (
-                      <div className="absolute right-4 top-12 z-30 w-40 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                      <div className="absolute right-4 top-12 z-30 w-40 rounded-lg border border bg-card p-1 shadow-xl dark:border/10 dark:bg-card">
                         <button
                           type="button"
                           onClick={() => {
                             setSelectedTask(task);
                             setActiveDropdown(null);
                           }}
-                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5"
+                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-card/5"
                         >
                           <Eye size={14} />
                           <span>Open</span>
@@ -1238,7 +1238,7 @@ export default function TaskListView() {
               <tr>
                 <td
                   colSpan={actionColSpan}
-                  className="py-12 text-center text-slate-500"
+                  className="py-12 text-center text-muted-foreground"
                 >
                   No tasks match your search.
                 </td>
@@ -1256,12 +1256,12 @@ export default function TaskListView() {
             : "translate-y-10 opacity-0 pointer-events-none"
         }`}
       >
-        <div className="flex items-center gap-4 rounded-full border border-slate-200/50 bg-white/90 px-5 py-3 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-slate-800/90">
-          <div className="flex items-center gap-2 border-r border-slate-200 pr-4 dark:border-white/10">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white dark:bg-indigo-500">
+        <div className="flex items-center gap-4 rounded-full border border/50 bg-card/90 px-5 py-3 shadow-2xl backdrop-blur-xl dark:border/10 dark:bg-card/90">
+          <div className="flex items-center gap-2 border-r border pr-4 dark:border/10">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-white dark:bg-primary">
               {selectedIds.size}
             </div>
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+            <span className="text-sm font-medium text-foreground dark:text-muted-foreground">
               Selected
             </span>
           </div>
@@ -1279,21 +1279,21 @@ export default function TaskListView() {
                 onClick={() =>
                   setBulkDropdown(bulkDropdown === "status" ? null : "status")
                 }
-                className="relative z-20 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10 transition-colors"
+                className="relative z-20 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-card/10 transition-colors"
               >
                 <Circle size={16} /> Set Status
               </button>
 
               {bulkDropdown === "status" && (
-                <div className="absolute bottom-full mb-2 left-0 z-30 w-40 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                <div className="absolute bottom-full mb-2 left-0 z-30 w-40 rounded-lg border border bg-card p-1 shadow-xl dark:border/10 dark:bg-card">
                   {STATUSES.map((s) => (
                     <button
                       key={s.value}
                       onClick={() => handleBulkStatus(s.value)}
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted dark:hover:bg-card/5"
                     >
                       <s.icon size={14} className={s.color} />
-                      <span className="text-slate-700 dark:text-slate-300">
+                      <span className="text-foreground dark:text-muted-foreground">
                         {s.label}
                       </span>
                     </button>
@@ -1314,18 +1314,18 @@ export default function TaskListView() {
                 onClick={() =>
                   setBulkDropdown(bulkDropdown === "assign" ? null : "assign")
                 }
-                className="relative z-20 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10 transition-colors"
+                className="relative z-20 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-card/10 transition-colors"
               >
                 <UserPlus size={16} /> Assign
               </button>
 
               {bulkDropdown === "assign" && (
-                <div className="absolute bottom-full mb-2 left-0 z-30 w-48 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                <div className="absolute bottom-full mb-2 left-0 z-30 w-48 rounded-lg border border bg-card p-1 shadow-xl dark:border/10 dark:bg-card">
                   <button
                     onClick={() => handleBulkAssign("", "Unassigned")}
-                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
+                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted dark:hover:bg-card/5"
                   >
-                    <span className="text-slate-700 dark:text-slate-300">
+                    <span className="text-foreground dark:text-muted-foreground">
                       Unassigned
                     </span>
                   </button>
@@ -1338,9 +1338,9 @@ export default function TaskListView() {
                           member.name || member.email || "Unknown",
                         )
                       }
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted dark:hover:bg-card/5"
                     >
-                      <span className="text-slate-700 dark:text-slate-300">
+                      <span className="text-foreground dark:text-muted-foreground">
                         {member.name || member.email || "Unknown"}
                       </span>
                     </button>
@@ -1368,7 +1368,7 @@ export default function TaskListView() {
 
           <button
             onClick={() => setSelectedIds(new Set())}
-            className="ml-2 rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10 dark:hover:text-slate-300"
+            className="ml-2 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-muted-foreground dark:hover:bg-card/10 dark:hover:text-muted-foreground"
           >
             <X size={16} />
           </button>

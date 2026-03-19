@@ -14,12 +14,12 @@ export default function PricingCards({ plans, yearly, onBillingChange }) {
               Choose your plan
             </h2>
           </div>
-          <div className="mx-auto inline-flex w-full max-w-70 items-center rounded-xl border border-border bg-card/80 p-1 dark:border-slate-700 dark:bg-card sm:w-auto sm:max-w-none">
+          <div className="mx-auto inline-flex w-full max-w-70 items-center rounded-xl border border-border bg-card/80 p-1 dark:border-foreground dark:bg-card sm:w-auto sm:max-w-none">
             <button
               type="button"
               onClick={() => onBillingChange(false)}
               className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition sm:flex-none sm:px-4 ${
-                yearly ? "text-muted-foreground" : "bg-muted text-slate-900 dark:bg-surface dark:text-slate-100"
+                yearly ? "text-muted-foreground" : "bg-muted text-foreground dark:bg-surface dark:text-muted-foreground"
               }`}
             >
               Monthly
@@ -28,7 +28,7 @@ export default function PricingCards({ plans, yearly, onBillingChange }) {
               type="button"
               onClick={() => onBillingChange(true)}
               className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition sm:flex-none sm:px-4 ${
-                yearly ? "bg-muted text-slate-900 dark:bg-surface dark:text-slate-100" : "text-muted-foreground"
+                yearly ? "bg-muted text-foreground dark:bg-surface dark:text-muted-foreground" : "text-muted-foreground"
               }`}
             >
               Yearly
@@ -50,8 +50,8 @@ export default function PricingCards({ plans, yearly, onBillingChange }) {
                 whileHover={{ y: -4 }}
                 className={`group relative overflow-hidden rounded-2xl border p-5 transition duration-300 sm:p-6 ${
                   plan.highlight
-                    ? "lg:-mt-3 lg:mb-3 lg:scale-[1.01] border-indigo-500/45 bg-primary/[0.08] shadow-[0_30px_65px_-40px_rgba(79,70,229,0.85)] dark:border-indigo-400/40 dark:bg-primary/10"
-                    : "border-border/90 bg-white/75 shadow-[0_20px_40px_-32px_rgba(15,23,42,0.45)] hover:border-indigo-300/70 hover:shadow-[0_25px_50px_-34px_rgba(79,70,229,0.45)] dark:border-border dark:bg-background/70 dark:hover:border-cyan-400/35"
+                    ? "lg:-mt-3 lg:mb-3 lg:scale-[1.01] border-primary/45 bg-primary/[0.08] shadow-[0_30px_65px_-40px_rgba(79,70,229,0.85)] dark:border-primary/40 dark:bg-primary/10"
+                    : "border-border/90 bg-card/75 shadow-[0_20px_40px_-32px_rgba(15,23,42,0.45)] hover:border-primary/70 hover:shadow-[0_25px_50px_-34px_rgba(79,70,229,0.45)] dark:border-border dark:bg-background/70 dark:hover:border-cyan-400/35"
                 }`}
               >
                 <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -92,7 +92,7 @@ export default function PricingCards({ plans, yearly, onBillingChange }) {
                   className={`mt-6 inline-flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold transition ${
                     plan.highlight
                       ? "bg-primary text-white hover:bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
-                      : "border border-slate-300 bg-white/85 text-slate-900 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary dark:border-slate-700 dark:bg-card dark:text-slate-100 dark:hover:bg-surface"
+                      : "border border bg-card/85 text-foreground hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary dark:border-foreground dark:bg-card dark:text-muted-foreground dark:hover:bg-surface"
                   }`}
                 >
                   {plan.cta}

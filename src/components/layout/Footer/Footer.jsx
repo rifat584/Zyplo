@@ -18,7 +18,7 @@ export default function Footer() {
               </span>
             </Link>
 
-            <p className="text-slate-400 leading-relaxed mb-6">
+            <p className="text-muted-foreground leading-relaxed mb-6">
               Zyplo is a powerful project management platform built to help
               teams plan smarter, collaborate better, and deliver faster.
             </p>
@@ -29,7 +29,7 @@ export default function Footer() {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-slate-800 p-3 rounded-full hover:bg-primary transition duration-300"
+                className="bg-card p-3 rounded-full hover:bg-primary transition duration-300"
               >
                 <FaFacebookF size={14} />
               </Link>
@@ -38,7 +38,7 @@ export default function Footer() {
                 href="https://x.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-slate-800 p-3 rounded-full hover:bg-primary transition duration-300"
+                className="bg-card p-3 rounded-full hover:bg-primary transition duration-300"
               >
                 <FaXTwitter size={14} />
               </Link>
@@ -47,7 +47,7 @@ export default function Footer() {
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-slate-800 p-3 rounded-full hover:bg-primary transition duration-300"
+                className="bg-card p-3 rounded-full hover:bg-primary transition duration-300"
               >
                 <FaLinkedinIn size={14} />
               </Link>
@@ -56,7 +56,7 @@ export default function Footer() {
                 href="https://github.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-slate-800 p-3 rounded-full hover:bg-primary transition duration-300"
+                className="bg-card p-3 rounded-full hover:bg-primary transition duration-300"
               >
                 <FaGithub size={14} />
               </Link>
@@ -65,7 +65,7 @@ export default function Footer() {
 
           <div>
             <h4 className="font-semibold mb-4">Quick Links</h4>
-            <ul className="space-y-2 text-slate-400">
+            <ul className="space-y-2 text-muted-foreground">
               <li>
                 <Link href="/" className="hover:text-primary transition">
                   Home
@@ -92,7 +92,7 @@ export default function Footer() {
           {/* Resources */}
           <div>
             <h4 className="font-semibold mb-4">Resources & Support</h4>
-            <ul className="space-y-2 text-slate-400">
+            <ul className="space-y-2 text-muted-foreground">
               <li>
                 <Link href="/guide" className="hover:text-primary transition">
                   User Guide
@@ -144,7 +144,7 @@ export default function Footer() {
           {/* Newsletter */}
           <div>
             <h4 className="font-semibold mb-4">Stay Updated</h4>
-            <p className="text-slate-400 mb-4">
+            <p className="text-muted-foreground mb-4">
               Get product updates and productivity tips directly in your inbox.
             </p>
 
@@ -152,11 +152,11 @@ export default function Footer() {
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="w-full px-4 py-2 rounded-l-lg bg-slate-800 border border-slate-700 text-sm focus:outline-none focus:border-sky-500"
+                className="w-full px-4 py-2 rounded-l-lg bg-card border border-foreground text-sm focus:outline-none focus:border-primary"
               />
               <button
                 className="px-4 rounded-r-lg text-sm font-semibold text-white
-                bg-gradient-to-br from-indigo-500 to-cyan-400
+                bg-linear-to-br from-indigo-500 to-cyan-400
                 shadow-lg shadow-indigo-500/20
                 transition-all duration-300
                 hover:scale-[1.02] hover:shadow-indigo-500/40
@@ -169,7 +169,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom */}
-        <div className="border-t border-slate-800 mt-16 pt-6 text-center text-slate-500 text-sm">
+        <div className="border-t border-muted mt-16 pt-6 text-center text-muted-foreground text-sm">
           © {new Date().getFullYear()} Zyplo. All rights reserved.
         </div>
       </div>
