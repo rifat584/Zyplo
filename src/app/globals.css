@@ -15,7 +15,6 @@
   --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
-  --font-heading: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
 
   /* --- Theme Colors (Mapped to Variables) --- */
   --color-background: var(--background);
@@ -41,7 +40,7 @@
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
 
-    /* App surfaces */
+  /* App surfaces */
   --color-base: var(--base);
   --color-surface: var(--surface);
 
@@ -64,7 +63,7 @@ h3 *,
 h4 *,
 h5 *,
 h6 * {
-  font-family: var(--font-heading) !important;
+  font-family: var(--font-manrope) !important;
 }
 
 html {
@@ -361,7 +360,7 @@ body {
   --popover-foreground: var(--foreground);
   --muted: oklch(0.248 0.004 255);
   --muted-foreground: oklch(0.79 0.006 255);
-  --accent: oklch(0.30 0.015 255);
+  --accent: oklch(0.3 0.015 255);
   --accent-foreground: oklch(0.95 0.017 247);
   --success: oklch(0.74 0.11 155);
   --success-foreground: oklch(0.18 0.02 155);
@@ -455,6 +454,9 @@ body {
 }
 
 .auth-noise {
-  background-image: radial-gradient(rgba(15, 23, 42, 0.16) 0.45px, transparent 0.45px);
+  background-image: radial-gradient(
+    rgba(15, 23, 42, 0.16) 0.45px,
+    transparent 0.45px
+  );
   background-size: 3px 3px;
 }
