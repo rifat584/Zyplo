@@ -112,6 +112,62 @@ function CalendarSkeleton() {
   );
 }
 
+// --- SMART CALENDAR SKELETON ---
+function CalendarSkeleton() {
+  return (
+    <div className="space-y-4 animate-pulse">
+      {/* Top Filter Bar Skeleton */}
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
+        <div className="flex flex-wrap gap-2">
+          <div className="h-10 flex-1 min-w-[220px] rounded-lg bg-slate-200 dark:bg-slate-800"></div>
+          <div className="h-10 min-w-[140px] rounded-lg bg-slate-200 dark:bg-slate-800"></div>
+          <div className="h-10 min-w-[110px] rounded-lg bg-slate-200 dark:bg-slate-800"></div>
+          <div className="h-10 min-w-[120px] rounded-lg bg-slate-200 dark:bg-slate-800"></div>
+          <div className="h-10 w-32 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <div className="h-9 w-16 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
+          <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
+          <div className="h-9 w-32 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
+          <div className="h-9 w-9 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
+          <div className="h-9 w-24 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
+        </div>
+      </section>
+
+      {/* Calendar Grid Skeleton */}
+      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
+        <div className="overflow-x-auto">
+          <div className="min-w-[700px]">
+            {/* Header Days */}
+            <div className="grid grid-cols-7 border-b border-slate-200 dark:border-white/10">
+              {Array.from({ length: 7 }).map((_, i) => (
+                <div key={i} className="border-r border-slate-200 p-2 last:border-r-0 sm:p-3 dark:border-white/10">
+                  <div className="mx-auto h-4 w-8 rounded bg-slate-200 dark:bg-slate-800"></div>
+                </div>
+              ))}
+            </div>
+            {/* Grid Cells (6 rows x 7 cols = 42) */}
+            <div className="grid grid-cols-7">
+              {Array.from({ length: 42 }).map((_, i) => (
+                <div key={i} className="min-h-24 sm:min-h-32 border-b border-r border-slate-200 p-1.5 sm:p-2 last:border-r-0 dark:border-white/10">
+                  <div className="flex justify-between items-start">
+                    <div className="h-4 w-4 rounded bg-slate-200 dark:bg-slate-800"></div>
+                    <div className="size-5 sm:size-6 rounded-md bg-slate-200 dark:bg-slate-800"></div>
+                  </div>
+                  <div className="mt-2 space-y-1.5">
+                    <div className="h-5 w-full rounded-md bg-slate-200 dark:bg-slate-800"></div>
+                    <div className="h-5 w-[80%] rounded-md bg-slate-200 dark:bg-slate-800"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 function formatMonthLabel(date) {
   return new Intl.DateTimeFormat("en-US", {
     month: "short",
@@ -397,6 +453,10 @@ export default function WorkspaceCalenderPage() {
       activationConstraint: { distance: 6 },
     }),
   );
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);
