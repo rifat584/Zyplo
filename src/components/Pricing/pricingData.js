@@ -15,7 +15,7 @@ export const pricingPlans = [
       "3 native integrations",
       "Community support",
     ],
-    cta: "Start Free Trial",
+    cta: "Subscribe to Starter",
   },
   {
     id: "team",
@@ -33,7 +33,7 @@ export const pricingPlans = [
       "15 integrations + API access",
       "Priority support",
     ],
-    cta: "Choose Team",
+    cta: "Subscribe to Team",
   },
   {
     id: "studio",
