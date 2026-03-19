@@ -21,6 +21,7 @@ import {
   Plus,
   Settings,
   Trash2,
+  Users,
   X,
 } from "lucide-react";
 import {
@@ -52,6 +53,7 @@ const NAV_ITEMS = [
   { id: "calender", label: "Calendar", icon: CalendarDays, href: (id) => `/dashboard/w/${id}/calender` },
   { id: "list", label: "List", icon: List, href: (id) => `/dashboard/w/${id}/list` },
   { id: "timesheet", label: "Time Sheet", icon: Clock3, href: (id) => `/dashboard/w/${id}/timesheet` },
+  { id: "members", label: "Members", icon: Users, href: (id) => `/dashboard/w/${id}/members` },
 ];
 
 function ProjectCreateDialog({
@@ -308,7 +310,10 @@ export default function WorkspaceLayout({ children }) {
   const switcherRef = useRef(null);
   const { isAdmin } = useWorkspaceAccess(workspaceId);
 
-  const workspaces = useMockStore((state) => state.workspaces || []);
+  const { loaded, workspaces } = useMockStore((state) => ({
+    loaded: Boolean(state.loaded),
+    workspaces: state.workspaces || [],
+  }));
   const projects = useMockStore((state) => state.projects || []);
   const workspace = useMemo(
     () => workspaces.find((item) => item.id === workspaceId) || null,
@@ -339,6 +344,11 @@ export default function WorkspaceLayout({ children }) {
       scroll: false,
     });
   }, [pathname, router, searchParams, workspaceId]);
+
+  useEffect(() => {
+    if (!loaded || !workspaceId || workspace) return;
+    router.replace("/dashboard");
+  }, [loaded, router, workspace, workspaceId]);
 
   useEffect(() => {
     setProjectError("");
@@ -461,6 +471,10 @@ export default function WorkspaceLayout({ children }) {
     setProjectPendingDelete(selectedProject);
     setDeleteConfirmationValue("");
     setDeleteDialogOpen(true);
+  }
+
+  if (loaded && workspaceId && !workspace) {
+    return null;
   }
 
   return (

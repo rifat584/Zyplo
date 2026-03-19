@@ -50,7 +50,7 @@ const WORKSPACE_ROUTE_LABELS = {
   calender: "Calendar",
   list: "List",
   timesheet: "Time Sheet",
-  members: "Invite Users",
+  members: "Members",
   settings: "Settings",
 };
 
