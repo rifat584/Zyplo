@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Navbar from "@/components/layout/Navbar/Navbar";
 import "./globals.css";
 import ThemeProviders from "@/Context/ThemeProviders";
@@ -39,7 +40,9 @@ export default function RootLayout({ children }) {
       >
         <NextAuthProvider>
           <ThemeProviders>
-            <GlobalLoader />
+            <Suspense fallback={null}>
+              <GlobalLoader />
+            </Suspense>
             <CommandPalette />
             {children}
           </ThemeProviders>

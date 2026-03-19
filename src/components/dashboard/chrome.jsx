@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import {
   useParams,
   usePathname,
@@ -101,7 +101,6 @@ const WORKSPACE_NAV_ITEMS = [
   { id: "timesheet", label: "Time Sheet", icon: Clock3, href: (id) => `/dashboard/w/${id}/timesheet` },
   { id: "members", label: "Members", icon: Users, href: (id) => `/dashboard/w/${id}/members` },
 ];
-
 function getWorkspaceBillingBadge(subscription) {
   const planId = String(subscription?.planId || "").trim().toLowerCase();
   const status = String(subscription?.status || "").trim().toLowerCase();
@@ -820,7 +819,6 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
       setWorkspaceBilling({});
       return undefined;
     }
-
     if (sessionStatus === "loading") {
       return undefined;
     }
@@ -1715,7 +1713,9 @@ function Topbar({ onOpenSidebar }) {
           </div>
         </div>
       </header>
-      <WorkspaceToolbar />
+      <Suspense fallback={null}>
+        <WorkspaceToolbar />
+      </Suspense>
     </div>
   );
 }

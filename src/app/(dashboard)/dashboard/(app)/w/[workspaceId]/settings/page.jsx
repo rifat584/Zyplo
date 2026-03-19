@@ -139,7 +139,6 @@ function WorkspaceSettingsSkeleton() {
     </section>
   );
 }
-
 export default function WorkspaceSettingsPage() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -316,7 +315,6 @@ export default function WorkspaceSettingsPage() {
   if (!loaded || loading) {
     return <WorkspaceSettingsSkeleton />;
   }
-
   if (!isAdmin) {
     return (
       <section className="space-y-4 rounded-2xl border border-warning/25 bg-warning/10 p-4">
