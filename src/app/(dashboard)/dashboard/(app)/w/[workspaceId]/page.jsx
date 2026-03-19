@@ -125,7 +125,7 @@ export default function WorkspaceOverviewPage() {
 
   return (
     <div className="space-y-4">
-      <section className="grid gap-3 md:grid-cols-4">
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <InsightCard title="Completed" value={String(recentCompleted)} subtitle="in last 7 days" href={`/dashboard/w/${workspaceId}/board`} />
         <InsightCard title="Updated" value={String(recentUpdated)} subtitle="in last 7 days" href={`/dashboard/w/${workspaceId}/timeline`} />
         <InsightCard title="Created" value={String(recentCreated)} subtitle="in last 7 days" href={`/dashboard/w/${workspaceId}/board`} />
@@ -137,19 +137,19 @@ export default function WorkspaceOverviewPage() {
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Status Overview
           </h2>
-          <div className="mt-4 flex items-center gap-4">
+          <div className="mt-4 flex flex-col items-center gap-4 sm:flex-row sm:items-center">
             <div
-              className="relative size-40 rounded-full"
+              className="relative mx-auto size-32 shrink-0 rounded-full sm:mx-0 sm:size-40"
               style={{
                 background: `conic-gradient(var(--chart-success) 0% ${donePct}%, var(--chart-secondary) ${donePct}% ${donePct + inProgressPct}%, var(--chart-primary) ${donePct + inProgressPct}% ${donePct + inProgressPct + reviewPct}%, var(--chart-muted) ${donePct + inProgressPct + reviewPct}% 100%)`,
               }}
             >
-              <div className="absolute inset-5 flex flex-col items-center justify-center rounded-full bg-card text-center">
+              <div className="absolute inset-4 flex flex-col items-center justify-center rounded-full bg-card text-center sm:inset-5">
                 <p className="text-2xl font-semibold text-foreground">{totalTasks}</p>
                 <p className="text-xs text-muted-foreground">Total tasks</p>
               </div>
             </div>
-            <div className="space-y-2 text-sm">
+            <div className="mx-auto w-full max-w-[12rem] space-y-2 text-sm sm:mx-0 sm:w-auto sm:max-w-none">
               <Legend label={`Done: ${counts.done}`} color="bg-success" />
               <Legend label={`In Progress: ${counts.inprogress}`} color="bg-secondary" />
               <Legend label={`In Review: ${counts.inreview}`} color="bg-primary" />
@@ -220,7 +220,7 @@ export default function WorkspaceOverviewPage() {
                 </div>
               ))}
             </div>
-            <div className="mt-3 flex items-center justify-center gap-4 text-xs">
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-xs">
               {priorityRows.map((item) => (
                 <span key={`${item.id}-legend`} className="inline-flex items-center gap-1 text-muted-foreground">
                   <span className={`inline-block size-2 rounded-full ${item.color}`} />

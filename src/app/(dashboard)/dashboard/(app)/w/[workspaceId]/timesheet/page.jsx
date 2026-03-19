@@ -375,7 +375,7 @@ export default function WorkspaceTimesheetPage() {
 
   return (
     <div className="space-y-4">
-      <section className="relative overflow-hidden rounded-2xl border border-border bg-surface/70 p-4 shadow-sm">
+      <section className="relative overflow-hidden rounded-2xl border border-border bg-surface/70 p-3 sm:p-4 shadow-sm">
         <div className="pointer-events-none absolute -right-16 -top-20 size-48 rounded-full bg-primary/15 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-20 -left-16 size-56 rounded-full bg-info/10 blur-3xl" />
         <div className="relative">
@@ -419,7 +419,7 @@ export default function WorkspaceTimesheetPage() {
         </div>
       </section>
 
-      <section className="grid gap-3 md:grid-cols-4">
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard title="Tracked Time" value={fmtSeconds(totalSeconds)} subtitle={`${trendData.length} active day${trendData.length === 1 ? "" : "s"}`} Icon={Clock3} />
         <StatCard title="Average / Day" value={fmtSeconds(averagePerDay)} subtitle="Selected date range" Icon={Timer} />
         <StatCard title="Team Total" value={fmtSeconds(teamTotalSeconds)} subtitle="All workspace projects (all-time)" Icon={Users} />

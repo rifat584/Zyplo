@@ -63,9 +63,9 @@ export default function CreateTaskModal({
         aria-label="Close create task modal"
       />
 
-      <div className="absolute left-1/2 top-1/2 w-[94vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
-        <div className="border-b border-border bg-surface/70 px-5 py-4">
-          <div className="flex items-start justify-between gap-3">
+      <div className="absolute left-1/2 top-1/2 w-[96vw] max-w-2xl max-h-[92vh] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
+        <div className="border-b border-border bg-surface/70 px-4 py-3 sm:px-5 sm:py-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-xs uppercase tracking-wide text-muted-foreground">
                 Board Task
@@ -84,7 +84,7 @@ export default function CreateTaskModal({
         </div>
 
         <form
-          className="space-y-4 p-5"
+          className="max-h-[calc(92vh-5rem)] space-y-4 overflow-y-auto p-4 sm:p-5"
           onSubmit={(event) => {
             event.preventDefault();
             if (!form.title.trim() || submitting) return;
@@ -136,7 +136,7 @@ export default function CreateTaskModal({
             />
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-4">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <div className="space-y-1.5">
               <label
                 htmlFor="create-task-assignee"
@@ -224,7 +224,7 @@ export default function CreateTaskModal({
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 border-t border-border pt-4">
+          <div className="flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={onClose}

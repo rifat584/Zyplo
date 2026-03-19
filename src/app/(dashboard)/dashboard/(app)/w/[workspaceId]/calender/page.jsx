@@ -407,9 +407,9 @@ export default function WorkspaceCalenderPage() {
 
   return (
     <div className="space-y-4">
-      <section className="rounded-2xl border border-border bg-white p-4 dark:border-white/10 dark:bg-card">
-        <div className="flex flex-wrap gap-2">
-          <div className="relative min-w-[220px] flex-1">
+      <section className="rounded-2xl border border-border bg-white p-3 sm:p-4 dark:border-white/10 dark:bg-card">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          <div className="relative min-w-0 flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <input
               value={search}
@@ -421,7 +421,7 @@ export default function WorkspaceCalenderPage() {
           <select
             value={assignee}
             onChange={(e) => setAssignee(e.target.value)}
-            className="h-10 min-w-[140px] rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
+            className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 sm:w-auto sm:min-w-[140px] dark:border-white/10 dark:bg-surface dark:text-foreground"
           >
             <option value="all">Assignee</option>
             {members.map((member) => (
@@ -433,7 +433,7 @@ export default function WorkspaceCalenderPage() {
           <select
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
-            className="h-10 min-w-[110px] rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
+            className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 sm:w-auto sm:min-w-[110px] dark:border-white/10 dark:bg-surface dark:text-foreground"
           >
             <option value="all">Type</option>
             <option value="P1">P1</option>
@@ -444,7 +444,7 @@ export default function WorkspaceCalenderPage() {
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="h-10 min-w-[120px] rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 dark:border-white/10 dark:bg-surface dark:text-foreground"
+            className="h-10 w-full rounded-lg border border-border bg-white px-3 text-sm outline-none focus:border-primary/30 sm:w-auto sm:min-w-[120px] dark:border-white/10 dark:bg-surface dark:text-foreground"
           >
             <option value="all">Status</option>
             <option value="todo">To Do</option>
@@ -454,7 +454,7 @@ export default function WorkspaceCalenderPage() {
           </select>
           <button
             type="button"
-            className="inline-flex h-10 items-center gap-2 rounded-lg border border-border px-3 text-sm text-muted-foreground hover:bg-surface dark:border-white/10 dark:text-muted-foreground dark:hover:bg-surface"
+            className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-border px-3 text-sm text-muted-foreground hover:bg-surface sm:w-auto dark:border-white/10 dark:text-muted-foreground dark:hover:bg-surface"
           >
             <CalendarDays className="size-4" />
             More filters
@@ -506,8 +506,8 @@ export default function WorkspaceCalenderPage() {
       </section>
 
       <section className="overflow-hidden rounded-2xl border border-border bg-white dark:border-white/10 dark:bg-card">
-        <div className="overflow-x-auto">
-          <div className="min-w-[700px]">
+          <div className="overflow-x-auto">
+          <div className="min-w-[640px] md:min-w-[700px]">
             <div className="grid grid-cols-7 border-b border-border">
               {WEEK_DAYS.map((day) => (
                 <div
@@ -527,7 +527,7 @@ export default function WorkspaceCalenderPage() {
                 return (
                   <div
                     key={key}
-                    className="min-h-24 cursor-pointer border-b border-r border-border p-1.5 last:border-r-0 hover:bg-surface sm:min-h-32 sm:p-2 dark:border-white/10 dark:hover:bg-surface/40"
+                    className="min-h-20 cursor-pointer border-b border-r border-border p-1.5 last:border-r-0 hover:bg-surface sm:min-h-28 sm:p-2 lg:min-h-32 dark:border-white/10 dark:hover:bg-surface/40"
                     onClick={() => openDayDetails(key)}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -588,8 +588,8 @@ export default function WorkspaceCalenderPage() {
             onClick={() => (createBusy ? null : setCreateOpen(false))}
             aria-label="Close task create modal"
           />
-          <div className="absolute left-1/2 top-1/2 w-[94vw] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-white shadow-2xl dark:border-white/10 dark:bg-card">
-            <div className="flex items-center justify-between border-b border-border px-5 py-4 dark:border-white/10">
+          <div className="absolute left-1/2 top-1/2 w-[96vw] max-w-xl max-h-[92vh] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-white shadow-2xl dark:border-white/10 dark:bg-card">
+            <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-5 sm:py-4 dark:border-white/10">
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">
                   Calendar
@@ -608,7 +608,7 @@ export default function WorkspaceCalenderPage() {
               </button>
             </div>
 
-            <form className="space-y-4 p-5" onSubmit={handleCreateTask}>
+            <form className="max-h-[calc(92vh-5rem)] space-y-4 overflow-y-auto p-4 sm:p-5" onSubmit={handleCreateTask}>
               <div>
                 <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   Task Title
@@ -680,7 +680,7 @@ export default function WorkspaceCalenderPage() {
                 </div>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-4">
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 <div>
                   <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                     Due Date
@@ -754,7 +754,7 @@ export default function WorkspaceCalenderPage() {
                 </p>
               ) : null}
 
-              <div className="flex justify-end gap-2 border-t border-border pt-4 dark:border-white/10">
+              <div className="flex flex-col-reverse justify-end gap-2 border-t border-border pt-4 sm:flex-row dark:border-white/10">
                 <button
                   type="button"
                   onClick={() => setCreateOpen(false)}
@@ -785,8 +785,8 @@ export default function WorkspaceCalenderPage() {
             onClick={() => setDayDetailsOpen(false)}
             aria-label="Close day details modal"
           />
-          <div className="absolute left-1/2 top-1/2 w-[94vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-white shadow-2xl dark:border-white/10 dark:bg-card">
-            <div className="flex items-center justify-between border-b border-border px-5 py-4 dark:border-white/10">
+          <div className="absolute left-1/2 top-1/2 w-[96vw] max-w-2xl max-h-[92vh] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-white shadow-2xl dark:border-white/10 dark:bg-card">
+            <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-5 sm:py-4 dark:border-white/10">
               <div>
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">
                   Day Details
@@ -805,7 +805,7 @@ export default function WorkspaceCalenderPage() {
               </button>
             </div>
 
-            <div className="max-h-[70vh] space-y-2 overflow-y-auto p-5">
+            <div className="max-h-[72vh] space-y-2 overflow-y-auto p-4 sm:p-5">
               {selectedDayTasks.length ? (
                 selectedDayTasks.map((task) => (
                   <div

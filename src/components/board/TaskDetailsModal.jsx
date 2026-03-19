@@ -464,14 +464,14 @@ useEffect(() => {
         aria-label="Close task details modal"
       />
 
-      <div className="absolute left-1/2 top-1/2 flex max-h-[90vh] w-[95vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
-        <div className="shrink-0 border-b border-border bg-surface/75 px-5 py-4">
-          <div className="flex items-start justify-between gap-3">
+      <div className="absolute left-1/2 top-1/2 flex max-h-[92vh] w-[96vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl sm:w-[95vw]">
+        <div className="shrink-0 border-b border-border bg-surface/75 px-4 py-3 sm:px-5 sm:py-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-xs uppercase tracking-wide text-muted-foreground">
                 Task Overview
               </p>
-              <div className="flex gap-4 items-center">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-4">
               <h2 className="text-lg font-semibold text-foreground">
                 {task.title || "Untitled Task"}
               </h2>
@@ -483,7 +483,7 @@ useEffect(() => {
     )}
               </div>
             </div>
-            <span className="rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
+            <span className="self-start rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
               {task.projectName || "Unknown Project"}
             </span>
           </div>
@@ -494,7 +494,7 @@ useEffect(() => {
           </div>
         </div>
 
-        <div className="overflow-y-auto p-5 custom-scrollbar">
+        <div className="overflow-y-auto p-4 custom-scrollbar sm:p-5">
           <form
             id="task-details-form"
             className="space-y-5"
@@ -514,7 +514,7 @@ useEffect(() => {
             }}
           >
             <div className="rounded-xl border border-border bg-surface/70 p-4">
-              <div className="flex items-start justify-between gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <button
                   type="button"
                   onClick={() => setIsTimeTrackingOpen((prev) => !prev)}
@@ -546,7 +546,7 @@ useEffect(() => {
                   </span>
                 </button>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   {activeTimer && activeTimer.taskId === String(task.id) ? (
                     <button
                       type="button"
@@ -673,7 +673,6 @@ useEffect(() => {
                       >
                         Estimate (h / m / s)
                       </label>
-                      <div className="overflow-x-auto rounded-xl">
                         <input
                           id="task-details-estimated-time"
                           type="text"
@@ -685,9 +684,8 @@ useEffect(() => {
                             }))
                           }
                           placeholder="e.g. 1h 30m, 90m, 5400s, 01:30:00"
-                          className="h-10 min-w-[360px] w-full whitespace-nowrap rounded-xl border border-border bg-surface px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                          className="h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
                         />
-                      </div>
                       <p className="text-[11px] text-muted-foreground">
                         You can type `h/m/s` (example: `1h 20m 30s`) or `hh:mm:ss`.
                         If you enter only a number, it is treated as minutes.
@@ -769,7 +767,7 @@ useEffect(() => {
                           </div>
                         </div>
 
-                        <div className="mt-3 flex gap-2">
+                        <div className="mt-3 flex flex-col gap-2 sm:flex-row">
                           <div className="flex-1 space-y-1">
                             <label
                               htmlFor="task-details-manual-note"

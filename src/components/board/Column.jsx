@@ -33,7 +33,7 @@ export default function Column({
   const itemIds = useMemo(() => tasks.map((task) => task.id), [tasks]);
 
   return (
-    <section className="w-[290px] shrink-0 rounded-2xl border border-border bg-surface/85 p-3">
+    <section className="w-[272px] shrink-0 rounded-2xl border border-border bg-surface/85 p-2.5 sm:w-[290px] sm:p-3">
       <header className="mb-3 flex items-center justify-between gap-2">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
@@ -59,7 +59,7 @@ export default function Column({
 
       <div
         ref={setNodeRef}
-        className={`max-h-[calc(100vh-16rem)] min-h-20 space-y-2 overflow-y-auto rounded-xl p-1 transition ${
+        className={`max-h-[calc(100vh-14rem)] min-h-20 space-y-2 overflow-y-auto rounded-xl p-1 transition sm:max-h-[calc(100vh-16rem)] ${
           isOver ? "bg-primary/8" : ""
         }`}
       >
