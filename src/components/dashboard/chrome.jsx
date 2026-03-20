@@ -954,7 +954,7 @@ function Topbar({ onOpenSidebar }) {
     <motion.div
       animate={{ height: hidden ? 0 : 44 }}
       transition={{ duration: 0.22, ease: "easeOut" }}
-      className="sticky top-0 z-30 overflow-hidden border-b border-accent"
+      className="sticky top-0 z-30 overflow-visible border-b border-accent"
     >
       <motion.header
         animate={{ y: hidden ? "-100%" : 0 }}
