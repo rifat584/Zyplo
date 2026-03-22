@@ -811,6 +811,25 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     </Link>
   );
 
+  const settingsItem = (
+    <Link
+      href="/dashboard/settings"
+      onClick={onCloseMobile}
+      data-collapsed={effectiveCollapsed ? "true" : "false"}
+      className={cn(
+        pathname === "/dashboard/settings"
+          ? dashboardSidebarNavItemActiveClasses
+          : dashboardSidebarNavItemClasses,
+        "group flex items-center rounded-xl",
+        effectiveCollapsed ? "size-9 justify-center px-0" : "gap-2 py-2 pl-4 pr-3",
+      )}
+      title={effectiveCollapsed ? "Settings" : undefined}
+    >
+      <Settings className="size-4 shrink-0" />
+      {!effectiveCollapsed ? <span className="text-sm">Settings</span> : null}
+    </Link>
+  );
+
   const workspaceItems = (
     <div className={`mt-3 space-y-1 ${effectiveCollapsed ? "flex flex-col items-center" : ""}`}>
       {!effectiveCollapsed ? (
@@ -978,8 +997,13 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         {rootItem}
       </div>
       {workspaceItems}
-      <div className={`${effectiveCollapsed ? "mt-auto flex justify-center pt-3" : "mt-auto pt-3"}`}>
+      <div
+        className={cn(
+          effectiveCollapsed ? "mt-auto flex flex-col items-center gap-1 pt-3" : "mt-auto space-y-1 pt-3",
+        )}
+      >
         {profileItem}
+        {settingsItem}
       </div>
     </div>
   );
@@ -1426,6 +1450,12 @@ function Topbar({ onOpenSidebar }) {
       return [
         { label: "Dashboard", href: "/dashboard/workspaces" },
         { label: "Profile" },
+      ];
+    }
+    if (pathname === "/dashboard/settings") {
+      return [
+        { label: "Dashboard", href: "/dashboard/workspaces" },
+        { label: "Settings" },
       ];
     }
     if (pathname.startsWith("/dashboard/w/")) {

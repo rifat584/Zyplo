@@ -1,9 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import { CreditCard, LoaderCircle } from "lucide-react";
 import { useMockStore, useWorkspaceAccess } from "@/components/dashboard/mockStore";
 
 function formatConnectedAt(value) {
@@ -183,60 +181,6 @@ export default function WorkspaceSettingsPage() {
         <p>Members: {workspace?.members?.length || 0}</p>
       </div>
 
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 dark:border-white/10">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(79,70,229,0.14),transparent_34%),radial-gradient(circle_at_100%_0%,rgba(34,211,238,0.14),transparent_28%)]" />
-        <div className="relative flex flex-col gap-4">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <span className="inline-flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <CreditCard className="size-5" />
-              </span>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Billing</p>
-                <p className="text-xs text-muted-foreground">
-                  Billing is now managed per user account, not per workspace.
-                </p>
-              </div>
-            </div>
-
-            <Link
-              href="/pricing"
-              className="rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition hover:brightness-110"
-            >
-              Open Billing
-            </Link>
-          </div>
-
-          <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
-            <div className="space-y-3">
-              <div className="grid gap-2 rounded-xl border border-border bg-muted/40 p-3 text-sm dark:border-white/10 dark:bg-surface/50">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-muted-foreground">Billing owner</span>
-                  <span className="font-medium text-foreground">Current user account</span>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-muted-foreground">Workspace subscription</span>
-                  <span className="font-medium text-foreground">Not used</span>
-                </div>
-              </div>
-
-              <p className="text-xs leading-relaxed text-muted-foreground">
-                Workspace admins can still manage GitHub and team settings here, but subscription checkout, card updates,
-                invoices, and cancellations now happen from the pricing page for each signed-in user.
-              </p>
-            </div>
-
-            <div className="rounded-xl border border-border bg-background/80 p-3 text-xs text-muted-foreground dark:border-white/10 dark:bg-surface/60 lg:min-w-56">
-              <p className="font-semibold uppercase tracking-wide text-foreground">Quick Actions</p>
-              <p className="mt-2">
-                Use <span className="font-medium text-foreground">Open Billing</span> to manage your account-level
-                subscription.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="flex items-center justify-between rounded-xl border border-border p-4 dark:border-white/10">
         <div className="flex items-center gap-3">
           <span className="inline-flex size-8 items-center justify-center rounded-lg bg-card dark:bg-white/10">
@@ -302,4 +246,3 @@ export default function WorkspaceSettingsPage() {
     </section>
   );
 }
-
