@@ -39,7 +39,7 @@ import {
 import { toast } from "sonner";
 import { useTheme } from "@/Context/ThemeContext";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Avatar } from "./ui";
 import Logo from "../Shared/Logo/Logo";
 import {
@@ -266,17 +266,16 @@ function ProjectCreateDialog({
           >
             Cancel
           </button>
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="sm"
             onClick={onSubmit}
             disabled={!projectName.trim() || creatingProject}
-            className={cn(
-              buttonVariants({ size: "sm" }),
-              "bg-primary text-primary-foreground shadow-none hover:scale-100 hover:bg-primary hover:shadow-none",
-            )}
+            className="border-primary text-primary shadow-none hover:scale-100 hover:border-primary hover:bg-primary/90 hover:text-primary-foreground hover:shadow-none dark:border-primary/90  dark:hover:bg-primary/90"
           >
             {creatingProject ? "Creating..." : "Create project"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -758,7 +757,7 @@ function ThemeToggle() {
       )}
     >
       {isDark ? (
-        <Sun className="size-4 text-secondary" />
+        <Sun className="size-4 text-primary" />
       ) : (
         <Moon className="size-4" />
       )}
@@ -1410,20 +1409,19 @@ function WorkspaceToolbar() {
 
               {isAdmin ? (
                 <div className="flex items-center gap-2 lg:justify-end">
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
+                    size="sm"
                     onClick={() => {
                       setProjectError("");
                       setProjectDialogOpen(true);
                     }}
-                    className={cn(
-                      buttonVariants({ size: "sm" }),
-                      "shadow-none hover:scale-100 hover:bg-primary/90 hover:shadow-none",
-                    )}
+                    className="border-primary text-primary shadow-none hover:scale-100 hover:border-primary hover:bg-primary/90 hover:text-primary-foreground hover:shadow-none dark:border-primary/90  dark:hover:bg-primary/90"
                   >
                     <Plus className="size-4" />
                     New Project
-                  </button>
+                  </Button>
 
                   <Link
                     href={`/dashboard/w/${workspaceId}/settings`}

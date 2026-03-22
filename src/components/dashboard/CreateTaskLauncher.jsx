@@ -2,24 +2,14 @@
 
 import { useMemo, useRef, useState } from "react";
 import { Plus } from "lucide-react";
+import { toast } from "sonner";
 import { loadDashboard, useMockStore } from "@/components/dashboard/mockStore";
 import { useWorkspaceProjectSelection } from "@/components/dashboard/projectSelection";
 import CreateTaskModal from "@/components/board/CreateTaskModal";
-
-function normalizeStatusKey(value) {
-  return String(value || "")
-    .toLowerCase()
-    .replace(/[^a-z]/g, "");
-}
-
-function getStatusFromColumnName(columnName, fallback = "") {
-  const normalized = normalizeStatusKey(columnName);
-  if (normalized === "todo" || normalized === "backlog") return "todo";
-  if (normalized === "inprogress" || normalized === "doing") return "inprogress";
-  if (normalized === "inreview" || normalized === "review") return "inreview";
-  if (normalized === "done" || normalized === "completed") return "done";
-  return normalizeStatusKey(fallback) || "todo";
-}
+import {
+  findColumnByStatus,
+  getTaskStatusLabel,
+} from "@/components/dashboard/taskStatus";
 
 function sortColumns(columns = []) {
   return [...columns].sort(
@@ -96,10 +86,7 @@ export default function CreateTaskLauncher({
     const boardData = await fetchJson(`/api/dashboard/boards/${project.id}`);
     const board = boardData?.board || null;
     const columns = sortColumns(boardData?.columns || []);
-    const todoColumn =
-      columns.find(
-        (column) => getStatusFromColumnName(column?.name, "") === "todo",
-      ) || columns[0];
+    const todoColumn = findColumnByStatus(columns, "todo");
 
     if (!board?.id || !todoColumn?.id) {
       throw new Error("No board column available for this project");
@@ -109,8 +96,7 @@ export default function CreateTaskLauncher({
       projectId: project.id,
       projectName: project.name || "",
       boardId: String(board.id),
-      columnId: String(todoColumn.id),
-      columnName: String(todoColumn.name || "To Do"),
+      columns,
     };
     boardCacheRef.current.set(project.id, nextTarget);
     return nextTarget;
@@ -125,6 +111,7 @@ export default function CreateTaskLauncher({
       setOpen(true);
     } catch (error) {
       console.error("Failed to prepare create-task modal", error);
+      toast.error(error?.message || "Failed to prepare task creation.");
     } finally {
       setLoadingTarget(false);
     }
@@ -135,18 +122,26 @@ export default function CreateTaskLauncher({
 
     try {
       setSubmitting(true);
+      const nextStatus = values.status || "todo";
+      const destinationColumn = findColumnByStatus(target.columns, nextStatus);
+
+      if (!destinationColumn?.id) {
+        throw new Error(
+          `The current project does not have an ${getTaskStatusLabel(nextStatus)} column.`,
+        );
+      }
+
       const payload = {
         workspaceId,
         projectId: target.projectId,
         boardId: target.boardId,
-        columnId: target.columnId,
+        columnId: String(destinationColumn.id),
         title: values.title,
         description: values.description || "",
         assigneeId: values.assigneeId || "",
         dueDate: values.dueDate || "",
         priority: values.priority || "P2",
-        status: getStatusFromColumnName(target.columnName, "todo"),
-        estimatedTime: values.estimatedTime || 0,
+        status: nextStatus,
       };
 
       const data = await fetchJson("/api/dashboard/tasks", {
@@ -158,6 +153,7 @@ export default function CreateTaskLauncher({
       onCreated?.(data?.task || null);
     } catch (error) {
       console.error("Failed to create task", error);
+      toast.error(error?.message || "Failed to create task");
     } finally {
       setSubmitting(false);
     }
@@ -179,7 +175,7 @@ export default function CreateTaskLauncher({
         onClose={() => (submitting ? null : setOpen(false))}
         onSubmit={handleCreate}
         members={members}
-        columnName={target?.columnName || "To Do"}
+        defaultStatus="todo"
         submitting={submitting}
       />
     </>
