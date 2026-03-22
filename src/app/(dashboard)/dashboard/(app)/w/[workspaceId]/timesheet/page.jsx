@@ -329,7 +329,7 @@ export default function WorkspaceTimesheetPage() {
     return () => {
       alive = false;
     };
-  }, [workspaceId, projectFetchKey, memberFetchKey]);
+  }, [memberFetchKey, members, projectFetchKey, projects, workspaceId]);
 
   const memberNameMap = useMemo(() => {
     const map = new Map();
@@ -791,4 +791,3 @@ export default function WorkspaceTimesheetPage() {
     </div>
   );
 }
-

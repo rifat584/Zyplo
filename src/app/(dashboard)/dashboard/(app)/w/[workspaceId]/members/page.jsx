@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertTriangle, RefreshCw, UserPlus, X } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
@@ -181,7 +181,7 @@ export default function WorkspaceMembersPage() {
     });
   }, [inviteDialogOpen, reset]);
 
-  async function fetchInvites() {
+  const fetchInvites = useCallback(async () => {
     if (!workspaceId || !isAdmin) return;
 
     try {
@@ -210,7 +210,7 @@ export default function WorkspaceMembersPage() {
     } finally {
       setLoadingInvites(false);
     }
-  }
+  }, [isAdmin, workspaceId]);
 
   useEffect(() => {
     if (!workspaceId || !isAdmin) {
@@ -222,7 +222,7 @@ export default function WorkspaceMembersPage() {
     fetchInvites().catch((error) => {
       toast.error(String(error?.message || "Failed to load invites."));
     });
-  }, [workspaceId, isAdmin]);
+  }, [fetchInvites, isAdmin, workspaceId]);
 
   const members = Array.isArray(workspace?.members) ? workspace.members : [];
   const adminCount = members.reduce((count, member) => {

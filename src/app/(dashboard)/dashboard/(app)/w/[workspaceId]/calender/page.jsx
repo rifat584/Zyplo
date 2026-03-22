@@ -213,7 +213,14 @@ function CalendarTaskOverlay({ task }) {
 }
 
 function CalendarTaskChip({ task, dateKey, onTaskClick }) {
-  const sortable = useSortable({
+  const {
+    attributes,
+    isDragging,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({
     id: task.id,
     data: {
       type: "task",
@@ -223,25 +230,25 @@ function CalendarTaskChip({ task, dateKey, onTaskClick }) {
   });
 
   const style = {
-    transform: CSS.Transform.toString(sortable.transform),
-    transition: sortable.transition,
+    transform: CSS.Transform.toString(transform),
+    transition,
   };
 
   const className = `truncate rounded-md border border-indigo-200 bg-indigo-50 px-1.5 py-1 text-[11px] text-indigo-700 sm:px-2 sm:text-xs dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300 ${
-    sortable.isDragging
+    isDragging
       ? "cursor-grabbing opacity-40"
       : "cursor-grab hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors"
   }`;
 
   return (
     <div
-      ref={sortable.setNodeRef}
+      ref={setNodeRef}
       style={style}
-      {...sortable.attributes}
-      {...sortable.listeners}
+      {...attributes}
+      {...listeners}
       onClick={(event) => {
         event.stopPropagation();
-        if (!sortable.isDragging) {
+        if (!isDragging) {
           onTaskClick?.(task);
         }
       }}

@@ -100,7 +100,7 @@ function LoginForm() {
       return;
     }
 
-    window.location.href = result?.url || callbackUrl;
+    window.location.assign(result?.url || callbackUrl);
   };
 
   return (
