@@ -15,8 +15,7 @@ import {
   useWorkspaceProjectSelection,
   writeSelectedProjectId,
 } from "@/components/dashboard/projectSelection";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 function createQueryClient() {
@@ -191,18 +190,17 @@ export default function WorkspaceBoardPage() {
               </div>
 
               <div className="flex items-center justify-end border-t border-border px-5 py-4">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={handleCreateFirstProject}
                   disabled={!newProjectName.trim() || creatingProject}
-                  className={cn(
-                    buttonVariants({ size: "sm" }),
-                    "bg-primary text-primary-foreground shadow-none hover:scale-100 hover:bg-primary hover:shadow-none",
-                  )}
+                  className="border-secondary/50 bg-secondary/20 text-secondary shadow-none hover:scale-100 hover:border-secondary/60 hover:bg-secondary/30 hover:text-secondary hover:shadow-none dark:border-secondary/45 dark:bg-secondary/24 dark:hover:bg-secondary/34"
                 >
                   <Plus className="size-4" />
                   {creatingProject ? "Creating..." : "Create project"}
-                </button>
+                </Button>
               </div>
             </section>
           ) : (

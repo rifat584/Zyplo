@@ -14,6 +14,7 @@ import { RefreshCw, Plus, Filter } from "lucide-react";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
 import { loadDashboard } from "@/components/dashboard/mockStore";
+import { Button } from "@/components/ui/button";
 import {
   findColumnByStatus,
   getStatusFromColumnName,
@@ -25,31 +26,30 @@ import TaskCard from "./TaskCard";
 import CreateTaskModal from "./CreateTaskModal";
 import TaskDetailsModal from "./TaskDetailsModal";
 
+const toolbarFieldClasses =
+  "h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 md:w-auto";
+const toolbarSecondaryButtonClasses =
+  "inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 md:w-auto";
+const toolbarPopoverClasses =
+  "absolute right-0 top-11 z-50 w-[min(20rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] space-y-3 rounded-xl border border-border bg-popover p-3 text-popover-foreground shadow-xl";
+
 // --- SMART BOARD SKELETON ---
 function BoardSkeleton() {
   const columnTaskCounts = [3, 2, 4, 1]; // Creates a staggered, natural look
 
   return (
     <div className="animate-pulse space-y-4">
-      {/* Header Skeleton */}
-      <section className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <div className="mb-2 h-3 w-24 rounded bg-slate-200 dark:bg-slate-800"></div>
-          <div className="h-8 w-48 rounded bg-slate-200 dark:bg-slate-800"></div>
-        </div>
-        <div className="h-10 w-32 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
-      </section>
-
       {/* Filter Bar Skeleton */}
-      <section className="mb-4 rounded-2xl border border-slate-300 bg-white dark:border-white/10 dark:bg-slate-900">
-        <div className="border-t border-slate-300 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/20">
-          <div className="flex flex-wrap gap-2">
-            <div className="h-10 w-40 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
-            <div className="h-10 w-32 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
-            <div className="h-10 w-28 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
-            <div className="h-10 w-36 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
-            <div className="h-10 w-32 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
+      <section className="mb-4 rounded-2xl border border-border bg-card">
+        <div className="flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-2 md:min-w-0 md:flex-1 md:flex-row md:flex-wrap md:items-center">
+            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-56 lg:w-72 md:shrink-0"></div>
+            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-32"></div>
+            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-28"></div>
+            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-36"></div>
+            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-36"></div>
           </div>
+          <div className="h-10 w-full rounded-lg bg-muted/80 md:w-32 md:shrink-0"></div>
         </div>
       </section>
 
@@ -58,15 +58,15 @@ function BoardSkeleton() {
         {columnTaskCounts.map((taskCount, colIndex) => (
           <div
             key={colIndex}
-            className="flex h-fit w-80 shrink-0 flex-col rounded-2xl border border-slate-300 bg-slate-50/50 p-3 dark:border-white/10 dark:bg-slate-800/20"
+            className="flex h-fit w-80 shrink-0 flex-col rounded-2xl border border-border bg-muted/40 p-3"
           >
             {/* Column Header */}
             <div className="mb-3 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="h-5 w-5 rounded-full bg-slate-200 dark:bg-slate-700"></div>
-                <div className="h-5 w-24 rounded bg-slate-200 dark:bg-slate-700"></div>
+                <div className="h-5 w-5 rounded-full bg-muted"></div>
+                <div className="h-5 w-24 rounded bg-muted"></div>
               </div>
-              <div className="h-5 w-8 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+              <div className="h-5 w-8 rounded-full bg-muted"></div>
             </div>
 
             {/* Task Cards */}
@@ -74,16 +74,16 @@ function BoardSkeleton() {
               {Array.from({ length: taskCount }).map((_, taskIndex) => (
                 <div
                   key={taskIndex}
-                  className="rounded-xl border border-slate-300 bg-white p-3 shadow-sm dark:border-white/10 dark:bg-slate-900"
+                  className="rounded-xl border border-border bg-card p-3 shadow-sm"
                 >
                   <div className="mb-2 flex items-start justify-between">
-                    <div className="h-4 w-3/4 rounded bg-slate-200 dark:bg-slate-800"></div>
-                    <div className="h-4 w-4 rounded bg-slate-200 dark:bg-slate-800"></div>
+                    <div className="h-4 w-3/4 rounded bg-muted"></div>
+                    <div className="h-4 w-4 rounded bg-muted"></div>
                   </div>
-                  <div className="mb-4 h-3 w-1/2 rounded bg-slate-200 dark:bg-slate-800"></div>
+                  <div className="mb-4 h-3 w-1/2 rounded bg-muted"></div>
                   <div className="flex items-center justify-between">
-                    <div className="h-5 w-16 rounded bg-slate-200 dark:bg-slate-800"></div>
-                    <div className="h-6 w-6 rounded-full border-2 border-white bg-slate-200 dark:border-slate-900 dark:bg-slate-700"></div>
+                    <div className="h-5 w-16 rounded bg-muted"></div>
+                    <div className="h-6 w-6 rounded-full border-2 border-card bg-muted"></div>
                   </div>
                 </div>
               ))}
@@ -769,30 +769,9 @@ export default function Board({ workspaceId, projectId }) {
 
   return (
     <>
-      <section className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            Project Board
-          </p>
-          <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-            {boardData?.board?.name || "Kanban Board"}
-          </h1>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => openCreateModal(columns[0]?.id || "")}
-          disabled={!columns.length}
-          className="inline-flex items-center gap-2 rounded-lg bg-indigo-500 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
-        >
-          <Plus className="size-4" />
-          Create Task
-        </button>
-      </section>
-
-      <section className="mb-4 rounded-2xl border border-slate-300 bg-white dark:border-white/10 dark:bg-slate-900">
-        <div className="border-t border-slate-300 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/20">
-          <div className="flex flex-wrap gap-2">
+      <section className="mb-4 rounded-2xl border border-border bg-card">
+        <div className="flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-2 md:min-w-0 md:flex-1 md:flex-row md:flex-wrap md:items-center">
             <input
               type="text"
               value={columnFilters.taskName}
@@ -803,7 +782,7 @@ export default function Board({ workspaceId, projectId }) {
                 }))
               }
               placeholder="Task Name"
-              className="h-10 min-w-42.5 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className={`${toolbarFieldClasses} md:w-56 lg:w-72 md:shrink-0`}
             />
 
             <select
@@ -814,7 +793,7 @@ export default function Board({ workspaceId, projectId }) {
                   status: event.target.value,
                 }))
               }
-              className="h-10 min-w-32.5 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className={`${toolbarFieldClasses} md:w-32`}
             >
               <option value="all">Status</option>
               <option value="todo">To Do</option>
@@ -831,7 +810,7 @@ export default function Board({ workspaceId, projectId }) {
                   priority: event.target.value,
                 }))
               }
-              className="h-10 min-w-27.5 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className={`${toolbarFieldClasses} md:w-28`}
             >
               <option value="all">Priority</option>
               <option value="P0">P0</option>
@@ -848,7 +827,7 @@ export default function Board({ workspaceId, projectId }) {
                   assigneeId: event.target.value,
                 }))
               }
-              className="h-10 min-w-37.5 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className={`${toolbarFieldClasses} md:w-36`}
             >
               <option value="all">Assignee</option>
               {(membersQuery.data || []).map((member) => (
@@ -858,11 +837,11 @@ export default function Board({ workspaceId, projectId }) {
               ))}
             </select>
 
-            <div className="relative">
+            <div className="relative w-full md:w-auto md:shrink-0">
               <button
                 type="button"
                 onClick={() => setMoreFiltersOpen((prev) => !prev)}
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                className={toolbarSecondaryButtonClasses}
               >
                 <Filter className="size-4" />
                 More filters
@@ -874,9 +853,9 @@ export default function Board({ workspaceId, projectId }) {
                     className="fixed inset-0 z-40"
                     onClick={() => setMoreFiltersOpen(false)}
                   />
-                  <div className="absolute right-0 top-11 z-50 w-[320px] space-y-3 rounded-xl border border-slate-300 bg-white p-3 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                  <div className={toolbarPopoverClasses}>
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                      <label className="text-xs font-medium text-muted-foreground">
                         Reporter
                       </label>
                       <input
@@ -889,12 +868,12 @@ export default function Board({ workspaceId, projectId }) {
                           }))
                         }
                         placeholder="Filter by reporter"
-                        className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        className={`${toolbarFieldClasses} h-9 w-full md:w-full`}
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                      <label className="text-xs font-medium text-muted-foreground">
                         Updated At
                       </label>
                       <input
@@ -906,12 +885,12 @@ export default function Board({ workspaceId, projectId }) {
                             updatedAt: event.target.value,
                           }))
                         }
-                        className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        className={`${toolbarFieldClasses} h-9 w-full md:w-full`}
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                      <label className="text-xs font-medium text-muted-foreground">
                         Created At
                       </label>
                       <input
@@ -923,12 +902,12 @@ export default function Board({ workspaceId, projectId }) {
                             createdAt: event.target.value,
                           }))
                         }
-                        className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        className={`${toolbarFieldClasses} h-9 w-full md:w-full`}
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                      <label className="text-xs font-medium text-muted-foreground">
                         Due Date
                       </label>
                       <input
@@ -940,7 +919,7 @@ export default function Board({ workspaceId, projectId }) {
                             dueDate: event.target.value,
                           }))
                         }
-                        className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        className={`${toolbarFieldClasses} h-9 w-full md:w-full`}
                       />
                     </div>
                   </div>
@@ -948,6 +927,17 @@ export default function Board({ workspaceId, projectId }) {
               )}
             </div>
           </div>
+
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => openCreateModal(columns[0]?.id || "")}
+            disabled={!columns.length}
+            className="w-full shadow-none hover:scale-100 hover:bg-primary/90 hover:shadow-none md:w-auto md:shrink-0"
+          >
+            <Plus className="size-4" />
+            Create Task
+          </Button>
         </div>
       </section>
 
