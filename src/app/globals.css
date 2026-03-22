@@ -292,6 +292,7 @@ body {
 
   /* Primary */
   --primary: oklch(58.5% 0.233 277.117);
+  /* --primary: oklch(64.1% 0.192 261.476); */
   --primary-foreground: oklch(0.985 0 0);
 
   /* Secondary */
@@ -346,6 +347,7 @@ body {
 
   /* Primary */
   --primary: oklch(58.5% 0.233 277.117);
+  /* --primary: oklch(64.1% 0.192 261.476); */
   --primary-foreground: oklch(0.985 0 0);
 
   /* Secondary */
