@@ -576,8 +576,8 @@ export default function TaskListView() {
 
   return (
     <>
-      <div className="relative rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-[#0B0F19] overflow-hidden min-h-150">
-      <div className="flex flex-col border-b border-slate-200 dark:border-white/10">
+      <div className="relative rounded-2xl border border-slate-300 bg-white shadow-sm dark:border-white/10 dark:bg-[#0B0F19] overflow-hidden min-h-150">
+      <div className="flex flex-col border-b border-slate-300 dark:border-white/10">
         <div className="px-6 py-4">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
             All Tasks
@@ -597,7 +597,7 @@ export default function TaskListView() {
                 placeholder="Filter tasks..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="block w-full rounded-lg border border-slate-200 bg-white py-1.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/10 dark:bg-[#050505] dark:text-white dark:placeholder-slate-500"
+                className="block w-full rounded-lg border border-slate-300 bg-white py-1.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/10 dark:bg-[#050505] dark:text-white dark:placeholder-slate-500"
               />
             </div>
           </div>
@@ -607,7 +607,7 @@ export default function TaskListView() {
             <div className="relative">
               <button
                 onClick={() => setDisplayMenuOpen(!displayMenuOpen)}
-                className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:bg-transparent dark:text-slate-300 dark:hover:bg-white/5"
+                className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:bg-transparent dark:text-slate-300 dark:hover:bg-white/5"
               >
                 <Filter size={16} /> Display
               </button>
@@ -619,7 +619,7 @@ export default function TaskListView() {
                     className="fixed inset-0 z-10"
                     onClick={() => setDisplayMenuOpen(false)}
                   />
-                  <div className="absolute right-0 top-10 z-20 w-48 rounded-lg border border-slate-200 bg-white p-2 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                  <div className="absolute right-0 top-10 z-20 w-48 rounded-lg border border-slate-300 bg-white p-2 shadow-xl dark:border-white/10 dark:bg-slate-900">
                     <p className="px-2 py-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">
                       Visible Columns
                     </p>
@@ -648,7 +648,7 @@ export default function TaskListView() {
           </div>
         </div>
 
-        <div className="border-t border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/20">
+        <div className="border-t border-slate-300 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/20">
           <div className="flex flex-wrap gap-2">
             <input
               type="text"
@@ -660,7 +660,7 @@ export default function TaskListView() {
                 }))
               }
               placeholder="Task Name"
-              className="h-10 min-w-42.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 min-w-42.5 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
             />
 
             {visibleCols.status && (
@@ -672,7 +672,7 @@ export default function TaskListView() {
                     status: event.target.value,
                   }))
                 }
-                className="h-10 min-w-32.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                className="h-10 min-w-32.5 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
               >
                 <option value="all">Status</option>
                 <option value="todo">To Do</option>
@@ -691,7 +691,7 @@ export default function TaskListView() {
                     priority: event.target.value,
                   }))
                 }
-                className="h-10 min-w-27.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                className="h-10 min-w-27.5 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
               >
                 <option value="all">Priority</option>
                 <option value="P0">P0</option>
@@ -710,7 +710,7 @@ export default function TaskListView() {
                     assigneeId: event.target.value,
                   }))
                 }
-                className="h-10 min-w-37.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                className="h-10 min-w-37.5 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
               >
                 <option value="all">Assignee</option>
                 {workspaceMembers.map((member) => (
@@ -725,7 +725,7 @@ export default function TaskListView() {
               <button
                 type="button"
                 onClick={() => setMoreFiltersOpen((prev) => !prev)}
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
               >
                 <Filter className="size-4" />
                 More filters
@@ -737,7 +737,7 @@ export default function TaskListView() {
                     className="fixed inset-0 z-40"
                     onClick={() => setMoreFiltersOpen(false)}
                   />
-                  <div className="absolute right-0 top-11 z-50 w-[320px] space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                  <div className="absolute right-0 top-11 z-50 w-[320px] space-y-3 rounded-xl border border-slate-300 bg-white p-3 shadow-xl dark:border-white/10 dark:bg-slate-900">
                     {visibleCols.reporter && (
                       <div className="space-y-1">
                         <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
@@ -753,7 +753,7 @@ export default function TaskListView() {
                             }))
                           }
                           placeholder="Filter by reporter"
-                          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                          className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                         />
                       </div>
                     )}
@@ -772,7 +772,7 @@ export default function TaskListView() {
                               updatedAt: event.target.value,
                             }))
                           }
-                          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                          className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                         />
                       </div>
                     )}
@@ -791,7 +791,7 @@ export default function TaskListView() {
                               createdAt: event.target.value,
                             }))
                           }
-                          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                          className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                         />
                       </div>
                     )}
@@ -810,7 +810,7 @@ export default function TaskListView() {
                               dueDate: event.target.value,
                             }))
                           }
-                          className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                          className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                         />
                       </div>
                     )}
@@ -825,7 +825,7 @@ export default function TaskListView() {
       {/* === INTERACTIVE DATA GRID === */}
       <div className="overflow-x-auto pb-32 min-h-100">
         <table className="min-w-7xl w-full text-left text-sm text-slate-600 dark:text-slate-400">
-          <thead className="border-b border-slate-200 bg-slate-50/50 text-xs uppercase tracking-wider text-slate-500 dark:border-white/10 dark:bg-slate-800/50 dark:text-slate-400">
+          <thead className="border-b border-slate-300 bg-slate-50/50 text-xs uppercase tracking-wider text-slate-500 dark:border-white/10 dark:bg-slate-800/50 dark:text-slate-400">
             <tr>
               <th className="px-6 py-3 font-medium w-10">
                 <input
@@ -864,7 +864,7 @@ export default function TaskListView() {
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-slate-200 dark:divide-white/10">
+          <tbody className="divide-y divide-slate-300 dark:divide-white/10">
             {filteredTasks.map((task) => {
               const rawStatus = (task.status || "todo")
                 .toLowerCase()
@@ -961,7 +961,7 @@ export default function TaskListView() {
                       </button>
 
                       {activeDropdown === `status-${task.id}` && (
-                        <div className="absolute top-10 left-4 z-30 w-40 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                        <div className="absolute top-10 left-4 z-30 w-40 rounded-lg border border-slate-300 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
                           {STATUSES.map((s) => (
                             <button
                               key={s.value}
@@ -1005,7 +1005,7 @@ export default function TaskListView() {
                       </button>
 
                       {activeDropdown === `priority-${task.id}` && (
-                        <div className="absolute top-10 left-4 z-30 w-36 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                        <div className="absolute top-10 left-4 z-30 w-36 rounded-lg border border-slate-300 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
                           {PRIORITIES.map((p) => (
                             <button
                               key={p.value}
@@ -1056,7 +1056,7 @@ export default function TaskListView() {
                       </button>
 
                       {activeDropdown === `assignee-${task.id}` && (
-                        <div className="absolute top-10 left-4 z-30 w-48 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                        <div className="absolute top-10 left-4 z-30 w-48 rounded-lg border border-slate-300 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
                           <button
                             type="button"
                             onClick={() =>
@@ -1189,13 +1189,13 @@ export default function TaskListView() {
                       }
                       aria-label="Open task actions"
                       title="Task actions"
-                      className="relative z-20 inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white p-2 text-slate-600 hover:bg-slate-100 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-white/10"
+                      className="relative z-20 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white p-2 text-slate-600 hover:bg-slate-100 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-white/10"
                     >
                       <MoreHorizontal size={16} />
                     </button>
 
                     {activeDropdown === `actions-${task.id}` && (
-                      <div className="absolute right-4 top-12 z-30 w-40 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                      <div className="absolute right-4 top-12 z-30 w-40 rounded-lg border border-slate-300 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
                         <button
                           type="button"
                           onClick={() => {
@@ -1256,8 +1256,8 @@ export default function TaskListView() {
             : "translate-y-10 opacity-0 pointer-events-none"
         }`}
       >
-        <div className="flex items-center gap-4 rounded-full border border-slate-200/50 bg-white/90 px-5 py-3 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-slate-800/90">
-          <div className="flex items-center gap-2 border-r border-slate-200 pr-4 dark:border-white/10">
+        <div className="flex items-center gap-4 rounded-full border border-slate-300/50 bg-white/90 px-5 py-3 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-slate-800/90">
+          <div className="flex items-center gap-2 border-r border-slate-300 pr-4 dark:border-white/10">
             <div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white dark:bg-indigo-500">
               {selectedIds.size}
             </div>
@@ -1285,7 +1285,7 @@ export default function TaskListView() {
               </button>
 
               {bulkDropdown === "status" && (
-                <div className="absolute bottom-full mb-2 left-0 z-30 w-40 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                <div className="absolute bottom-full mb-2 left-0 z-30 w-40 rounded-lg border border-slate-300 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
                   {STATUSES.map((s) => (
                     <button
                       key={s.value}
@@ -1320,7 +1320,7 @@ export default function TaskListView() {
               </button>
 
               {bulkDropdown === "assign" && (
-                <div className="absolute bottom-full mb-2 left-0 z-30 w-48 rounded-lg border border-slate-200 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                <div className="absolute bottom-full mb-2 left-0 z-30 w-48 rounded-lg border border-slate-300 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
                   <button
                     onClick={() => handleBulkAssign("", "Unassigned")}
                     className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"

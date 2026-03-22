@@ -643,7 +643,7 @@ export default function CommandPalette() {
           onPointerUp={handleFabPointerUp}
           onPointerCancel={handleFabPointerUp}
           title="Open Command Palette"
-          className={`fixed bottom-6 right-6 z-[90] flex items-center justify-center gap-2 rounded-full border border-slate-200/80 bg-white/90 p-3 text-xs font-bold uppercase tracking-widest text-slate-500 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-md transition-all hover:scale-105 hover:bg-white hover:text-slate-700 hover:shadow-[0_8px_30px_rgb(0,0,0,0.16)] sm:bottom-8 sm:right-8 sm:px-4 sm:py-2.5 dark:border-white/20 dark:bg-slate-900/80 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 ${isDraggingFab ? "cursor-grabbing select-none" : "cursor-grab"}`}
+          className={`fixed bottom-6 right-6 z-[90] flex items-center justify-center gap-2 rounded-full border border-slate-300/80 bg-white/90 p-3 text-xs font-bold uppercase tracking-widest text-slate-500 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-md transition-all hover:scale-105 hover:bg-white hover:text-slate-700 hover:shadow-[0_8px_30px_rgb(0,0,0,0.16)] sm:bottom-8 sm:right-8 sm:px-4 sm:py-2.5 dark:border-white/20 dark:bg-slate-900/80 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 ${isDraggingFab ? "cursor-grabbing select-none" : "cursor-grab"}`}
           style={(() => {
             const drag = dragStateRef.current;
             if (drag) {
@@ -686,10 +686,10 @@ export default function CommandPalette() {
           />
 
           {/* Modal */}
-          <div className="relative w-full max-w-[640px] transform overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl transition-all dark:border-white/10 dark:bg-[#0B0F19] mx-4 flex flex-col max-h-[65vh]">
+          <div className="relative w-full max-w-[640px] transform overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-2xl transition-all dark:border-white/10 dark:bg-[#0B0F19] mx-4 flex flex-col max-h-[65vh]">
             
             {/* Input Area */}
-            <div className="flex items-center border-b border-slate-200 px-4 py-4 dark:border-white/10">
+            <div className="flex items-center border-b border-slate-300 px-4 py-4 dark:border-white/10">
               
               {/* Breadcrumbs for Sub-menus */}
               {view.type !== "root" ? (
@@ -801,22 +801,22 @@ export default function CommandPalette() {
             </div>
             
             {/* Footer */}
-            <div className="hidden sm:flex shrink-0 items-center justify-between border-t border-slate-200 bg-slate-50/50 px-4 py-3 text-[11px] text-slate-500 dark:border-white/10 dark:bg-[#050505]/50 dark:text-slate-400">
+            <div className="hidden sm:flex shrink-0 items-center justify-between border-t border-slate-300 bg-slate-50/50 px-4 py-3 text-[11px] text-slate-500 dark:border-white/10 dark:bg-[#050505]/50 dark:text-slate-400">
               <div className="flex items-center gap-4">
                  <div className="flex items-center gap-1.5">
                    <div className="flex items-center gap-0.5">
-                     <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1 font-sans dark:border-white/10 dark:bg-slate-800 shadow-sm">↑</kbd>
-                     <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1 font-sans dark:border-white/10 dark:bg-slate-800 shadow-sm">↓</kbd>
+                     <kbd className="flex h-5 items-center justify-center rounded border border-slate-300 bg-white px-1 font-sans dark:border-white/10 dark:bg-slate-800 shadow-sm">↑</kbd>
+                     <kbd className="flex h-5 items-center justify-center rounded border border-slate-300 bg-white px-1 font-sans dark:border-white/10 dark:bg-slate-800 shadow-sm">↓</kbd>
                    </div>
                    <span>Navigate</span>
                  </div>
                  <div className="flex items-center gap-1.5">
-                   <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1.5 font-sans font-medium dark:border-white/10 dark:bg-slate-800 shadow-sm">↵</kbd>
+                   <kbd className="flex h-5 items-center justify-center rounded border border-slate-300 bg-white px-1.5 font-sans font-medium dark:border-white/10 dark:bg-slate-800 shadow-sm">↵</kbd>
                    <span>Select</span>
                  </div>
                  {view.type !== "root" && (
                     <div className="flex items-center gap-1.5">
-                      <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1.5 font-sans font-medium dark:border-white/10 dark:bg-slate-800 shadow-sm">Backspace</kbd>
+                      <kbd className="flex h-5 items-center justify-center rounded border border-slate-300 bg-white px-1.5 font-sans font-medium dark:border-white/10 dark:bg-slate-800 shadow-sm">Backspace</kbd>
                       <span>Go back</span>
                     </div>
                  )}

@@ -112,15 +112,29 @@ export default function WorkspaceOverviewPage() {
   const maxWorkload = Math.max(1, ...teamWorkload.map((item) => item.active));
   const maxPriority = Math.max(1, priorityCounts.P1, priorityCounts.P2, priorityCounts.P3);
   const typeTotal = Math.max(1, typeCounts.feature + typeCounts.bug + typeCounts.chore);
+  const statusChartColors = {
+    done: "var(--chart-success)",
+    inprogress: "var(--chart-secondary)",
+    inreview: "var(--chart-primary)",
+    todo: "var(--chart-muted)",
+  };
+  const teamWorkloadPalette = [
+    { color: "bg-sky-500", textClass: "text-white" },
+    { color: "bg-violet-500", textClass: "text-white" },
+    { color: "bg-emerald-500", textClass: "text-white" },
+    { color: "bg-rose-500", textClass: "text-white" },
+    { color: "bg-cyan-500", textClass: "text-white" },
+    { color: "bg-indigo-500", textClass: "text-white" },
+  ];
   const typeRows = [
-    { id: "feature", label: "Feature", value: typeCounts.feature, color: "bg-primary", textClass: "text-primary-foreground" },
-    { id: "bug", label: "Bug", value: typeCounts.bug, color: "bg-destructive", textClass: "text-destructive-foreground" },
-    { id: "chore", label: "Chore", value: typeCounts.chore, color: "bg-muted", textClass: "text-foreground" },
+    { id: "feature", label: "Feature", value: typeCounts.feature, color: "bg-indigo-500", textClass: "text-white" },
+    { id: "bug", label: "Bug", value: typeCounts.bug, color: "bg-rose-500", textClass: "text-white" },
+    { id: "chore", label: "Chore", value: typeCounts.chore, color: "bg-cyan-500", textClass: "text-white" },
   ];
   const priorityRows = [
-    { id: "p1", label: "High", value: priorityCounts.P1, color: "bg-destructive", textClass: "text-destructive-foreground" },
-    { id: "p2", label: "Medium", value: priorityCounts.P2, color: "bg-warning", textClass: "text-warning-foreground" },
-    { id: "p3", label: "Low", value: priorityCounts.P3, color: "bg-success", textClass: "text-success-foreground" },
+    { id: "p1", label: "High", value: priorityCounts.P1, color: "bg-rose-500", textClass: "text-white" },
+    { id: "p2", label: "Medium", value: priorityCounts.P2, color: "bg-violet-500", textClass: "text-white" },
+    { id: "p3", label: "Low", value: priorityCounts.P3, color: "bg-emerald-500", textClass: "text-white" },
   ];
 
   return (
@@ -150,10 +164,10 @@ export default function WorkspaceOverviewPage() {
               </div>
             </div>
             <div className="mx-auto w-full max-w-48 space-y-2 text-sm sm:mx-0 sm:w-auto sm:max-w-none">
-              <Legend label={`Done: ${counts.done}`} color="bg-success" />
-              <Legend label={`In Progress: ${counts.inprogress}`} color="bg-secondary" />
-              <Legend label={`In Review: ${counts.inreview}`} color="bg-primary" />
-              <Legend label={`To Do: ${counts.todo}`} color="bg-muted" />
+              <Legend label={`Done: ${counts.done}`} color={statusChartColors.done} />
+              <Legend label={`In Progress: ${counts.inprogress}`} color={statusChartColors.inprogress} />
+              <Legend label={`In Review: ${counts.inreview}`} color={statusChartColors.inreview} />
+              <Legend label={`To Do: ${counts.todo}`} color={statusChartColors.todo} />
             </div>
           </div>
         </div>
@@ -163,10 +177,10 @@ export default function WorkspaceOverviewPage() {
             Throughput (Tasks by Stage)
           </h2>
           <div className="mt-6 space-y-4">
-            <Bar label="Done" value={counts.done} total={Math.max(1, totalTasks)} color="bg-success" />
-            <Bar label="In Progress" value={counts.inprogress} total={Math.max(1, totalTasks)} color="bg-secondary" />
-            <Bar label="In Review" value={counts.inreview} total={Math.max(1, totalTasks)} color="bg-primary" />
-            <Bar label="To Do" value={counts.todo} total={Math.max(1, totalTasks)} color="bg-muted" />
+            <Bar label="Done" value={counts.done} total={Math.max(1, totalTasks)} color={statusChartColors.done} />
+            <Bar label="In Progress" value={counts.inprogress} total={Math.max(1, totalTasks)} color={statusChartColors.inprogress} />
+            <Bar label="In Review" value={counts.inreview} total={Math.max(1, totalTasks)} color={statusChartColors.inreview} />
+            <Bar label="To Do" value={counts.todo} total={Math.max(1, totalTasks)} color={statusChartColors.todo} />
           </div>
           <p className="mt-5 text-xs text-muted-foreground">
             Completion rate: {donePct}% | In-progress load: {inProgressPct}% | Pending: {todoPct}%
@@ -244,6 +258,7 @@ export default function WorkspaceOverviewPage() {
                 value={row.value}
                 total={typeTotal}
                 color={row.color}
+                textClass={row.textClass}
               />
             ))}
           </div>
@@ -255,16 +270,20 @@ export default function WorkspaceOverviewPage() {
             Active work distribution per assignee.
           </p>
           <div className="mt-4 max-h-56 space-y-3 overflow-y-auto pr-1">
-            {teamWorkload.map((person) => (
-              <DistRow
-                key={person.id}
-                label={person.name}
-                value={person.active}
-                total={maxWorkload}
-                color="bg-secondary"
-                rightLabel={`${person.active} active`}
-              />
-            ))}
+            {teamWorkload.map((person, index) => {
+              const palette = teamWorkloadPalette[index % teamWorkloadPalette.length];
+              return (
+                <DistRow
+                  key={person.id}
+                  label={person.name}
+                  value={person.active}
+                  total={maxWorkload}
+                  color={palette.color}
+                  textClass={palette.textClass}
+                  rightLabel={`${person.active} active`}
+                />
+              );
+            })}
             {!teamWorkload.length ? <p className="text-sm text-muted-foreground">No team members found.</p> : null}
           </div>
         </div>
@@ -276,7 +295,7 @@ export default function WorkspaceOverviewPage() {
 function Legend({ label, color }) {
   return (
     <div className="flex items-center gap-2">
-      <span className={`inline-block size-2.5 rounded-full ${color}`} />
+      <span className="inline-block size-2.5 rounded-full" style={{ backgroundColor: color }} />
       <span className="text-foreground dark:text-muted-foreground">{label}</span>
     </div>
   );
@@ -291,7 +310,7 @@ function Bar({ label, value, total, color }) {
         <span>{value}</span>
       </div>
       <div className="h-2.5 rounded-full bg-muted dark:bg-surface">
-        <div className={`h-2.5 rounded-full ${color}`} style={{ width: `${widthPct}%` }} />
+        <div className="h-2.5 rounded-full" style={{ width: `${widthPct}%`, backgroundColor: color }} />
       </div>
     </div>
   );
