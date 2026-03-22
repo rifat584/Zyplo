@@ -77,7 +77,7 @@ function AccessConfirmDialog({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-background/72 px-4 pt-[12vh]">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-background/72">
       <button
         type="button"
         aria-label="Close confirmation dialog"
@@ -88,12 +88,13 @@ function AccessConfirmDialog({
         className="absolute inset-0"
       />
 
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="workspace-access-confirm-title"
-        className="relative w-full max-w-lg rounded-xl border border-border/70 bg-card p-6 text-card-foreground"
-      >
+      <div className="flex min-h-full items-center justify-center px-4 py-6 sm:py-8">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="workspace-access-confirm-title"
+          className="relative w-full max-w-lg max-h-[calc(100vh-3rem)] overflow-y-auto rounded-xl border border-border/70 bg-card p-6 text-card-foreground"
+        >
         <div className="flex items-start gap-4">
           <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
             <AlertTriangle className="size-4" />
@@ -137,6 +138,7 @@ function AccessConfirmDialog({
               </button>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
@@ -774,8 +776,9 @@ export default function WorkspaceMembersPage() {
       </div>
 
       {inviteDialogOpen ? (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-background/80 px-4 pt-[12vh]">
-          <div className="w-full max-w-md rounded-xl border border-border bg-card">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-background/80">
+          <div className="flex min-h-full items-center justify-center px-4 py-6 sm:py-8">
+          <div className="w-full max-w-md max-h-[calc(100vh-3rem)] overflow-y-auto rounded-xl border border-border bg-card">
             <div className="flex items-start justify-between gap-3 px-5 py-4">
               <div>
                 <h2 className="font-heading text-lg font-semibold tracking-tight text-foreground">
@@ -867,6 +870,7 @@ export default function WorkspaceMembersPage() {
                 </button>
               </div>
             </form>
+          </div>
           </div>
         </div>
       ) : null}

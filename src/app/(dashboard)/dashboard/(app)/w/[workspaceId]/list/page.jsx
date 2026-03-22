@@ -4,8 +4,9 @@ import { useParams } from "next/navigation";
 import { useState, useMemo, useRef } from "react";
 import { useMockStore, loadDashboard } from "@/components/dashboard/mockStore";
 import CreateTaskLauncher from "@/components/dashboard/CreateTaskLauncher";
-import Swal from "sweetalert2";
+import { toast } from "sonner";
 import TaskDetailsModal from "@/components/board/TaskDetailsModal";
+import TaskDeleteDialog from "@/components/dashboard/taskDeleteDialog";
 import {
   CheckCircle2,
   Circle,
@@ -172,6 +173,7 @@ export default function TaskListView() {
   const [selectedTask, setSelectedTask] = useState(null);
   const [updateBusy, setUpdateBusy] = useState(false);
   const [deleteBusy, setDeleteBusy] = useState(false);
+  const [pendingDeleteRequest, setPendingDeleteRequest] = useState(null);
 
   // NEW: State to track which bulk action menu is open
   const [bulkDropdown, setBulkDropdown] = useState(null);
@@ -403,7 +405,7 @@ export default function TaskListView() {
     await handleInlinePatch(task, { [field]: value });
   };
 
-  const deleteTasks = async (ids = []) => {
+  const requestDeleteTasks = (ids = []) => {
     const uniqueIds = [...new Set(ids.map((id) => String(id || "")))].filter(
       Boolean,
     );
@@ -414,29 +416,27 @@ export default function TaskListView() {
     );
     const singleTask = targets.length === 1 ? targets[0] : null;
 
-    const result = await Swal.fire({
-      title: singleTask ? "Delete task?" : "Delete selected tasks?",
-      text: singleTask
-        ? `Delete "${singleTask.title}"? This cannot be undone.`
-        : `Delete ${uniqueIds.length} selected tasks? This cannot be undone.`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, delete",
-      cancelButtonText: "Cancel",
-      reverseButtons: true,
-      background: "#0f172a",
-      color: "#e2e8f0",
-      confirmButtonColor: "#dc2626",
-      cancelButtonColor: "#334155",
+    setPendingDeleteRequest({
+      ids: uniqueIds,
+      taskTitle: singleTask?.title,
+      count: uniqueIds.length,
     });
+  };
 
-    if (!result.isConfirmed) return;
+  const confirmDeleteTasks = async () => {
+    if (!pendingDeleteRequest?.ids?.length) return;
+    const uniqueIds = pendingDeleteRequest.ids;
+    const shouldCloseSelectedTask =
+      uniqueIds.length === 1 &&
+      String(selectedTask?.id || "") === String(uniqueIds[0] || "");
+    setPendingDeleteRequest(null);
 
     setDeletingIds((prev) => {
       const next = new Set(prev);
       uniqueIds.forEach((id) => next.add(id));
       return next;
     });
+    setDeleteBusy(shouldCloseSelectedTask);
 
     try {
       await Promise.all(
@@ -456,45 +456,34 @@ export default function TaskListView() {
         return next;
       });
       await loadDashboard({ force: true });
-
-      await Swal.fire({
-        title: "Deleted",
-        text:
-          uniqueIds.length === 1
-            ? "Task deleted successfully."
-            : `${uniqueIds.length} tasks deleted successfully.`,
-        icon: "success",
-        timer: 1500,
-        showConfirmButton: false,
-        background: "#0f172a",
-        color: "#e2e8f0",
-      });
+      if (shouldCloseSelectedTask) {
+        setSelectedTask(null);
+      }
+      toast.success(
+        uniqueIds.length === 1
+          ? "Task deleted successfully."
+          : `${uniqueIds.length} tasks deleted successfully.`,
+      );
     } catch (error) {
-      await Swal.fire({
-        title: "Delete failed",
-        text: error?.message || "Failed to delete task",
-        icon: "error",
-        confirmButtonColor: "#dc2626",
-        background: "#0f172a",
-        color: "#e2e8f0",
-      });
+      toast.error(error?.message || "Failed to delete task");
     } finally {
       setDeletingIds((prev) => {
         const next = new Set(prev);
         uniqueIds.forEach((id) => next.delete(id));
         return next;
       });
+      setDeleteBusy(false);
     }
   };
 
   const handleDeleteSingleTask = async (taskId) => {
     if (!taskId || deletingIds.has(String(taskId))) return;
-    await deleteTasks([taskId]);
+    requestDeleteTasks([taskId]);
   };
 
   const handleDeleteSelectedTasks = async () => {
     if (!selectedIds.size) return;
-    await deleteTasks(Array.from(selectedIds));
+    requestDeleteTasks(Array.from(selectedIds));
   };
 
   const handleModalUpdate = async (values) => {
@@ -510,13 +499,7 @@ export default function TaskListView() {
 
   const handleModalDelete = async (task) => {
     if (!task?.id) return;
-    try {
-      setDeleteBusy(true);
-      await handleDeleteSingleTask(task.id);
-      setSelectedTask(null);
-    } finally {
-      setDeleteBusy(false);
-    }
+    requestDeleteTasks([task.id]);
   };
 
   const openInlineEdit = (task, field, value = "") => {
@@ -1384,10 +1367,23 @@ export default function TaskListView() {
       deleting={deleteBusy}
       onClose={() => {
         if (updateBusy || deleteBusy) return;
+        setPendingDeleteRequest(null);
         setSelectedTask(null);
       }}
       onSubmit={handleModalUpdate}
       onDelete={handleModalDelete}
+    />
+
+    <TaskDeleteDialog
+      open={Boolean(pendingDeleteRequest)}
+      taskTitle={pendingDeleteRequest?.taskTitle}
+      count={pendingDeleteRequest?.count}
+      busy={deleteBusy}
+      onClose={() => {
+        if (deleteBusy) return;
+        setPendingDeleteRequest(null);
+      }}
+      onConfirm={confirmDeleteTasks}
     />
     </>
   );

@@ -28,6 +28,7 @@ import {
 import { toast } from "sonner";
 // file attach - helal / bayijid
 import { useMockStore, loadDashboard } from "@/components/dashboard/mockStore";
+import TaskDeleteDialog from "@/components/dashboard/taskDeleteDialog";
 import { useWorkspaceProjectSelection } from "@/components/dashboard/projectSelection";
 import {
   findColumnByStatus,
@@ -466,6 +467,7 @@ export default function WorkspaceCalenderPage() {
     workspaceProjects,
   );
   const [createTarget, setCreateTarget] = useState(null);
+  const [pendingDeleteTask, setPendingDeleteTask] = useState(null);
 
   async function openCreateModal() {
     if (!selectedProject || createBusy || targetLoading) {
@@ -645,23 +647,28 @@ export default function WorkspaceCalenderPage() {
     }
   }
 
-  async function handleDeleteTask(task) {
+  function handleDeleteTask(task) {
     if (!task?.id) return;
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this task?",
-    );
-    if (!confirmed) return;
+    setPendingDeleteTask({
+      id: String(task.id),
+      title: task.title || "",
+    });
+  }
 
+  async function confirmDeleteTask() {
+    if (!pendingDeleteTask?.id) return;
     try {
       setDeleteBusy(true);
-      await fetchJson(`/api/dashboard/tasks/${task.id}`, {
+      await fetchJson(`/api/dashboard/tasks/${pendingDeleteTask.id}`, {
         method: "DELETE",
       });
       await loadDashboard({ force: true, silent: true });
+      setPendingDeleteTask(null);
       setSelectedTask(null);
+      toast.success("Task deleted");
     } catch (error) {
       console.error("Failed to delete task", error);
-      alert(error?.message || "Failed to delete task");
+      toast.error(error?.message || "Failed to delete task");
     } finally {
       setDeleteBusy(false);
     }
@@ -1065,10 +1072,22 @@ export default function WorkspaceCalenderPage() {
         deleting={deleteBusy}
         onClose={() => {
           if (updateBusy || deleteBusy) return;
+          setPendingDeleteTask(null);
           setSelectedTask(null);
         }}
         onSubmit={handleUpdateTask}
         onDelete={handleDeleteTask}
+      />
+
+      <TaskDeleteDialog
+        open={Boolean(pendingDeleteTask)}
+        taskTitle={pendingDeleteTask?.title}
+        busy={deleteBusy}
+        onClose={() => {
+          if (deleteBusy) return;
+          setPendingDeleteTask(null);
+        }}
+        onConfirm={confirmDeleteTask}
       />
     </div>
   );
