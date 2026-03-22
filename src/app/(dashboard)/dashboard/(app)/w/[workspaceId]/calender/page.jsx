@@ -25,12 +25,14 @@ import {
   Search,
   X,
 } from "lucide-react";
+import { toast } from "sonner";
 // file attach - helal / bayijid
 import { useMockStore, loadDashboard } from "@/components/dashboard/mockStore";
+import { useWorkspaceProjectSelection } from "@/components/dashboard/projectSelection";
+import CreateTaskModal from "@/components/board/CreateTaskModal";
 import TaskDetailsModal from "@/components/board/TaskDetailsModal";
 
 const WEEK_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const PROJECT_SELECTION_KEY_PREFIX = "dashboard.selectedProject.";
 
 // --- SMART CALENDAR SKELETON ---
 function CalendarSkeleton() {
@@ -127,12 +129,6 @@ function toDateKey(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
   return toDateInputValue(date);
-}
-
-function minutesToSeconds(value) {
-  const minutes = Number(value);
-  if (!Number.isFinite(minutes) || minutes < 0) return 0;
-  return Math.floor(minutes * 60);
 }
 
 function normalizeStatus(status) {
@@ -304,7 +300,7 @@ function CalendarDayCell({
           type="button"
           onClick={(event) => {
             event.stopPropagation();
-            onOpenCreateModal(dateKey);
+            onOpenCreateModal();
           }}
           className="inline-flex size-5 cursor-pointer items-center justify-center rounded-md border border-slate-300 text-slate-500 hover:bg-slate-200 sm:size-6 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800"
           aria-label={`Create task on ${dateKey}`}
@@ -378,7 +374,6 @@ export default function WorkspaceCalenderPage() {
   });
   const [createOpen, setCreateOpen] = useState(false);
   const [createBusy, setCreateBusy] = useState(false);
-  const [createError, setCreateError] = useState("");
   const [targetLoading, setTargetLoading] = useState(false);
   const [dayDetailsOpen, setDayDetailsOpen] = useState(false);
   const [selectedDateKey, setSelectedDateKey] = useState("");
@@ -394,17 +389,6 @@ export default function WorkspaceCalenderPage() {
       activationConstraint: { distance: 6 },
     }),
   );
-
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    projectId: "",
-    assigneeId: "",
-    dueDate: "",
-    priority: "P2",
-    status: "todo",
-    estimatedTime: "",
-  });
 
   useEffect(() => {
     setIsMounted(true);
@@ -483,40 +467,49 @@ export default function WorkspaceCalenderPage() {
 
   const days = useMemo(() => buildCalendarDays(monthDate), [monthDate]);
   const monthIndex = monthDate.getMonth();
-  const filteredProjects = useMemo(
+  const workspaceProjects = useMemo(
     () => projects.filter((project) => project.workspaceId === workspaceId),
     [projects, workspaceId],
   );
+  const { selectedProject } = useWorkspaceProjectSelection(
+    workspaceId,
+    workspaceProjects,
+  );
+  const [createTarget, setCreateTarget] = useState(null);
 
-  function openCreateModal(dateKey) {
-    let preferredProjectId = "";
-    if (typeof window !== "undefined" && workspaceId) {
-      try {
-        preferredProjectId =
-          window.localStorage.getItem(
-            `${PROJECT_SELECTION_KEY_PREFIX}${workspaceId}`,
-          ) || "";
-      } catch {
-        preferredProjectId = "";
+  async function openCreateModal() {
+    if (!selectedProject || createBusy || targetLoading) {
+      if (!selectedProject) {
+        toast.error("Select a current project before creating a calendar task.");
       }
+      return;
     }
-    const preferredExists = filteredProjects.some(
-      (project) => project.id === preferredProjectId,
-    );
-    setCreateError("");
-    setForm({
-      title: "",
-      description: "",
-      projectId: preferredExists
-        ? preferredProjectId
-        : filteredProjects[0]?.id || "",
-      assigneeId: "",
-      dueDate: dateKey,
-      priority: "P2",
-      status: "todo",
-      estimatedTime: "",
-    });
-    setCreateOpen(true);
+
+    try {
+      setTargetLoading(true);
+      const boardData = await fetchJson(`/api/dashboard/boards/${selectedProject.id}`);
+      const board = boardData?.board || null;
+      const columns = sortColumns(boardData?.columns || []);
+      const todoColumn = columns.find(
+        (column) => getStatusFromColumnName(column?.name, "") === "todo",
+      );
+
+      if (!board?.id || !todoColumn?.id) {
+        throw new Error('The current project does not have a "To Do" column.');
+      }
+
+      setCreateTarget({
+        projectId: String(selectedProject.id),
+        boardId: String(board.id),
+        columnId: String(todoColumn.id),
+        columnName: String(todoColumn.name || "To Do"),
+      });
+      setCreateOpen(true);
+    } catch (error) {
+      toast.error(error?.message || "Failed to prepare task creation.");
+    } finally {
+      setTargetLoading(false);
+    }
   }
 
   function openDayDetails(dateKey) {
@@ -524,91 +517,43 @@ export default function WorkspaceCalenderPage() {
     setDayDetailsOpen(true);
   }
 
-  async function handleCreateTask(event) {
-    event.preventDefault();
-    if (!form.title.trim() || createBusy) return;
-    if (!form.projectId) {
-      setCreateError("Please select a project");
-      return;
-    }
+  async function handleCreateTask(values) {
+    if (!createTarget || createBusy) return;
 
     try {
-      setCreateError("");
       setCreateBusy(true);
-      setTargetLoading(true);
 
-      const projectCandidates = [
-        form.projectId,
-        ...filteredProjects
-          .map((project) => project.id)
-          .filter((id) => id && id !== form.projectId),
-      ];
-
-      let resolvedTarget = null;
-      for (const candidateProjectId of projectCandidates) {
-        try {
-          const boardData = await fetchJson(
-            `/api/dashboard/boards/${candidateProjectId}`,
-          );
-          const board = boardData?.board || null;
-          const columns = sortColumns(boardData?.columns || []);
-          const todoColumn =
-            columns.find(
-              (column) => getStatusFromColumnName(column?.name, "") === "todo",
-            ) || columns[0];
-
-          if (!board?.id || !todoColumn?.id) continue;
-
-          resolvedTarget = {
-            projectId: candidateProjectId,
-            boardId: String(board.id),
-            columnId: String(todoColumn.id),
-            status: getStatusFromColumnName(
-              todoColumn.name,
-              form.status || "todo",
-            ),
-          };
-          break;
-        } catch {
-          // try next project
-        }
-      }
-
-      if (!resolvedTarget) {
-        throw new Error("No board found for your workspace projects");
-      }
-
-      const assignee = members.find((m) => m.id === form.assigneeId);
-
-      // Direct API call guarantees we get a real MongoDB ID
       await fetchJson("/api/dashboard/tasks", {
         method: "POST",
         body: JSON.stringify({
           workspaceId,
-          projectId: resolvedTarget.projectId,
-          boardId: resolvedTarget.boardId,
-          columnId: resolvedTarget.columnId,
-          title: form.title.trim(),
-          description: form.description.trim(),
-          assigneeId: form.assigneeId || "",
-          assigneeName: assignee
-            ? assignee.name || assignee.email || "Unassigned"
-            : "Unassigned",
-          dueDate: form.dueDate || "",
-          priority: form.priority || "P2",
-          status: resolvedTarget.status,
-          estimatedTime: minutesToSeconds(form.estimatedTime),
+          projectId: createTarget.projectId,
+          boardId: createTarget.boardId,
+          columnId: createTarget.columnId,
+          title: values.title,
+          description: values.description || "",
+          assigneeId: values.assigneeId || "",
+          dueDate: values.dueDate || "",
+          priority: values.priority || "P2",
+          status: "todo",
+          estimatedTime: values.estimatedTime || 0,
         }),
       });
 
       await loadDashboard({ force: true, silent: true });
       setCreateOpen(false);
+      setCreateTarget(null);
     } catch (error) {
-      setCreateError(error?.message || "Failed to create task");
+      toast.error(error?.message || "Failed to create task");
     } finally {
-      setTargetLoading(false);
       setCreateBusy(false);
     }
+  }
+
+  function closeCreateModal() {
+    if (createBusy) return;
+    setCreateOpen(false);
+    setCreateTarget(null);
   }
 
   // --- BULLETPROOF UPDATE HANDLER ---
@@ -1045,216 +990,14 @@ export default function WorkspaceCalenderPage() {
         </DragOverlay>
       </DndContext>
 
-      {/* --- INLINE CREATE TASK MODAL --- */}
-      {createOpen ? (
-        <div className="fixed inset-0 z-50">
-          <button
-            type="button"
-            className="absolute inset-0 bg-slate-950/45 backdrop-blur-[2px]"
-            onClick={() => (createBusy ? null : setCreateOpen(false))}
-            aria-label="Close task create modal"
-          />
-          <div className="absolute left-1/2 top-1/2 w-[94vw] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-900">
-            <div className="flex items-center justify-between border-b border-slate-300 px-5 py-4 dark:border-white/10">
-              <div>
-                <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  Calendar
-                </p>
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                  Create Task
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => (createBusy ? null : setCreateOpen(false))}
-                className="inline-flex size-8 items-center justify-center rounded-md border border-slate-300 text-slate-500 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800"
-                aria-label="Close"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-
-            <form className="space-y-4 p-5" onSubmit={handleCreateTask}>
-              <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                  Task Title
-                </label>
-                <input
-                  value={form.title}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, title: e.target.value }))
-                  }
-                  required
-                  className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                  placeholder="Enter task title"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                  Description
-                </label>
-                <textarea
-                  rows={3}
-                  value={form.description}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                  placeholder="Optional description"
-                />
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                    Project
-                  </label>
-                  <select
-                    value={form.projectId}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        projectId: e.target.value,
-                      }))
-                    }
-                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                  >
-                    <option value="">No project</option>
-                    {filteredProjects.map((project) => (
-                      <option key={project.id} value={project.id}>
-                        {project.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                    Assignee
-                  </label>
-                  <select
-                    value={form.assigneeId}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        assigneeId: e.target.value,
-                      }))
-                    }
-                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                  >
-                    <option value="">Auto assignee</option>
-                    {members.map((member) => (
-                      <option key={member.id} value={member.id}>
-                        {member.name || member.email || "Member"}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-4">
-                <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                    Due Date
-                  </label>
-                  <input
-                    type="date"
-                    value={form.dueDate}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, dueDate: e.target.value }))
-                    }
-                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                    Priority
-                  </label>
-                  <select
-                    value={form.priority}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, priority: e.target.value }))
-                    }
-                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                  >
-                    <option value="P1">P1</option>
-                    <option value="P2">P2</option>
-                    <option value="P3">P3</option>
-                    <option value="P4">P4</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                    Status
-                  </label>
-                  <select
-                    value={form.status}
-                    onChange={(e) =>
-                      setForm((prev) => ({ ...prev, status: e.target.value }))
-                    }
-                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                  >
-                    <option value="todo">To Do</option>
-                    <option value="inprogress">In Progress</option>
-                    <option value="inreview">In Review</option>
-                    <option value="done">Done</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
-                    Estimate (mins)
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={form.estimatedTime}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        estimatedTime: e.target.value,
-                      }))
-                    }
-                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
-                    placeholder="0"
-                  />
-                </div>
-              </div>
-
-              {createError ? (
-                <p className="text-sm text-rose-600 dark:text-rose-400">
-                  {createError}
-                </p>
-              ) : null}
-
-              <div className="flex justify-end gap-2 border-t border-slate-300 pt-4 dark:border-white/10">
-                <button
-                  type="button"
-                  onClick={() => setCreateOpen(false)}
-                  disabled={createBusy}
-                  className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={
-                    !form.title.trim() ||
-                    !form.projectId ||
-                    createBusy ||
-                    targetLoading
-                  }
-                  className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
-                >
-                  {createBusy || targetLoading ? "Creating..." : "Create Task"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      ) : null}
+      <CreateTaskModal
+        open={createOpen}
+        onClose={closeCreateModal}
+        onSubmit={handleCreateTask}
+        members={members}
+        columnName={createTarget?.columnName || "To Do"}
+        submitting={createBusy}
+      />
 
       {/* --- DAY DETAILS MODAL --- */}
       {dayDetailsOpen ? (
