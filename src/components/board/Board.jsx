@@ -42,12 +42,12 @@ function BoardSkeleton() {
       {/* Filter Bar Skeleton */}
       <section className="mb-4 rounded-2xl border border-border bg-card">
         <div className="flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-col gap-2 md:min-w-0 md:flex-1 md:flex-row md:flex-wrap md:items-center">
-            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-56 lg:w-72 md:shrink-0"></div>
-            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-32"></div>
-            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-28"></div>
-            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-36"></div>
-            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-36"></div>
+          <div className="flex flex-col gap-2 md:min-w-0 md:flex-1 md:flex-row md:flex-wrap md:items-center lg:flex-nowrap lg:gap-1.5">
+            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-56 md:shrink-0 lg:min-w-[9rem] lg:flex-1 lg:w-auto xl:w-72"></div>
+            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-32 lg:w-[6.75rem] xl:w-32"></div>
+            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-28 lg:w-[6rem] xl:w-28"></div>
+            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-36 lg:w-[7.25rem] xl:w-36"></div>
+            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-36 lg:w-auto"></div>
           </div>
           <div className="h-10 w-full rounded-lg bg-muted/80 md:w-32 md:shrink-0"></div>
         </div>
@@ -768,7 +768,7 @@ export default function Board({ workspaceId, projectId }) {
     <>
       <section className="mb-4 rounded-2xl border border-border bg-card">
         <div className="flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-col gap-2 md:min-w-0 md:flex-1 md:flex-row md:flex-wrap md:items-center">
+          <div className="flex flex-col gap-2 md:min-w-0 md:flex-1 md:flex-row md:flex-wrap md:items-center lg:flex-nowrap lg:gap-1.5">
             <input
               type="text"
               value={columnFilters.taskName}
@@ -779,7 +779,7 @@ export default function Board({ workspaceId, projectId }) {
                 }))
               }
               placeholder="Task Name"
-              className={`${toolbarFieldClasses} md:w-56 lg:w-72 md:shrink-0`}
+              className={`${toolbarFieldClasses} md:w-56 md:shrink-0 lg:min-w-[9rem] lg:flex-1 lg:w-auto xl:w-72`}
             />
 
             <select
@@ -790,7 +790,7 @@ export default function Board({ workspaceId, projectId }) {
                   status: event.target.value,
                 }))
               }
-              className={`${toolbarFieldClasses} md:w-32`}
+              className={`${toolbarFieldClasses} md:w-32 lg:w-[6.75rem] xl:w-32`}
             >
               <option value="all">Status</option>
               <option value="todo">To Do</option>
@@ -807,7 +807,7 @@ export default function Board({ workspaceId, projectId }) {
                   priority: event.target.value,
                 }))
               }
-              className={`${toolbarFieldClasses} md:w-28`}
+              className={`${toolbarFieldClasses} md:w-28 lg:w-[6rem] xl:w-28`}
             >
               <option value="all">Priority</option>
               <option value="P0">P0</option>
@@ -824,7 +824,7 @@ export default function Board({ workspaceId, projectId }) {
                   assigneeId: event.target.value,
                 }))
               }
-              className={`${toolbarFieldClasses} md:w-36`}
+              className={`${toolbarFieldClasses} md:w-36 lg:w-[7.25rem] xl:w-36`}
             >
               <option value="all">Assignee</option>
               {(membersQuery.data || []).map((member) => (
@@ -834,7 +834,7 @@ export default function Board({ workspaceId, projectId }) {
               ))}
             </select>
 
-            <div className="relative w-full md:w-auto md:shrink-0">
+            <div className="relative w-full md:w-auto md:shrink-0 lg:w-auto">
               <button
                 type="button"
                 onClick={() => setMoreFiltersOpen((prev) => !prev)}

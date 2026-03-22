@@ -1325,8 +1325,8 @@ function WorkspaceToolbar() {
       <section className="border-b border-border/80 bg-background">
         <div className="px-3 py-3 sm:px-4 md:px-6 lg:px-7">
           <div className="flex flex-col ">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1 text-sm ">
+            <div className="flex items-start justify-between gap-3 lg:items-center">
+              <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-1.5 gap-y-1 text-sm ">
                 <span className="min-w-0 truncate text-xl font-bold tracking-tight text-foreground">
                   {workspace?.name || "Loading workspace..."}
                 </span>
@@ -1412,7 +1412,7 @@ function WorkspaceToolbar() {
               </div>
 
               {isAdmin ? (
-                <div className="flex items-center gap-2 lg:justify-end">
+                <div className="flex shrink-0 items-center gap-2">
                   <Button
                     type="button"
                     variant="outline"
@@ -1421,7 +1421,7 @@ function WorkspaceToolbar() {
                       setProjectError("");
                       setProjectDialogOpen(true);
                     }}
-                    className="border-primary text-primary shadow-none hover:scale-100 hover:border-primary hover:bg-primary/90 hover:text-primary-foreground hover:shadow-none dark:border-primary/90  dark:hover:bg-primary/90"
+                    className="shrink-0 border-primary text-primary shadow-none hover:scale-100 hover:border-primary hover:bg-primary/90 hover:text-primary-foreground hover:shadow-none dark:border-primary/90  dark:hover:bg-primary/90"
                   >
                     <Plus className="size-4" />
                     New Project
@@ -1429,13 +1429,14 @@ function WorkspaceToolbar() {
 
                   <Link
                     href={`/dashboard/w/${workspaceId}/settings`}
+                    aria-label="Workspace settings"
                     className={cn(
                       dashboardContextButtonClasses,
-                      "inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm",
+                      "inline-flex h-9 shrink-0 items-center gap-2 rounded-lg px-2.5 text-sm sm:px-3",
                     )}
                   >
                     <Settings className="size-4" />
-                    Settings
+                    <span className="hidden sm:inline">Settings</span>
                   </Link>
                 </div>
               ) : null}

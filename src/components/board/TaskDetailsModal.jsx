@@ -74,6 +74,8 @@ const compactTextAreaClass =
   "w-full rounded-xl border border-border bg-background p-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20";
 const detailFieldClass =
   "h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20";
+const detailSelectFieldClass =
+  "h-10 min-w-0 w-full max-w-full rounded-lg border border-border bg-background px-3 pr-8 text-[13px] text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 sm:text-sm";
 const detailTextAreaClass =
   "w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20";
 const subtleLabelClass =
@@ -1739,7 +1741,7 @@ export default function TaskDetailsModal({
                           }))
                         }
                         onBlur={() => setEditingField("")}
-                        className={detailFieldClass}
+                        className={detailSelectFieldClass}
                       >
                         {statusOptions.map((item) => (
                           <option key={item.value} value={item.value}>
@@ -1770,7 +1772,7 @@ export default function TaskDetailsModal({
                           }))
                         }
                         onBlur={() => setEditingField("")}
-                        className={detailFieldClass}
+                        className={detailSelectFieldClass}
                       >
                         {PRIORITY_OPTIONS.map((item) => (
                           <option key={item.value} value={item.value}>
@@ -1818,7 +1820,7 @@ export default function TaskDetailsModal({
         </div>
 
         <div className="shrink-0 border-t border-border bg-card px-4 py-3 sm:px-5">
-          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
+          <div className="flex w-full items-center gap-2 sm:justify-end">
             <Button
               type="button"
               variant="outline"
@@ -1827,7 +1829,7 @@ export default function TaskDetailsModal({
               disabled={isBusy || !onDelete}
               title={deleting ? "Deleting..." : "Delete Task"}
               aria-label={deleting ? "Deleting task" : "Delete task"}
-              className="h-9 border-destructive/25 bg-destructive/10 text-destructive shadow-none hover:scale-100 hover:bg-destructive/15 hover:text-destructive hover:shadow-none"
+              className="h-9 flex-1 border-destructive/25 bg-destructive/10 text-destructive shadow-none hover:scale-100 hover:bg-destructive/15 hover:text-destructive hover:shadow-none sm:flex-none"
             >
               {/* {deleting ? (
                 <Loader2 className="size-4 animate-spin" />
@@ -1837,25 +1839,23 @@ export default function TaskDetailsModal({
               <Trash2 className="size-3 mr-1" /> Delete
             </Button>
 
-            <div className="flex items-center justify-end gap-2">
-              <Button
-                type="submit"
-                size="sm"
-                form="task-details-form"
-                disabled={!form.title.trim() || isBusy}
-                title={submitting ? "Saving..." : "Save Changes"}
-                aria-label={submitting ? "Saving changes" : "Save changes"}
-                className="h-9 shadow-none hover:scale-100 hover:bg-primary/90 hover:shadow-none"
-              >
-                {/* {submitting ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <CheckCircle2 className="size-4" />
-                )} */}
-                <CheckCircle2 className="size-3 mr-1" />
-                Save
-              </Button>
-            </div>
+            <Button
+              type="submit"
+              size="sm"
+              form="task-details-form"
+              disabled={!form.title.trim() || isBusy}
+              title={submitting ? "Saving..." : "Save Changes"}
+              aria-label={submitting ? "Saving changes" : "Save changes"}
+              className="h-9 flex-1 shadow-none hover:scale-100 hover:bg-primary/90 hover:shadow-none sm:flex-none"
+            >
+              {/* {submitting ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <CheckCircle2 className="size-4" />
+              )} */}
+              <CheckCircle2 className="size-3 mr-1" />
+              Save
+            </Button>
           </div>
         </div>
       </div>
