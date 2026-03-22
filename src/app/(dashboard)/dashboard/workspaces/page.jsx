@@ -180,7 +180,7 @@ export default function WorkspacesPage() {
       setWorkspaceName("");
       setOnboardingEmails("");
       setOnboardingOpen(false);
-      router.push(`/dashboard/w/${workspace.id}`);
+      router.push(`/dashboard/w/${workspace.id}/board`);
     } catch (error) {
       setErrorText(error?.message || "Failed to create workspace");
     } finally {
@@ -344,7 +344,7 @@ export default function WorkspacesPage() {
       onClick={() => setOnboardingOpen(false)}
     />
     <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-card p-5 shadow-2xl">
-      <h3 className="text-base font-semibold">
+      <h3 className="text-foreground font-semibold">
         Create Workspace
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">
