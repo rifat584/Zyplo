@@ -37,8 +37,13 @@ export default function CreateTaskModal({
 
   useEffect(() => {
     if (!open) return;
-    setForm(INITIAL_FORM);
-    setOpenedAt(new Date().toISOString());
+
+    const frameId = requestAnimationFrame(() => {
+      setForm(INITIAL_FORM);
+      setOpenedAt(new Date().toISOString());
+    });
+
+    return () => cancelAnimationFrame(frameId);
   }, [open, columnName]);
 
   useEffect(() => {

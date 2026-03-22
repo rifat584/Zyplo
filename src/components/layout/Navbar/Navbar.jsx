@@ -58,7 +58,11 @@ const Navbar = () => {
 
   // Prevent hydration mismatch for theme toggle
   useEffect(() => {
-    setMounted(true);
+    const frameId = requestAnimationFrame(() => {
+      setMounted(true);
+    });
+
+    return () => cancelAnimationFrame(frameId);
   }, []);
 
   useEffect(() => {

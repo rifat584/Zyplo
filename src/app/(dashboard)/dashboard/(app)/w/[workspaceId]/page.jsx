@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useMockStore } from "@/components/dashboard/mockStore";
 
@@ -23,6 +23,7 @@ export default function WorkspaceOverviewPage() {
     () => tasks.filter((item) => item.workspaceId === workspaceId),
     [tasks, workspaceId]
   );
+  const [referenceNow] = useState(() => Date.now());
 
   const counts = useMemo(() => {
     const result = { todo: 0, inprogress: 0, inreview: 0, done: 0 };
@@ -33,7 +34,7 @@ export default function WorkspaceOverviewPage() {
     return result;
   }, [workspaceTasks]);
 
-  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const sevenDaysAgo = referenceNow - 7 * 24 * 60 * 60 * 1000;
   const last7DaysTasks = useMemo(
     () =>
       workspaceTasks.filter((task) => {
@@ -64,7 +65,7 @@ export default function WorkspaceOverviewPage() {
   const dueSoon = workspaceTasks.filter((task) => {
     if (!task.dueDate || (task.status || "todo") === "done") return false;
     const due = new Date(task.dueDate).getTime();
-    return due >= Date.now() && due <= Date.now() + 7 * 24 * 60 * 60 * 1000;
+    return due >= referenceNow && due <= referenceNow + 7 * 24 * 60 * 60 * 1000;
   }).length;
 
   const priorityCounts = useMemo(() => {

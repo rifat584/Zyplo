@@ -347,7 +347,7 @@ function DeleteProjectDialog({
                 id="delete-project-title"
                 className="font-heading text-lg font-semibold tracking-tight text-foreground"
               >
-                Delete project "{projectName}"?
+                Delete project &quot;{projectName}&quot;?
               </h2>
               <p className="text-sm leading-6 text-muted-foreground">
                 This will permanently delete this project and all associated data. This action cannot be undone.
@@ -735,7 +735,11 @@ function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const frameId = requestAnimationFrame(() => {
+      setMounted(true);
+    });
+
+    return () => cancelAnimationFrame(frameId);
   }, []);
 
   if (!mounted) return null;

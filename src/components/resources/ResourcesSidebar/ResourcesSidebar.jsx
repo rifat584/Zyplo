@@ -49,7 +49,11 @@ export default function ResourcesSidebar({ sections, open, onClose, title = "Con
 
     useEffect(() => {
         if (typeof open === "boolean") {
-            setOpenGroups((prev) => ({ ...prev, ["__mobile_root"]: open }));
+            const frameId = requestAnimationFrame(() => {
+                setOpenGroups((prev) => ({ ...prev, ["__mobile_root"]: open }));
+            });
+
+            return () => cancelAnimationFrame(frameId);
         }
     }, [open]);
 
@@ -78,7 +82,7 @@ export default function ResourcesSidebar({ sections, open, onClose, title = "Con
         return section.subsections?.some((sub) => sub.id === active);
     };
 
-    const LinkItem = ({ id, title, level = 0 }) => {
+    const renderLinkItem = ({ id, title, level = 0 }) => {
         const isActive = active === id;
 
         const handleClick = () => {
@@ -101,7 +105,7 @@ export default function ResourcesSidebar({ sections, open, onClose, title = "Con
         );
     };
 
-    const SidebarContent = () => (
+    const renderSidebarContent = () => (
         <nav className="space-y-2">
             {sections.map((s, i) => {
                 const hasChildren = !!s.subsections?.length;
@@ -164,12 +168,13 @@ export default function ResourcesSidebar({ sections, open, onClose, title = "Con
                         {hasChildren && isOpen && (
                             <div className="ml-8 mt-1 space-y-1">
                                 {s.subsections.map((sub) => (
-                                    <LinkItem
-                                        key={sub.id}
-                                        id={sub.id}
-                                        title={sub.title}
-                                        level={1}
-                                    />
+                                    <div key={sub.id}>
+                                        {renderLinkItem({
+                                            id: sub.id,
+                                            title: sub.title,
+                                            level: 1,
+                                        })}
+                                    </div>
                                 ))}
                             </div>
                         )}
@@ -186,7 +191,7 @@ export default function ResourcesSidebar({ sections, open, onClose, title = "Con
                 <p className="mb-2 text-lg font-semibold text-primary p-4">
                     {title}
                 </p>
-                <SidebarContent />
+                {renderSidebarContent()}
             </aside>
 
             {/* Mobile Collapsible Sidebar */}
@@ -208,7 +213,7 @@ export default function ResourcesSidebar({ sections, open, onClose, title = "Con
 
                 {openGroups["__mobile_root"] && (
                     <div className="border-t border-border p-3">
-                        <SidebarContent />
+                        {renderSidebarContent()}
                     </div>
                 )}
             </div>
