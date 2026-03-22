@@ -45,7 +45,7 @@ export default function TaskDeleteDialog({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-start justify-center bg-background/72 px-4 pt-[12vh]">
+    <div className="fixed inset-0 z-[60] overflow-y-auto bg-background/72">
       <button
         type="button"
         aria-label="Close task delete dialog"
@@ -56,12 +56,13 @@ export default function TaskDeleteDialog({
         className="absolute inset-0"
       />
 
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="task-delete-confirm-title"
-        className="relative w-full max-w-lg rounded-xl border border-border/70 bg-card p-6 text-card-foreground"
-      >
+      <div className="flex min-h-full items-center justify-center px-4 py-6 sm:py-8">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="task-delete-confirm-title"
+          className="relative w-full max-w-lg max-h-[calc(100vh-3rem)] overflow-y-auto rounded-xl border border-border/70 bg-card p-6 text-card-foreground"
+        >
         <div className="flex items-start gap-4">
           <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
             <AlertTriangle className="size-4" />
@@ -103,6 +104,7 @@ export default function TaskDeleteDialog({
               </button>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
