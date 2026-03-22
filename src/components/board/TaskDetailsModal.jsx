@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
+import { flushSync } from "react-dom";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
   CheckCircle2,
   Circle,
@@ -56,8 +58,9 @@ const EMPTY_FORM = {
 };
 
 const overviewLabelClass =
-  "pt-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground";
-const panelCardClass = "rounded-[28px] border border-border bg-card shadow-sm";
+  "pt-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground";
+const panelCardClass =
+  "overflow-hidden rounded-2xl border border-border bg-card shadow-sm";
 const panelHeaderClass =
   "border-b border-border bg-card px-4 py-4 sm:px-5";
 const sectionPanelClass = "rounded-2xl border border-border bg-muted/35";
@@ -69,6 +72,10 @@ const compactFieldClass =
   "h-10 w-full rounded-lg border border-border bg-background px-3 text-xs text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20";
 const compactTextAreaClass =
   "w-full rounded-xl border border-border bg-background p-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20";
+const detailFieldClass =
+  "h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20";
+const detailTextAreaClass =
+  "w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20";
 const subtleLabelClass =
   "text-xs font-semibold uppercase tracking-wide text-muted-foreground";
 const primaryActionClass =
@@ -81,16 +88,12 @@ const dangerActionClass =
   "inline-flex items-center justify-center gap-2 rounded-lg border border-destructive/25 bg-destructive/10 px-3 py-2 text-xs font-semibold text-destructive transition hover:bg-destructive/15 disabled:opacity-50";
 const textActionClass =
   "flex items-center gap-1.5 text-xs font-medium text-primary transition hover:text-primary/80 disabled:opacity-50";
+const headerRefButtonClass =
+  "inline-flex h-9 max-w-[12rem] items-center rounded-full border border-border bg-background px-3 text-xs font-semibold text-muted-foreground transition hover:bg-accent hover:text-accent-foreground";
 const accentIconClass =
   "mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-primary/12 text-primary";
 const neutralIconClass =
   "inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground";
-const projectBadgeClass =
-  "rounded-full bg-primary px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-primary-foreground";
-const metaBadgeClass =
-  "rounded-full border border-border bg-background px-3 py-1 text-[11px] font-medium text-muted-foreground";
-const infoChipClass =
-  "rounded-full bg-muted px-3 py-1 text-[11px] font-medium text-muted-foreground";
 
 function toDateInputValue(value) {
   if (!value) return "";
@@ -208,7 +211,7 @@ function getStatusLabel(options, value) {
 function OverviewRow({ label, children, alignTop = false }) {
   return (
     <div
-      className={`grid gap-2 border-b border-border py-4 last:border-b-0 sm:grid-cols-[112px_minmax(0,1fr)] lg:grid-cols-[128px_minmax(0,1fr)] ${
+      className={`grid gap-1.5 py-2.5 sm:grid-cols-[104px_minmax(0,1fr)] lg:grid-cols-[118px_minmax(0,1fr)] ${
         alignTop ? "items-start" : "items-center"
       }`}
     >
@@ -257,15 +260,16 @@ function EditableValueButton({
   multiline = false,
 }) {
   const hasValue = Boolean(String(value || "").trim());
+  const stableMinHeightClass = multiline ? "min-h-[5.5rem]" : "min-h-10";
+  const contentAlignmentClass =
+    multiline || secondaryText ? "items-start" : "items-center";
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`group -mx-2 w-[calc(100%+1rem)] rounded-xl px-2 py-2 text-left transition hover:bg-accent/60 ${
-        multiline ? "min-h-20" : ""
-      }`}
+      className={`group -mx-1.5 flex w-[calc(100%+0.75rem)] rounded-lg px-1.5 py-2 text-left transition hover:bg-accent/60 ${stableMinHeightClass}`}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className={`flex w-full justify-between gap-3 ${contentAlignmentClass}`}>
         <div className="min-w-0 flex-1">
           <div
             className={`${
@@ -340,6 +344,10 @@ export default function TaskDetailsModal({
   const [githubError, setGithubError] = useState("");
   const githubPanelInitRef = useRef(false);
   const fileInputRef = useRef(null);
+  const assigneeSelectRef = useRef(null);
+  const prioritySelectRef = useRef(null);
+  const statusSelectRef = useRef(null);
+  const dueDateInputRef = useRef(null);
   const isBusy =
     submitting || deleting || isUploading || timerBusy || manualBusy;
 
@@ -648,6 +656,66 @@ export default function TaskDetailsModal({
     }));
   };
 
+  const openPickerField = (field) => {
+    let pickerRef = null;
+
+    flushSync(() => {
+      setEditingField(field);
+    });
+
+    if (field === "assigneeId") pickerRef = assigneeSelectRef;
+    if (field === "priority") pickerRef = prioritySelectRef;
+    if (field === "status") pickerRef = statusSelectRef;
+    if (field === "dueDate") pickerRef = dueDateInputRef;
+
+    const node = pickerRef?.current;
+    if (!node) return;
+
+    node.focus();
+
+    if (typeof node.showPicker === "function") {
+      try {
+        node.showPicker();
+        return;
+      } catch {}
+    }
+
+    if (typeof node.click === "function") {
+      node.click();
+    }
+  };
+
+  const handleCopyTaskRef = async () => {
+    if (!task?.taskRef) return;
+
+    try {
+      if (
+        typeof navigator !== "undefined" &&
+        navigator.clipboard &&
+        typeof navigator.clipboard.writeText === "function"
+      ) {
+        await navigator.clipboard.writeText(task.taskRef);
+      } else if (typeof document !== "undefined") {
+        const textarea = document.createElement("textarea");
+        textarea.value = task.taskRef;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "absolute";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      } else {
+        throw new Error("Clipboard is unavailable");
+      }
+
+      toast.success("Copied task reference");
+    } catch (error) {
+      console.error(error);
+      toast.error("Couldn't copy task reference");
+    }
+  };
+
   if (!open || !task) return null;
   return (
     <div className="fixed inset-0 z-50">
@@ -658,39 +726,38 @@ export default function TaskDetailsModal({
         aria-label="Close task details modal"
       />
 
-      <div className="absolute left-1/2 top-1/2 flex max-h-[92vh] w-[min(96vw,72rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-[30px] border border-border bg-card text-card-foreground shadow-2xl">
-        <div className="shrink-0 border-b border-border bg-card px-4 py-4 sm:px-5">
+      <div className="absolute left-1/2 top-1/2 flex max-h-[92vh] w-[min(96vw,72rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-2xl">
+        <div className="shrink-0 border-b border-border bg-card px-4 py-3.5 sm:px-5">
           <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0 space-y-2.5">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className={projectBadgeClass}>
-                  {task.projectName || "Unknown Project"}
-                </span>
-                {task?.taskRef ? (
-                  <span className={`${metaBadgeClass} font-mono font-semibold`}>
-                    {task.taskRef}
-                  </span>
-                ) : null}
-                <span className={metaBadgeClass}>
-                  Reporter: {reporterDisplayName}
-                </span>
-              </div>
-              <div className="space-y-1">
-                <h2 className="truncate text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-                  {form.title || task.title || "Untitled Task"}
-                </h2>
-              </div>
+            <div className="min-w-0">
+              <h2 className="truncate text-lg font-semibold tracking-tight text-foreground sm:text-xl">
+                {form.title || task.title || "Untitled Task"}
+              </h2>
             </div>
 
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isBusy}
-              className={iconActionClass}
-              aria-label="Close task details modal"
-            >
-              <X className="size-4" />
-            </button>
+            <div className="flex shrink-0 items-center gap-2">
+              {task?.taskRef ? (
+                <button
+                  type="button"
+                  onClick={handleCopyTaskRef}
+                  className={headerRefButtonClass}
+                  title="Copy task reference"
+                  aria-label={`Copy task reference ${task.taskRef}`}
+                >
+                  <span className="truncate font-mono">{task.taskRef}</span>
+                </button>
+              ) : null}
+
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isBusy}
+                className={iconActionClass}
+                aria-label="Close task details modal"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -715,54 +782,43 @@ export default function TaskDetailsModal({
           >
             <div className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(18rem,0.95fr)]">
               <section className={`min-w-0 overflow-hidden ${panelCardClass}`}>
-                <div className={panelHeaderClass}>
-                  <div className="flex flex-col gap-4">
-                    <div className="space-y-1">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                        Sections
-                      </p>
-                      <h3 className="text-lg font-semibold text-foreground">
-                        Task Workspace
-                      </h3>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2" aria-label="Task detail sections">
-                      <TaskTabButton
-                        active={activeTab === "attachments"}
-                        icon={Paperclip}
-                        label="Attachments"
-                        badge={
-                          form.attachments.length > 0
-                            ? form.attachments.length
-                            : null
-                        }
-                        onClick={() => setActiveTab("attachments")}
-                      />
-                      <TaskTabButton
-                        active={activeTab === "time"}
-                        icon={TimerReset}
-                        label="Time Tracking"
-                        onClick={() => setActiveTab("time")}
-                      />
-                      <TaskTabButton
-                        active={activeTab === "comments"}
-                        icon={MessageSquare}
-                        label="Comments"
-                        badge={comments.length > 0 ? comments.length : null}
-                        onClick={() => setActiveTab("comments")}
-                      />
-                      <TaskTabButton
-                        active={activeTab === "github"}
-                        icon={GitBranch}
-                        label="GitHub Integration"
-                        badge={
-                          githubActivities.length > 0
-                            ? githubActivities.length
-                            : null
-                        }
-                        onClick={() => setActiveTab("github")}
-                      />
-                    </div>
+                <div className="border-b border-border bg-card px-4 py-3 sm:px-5">
+                  <div className="flex flex-wrap gap-2" aria-label="Task detail sections">
+                    <TaskTabButton
+                      active={activeTab === "attachments"}
+                      icon={Paperclip}
+                      label="Attachments"
+                      badge={
+                        form.attachments.length > 0
+                          ? form.attachments.length
+                          : null
+                      }
+                      onClick={() => setActiveTab("attachments")}
+                    />
+                    <TaskTabButton
+                      active={activeTab === "time"}
+                      icon={TimerReset}
+                      label="Time Tracking"
+                      onClick={() => setActiveTab("time")}
+                    />
+                    <TaskTabButton
+                      active={activeTab === "comments"}
+                      icon={MessageSquare}
+                      label="Comments"
+                      badge={comments.length > 0 ? comments.length : null}
+                      onClick={() => setActiveTab("comments")}
+                    />
+                    <TaskTabButton
+                      active={activeTab === "github"}
+                      icon={GitBranch}
+                      label="GitHub Integration"
+                      badge={
+                        githubActivities.length > 0
+                          ? githubActivities.length
+                          : null
+                      }
+                      onClick={() => setActiveTab("github")}
+                    />
                   </div>
                 </div>
 
@@ -1547,23 +1603,13 @@ export default function TaskDetailsModal({
               </section>
 
               <aside className={`h-fit xl:sticky xl:top-0 xl:self-start ${panelCardClass}`}>
-                <div className={`${panelHeaderClass} rounded-t-[28px]`}>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-1">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-                        Overview
-                      </p>
-                      <h3 className="text-lg font-semibold text-foreground">
-                        Task Information
-                      </h3>
-                    </div>
-                    <span className={infoChipClass}>
-                      Click text to edit
-                    </span>
-                  </div>
+                <div className={`${panelHeaderClass} flex items-center justify-between gap-3`}>
+                  <h3 className="text-base font-semibold text-foreground">
+                    Task details
+                  </h3>
                 </div>
 
-                <div className="px-5 py-2">
+                <div className="px-4 py-1 sm:px-5">
                   <OverviewRow label="Task Title">
                     {editingField === "title" ? (
                       <input
@@ -1582,7 +1628,7 @@ export default function TaskDetailsModal({
                           if (event.key === "Escape") setEditingField("");
                         }}
                         placeholder="Enter a clear task title"
-                        className={fieldClass}
+                        className={detailFieldClass}
                         required
                       />
                     ) : (
@@ -1598,7 +1644,7 @@ export default function TaskDetailsModal({
                     {editingField === "description" ? (
                       <textarea
                         id="task-details-description"
-                        rows={5}
+                        rows={3}
                         value={form.description}
                         autoFocus
                         onChange={(event) =>
@@ -1609,7 +1655,7 @@ export default function TaskDetailsModal({
                         }
                         onBlur={() => setEditingField("")}
                         placeholder="Add details, acceptance criteria, or important context"
-                        className={textAreaFieldClass}
+                        className={`${detailTextAreaClass} min-h-[5.5rem]`}
                       />
                     ) : (
                       <EditableValueButton
@@ -1624,6 +1670,7 @@ export default function TaskDetailsModal({
                   <OverviewRow label="Assignee">
                     {editingField === "assigneeId" ? (
                       <select
+                        ref={assigneeSelectRef}
                         id="task-details-assignee"
                         value={form.assigneeId}
                         autoFocus
@@ -1634,7 +1681,7 @@ export default function TaskDetailsModal({
                           }))
                         }
                         onBlur={() => setEditingField("")}
-                        className={fieldClass}
+                        className={detailFieldClass}
                       >
                         <option value="">Unassigned</option>
                         {members.map((member) => (
@@ -1647,27 +1694,15 @@ export default function TaskDetailsModal({
                       <EditableValueButton
                         value={assigneeDisplayName}
                         placeholder="Select an assignee"
-                        onClick={() => setEditingField("assigneeId")}
+                        onClick={() => openPickerField("assigneeId")}
                       />
                     )}
-                  </OverviewRow>
-
-                  <OverviewRow label="Reporter" alignTop>
-                    <div className="space-y-1 py-2">
-                      <div className="text-sm font-medium text-foreground">
-                        {reporterDisplayName}
-                      </div>
-                      {reporterSecondary ? (
-                        <div className="text-xs text-muted-foreground">
-                          {reporterSecondary}
-                        </div>
-                      ) : null}
-                    </div>
                   </OverviewRow>
 
                   <OverviewRow label="Due Date">
                     {editingField === "dueDate" ? (
                       <input
+                        ref={dueDateInputRef}
                         id="task-details-due-date"
                         type="date"
                         value={form.dueDate}
@@ -1679,43 +1714,13 @@ export default function TaskDetailsModal({
                           }))
                         }
                         onBlur={() => setEditingField("")}
-                        className={fieldClass}
+                        className={detailFieldClass}
                       />
                     ) : (
                       <EditableValueButton
                         value={dueDateLabel}
                         placeholder="No due date"
-                        onClick={() => setEditingField("dueDate")}
-                      />
-                    )}
-                  </OverviewRow>
-
-                  <OverviewRow label="Priority">
-                    {editingField === "priority" ? (
-                      <select
-                        id="task-details-priority"
-                        value={form.priority}
-                        autoFocus
-                        onChange={(event) =>
-                          setForm((prev) => ({
-                            ...prev,
-                            priority: event.target.value,
-                          }))
-                        }
-                        onBlur={() => setEditingField("")}
-                        className={fieldClass}
-                      >
-                        {PRIORITY_OPTIONS.map((item) => (
-                          <option key={item.value} value={item.value}>
-                            {item.label}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <EditableValueButton
-                        value={priorityLabel}
-                        placeholder="Select priority"
-                        onClick={() => setEditingField("priority")}
+                        onClick={() => openPickerField("dueDate")}
                       />
                     )}
                   </OverviewRow>
@@ -1723,6 +1728,7 @@ export default function TaskDetailsModal({
                   <OverviewRow label="Status">
                     {editingField === "status" ? (
                       <select
+                        ref={statusSelectRef}
                         id="task-details-status"
                         value={form.status}
                         autoFocus
@@ -1733,7 +1739,7 @@ export default function TaskDetailsModal({
                           }))
                         }
                         onBlur={() => setEditingField("")}
-                        className={fieldClass}
+                        className={detailFieldClass}
                       >
                         {statusOptions.map((item) => (
                           <option key={item.value} value={item.value}>
@@ -1745,31 +1751,63 @@ export default function TaskDetailsModal({
                       <EditableValueButton
                         value={statusLabel}
                         placeholder="Select status"
-                        onClick={() => setEditingField("status")}
+                        onClick={() => openPickerField("status")}
                       />
                     )}
                   </OverviewRow>
 
-                  <OverviewRow label="Project">
-                    <div className="py-2 text-sm font-medium text-foreground">
-                      {task.projectName || "Unknown Project"}
-                    </div>
+                  <OverviewRow label="Priority">
+                    {editingField === "priority" ? (
+                      <select
+                        ref={prioritySelectRef}
+                        id="task-details-priority"
+                        value={form.priority}
+                        autoFocus
+                        onChange={(event) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            priority: event.target.value,
+                          }))
+                        }
+                        onBlur={() => setEditingField("")}
+                        className={detailFieldClass}
+                      >
+                        {PRIORITY_OPTIONS.map((item) => (
+                          <option key={item.value} value={item.value}>
+                            {item.label}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <EditableValueButton
+                        value={priorityLabel}
+                        placeholder="Select priority"
+                        onClick={() => openPickerField("priority")}
+                      />
+                    )}
                   </OverviewRow>
 
-                  <OverviewRow label="Task Ref">
-                    <div className="break-all py-2 font-mono text-sm text-muted-foreground">
-                      {task.taskRef || "Not assigned"}
+                  <OverviewRow label="Reporter" alignTop>
+                    <div className="space-y-0.5 py-1">
+                      <div className="text-sm font-medium text-foreground">
+                        {reporterDisplayName}
+                      </div>
+                      {reporterSecondary ? (
+                        <div className="text-xs text-muted-foreground">
+                          {reporterSecondary}
+                        </div>
+                      ) : null}
                     </div>
                   </OverviewRow>
 
                   <OverviewRow label="Created">
-                    <div className="py-2 text-sm text-muted-foreground">
+                    <div className="py-1 text-sm text-muted-foreground">
                       {formatDateTime(task.createdAt)}
                     </div>
                   </OverviewRow>
 
                   <OverviewRow label="Updated">
-                    <div className="py-2 text-sm text-muted-foreground">
+                    <div className="py-1 text-sm text-muted-foreground">
                       {formatDateTime(updatedAtValue)}
                     </div>
                   </OverviewRow>
@@ -1781,13 +1819,15 @@ export default function TaskDetailsModal({
 
         <div className="shrink-0 border-t border-border bg-card px-4 py-3 sm:px-5">
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-end">
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={() => onDelete?.(task)}
               disabled={isBusy || !onDelete}
               title={deleting ? "Deleting..." : "Delete Task"}
               aria-label={deleting ? "Deleting task" : "Delete task"}
-              className={dangerActionClass}
+              className="h-9 border-destructive/25 bg-destructive/10 text-destructive shadow-none hover:scale-100 hover:bg-destructive/15 hover:text-destructive hover:shadow-none"
             >
               {/* {deleting ? (
                 <Loader2 className="size-4 animate-spin" />
@@ -1795,16 +1835,17 @@ export default function TaskDetailsModal({
                 <Trash2 className="size-4" /> 
               )} */}
               <Trash2 className="size-3 mr-1" /> Delete
-            </button>
+            </Button>
 
             <div className="flex items-center justify-end gap-2">
-              <button
+              <Button
                 type="submit"
+                size="sm"
                 form="task-details-form"
                 disabled={!form.title.trim() || isBusy}
                 title={submitting ? "Saving..." : "Save Changes"}
                 aria-label={submitting ? "Saving changes" : "Save changes"}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/15 transition hover:bg-primary/90 disabled:opacity-50"
+                className="h-9 shadow-none hover:scale-100 hover:bg-primary/90 hover:shadow-none"
               >
                 {/* {submitting ? (
                   <Loader2 className="size-4 animate-spin" />
@@ -1813,7 +1854,7 @@ export default function TaskDetailsModal({
                 )} */}
                 <CheckCircle2 className="size-3 mr-1" />
                 Save
-              </button>
+              </Button>
             </div>
           </div>
         </div>

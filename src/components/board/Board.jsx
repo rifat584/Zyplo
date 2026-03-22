@@ -11,9 +11,9 @@ import {
 } from "@dnd-kit/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RefreshCw, Plus, Filter } from "lucide-react";
-import Swal from "sweetalert2";
 import { toast } from "sonner";
 import { loadDashboard } from "@/components/dashboard/mockStore";
+import TaskDeleteDialog from "@/components/dashboard/taskDeleteDialog";
 import { Button } from "@/components/ui/button";
 import {
   findColumnByStatus,
@@ -263,6 +263,7 @@ export default function Board({ workspaceId, projectId }) {
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedColumnId, setSelectedColumnId] = useState("");
   const [selectedTaskId, setSelectedTaskId] = useState("");
+  const [pendingDeleteTask, setPendingDeleteTask] = useState(null);
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
   const [columnFilters, setColumnFilters] = useState({
     taskName: "",
@@ -547,6 +548,7 @@ export default function Board({ workspaceId, projectId }) {
 
   function closeTaskDetails() {
     if (updateTaskMutation.isPending) return;
+    setPendingDeleteTask(null);
     setSelectedTaskId("");
   }
 
@@ -724,24 +726,19 @@ export default function Board({ workspaceId, projectId }) {
     });
   }
 
-  async function handleTaskDelete() {
+  function handleTaskDeleteRequest() {
     if (!selectedTask?.id || deleteTaskMutation.isPending) return;
-    const result = await Swal.fire({
-      title: "Delete task?",
-      text: `Delete "${selectedTask.title || "Untitled Task"}"?`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, delete",
-      cancelButtonText: "Cancel",
-      reverseButtons: true,
-      background: "#0f172a",
-      color: "#e2e8f0",
-      confirmButtonColor: "#dc2626",
-      cancelButtonColor: "#334155",
+    setPendingDeleteTask({
+      id: String(selectedTask.id),
+      title: selectedTask.title || "",
     });
-    if (!result.isConfirmed) return;
+  }
 
-    deleteTaskMutation.mutate(selectedTask.id);
+  function handleTaskDeleteConfirm() {
+    if (!pendingDeleteTask?.id || deleteTaskMutation.isPending) return;
+    const taskId = pendingDeleteTask.id;
+    setPendingDeleteTask(null);
+    deleteTaskMutation.mutate(taskId);
   }
 
   // --- SHOW SKELETON ON LOAD ---
@@ -998,7 +995,18 @@ export default function Board({ workspaceId, projectId }) {
         deleting={deleteTaskMutation.isPending}
         onClose={closeTaskDetails}
         onSubmit={handleTaskUpdate}
-        onDelete={handleTaskDelete}
+        onDelete={handleTaskDeleteRequest}
+      />
+
+      <TaskDeleteDialog
+        open={Boolean(pendingDeleteTask)}
+        taskTitle={pendingDeleteTask?.title}
+        busy={deleteTaskMutation.isPending}
+        onClose={() => {
+          if (deleteTaskMutation.isPending) return;
+          setPendingDeleteTask(null);
+        }}
+        onConfirm={handleTaskDeleteConfirm}
       />
     </>
   );
