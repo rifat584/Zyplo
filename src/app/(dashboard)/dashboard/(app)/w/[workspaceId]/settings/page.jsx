@@ -174,35 +174,6 @@ export default function WorkspaceSettingsPage() {
     if (!workspaceId || !isAdmin) return;
     let alive = true;
 
-    async function loadBillingStatus() {
-      try {
-        setBillingLoading(true);
-        setBillingError("");
-
-        const data = await requestJson(
-          `/api/billing/subscription?workspaceId=${encodeURIComponent(workspaceId)}`,
-        );
-        if (!alive) return;
-        setBillingStatus(data);
-      } catch (err) {
-        if (!alive) return;
-        setBillingStatus(null);
-        setBillingError(String(err?.message || "Failed to load billing status."));
-      } finally {
-        if (alive) setBillingLoading(false);
-      }
-    }
-
-    loadBillingStatus();
-    return () => {
-      alive = false;
-    };
-  }, [workspaceId, isAdmin]);
-
-  useEffect(() => {
-    if (!workspaceId || !isAdmin) return;
-    let alive = true;
-
     async function loadGithubStatus() {
       try {
         setGithubLoading(true);

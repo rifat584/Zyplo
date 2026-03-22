@@ -6,9 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
   ArrowRight,
-  Building2,
   CheckCircle2,
-  ChevronDown,
   CreditCard,
   LoaderCircle,
   RefreshCw,
@@ -22,26 +20,6 @@ import PricingBenefits from "@/components/Pricing/PricingBenefits";
 import PricingComparison from "@/components/Pricing/PricingComparison";
 import PricingFAQ from "@/components/Pricing/PricingFAQ";
 import PricingFinalCTA from "@/components/Pricing/PricingFinalCTA";
-
-function normalizeEmail(value) {
-  return String(value || "")
-    .trim()
-    .toLowerCase();
-}
-
-function resolveWorkspaceRole(workspace, currentUser) {
-  const userId = String(currentUser?.id || "");
-  const userEmail = normalizeEmail(currentUser?.email);
-
-  const member = (workspace?.members || []).find((item) => {
-    const memberUserId = String(item?.userId || item?.id || "");
-    const memberEmail = normalizeEmail(item?.email);
-    return (userId && memberUserId === userId) || (userEmail && memberEmail === userEmail);
-  });
-
-  const role = String(member?.role || "").toLowerCase();
-  return role === "owner" ? "admin" : role;
-}
 
 async function requestJson(url, options = {}) {
   const response = await fetch(url, {
@@ -116,20 +94,17 @@ export default function PricingExperience({
   const { data: session, status: sessionStatus } = useSession();
 
   const [yearly, setYearly] = useState(true);
-  const [workspaceOptions, setWorkspaceOptions] = useState([]);
-  const [workspaceLoading, setWorkspaceLoading] = useState(sessionStatus === "loading");
-  const [workspaceError, setWorkspaceError] = useState("");
   const [subscriptionData, setSubscriptionData] = useState(null);
-  const [subscriptionLoading, setSubscriptionLoading] = useState(false);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(sessionStatus === "loading");
   const [subscriptionError, setSubscriptionError] = useState("");
   const [checkoutLoadingPlanId, setCheckoutLoadingPlanId] = useState("");
   const [portalLoading, setPortalLoading] = useState(false);
   const [refreshNonce, setRefreshNonce] = useState(0);
   const [successPollCount, setSuccessPollCount] = useState(0);
 
-  const workspaceIdParam = String(searchParams.get("workspaceId") || "").trim();
   const checkoutState = String(searchParams.get("checkout") || "").trim().toLowerCase();
   const checkoutSessionId = String(searchParams.get("session_id") || "").trim();
+  const billingCycle = yearly ? "yearly" : "monthly";
 
   const orderedPlans = useMemo(() => {
     return [
@@ -141,77 +116,11 @@ export default function PricingExperience({
 
   useEffect(() => {
     if (sessionStatus === "loading") {
-      setWorkspaceLoading(true);
+      setSubscriptionLoading(true);
       return;
     }
 
     if (sessionStatus !== "authenticated") {
-      setWorkspaceLoading(false);
-      setWorkspaceError("");
-      setWorkspaceOptions([]);
-      return;
-    }
-
-    let active = true;
-
-    async function loadWorkspaces() {
-      try {
-        setWorkspaceLoading(true);
-        setWorkspaceError("");
-
-        const data = await requestJson("/api/dashboard/bootstrap");
-        if (!active) return;
-
-        const currentUser = data?.currentUser || {
-          id: session?.user?.id,
-          email: session?.user?.email,
-          name: session?.user?.name,
-        };
-
-        const adminWorkspaces = (data?.workspaces || [])
-          .filter((workspace) => resolveWorkspaceRole(workspace, currentUser) === "admin")
-          .map((workspace) => ({
-            id: String(workspace.id || ""),
-            name: workspace.name || "Workspace",
-          }))
-          .filter((workspace) => workspace.id);
-
-        setWorkspaceOptions(adminWorkspaces);
-
-        if (workspaceIdParam && !adminWorkspaces.some((workspace) => workspace.id === workspaceIdParam)) {
-          setWorkspaceError("That workspace is not available for billing with your current account.");
-        }
-      } catch (error) {
-        if (!active) return;
-        setWorkspaceOptions([]);
-        setWorkspaceError(String(error?.message || "Failed to load your workspaces."));
-      } finally {
-        if (active) setWorkspaceLoading(false);
-      }
-    }
-
-    loadWorkspaces();
-    return () => {
-      active = false;
-    };
-  }, [session?.user?.email, session?.user?.id, session?.user?.name, sessionStatus, workspaceIdParam]);
-
-  const selectedWorkspace = useMemo(() => {
-    if (workspaceIdParam) {
-      return workspaceOptions.find((workspace) => workspace.id === workspaceIdParam) || null;
-    }
-    if (workspaceOptions.length === 1) {
-      return workspaceOptions[0];
-    }
-    return null;
-  }, [workspaceIdParam, workspaceOptions]);
-
-  const selectedWorkspaceId = selectedWorkspace?.id || "";
-  const selectedWorkspaceName = selectedWorkspace?.name || "";
-  const billingCycle = yearly ? "yearly" : "monthly";
-
-  useEffect(() => {
-    if (sessionStatus !== "authenticated" || !selectedWorkspaceId) {
       setSubscriptionData(null);
       setSubscriptionLoading(false);
       setSubscriptionError("");
@@ -225,9 +134,7 @@ export default function PricingExperience({
         setSubscriptionLoading(true);
         setSubscriptionError("");
 
-        const data = await requestJson(
-          `/api/billing/subscription?workspaceId=${encodeURIComponent(selectedWorkspaceId)}`,
-        );
+        const data = await requestJson("/api/billing/subscription");
         if (!active) return;
 
         setSubscriptionData(data);
@@ -248,20 +155,35 @@ export default function PricingExperience({
     return () => {
       active = false;
     };
-  }, [refreshNonce, selectedWorkspaceId, sessionStatus]);
+  }, [refreshNonce, sessionStatus]);
 
   useEffect(() => {
     setSuccessPollCount(0);
-  }, [checkoutSessionId, checkoutState, selectedWorkspaceId]);
+  }, [checkoutSessionId, checkoutState]);
 
   const subscription = subscriptionData?.subscription || null;
   const subscriptionStatus = String(subscription?.status || "inactive").toLowerCase();
+  const existingManagedSubscription =
+    Boolean(subscription?.planId) && !isTerminalBillingStatus(subscriptionStatus);
+  const activePlanId = subscription?.planId || "";
+  const activeBillingCycle = subscription?.billingCycle || "";
+
+  const accountLabel = useMemo(() => {
+    const ownerName = String(subscriptionData?.owner?.billingContactName || "").trim();
+    const sessionName = String(session?.user?.name || "").trim();
+    return ownerName || sessionName || "Your Account";
+  }, [session?.user?.name, subscriptionData?.owner?.billingContactName]);
+
+  const accountEmail = useMemo(() => {
+    const ownerEmail = String(subscriptionData?.owner?.billingEmail || "").trim();
+    const sessionEmail = String(session?.user?.email || "").trim();
+    return ownerEmail || sessionEmail || "";
+  }, [session?.user?.email, subscriptionData?.owner?.billingEmail]);
 
   useEffect(() => {
     if (
       checkoutState !== "success" ||
       sessionStatus !== "authenticated" ||
-      !selectedWorkspaceId ||
       subscriptionLoading ||
       subscription?.hasAccess ||
       successPollCount >= 4
@@ -277,24 +199,13 @@ export default function PricingExperience({
     return () => clearTimeout(timeoutId);
   }, [
     checkoutState,
-    selectedWorkspaceId,
     sessionStatus,
     subscription?.hasAccess,
     subscriptionLoading,
     successPollCount,
   ]);
 
-  const pricingHref = useMemo(() => {
-    const params = new URLSearchParams();
-    if (selectedWorkspaceId) params.set("workspaceId", selectedWorkspaceId);
-    return `/pricing${params.toString() ? `?${params.toString()}` : ""}`;
-  }, [selectedWorkspaceId]);
-
-  const existingManagedSubscription =
-    Boolean(subscription?.planId) && !isTerminalBillingStatus(subscriptionStatus);
-
-  const activePlanId = subscription?.planId || "";
-  const activeBillingCycle = subscription?.billingCycle || "";
+  const pricingHref = "/pricing";
 
   const checkoutNotice = useMemo(() => {
     if (checkoutState === "success") {
@@ -302,9 +213,10 @@ export default function PricingExperience({
         return {
           tone: "success",
           title: "Subscription is live.",
-          description: selectedWorkspaceName
-            ? `${selectedWorkspaceName} now has access to paid billing features.`
-            : "Your workspace subscription is active.",
+          description:
+            accountLabel === "Your Account"
+              ? "Your account now has access to paid billing features."
+              : `${accountLabel} now has access to paid billing features.`,
         };
       }
 
@@ -325,20 +237,7 @@ export default function PricingExperience({
     }
 
     return null;
-  }, [checkoutState, selectedWorkspaceName, subscription?.hasAccess]);
-
-  function updatePricingSearch(nextWorkspaceId) {
-    const nextParams = new URLSearchParams(searchParams.toString());
-
-    if (nextWorkspaceId) nextParams.set("workspaceId", nextWorkspaceId);
-    else nextParams.delete("workspaceId");
-
-    nextParams.delete("checkout");
-    nextParams.delete("session_id");
-
-    const nextQuery = nextParams.toString();
-    router.replace(`/pricing${nextQuery ? `?${nextQuery}` : ""}`, { scroll: false });
-  }
+  }, [accountLabel, checkoutState, subscription?.hasAccess]);
 
   async function handleManageBilling() {
     if (sessionStatus !== "authenticated") {
@@ -346,7 +245,7 @@ export default function PricingExperience({
       return;
     }
 
-    if (!selectedWorkspaceId || portalLoading) return;
+    if (portalLoading) return;
 
     try {
       setPortalLoading(true);
@@ -354,7 +253,7 @@ export default function PricingExperience({
 
       const data = await requestJson("/api/billing/portal-session", {
         method: "POST",
-        body: JSON.stringify({ workspaceId: selectedWorkspaceId }),
+        body: JSON.stringify({}),
       });
 
       if (!data?.url) {
@@ -375,7 +274,7 @@ export default function PricingExperience({
       return;
     }
 
-    if (!selectedWorkspaceId || checkoutLoadingPlanId) return;
+    if (checkoutLoadingPlanId) return;
 
     try {
       setCheckoutLoadingPlanId(planId);
@@ -386,7 +285,6 @@ export default function PricingExperience({
         body: JSON.stringify({
           planId,
           billingCycle,
-          workspaceId: selectedWorkspaceId,
         }),
       });
 
@@ -398,7 +296,7 @@ export default function PricingExperience({
     } catch (error) {
       if (error?.status === 409 && subscription?.portalAvailable) {
         setSubscriptionError(
-          "This workspace already has a Stripe subscription. Opening billing portal so you can manage it there.",
+          "This account already has a Stripe subscription. Opening billing portal so you can manage it there.",
         );
         await handleManageBilling();
         return;
@@ -410,7 +308,7 @@ export default function PricingExperience({
     }
   }
 
-  const planActions = useMemo(() => {
+  const planActions = (() => {
     const actions = {};
 
     for (const plan of orderedPlans) {
@@ -439,27 +337,7 @@ export default function PricingExperience({
           kind: "link",
           href: `/login?callbackUrl=${encodeURIComponent(pricingHref)}`,
           label: "Log In to Continue",
-          note: "Sign in first so we can attach billing to the right workspace.",
-        };
-        continue;
-      }
-
-      if (!workspaceOptions.length) {
-        actions[plan.id] = {
-          kind: "button",
-          label: "Admin Workspace Required",
-          disabled: true,
-          note: "You need admin access in at least one workspace to subscribe.",
-        };
-        continue;
-      }
-
-      if (!selectedWorkspaceId) {
-        actions[plan.id] = {
-          kind: "button",
-          label: "Select Workspace",
-          disabled: true,
-          note: "Pick the workspace you want Stripe billing to cover.",
+          note: "Sign in first so we can attach billing to your account.",
         };
         continue;
       }
@@ -473,9 +351,7 @@ export default function PricingExperience({
           label: "Current Plan",
           disabled: true,
           variant: "current",
-          note: selectedWorkspaceName
-            ? `${selectedWorkspaceName} is already on this billing setup.`
-            : "This workspace is already subscribed to this setup.",
+          note: "Your account is already on this billing setup.",
         };
         continue;
       }
@@ -503,30 +379,12 @@ export default function PricingExperience({
         onClick: () => handleCheckout(plan.id),
         busy: checkoutLoadingPlanId === plan.id,
         disabled: Boolean(checkoutLoadingPlanId && checkoutLoadingPlanId !== plan.id),
-        note: selectedWorkspaceName
-          ? `Start checkout for ${selectedWorkspaceName}.`
-          : "Continue to hosted Stripe Checkout.",
+        note: "Continue to hosted Stripe Checkout.",
       };
     }
 
     return actions;
-  }, [
-    activeBillingCycle,
-    activePlanId,
-    billingCycle,
-    checkoutLoadingPlanId,
-    existingManagedSubscription,
-    orderedPlans,
-    portalLoading,
-    pricingHref,
-    selectedWorkspaceId,
-    selectedWorkspaceName,
-    sessionStatus,
-    subscription?.hasAccess,
-    subscription?.portalAvailable,
-    subscriptionStatus,
-    workspaceOptions.length,
-  ]);
+  })();
 
   return (
     <>
@@ -543,7 +401,7 @@ export default function PricingExperience({
               <div className="flex flex-wrap items-center gap-3">
                 <span className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/8 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] text-primary">
                   <CreditCard className="h-3.5 w-3.5" />
-                  Workspace Billing
+                  Account Billing
                 </span>
                 {checkoutNotice ? (
                   <span
@@ -586,11 +444,11 @@ export default function PricingExperience({
                 <div className="space-y-5">
                   <div>
                     <h2 className="text-3xl font-heading font-semibold tracking-tight text-foreground sm:text-4xl">
-                      Choose where your subscription lives.
+                      Manage your subscription.
                     </h2>
                     <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                      Billing in Zyplo is managed per workspace. Pick the workspace first, then start a hosted Stripe
-                      checkout or jump straight into the billing portal when a subscription already exists.
+                      Billing in Zyplo is managed per user account. Start a hosted Stripe checkout for your account or
+                      jump straight into the billing portal when a subscription already exists.
                     </p>
                   </div>
 
@@ -598,7 +456,7 @@ export default function PricingExperience({
                     <div className="rounded-3xl border border-border bg-background/85 p-4">
                       <div className="flex items-center gap-3 text-sm text-muted-foreground">
                         <LoaderCircle className="h-4 w-4 animate-spin" />
-                        Checking your account and workspaces...
+                        Checking your account...
                       </div>
                     </div>
                   ) : sessionStatus !== "authenticated" ? (
@@ -610,7 +468,7 @@ export default function PricingExperience({
                         <div className="flex-1">
                           <p className="text-sm font-semibold text-foreground">Log in before starting billing.</p>
                           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                            We only start subscription checkout after we know which account and workspace should own it.
+                            We only start subscription checkout after we know which account should own it.
                           </p>
                         </div>
                         <Link
@@ -627,16 +485,16 @@ export default function PricingExperience({
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
                           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                            Billing Workspace
+                            Billing Account
                           </p>
                           <p className="mt-1 text-sm text-muted-foreground">
-                            Admin access is required to start checkout or manage Stripe billing.
+                            Your Stripe subscription is attached to your Zyplo account.
                           </p>
                         </div>
                         <button
                           type="button"
                           onClick={() => setRefreshNonce((count) => count + 1)}
-                          disabled={!selectedWorkspaceId || subscriptionLoading}
+                          disabled={subscriptionLoading}
                           className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-55"
                         >
                           <RefreshCw className={`h-3.5 w-3.5 ${subscriptionLoading ? "animate-spin" : ""}`} />
@@ -644,62 +502,15 @@ export default function PricingExperience({
                         </button>
                       </div>
 
-                      <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
-                        <label className="relative block">
-                          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                            <Building2 className="h-4 w-4" />
-                          </span>
-                          <select
-                            value={selectedWorkspaceId}
-                            onChange={(event) => updatePricingSearch(String(event.target.value || "").trim())}
-                            disabled={workspaceLoading || !workspaceOptions.length}
-                            className="h-12 w-full appearance-none rounded-2xl border border-border bg-card pl-10 pr-12 text-sm font-medium text-foreground outline-none transition focus-visible:ring-2 focus-visible:ring-secondary disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {!selectedWorkspaceId && workspaceOptions.length !== 1 ? (
-                              <option value="">Select a workspace</option>
-                            ) : null}
-                            {workspaceOptions.map((workspace) => (
-                              <option key={workspace.id} value={workspace.id}>
-                                {workspace.name}
-                              </option>
-                            ))}
-                          </select>
-                          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                            <ChevronDown className="h-4 w-4" />
-                          </span>
-                        </label>
-
-                        {selectedWorkspaceId ? (
-                          <Link
-                            href={`/dashboard/w/${selectedWorkspaceId}/settings`}
-                            className="inline-flex h-12 items-center justify-center rounded-2xl border border-border bg-card px-4 text-sm font-semibold text-foreground transition hover:bg-muted"
-                          >
-                            Workspace Settings
-                          </Link>
-                        ) : (
-                          <div className="hidden sm:block" />
-                        )}
-                      </div>
-
-                      {workspaceLoading ? (
-                        <p className="mt-3 text-sm text-muted-foreground">Loading your admin workspaces...</p>
-                      ) : workspaceError ? (
-                        <p className="mt-3 text-sm text-destructive">{workspaceError}</p>
-                      ) : !workspaceOptions.length ? (
-                        <p className="mt-3 text-sm text-warning">
-                          No admin workspace is available for billing yet. Ask a workspace admin for access or create a
-                          new workspace first.
-                        </p>
-                      ) : selectedWorkspaceName ? (
-                        <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-border bg-muted/60 px-3 py-1.5 text-xs font-medium text-muted-foreground">
-                          <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-                          Billing actions will apply to <span className="text-foreground">{selectedWorkspaceName}</span>.
+                      <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 text-sm">
+                        <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                          <ShieldCheck className="h-5 w-5" />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-foreground">{accountLabel}</p>
+                          <p className="truncate text-muted-foreground">{accountEmail || "Signed in account"}</p>
                         </div>
-                      ) : (
-                        <p className="mt-3 text-sm text-muted-foreground">
-                          Pick the workspace you want to subscribe before choosing a plan below.
-                        </p>
-                      )}
+                      </div>
 
                       {subscriptionError ? (
                         <div className="mt-4 rounded-2xl border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -716,18 +527,16 @@ export default function PricingExperience({
                       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
                         Current Subscription
                       </p>
-                      <h3 className="mt-2 text-2xl font-heading font-semibold text-foreground">
-                        {selectedWorkspaceName || "Choose a workspace"}
-                      </h3>
+                      <h3 className="mt-2 text-2xl font-heading font-semibold text-foreground">{accountLabel}</h3>
                     </div>
                     <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                       <CreditCard className="h-5 w-5" />
                     </span>
                   </div>
 
-                  {!selectedWorkspaceId ? (
+                  {sessionStatus !== "authenticated" ? (
                     <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
-                      Select a workspace to load its billing status, renewal timeline, and available Stripe actions.
+                      Log in to load your billing status, renewal timeline, and available Stripe actions.
                     </p>
                   ) : subscriptionLoading ? (
                     <div className="mt-5 flex items-center gap-3 text-sm text-muted-foreground">
@@ -774,7 +583,7 @@ export default function PricingExperience({
 
                       <div className="flex flex-col gap-2 sm:flex-row">
                         <Link
-                          href={selectedWorkspaceId ? `/pricing?workspaceId=${selectedWorkspaceId}#pricing-cards` : "#"}
+                          href="/pricing#pricing-cards"
                           className="inline-flex min-h-11 flex-1 items-center justify-center rounded-2xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition hover:brightness-110"
                         >
                           {subscription?.planId ? "Review Plans" : "Choose a Plan"}
@@ -818,7 +627,6 @@ export default function PricingExperience({
         currentPlanId={activePlanId}
         currentBillingCycle={activeBillingCycle}
         subscriptionStatus={subscriptionStatus}
-        selectedWorkspaceName={selectedWorkspaceName}
       />
       <PricingBenefits benefits={benefits} />
       <PricingComparison categories={comparisonCategories} />
@@ -827,3 +635,4 @@ export default function PricingExperience({
     </>
   );
 }
+

@@ -909,7 +909,6 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         const isAdmin = resolveWorkspaceRole(workspace, currentUser) === "admin";
         const badgeLabel = getWorkspaceBadgeLabel(workspace);
         const badgeGradient = pickWorkspaceGradient(workspace);
-        const billingBadge = workspaceBilling[workspace.id] || null;
         const href = `/dashboard/w/${workspace.id}`;
         const active = pathname === href || pathname.startsWith(`${href}/`);
         const menuOpen = actionsOpenFor === workspace.id;
@@ -939,28 +938,8 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                 )}
               >
                 {badgeLabel}
-                {effectiveCollapsed && billingBadge ? (
-                  <span
-                    className={cn(
-                      "absolute -right-1 -top-1 inline-flex min-h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold shadow-sm",
-                      billingBadge.chipClassName,
-                    )}
-                  >
-                    {billingBadge.short}
-                  </span>
-                ) : null}
               </span>
               {!effectiveCollapsed ? <span className="truncate text-sm">{workspace.name}</span> : null}
-              {!effectiveCollapsed && billingBadge ? (
-                <span
-                  className={cn(
-                    "ml-auto inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold",
-                    billingBadge.pillClassName,
-                  )}
-                >
-                  {billingBadge.label}
-                </span>
-              ) : null}
             </button>
 
             {!effectiveCollapsed ? (
