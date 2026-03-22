@@ -93,13 +93,48 @@ const WORKSPACE_BADGE_GRADIENTS = [
 ];
 
 const WORKSPACE_NAV_ITEMS = [
-  { id: "overview", label: "Overview", icon: LayoutGrid, href: (id) => `/dashboard/w/${id}` },
-  { id: "timeline", label: "Timeline", icon: GanttChartSquare, href: (id) => `/dashboard/w/${id}/timeline` },
-  { id: "board", label: "Board", icon: KanbanSquare, href: (id) => `/dashboard/w/${id}/board` },
-  { id: "calender", label: "Calendar", icon: CalendarDays, href: (id) => `/dashboard/w/${id}/calender` },
-  { id: "list", label: "List", icon: List, href: (id) => `/dashboard/w/${id}/list` },
-  { id: "timesheet", label: "Time Sheet", icon: Clock3, href: (id) => `/dashboard/w/${id}/timesheet` },
-  { id: "members", label: "Members", icon: Users, href: (id) => `/dashboard/w/${id}/members` },
+  {
+    id: "overview",
+    label: "Overview",
+    icon: LayoutGrid,
+    href: (id) => `/dashboard/w/${id}`,
+  },
+  {
+    id: "timeline",
+    label: "Timeline",
+    icon: GanttChartSquare,
+    href: (id) => `/dashboard/w/${id}/timeline`,
+  },
+  {
+    id: "board",
+    label: "Board",
+    icon: KanbanSquare,
+    href: (id) => `/dashboard/w/${id}/board`,
+  },
+  {
+    id: "calender",
+    label: "Calendar",
+    icon: CalendarDays,
+    href: (id) => `/dashboard/w/${id}/calender`,
+  },
+  {
+    id: "list",
+    label: "List",
+    icon: List,
+    href: (id) => `/dashboard/w/${id}/list`,
+  },
+  {
+    id: "timesheet",
+    label: "Time Sheet",
+    icon: Clock3,
+    href: (id) => `/dashboard/w/${id}/timesheet`,
+  },
+  {
+    id: "members",
+    label: "Members",
+    icon: Users,
+    href: (id) => `/dashboard/w/${id}/members`,
+  },
 ];
 
 function useSidebarState() {
@@ -315,7 +350,8 @@ function DeleteProjectDialog({
                 Delete project &quot;{projectName}&quot;?
               </h2>
               <p className="text-sm leading-6 text-muted-foreground">
-                This will permanently delete this project and all associated data. This action cannot be undone.
+                This will permanently delete this project and all associated
+                data. This action cannot be undone.
               </p>
             </div>
 
@@ -398,12 +434,8 @@ function AvatarMenu() {
       {open ? (
         <div className="absolute right-0 top-11 z-30 w-56 rounded-xl border border-border bg-card p-2">
           <div className="mb-2 border-b border-border pb-2">
-            <p className="text-sm font-medium text-foreground">
-              {displayName}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {displayEmail}
-            </p>
+            <p className="text-sm font-medium text-foreground">{displayName}</p>
+            <p className="text-xs text-muted-foreground">{displayEmail}</p>
           </div>
           <button
             type="button"
@@ -447,7 +479,8 @@ function formatElapsed(seconds) {
   const h = Math.floor(safe / 3600);
   const m = Math.floor((safe % 3600) / 60);
   const s = safe % 60;
-  if (h > 0) return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  if (h > 0)
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
@@ -488,7 +521,9 @@ function GlobalTimerControl() {
       const text = await response.text();
       const data = parseJsonSafe(text, null);
       if (!response.ok) {
-        throw new Error(data?.error || data?.message || "Failed to fetch active timer");
+        throw new Error(
+          data?.error || data?.message || "Failed to fetch active timer",
+        );
       }
       setActiveTimer(data?.activeTimer || null);
     } catch {
@@ -507,7 +542,8 @@ function GlobalTimerControl() {
       fetchActiveTimer().catch(() => {});
     }
     window.addEventListener("zyplo-timer-updated", onTimerUpdated);
-    return () => window.removeEventListener("zyplo-timer-updated", onTimerUpdated);
+    return () =>
+      window.removeEventListener("zyplo-timer-updated", onTimerUpdated);
   }, []);
 
   useEffect(() => {
@@ -523,14 +559,21 @@ function GlobalTimerControl() {
     return () => clearInterval(tick);
   }, [activeTimer]);
 
-  const startMs = activeTimer?.startTime ? new Date(activeTimer.startTime).getTime() : null;
+  const startMs = activeTimer?.startTime
+    ? new Date(activeTimer.startTime).getTime()
+    : null;
   const baseDuration = Number(activeTimer?.duration || 0);
   const liveDuration =
     startMs && Number.isFinite(startMs)
-      ? Math.max(baseDuration, baseDuration + Math.floor((nowMs - startMs) / 1000))
+      ? Math.max(
+          baseDuration,
+          baseDuration + Math.floor((nowMs - startMs) / 1000),
+        )
       : baseDuration;
   const activeTask =
-    tasks.find((task) => String(task.id) === String(activeTimer?.taskId || "")) || null;
+    tasks.find(
+      (task) => String(task.id) === String(activeTimer?.taskId || ""),
+    ) || null;
   const hasActiveTimer = Boolean(activeTimer?.id);
 
   const containerClasses = hasActiveTimer
@@ -548,11 +591,17 @@ function GlobalTimerControl() {
         containerClasses,
       )}
     >
-      <span className={`inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold ${textClasses}`}>
+      <span
+        className={`inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold ${textClasses}`}
+      >
         <Timer className="size-3.5 sm:size-4 shrink-0" />
-        
+
         <span className={hasActiveTimer ? "" : "hidden sm:inline"}>
-          {loading && !hasActiveTimer ? "..." : hasActiveTimer ? formatElapsed(liveDuration) : "No timer"}
+          {loading && !hasActiveTimer
+            ? "..."
+            : hasActiveTimer
+              ? formatElapsed(liveDuration)
+              : "No timer"}
         </span>
       </span>
 
@@ -567,15 +616,20 @@ function GlobalTimerControl() {
               if (!hasActiveTimer || stopping) return;
               try {
                 setStopping(true);
-                const response = await fetch(`/api/dashboard/time/${activeTimer.id}/stop`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({}),
-                });
+                const response = await fetch(
+                  `/api/dashboard/time/${activeTimer.id}/stop`,
+                  {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({}),
+                  },
+                );
                 const text = await response.text();
                 const data = parseJsonSafe(text, null);
                 if (!response.ok) {
-                  throw new Error(data?.error || data?.message || "Failed to stop timer");
+                  throw new Error(
+                    data?.error || data?.message || "Failed to stop timer",
+                  );
                 }
                 setActiveTimer(null);
                 toast.success("Timer stopped");
@@ -672,7 +726,9 @@ function NotificationsMenu() {
                   key={item.id}
                   className={cn(
                     "mb-1 rounded-lg border px-3 py-2 last:mb-0",
-                    item.read ? "border-border bg-card" : dashboardActiveSurfaceClasses,
+                    item.read
+                      ? "border-border bg-card"
+                      : dashboardActiveSurfaceClasses,
                   )}
                 >
                   <p className="text-sm text-foreground">
@@ -719,7 +775,7 @@ function ThemeToggle() {
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
       className={cn(
         dashboardChromeButtonClasses,
-        "inline-flex size-8 items-center justify-center rounded-lg sm:size-9",
+        "inline-flex size-8 items-center justify-center rounded-lg sm:size-7",
       )}
     >
       {isDark ? (
@@ -728,6 +784,76 @@ function ThemeToggle() {
         <Moon className="size-4" />
       )}
     </button>
+  );
+}
+
+function formatPlanBadgeLabel(planId) {
+  const normalized = String(planId || "")
+    .trim()
+    .toLowerCase();
+  if (!normalized) return "Free";
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+}
+
+function getPlanBadgeClasses(planId) {
+  const normalized = String(planId || "")
+    .trim()
+    .toLowerCase();
+  if (normalized === "team") {
+    return "border-secondary/25 bg-secondary/10 text-secondary";
+  }
+  if (normalized === "starter") {
+    return "border-primary/25 bg-primary/10 text-primary";
+  }
+  if (normalized === "studio") {
+    return "border-amber-500/25 bg-amber-500/10 text-amber-600 dark:text-amber-400";
+  }
+  return "border-border bg-muted/70 text-muted-foreground";
+}
+
+function PlanBadge() {
+  const { status: sessionStatus } = useSession();
+  const [planId, setPlanId] = useState("");
+
+  useEffect(() => {
+    if (sessionStatus !== "authenticated") return;
+
+    let active = true;
+
+    async function loadPlan() {
+      try {
+        const response = await fetch("/api/billing/subscription", {
+          cache: "no-store",
+        });
+        const text = await response.text();
+        const data = text ? JSON.parse(text) : null;
+
+        if (!response.ok || !active) return;
+        setPlanId(String(data?.subscription?.planId || ""));
+      } catch {
+        if (!active) return;
+        setPlanId("");
+      }
+    }
+
+    loadPlan();
+    return () => {
+      active = false;
+    };
+  }, [sessionStatus]);
+
+  if (sessionStatus !== "authenticated") return null;
+
+  return (
+    <span
+      title="Current plan"
+      className={cn(
+        "inline-flex py-1.5 max-w-30 items-center rounded-full border px-2.5 text-xs font-semibold uppercase tracking-[0.14em] sm:px-3",
+        getPlanBadgeClasses(planId),
+      )}
+    >
+      <span className="truncate">{formatPlanBadgeLabel(planId)}</span>
+    </span>
   );
 }
 
@@ -748,14 +874,16 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   const pickWorkspaceGradient = (workspace) => {
     const key = workspace?.id || workspace?.name || "workspace";
     let hash = 0;
-    for (let i = 0; i < key.length; i += 1) hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
+    for (let i = 0; i < key.length; i += 1)
+      hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
     return WORKSPACE_BADGE_GRADIENTS[hash % WORKSPACE_BADGE_GRADIENTS.length];
   };
 
   const getWorkspaceBadgeLabel = (workspace) => {
     const name = String(workspace?.name || "").trim();
     const parts = name.split(/\s+/).filter(Boolean);
-    if (parts.length >= 2) return `${parts[0]?.[0] || ""}${parts[1]?.[0] || ""}`.toUpperCase();
+    if (parts.length >= 2)
+      return `${parts[0]?.[0] || ""}${parts[1]?.[0] || ""}`.toUpperCase();
     const compact = name.replace(/\s+/g, "");
     return (compact.slice(0, 2) || "WS").toUpperCase();
   };
@@ -763,7 +891,10 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   useEffect(() => {
     function onPointerDown(event) {
       if (!actionsOpenFor) return;
-      if (actionsMenuRef.current && !actionsMenuRef.current.contains(event.target)) {
+      if (
+        actionsMenuRef.current &&
+        !actionsMenuRef.current.contains(event.target)
+      ) {
         setActionsOpenFor("");
       }
     }
@@ -771,7 +902,6 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     document.addEventListener("mousedown", onPointerDown);
     return () => document.removeEventListener("mousedown", onPointerDown);
   }, [actionsOpenFor]);
-
 
   const rootItem = (
     <Link
@@ -783,7 +913,9 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
           ? dashboardSidebarNavItemActiveClasses
           : dashboardSidebarNavItemClasses,
         "group flex items-center rounded-xl",
-        effectiveCollapsed ? "size-9 justify-center px-0" : "gap-2 py-2 pl-4 pr-3",
+        effectiveCollapsed
+          ? "size-9 justify-center px-0"
+          : "gap-2 py-2 pl-4 pr-3",
       )}
       title={effectiveCollapsed ? "Workspaces" : undefined}
     >
@@ -802,7 +934,9 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
           ? dashboardSidebarNavItemActiveClasses
           : dashboardSidebarNavItemClasses,
         "group flex items-center rounded-xl",
-        effectiveCollapsed ? "size-9 justify-center px-0" : "gap-2 py-2 pl-4 pr-3",
+        effectiveCollapsed
+          ? "size-9 justify-center px-0"
+          : "gap-2 py-2 pl-4 pr-3",
       )}
       title={effectiveCollapsed ? "Profile" : undefined}
     >
@@ -821,7 +955,9 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
           ? dashboardSidebarNavItemActiveClasses
           : dashboardSidebarNavItemClasses,
         "group flex items-center rounded-xl",
-        effectiveCollapsed ? "size-9 justify-center px-0" : "gap-2 py-2 pl-4 pr-3",
+        effectiveCollapsed
+          ? "size-9 justify-center px-0"
+          : "gap-2 py-2 pl-4 pr-3",
       )}
       title={effectiveCollapsed ? "Settings" : undefined}
     >
@@ -831,14 +967,17 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   );
 
   const workspaceItems = (
-    <div className={`mt-3 space-y-1 ${effectiveCollapsed ? "flex flex-col items-center" : ""}`}>
+    <div
+      className={`mt-3 space-y-1 ${effectiveCollapsed ? "flex flex-col items-center" : ""}`}
+    >
       {!effectiveCollapsed ? (
         <p className="px-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           Your Workspaces
         </p>
       ) : null}
       {workspaces.map((workspace) => {
-        const isAdmin = resolveWorkspaceRole(workspace, currentUser) === "admin";
+        const isAdmin =
+          resolveWorkspaceRole(workspace, currentUser) === "admin";
         const badgeLabel = getWorkspaceBadgeLabel(workspace);
         const badgeGradient = pickWorkspaceGradient(workspace);
         const href = `/dashboard/w/${workspace.id}`;
@@ -858,7 +997,9 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                   ? dashboardSidebarNavItemActiveClasses
                   : dashboardSidebarNavItemClasses,
                 "flex w-full items-center rounded-xl",
-                effectiveCollapsed ? "size-9 justify-center px-0" : "gap-2 py-2 pl-4 pr-10",
+                effectiveCollapsed
+                  ? "size-9 justify-center px-0"
+                  : "gap-2 py-2 pl-4 pr-10",
               )}
               title={workspace.name}
             >
@@ -871,7 +1012,9 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
               >
                 {badgeLabel}
               </span>
-              {!effectiveCollapsed ? <span className="truncate text-sm">{workspace.name}</span> : null}
+              {!effectiveCollapsed ? (
+                <span className="truncate text-sm">{workspace.name}</span>
+              ) : null}
             </button>
 
             {!effectiveCollapsed ? (
@@ -879,7 +1022,9 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                 type="button"
                 onClick={(event) => {
                   event.stopPropagation();
-                  setActionsOpenFor((current) => (current === workspace.id ? "" : workspace.id));
+                  setActionsOpenFor((current) =>
+                    current === workspace.id ? "" : workspace.id,
+                  );
                 }}
                 className={cn(
                   dashboardChromeButtonClasses,
@@ -891,7 +1036,10 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
             ) : null}
 
             {menuOpen ? (
-              <div ref={actionsMenuRef} className="absolute right-0 top-10 z-50 w-52 rounded-xl border border-border bg-card p-1 shadow-lg">
+              <div
+                ref={actionsMenuRef}
+                className="absolute right-0 top-10 z-50 w-52 rounded-xl border border-border bg-card p-1 shadow-lg"
+              >
                 <button
                   type="button"
                   onClick={() => {
@@ -969,7 +1117,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     >
       <div
         className={cn(
-          "mb-3 flex h-[45px] items-center",
+          "mb-3 flex h-11.25 items-center",
           effectiveCollapsed ? "justify-center" : "justify-between",
         )}
       >
@@ -999,7 +1147,9 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
       {workspaceItems}
       <div
         className={cn(
-          effectiveCollapsed ? "mt-auto flex flex-col items-center gap-1 pt-3" : "mt-auto space-y-1 pt-3",
+          effectiveCollapsed
+            ? "mt-auto flex flex-col items-center gap-1 pt-3"
+            : "mt-auto space-y-1 pt-3",
         )}
       >
         {profileItem}
@@ -1011,8 +1161,9 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   return (
     <>
       <aside
-        className={`relative z-40 hidden h-screen shrink-0 border-r border-border bg-background md:sticky md:top-0 md:flex md:flex-col ${effectiveCollapsed ? "md:w-12" : "md:w-64"
-          }`}
+        className={`relative z-40 hidden h-screen shrink-0 border-r border-border bg-background md:sticky md:top-0 md:flex md:flex-col ${
+          effectiveCollapsed ? "md:w-12" : "md:w-64"
+        }`}
       >
         {content}
       </aside>
@@ -1038,9 +1189,12 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
             onClick={() => (deleting ? null : setConfirmDeleteId(""))}
           />
           <div className="absolute left-1/2 top-1/2 w-[92vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-card p-5 shadow-2xl">
-            <h3 className="text-lg font-semibold text-foreground">Delete workspace?</h3>
+            <h3 className="text-lg font-semibold text-foreground">
+              Delete workspace?
+            </h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              This action will remove the workspace and related projects/tasks permanently.
+              This action will remove the workspace and related projects/tasks
+              permanently.
             </p>
             <div className="mt-5 flex justify-end gap-2">
               <button
@@ -1147,10 +1301,7 @@ function WorkspaceToolbar() {
 
   useEffect(() => {
     function onPointerDown(event) {
-      if (
-        switcherRef.current &&
-        !switcherRef.current.contains(event.target)
-      ) {
+      if (switcherRef.current && !switcherRef.current.contains(event.target)) {
         setProjectSwitcherOpen(false);
       }
     }
@@ -1168,7 +1319,10 @@ function WorkspaceToolbar() {
 
     window.addEventListener("zyplo-open-project-dialog", openProjectDialog);
     return () =>
-      window.removeEventListener("zyplo-open-project-dialog", openProjectDialog);
+      window.removeEventListener(
+        "zyplo-open-project-dialog",
+        openProjectDialog,
+      );
   }, [isAdmin]);
 
   async function handleCreateProject() {
@@ -1196,9 +1350,12 @@ function WorkspaceToolbar() {
 
     try {
       setDeletingProject(true);
-      const response = await fetch(`/api/dashboard/projects/${projectToDelete.id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `/api/dashboard/projects/${projectToDelete.id}`,
+        {
+          method: "DELETE",
+        },
+      );
       const text = await response.text();
       let data = null;
 
@@ -1209,7 +1366,9 @@ function WorkspaceToolbar() {
       }
 
       if (!response.ok) {
-        throw new Error(data?.error || data?.message || "Failed to delete project");
+        throw new Error(
+          data?.error || data?.message || "Failed to delete project",
+        );
       }
 
       await loadDashboard({ force: true });
@@ -1255,7 +1414,9 @@ function WorkspaceToolbar() {
                 <div ref={switcherRef} className="relative min-w-0">
                   <button
                     type="button"
-                    onClick={() => setProjectSwitcherOpen((current) => !current)}
+                    onClick={() =>
+                      setProjectSwitcherOpen((current) => !current)
+                    }
                     disabled={!workspaceProjects.length}
                     aria-haspopup="menu"
                     aria-expanded={projectSwitcherOpen}
@@ -1283,7 +1444,8 @@ function WorkspaceToolbar() {
                       <div className="max-h-72 overflow-y-auto">
                         {workspaceProjects.map((project) => {
                           const active =
-                            String(project.id) === String(selectedProject?.id || "");
+                            String(project.id) ===
+                            String(selectedProject?.id || "");
 
                           return (
                             <button
@@ -1434,7 +1596,8 @@ function Topbar({ onOpenSidebar }) {
   const params = useParams();
   const workspaces = useMockStore((state) => state.workspaces || []);
 
-  const workspaceId = typeof params.workspaceId === "string" ? params.workspaceId : "";
+  const workspaceId =
+    typeof params.workspaceId === "string" ? params.workspaceId : "";
   const workspace = useMemo(
     () => workspaces.find((item) => item.id === workspaceId) || null,
     [workspaces, workspaceId],
@@ -1461,10 +1624,15 @@ function Topbar({ onOpenSidebar }) {
     if (pathname.startsWith("/dashboard/w/")) {
       const routeKey = pathname.split("/").filter(Boolean)[3] || "overview";
       const currentLabel =
-        routeKey === "overview" ? "Overview" : WORKSPACE_ROUTE_LABELS[routeKey] || "Workspace";
+        routeKey === "overview"
+          ? "Overview"
+          : WORKSPACE_ROUTE_LABELS[routeKey] || "Workspace";
       return [
         { label: "Dashboard", href: "/dashboard/workspaces" },
-        { label: workspace?.name || "Workspace", href: `/dashboard/w/${workspaceId}` },
+        {
+          label: workspace?.name || "Workspace",
+          href: `/dashboard/w/${workspaceId}`,
+        },
         { label: currentLabel },
       ];
     }
@@ -1487,10 +1655,18 @@ function Topbar({ onOpenSidebar }) {
               <Menu className="size-4 sm:size-5" />
             </button>
             <div className="min-w-0">
-              <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1.5 text-[11px]">
+              <nav
+                aria-label="Breadcrumb"
+                className="flex min-w-0 items-center gap-1.5 text-[11px]"
+              >
                 {breadcrumb.map((item, index) => (
-                  <div key={`${item.label}-${index}`} className="flex min-w-0 items-center gap-1.5">
-                    {index > 0 ? <span className="text-muted-foreground/45">/</span> : null}
+                  <div
+                    key={`${item.label}-${index}`}
+                    className="flex min-w-0 items-center gap-1.5"
+                  >
+                    {index > 0 ? (
+                      <span className="text-muted-foreground/45">/</span>
+                    ) : null}
                     {item.href && index !== breadcrumb.length - 1 ? (
                       <Link
                         href={item.href}
@@ -1515,7 +1691,8 @@ function Topbar({ onOpenSidebar }) {
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-1.5">
+          <div className="flex shrink-0 items-center gap-2">
+            <PlanBadge />
             <ThemeToggle />
             <GlobalTimerControl />
             <NotificationsMenu />
@@ -1581,7 +1758,9 @@ export function AppShell({ children }) {
     if (typeof window === "undefined") return;
     if (window.sessionStorage.getItem(key) === "1") return;
 
-    toast.info("Complete your profile to unlock a better dashboard experience.");
+    toast.info(
+      "Complete your profile to unlock a better dashboard experience.",
+    );
     window.sessionStorage.setItem(key, "1");
   }, [loaded, currentUser]);
 
@@ -1602,4 +1781,3 @@ export function AppShell({ children }) {
 }
 
 export default AppShell;
-
