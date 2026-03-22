@@ -12,7 +12,6 @@ export default function PricingCards({
   currentPlanId = "",
   currentBillingCycle = "",
   subscriptionStatus = "",
-  selectedWorkspaceName = "",
 }) {
   const selectedBillingCycle = yearly ? "yearly" : "monthly";
 
@@ -25,8 +24,7 @@ export default function PricingCards({
               Choose your plan
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-              Hosted Stripe checkout will use the billing cycle shown here and attach the subscription to
-              {selectedWorkspaceName ? ` ${selectedWorkspaceName}` : " your selected workspace"}.
+              Hosted Stripe checkout will use the billing cycle shown here and attach the subscription to your account.
             </p>
           </div>
           <div className="mx-auto inline-flex w-full max-w-70 items-center rounded-xl border border-border bg-card/80 p-1 dark:border-slate-700 dark:bg-card sm:w-auto sm:max-w-none">
@@ -57,7 +55,7 @@ export default function PricingCards({
             const action = planActions[plan.id] || {};
             const isCurrentPlan = currentPlanId === plan.id;
             const isCurrentCycle = isCurrentPlan && currentBillingCycle === selectedBillingCycle;
-            const showWorkspaceBadge = isCurrentPlan && subscriptionStatus && subscriptionStatus !== "inactive";
+            const showCurrentBadge = isCurrentPlan && subscriptionStatus && subscriptionStatus !== "inactive";
 
             return (
               <motion.article
@@ -78,10 +76,10 @@ export default function PricingCards({
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h3 className="text-xl font-semibold text-foreground">{plan.name}</h3>
-                    {showWorkspaceBadge ? (
+                    {showCurrentBadge ? (
                       <div className="mt-2 flex flex-wrap items-center gap-2">
                         <span className="inline-flex items-center rounded-full border border-success/25 bg-success/10 px-2.5 py-1 text-[11px] font-semibold text-success">
-                          {isCurrentCycle ? "Current Setup" : "Current Workspace Plan"}
+                          {isCurrentCycle ? "Current Setup" : "Current Plan"}
                         </span>
                       </div>
                     ) : null}
@@ -161,3 +159,4 @@ export default function PricingCards({
     </section>
   );
 }
+

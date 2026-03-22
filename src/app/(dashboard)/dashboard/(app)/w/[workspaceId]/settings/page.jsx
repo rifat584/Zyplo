@@ -1,9 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import { CreditCard, LoaderCircle } from "lucide-react";
 import { useMockStore, useWorkspaceAccess } from "@/components/dashboard/mockStore";
 
 function formatConnectedAt(value) {
@@ -11,50 +9,6 @@ function formatConnectedAt(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return String(value);
   return date.toLocaleString();
-}
-
-function formatBillingDate(value) {
-  if (!value) return "";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function formatBillingState(value) {
-  const raw = String(value || "inactive")
-    .trim()
-    .replace(/[_-]+/g, " ");
-  if (!raw) return "Inactive";
-  return raw.replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
-async function requestJson(url, options = {}) {
-  const response = await fetch(url, {
-    ...options,
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    },
-  });
-
-  const text = await response.text();
-  let data = null;
-  try {
-    data = text ? JSON.parse(text) : null;
-  } catch {
-    data = text ? { error: text } : null;
-  }
-
-  if (!response.ok) {
-    throw new Error(String(data?.error || data?.message || "Request failed"));
-  }
-
-  return data;
 }
 
 export default function WorkspaceSettingsPage() {
@@ -73,10 +27,6 @@ export default function WorkspaceSettingsPage() {
   const [githubLoading, setGithubLoading] = useState(true);
   const [githubError, setGithubError] = useState("");
   const [githubDisconnecting, setGithubDisconnecting] = useState(false);
-  const [billingStatus, setBillingStatus] = useState(null);
-  const [billingLoading, setBillingLoading] = useState(true);
-  const [billingError, setBillingError] = useState("");
-  const [billingPortalLoading, setBillingPortalLoading] = useState(false);
 
   useEffect(() => {
     setName(workspace?.name || "");
@@ -87,35 +37,6 @@ export default function WorkspaceSettingsPage() {
     if (!appSlug || !workspaceId) return "";
     return `https://github.com/apps/${appSlug}/installations/new?state=${encodeURIComponent(workspaceId)}`;
   }, [appSlug, workspaceId]);
-
-  useEffect(() => {
-    if (!workspaceId || !isAdmin) return;
-    let alive = true;
-
-    async function loadBillingStatus() {
-      try {
-        setBillingLoading(true);
-        setBillingError("");
-
-        const data = await requestJson(
-          `/api/billing/subscription?workspaceId=${encodeURIComponent(workspaceId)}`,
-        );
-        if (!alive) return;
-        setBillingStatus(data);
-      } catch (err) {
-        if (!alive) return;
-        setBillingStatus(null);
-        setBillingError(String(err?.message || "Failed to load billing status."));
-      } finally {
-        if (alive) setBillingLoading(false);
-      }
-    }
-
-    loadBillingStatus();
-    return () => {
-      alive = false;
-    };
-  }, [workspaceId, isAdmin]);
 
   useEffect(() => {
     if (!workspaceId || !isAdmin) return;
@@ -198,58 +119,6 @@ export default function WorkspaceSettingsPage() {
     }
   }
 
-  async function refreshBillingStatus() {
-    if (!workspaceId || !isAdmin) return;
-    try {
-      setBillingLoading(true);
-      setBillingError("");
-      const data = await requestJson(
-        `/api/billing/subscription?workspaceId=${encodeURIComponent(workspaceId)}`,
-      );
-      setBillingStatus(data);
-    } catch (err) {
-      setBillingStatus(null);
-      setBillingError(String(err?.message || "Failed to load billing status."));
-    } finally {
-      setBillingLoading(false);
-    }
-  }
-
-  async function openBillingPortal() {
-    if (!workspaceId || !isAdmin || billingPortalLoading) return;
-    try {
-      setBillingPortalLoading(true);
-      setBillingError("");
-
-      const data = await requestJson("/api/billing/portal-session", {
-        method: "POST",
-        body: JSON.stringify({ workspaceId }),
-      });
-
-      if (!data?.url) {
-        throw new Error("Stripe Billing Portal URL was not returned.");
-      }
-
-      window.location.assign(data.url);
-    } catch (err) {
-      setBillingError(String(err?.message || "Failed to open billing portal."));
-    } finally {
-      setBillingPortalLoading(false);
-    }
-  }
-
-  const subscription = billingStatus?.subscription || null;
-  const billingStatusTone = (() => {
-    const normalized = String(subscription?.status || "").toLowerCase();
-    if (["active", "trialing"].includes(normalized)) {
-      return "border-success/25 bg-success/10 text-success";
-    }
-    if (["past_due", "unpaid", "incomplete"].includes(normalized)) {
-      return "border-warning/25 bg-warning/10 text-warning";
-    }
-    return "border-border bg-muted/60 text-muted-foreground";
-  })();
-
   if (!isAdmin) {
     return (
       <section className="space-y-4 rounded-2xl border border-warning/25 bg-warning/10 p-4">
@@ -310,119 +179,6 @@ export default function WorkspaceSettingsPage() {
       <div className="rounded-xl border border-border bg-muted/50 p-3 text-xs text-muted-foreground dark:border-white/10 dark:bg-surface/40">
         <p>Workspace ID: {workspaceId}</p>
         <p>Members: {workspace?.members?.length || 0}</p>
-      </div>
-
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 dark:border-white/10">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(79,70,229,0.14),transparent_34%),radial-gradient(circle_at_100%_0%,rgba(34,211,238,0.14),transparent_28%)]" />
-        <div className="relative flex flex-col gap-4">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <span className="inline-flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <CreditCard className="size-5" />
-              </span>
-              <div>
-                <p className="text-sm font-semibold text-foreground">Billing</p>
-                <p className="text-xs text-muted-foreground">
-                  Workspace-level Stripe subscription and billing management.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={refreshBillingStatus}
-                disabled={billingLoading}
-                className="rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-surface"
-              >
-                {billingLoading ? "Refreshing..." : "Refresh"}
-              </button>
-              <Link
-                href={`/pricing?workspaceId=${workspaceId}#pricing-cards`}
-                className="rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition hover:brightness-110"
-              >
-                View Plans
-              </Link>
-              <button
-                type="button"
-                onClick={openBillingPortal}
-                disabled={!subscription?.portalAvailable || billingPortalLoading}
-                className="rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-surface"
-              >
-                {billingPortalLoading ? "Opening..." : "Manage Billing"}
-              </button>
-            </div>
-          </div>
-
-          {billingLoading ? (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <LoaderCircle className="size-4 animate-spin" />
-              Loading billing status...
-            </div>
-          ) : (
-            <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
-              <div className="space-y-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-2xl font-semibold text-foreground">
-                    {subscription?.planId
-                      ? subscription.planId.charAt(0).toUpperCase() + subscription.planId.slice(1)
-                      : "Free"}
-                  </span>
-                  <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${billingStatusTone}`}>
-                    {formatBillingState(subscription?.status)}
-                  </span>
-                </div>
-
-                <div className="grid gap-2 rounded-xl border border-border bg-muted/40 p-3 text-sm dark:border-white/10 dark:bg-surface/50">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-muted-foreground">Billing cycle</span>
-                    <span className="font-medium text-foreground">
-                      {subscription?.billingCycle ? formatBillingState(subscription.billingCycle) : "Not started"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-muted-foreground">
-                      {subscription?.cancelAtPeriodEnd ? "Ends on" : "Renews on"}
-                    </span>
-                    <span className="font-medium text-foreground">
-                      {formatBillingDate(subscription?.currentPeriodEnd) || "Not scheduled"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-muted-foreground">Access</span>
-                    <span className="font-medium text-foreground">
-                      {subscription?.hasAccess ? "Included" : "Restricted"}
-                    </span>
-                  </div>
-                </div>
-
-                {billingError ? (
-                  <p className="text-sm text-destructive">{billingError}</p>
-                ) : subscription?.portalAvailable ? (
-                  <p className="text-xs leading-relaxed text-muted-foreground">
-                    Changes to cards, invoices, cancellations, and plan updates are handled inside Stripe Billing Portal.
-                  </p>
-                ) : (
-                  <p className="text-xs leading-relaxed text-muted-foreground">
-                    This workspace does not have a Stripe customer yet. Pick a paid plan on the pricing page to start
-                    billing.
-                  </p>
-                )}
-              </div>
-
-              <div className="rounded-xl border border-border bg-background/80 p-3 text-xs text-muted-foreground dark:border-white/10 dark:bg-surface/60 lg:min-w-56">
-                <p className="font-semibold uppercase tracking-wide text-foreground">Quick Actions</p>
-                <p className="mt-2">
-                  Use <span className="font-medium text-foreground">View Plans</span> to start or compare subscriptions.
-                </p>
-                <p className="mt-2">
-                  Use <span className="font-medium text-foreground">Manage Billing</span> after checkout to update cards
-                  or change plans.
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
       </div>
 
       <div className="flex items-center justify-between rounded-xl border border-border p-4 dark:border-white/10">
