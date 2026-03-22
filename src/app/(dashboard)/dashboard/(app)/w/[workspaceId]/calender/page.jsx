@@ -29,6 +29,12 @@ import { toast } from "sonner";
 // file attach - helal / bayijid
 import { useMockStore, loadDashboard } from "@/components/dashboard/mockStore";
 import { useWorkspaceProjectSelection } from "@/components/dashboard/projectSelection";
+import {
+  findColumnByStatus,
+  getStatusFromColumnName,
+  getTaskStatusLabel,
+  normalizeStatusKey,
+} from "@/components/dashboard/taskStatus";
 import CreateTaskModal from "@/components/board/CreateTaskModal";
 import TaskDetailsModal from "@/components/board/TaskDetailsModal";
 
@@ -139,22 +145,6 @@ function normalizeStatus(status) {
   if (s === "inreview") return "In Review";
   if (s === "done") return "Done";
   return "To Do";
-}
-
-function normalizeStatusKey(value) {
-  return String(value || "")
-    .toLowerCase()
-    .replace(/[^a-z]/g, "");
-}
-
-function getStatusFromColumnName(columnName, fallback = "") {
-  const normalized = normalizeStatusKey(columnName);
-  if (normalized === "todo" || normalized === "backlog") return "todo";
-  if (normalized === "inprogress" || normalized === "doing")
-    return "inprogress";
-  if (normalized === "inreview" || normalized === "review") return "inreview";
-  if (normalized === "done" || normalized === "completed") return "done";
-  return normalizeStatusKey(fallback) || "todo";
 }
 
 function sortColumns(columns = []) {
@@ -490,9 +480,7 @@ export default function WorkspaceCalenderPage() {
       const boardData = await fetchJson(`/api/dashboard/boards/${selectedProject.id}`);
       const board = boardData?.board || null;
       const columns = sortColumns(boardData?.columns || []);
-      const todoColumn = columns.find(
-        (column) => getStatusFromColumnName(column?.name, "") === "todo",
-      );
+      const todoColumn = findColumnByStatus(columns, "todo");
 
       if (!board?.id || !todoColumn?.id) {
         throw new Error('The current project does not have a "To Do" column.');
@@ -501,8 +489,7 @@ export default function WorkspaceCalenderPage() {
       setCreateTarget({
         projectId: String(selectedProject.id),
         boardId: String(board.id),
-        columnId: String(todoColumn.id),
-        columnName: String(todoColumn.name || "To Do"),
+        columns,
       });
       setCreateOpen(true);
     } catch (error) {
@@ -522,6 +509,17 @@ export default function WorkspaceCalenderPage() {
 
     try {
       setCreateBusy(true);
+      const nextStatus = values.status || "todo";
+      const destinationColumn = findColumnByStatus(
+        createTarget.columns,
+        nextStatus,
+      );
+
+      if (!destinationColumn?.id) {
+        throw new Error(
+          `The current project does not have an ${getTaskStatusLabel(nextStatus)} column.`,
+        );
+      }
 
       await fetchJson("/api/dashboard/tasks", {
         method: "POST",
@@ -529,14 +527,13 @@ export default function WorkspaceCalenderPage() {
           workspaceId,
           projectId: createTarget.projectId,
           boardId: createTarget.boardId,
-          columnId: createTarget.columnId,
+          columnId: String(destinationColumn.id),
           title: values.title,
           description: values.description || "",
           assigneeId: values.assigneeId || "",
           dueDate: values.dueDate || "",
           priority: values.priority || "P2",
-          status: "todo",
-          estimatedTime: values.estimatedTime || 0,
+          status: nextStatus,
         }),
       });
 
@@ -995,7 +992,7 @@ export default function WorkspaceCalenderPage() {
         onClose={closeCreateModal}
         onSubmit={handleCreateTask}
         members={members}
-        columnName={createTarget?.columnName || "To Do"}
+        defaultStatus="todo"
         submitting={createBusy}
       />
 

@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  getSafeTaskStatus,
+  TASK_STATUS_OPTIONS,
+} from "@/components/dashboard/taskStatus";
 
 const INITIAL_FORM = {
   title: "",
@@ -8,43 +12,34 @@ const INITIAL_FORM = {
   assigneeId: "",
   dueDate: "",
   priority: "P2",
-  estimatedTime: "",
+  status: "todo",
 };
-
-function formatDateTime(value) {
-  if (!value) return "Unknown";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString();
-}
-
-function minutesToSeconds(value) {
-  const minutes = Number(value);
-  if (!Number.isFinite(minutes) || minutes < 0) return 0;
-  return Math.floor(minutes * 60);
-}
 
 export default function CreateTaskModal({
   open,
   onClose,
   onSubmit,
   members = [],
-  columnName = "",
+  defaultStatus = "todo",
   submitting = false,
 }) {
-  const [form, setForm] = useState(INITIAL_FORM);
-  const [openedAt, setOpenedAt] = useState("");
+  const [form, setForm] = useState({
+    ...INITIAL_FORM,
+    status: getSafeTaskStatus(defaultStatus),
+  });
 
   useEffect(() => {
     if (!open) return;
 
     const frameId = requestAnimationFrame(() => {
-      setForm(INITIAL_FORM);
-      setOpenedAt(new Date().toISOString());
+      setForm({
+        ...INITIAL_FORM,
+        status: getSafeTaskStatus(defaultStatus),
+      });
     });
 
     return () => cancelAnimationFrame(frameId);
-  }, [open, columnName]);
+  }, [defaultStatus, open]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -70,22 +65,7 @@ export default function CreateTaskModal({
 
       <div className="absolute left-1/2 top-1/2 w-[96vw] max-w-2xl max-h-[92vh] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
         <div className="border-b border-border bg-surface/70 px-4 py-3 sm:px-5 sm:py-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                Board Task
-              </p>
-              <h2 className="text-lg font-semibold text-foreground">
-                Create Task
-              </h2>
-            </div>
-            <span className="rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
-              {columnName || "Unknown Column"}
-            </span>
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Updated: {formatDateTime(openedAt)}
-          </p>
+          <h2 className="text-lg font-semibold text-foreground">Create Task</h2>
         </div>
 
         <form
@@ -99,7 +79,7 @@ export default function CreateTaskModal({
               assigneeId: form.assigneeId,
               dueDate: form.dueDate,
               priority: form.priority,
-              estimatedTime: minutesToSeconds(form.estimatedTime),
+              status: form.status,
             });
           }}
         >
@@ -207,25 +187,28 @@ export default function CreateTaskModal({
             </div>
             <div className="space-y-1.5">
               <label
-                htmlFor="create-task-estimated-time"
+                htmlFor="create-task-status"
                 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
               >
-                Estimate (mins)
+                Status
               </label>
-              <input
-                id="create-task-estimated-time"
-                type="number"
-                min="0"
-                value={form.estimatedTime}
+              <select
+                id="create-task-status"
+                value={form.status}
                 onChange={(event) =>
                   setForm((prev) => ({
                     ...prev,
-                    estimatedTime: event.target.value,
+                    status: event.target.value,
                   }))
                 }
-                placeholder="0"
                 className="h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-              />
+              >
+                {TASK_STATUS_OPTIONS.map((status) => (
+                  <option key={status.value} value={status.value}>
+                    {status.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 

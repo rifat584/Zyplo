@@ -14,6 +14,12 @@ import { RefreshCw, Plus, Filter } from "lucide-react";
 import Swal from "sweetalert2";
 import { toast } from "sonner";
 import { loadDashboard } from "@/components/dashboard/mockStore";
+import {
+  findColumnByStatus,
+  getStatusFromColumnName,
+  getTaskStatusLabel,
+  normalizeStatusKey,
+} from "@/components/dashboard/taskStatus";
 import Column from "./Column";
 import TaskCard from "./TaskCard";
 import CreateTaskModal from "./CreateTaskModal";
@@ -99,25 +105,6 @@ function sortTasks(tasks = []) {
   return [...tasks].sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
 }
 
-function getStatusFromColumnName(columnName, fallback = "") {
-  const normalized = String(columnName || "")
-    .toLowerCase()
-    .replace(/[^a-z]/g, "");
-
-  if (normalized === "todo" || normalized === "backlog") return "todo";
-  if (normalized === "inprogress" || normalized === "doing")
-    return "inprogress";
-  if (normalized === "inreview" || normalized === "review") return "inreview";
-  if (normalized === "done" || normalized === "completed") return "done";
-  return fallback;
-}
-
-function normalizeStatusKey(value) {
-  return String(value || "")
-    .toLowerCase()
-    .replace(/[^a-z]/g, "");
-}
-
 function toDateKey(value) {
   if (!value) return "";
   const raw = String(value).trim();
@@ -128,17 +115,6 @@ function toDateKey(value) {
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
-}
-
-function findColumnByStatus(columns = [], status = "") {
-  const target = normalizeStatusKey(status);
-  if (!target) return null;
-  return (
-    columns.find(
-      (column) =>
-        normalizeStatusKey(getStatusFromColumnName(column.name, "")) === target,
-    ) || null
-  );
 }
 
 function normalizeColumns(columns = []) {
@@ -578,19 +554,27 @@ export default function Board({ workspaceId, projectId }) {
     if (!selectedColumn) return;
     const boardId = boardData?.board?.id;
     if (!boardId) return;
+    const nextStatus = values.status || "todo";
+    const destinationColumn = findColumnByStatus(columns, nextStatus);
+
+    if (!destinationColumn?.id) {
+      toast.error(
+        `This board does not have an ${getTaskStatusLabel(nextStatus)} column.`,
+      );
+      return;
+    }
 
     createTaskMutation.mutate({
       workspaceId,
       projectId,
       boardId,
-      columnId: selectedColumn.id,
+      columnId: destinationColumn.id,
       title: values.title,
       description: values.description || "",
       assigneeId: values.assigneeId || "",
       dueDate: values.dueDate || "",
       priority: values.priority || "P2",
-      status: getStatusFromColumnName(selectedColumn.name, "todo") || "todo",
-      estimatedTime: values.estimatedTime || 0,
+      status: nextStatus,
       attachments: values.attachments || [],
     });
   }
@@ -1010,7 +994,9 @@ export default function Board({ workspaceId, projectId }) {
         onClose={() => setCreateOpen(false)}
         onSubmit={handleCreateTask}
         members={membersQuery.data || []}
-        columnName={selectedColumn?.name || ""}
+        defaultStatus={
+          getStatusFromColumnName(selectedColumn?.name, "todo") || "todo"
+        }
         submitting={createTaskMutation.isPending}
       />
 
