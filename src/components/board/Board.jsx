@@ -35,8 +35,8 @@ function BoardSkeleton() {
       </section>
 
       {/* Filter Bar Skeleton */}
-      <section className="mb-4 rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
-        <div className="border-t border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/20">
+      <section className="mb-4 rounded-2xl border border-slate-300 bg-white dark:border-white/10 dark:bg-slate-900">
+        <div className="border-t border-slate-300 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/20">
           <div className="flex flex-wrap gap-2">
             <div className="h-10 w-40 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
             <div className="h-10 w-32 rounded-lg bg-slate-200 dark:bg-slate-800"></div>
@@ -52,7 +52,7 @@ function BoardSkeleton() {
         {columnTaskCounts.map((taskCount, colIndex) => (
           <div
             key={colIndex}
-            className="flex h-fit w-80 shrink-0 flex-col rounded-2xl border border-slate-200 bg-slate-50/50 p-3 dark:border-white/10 dark:bg-slate-800/20"
+            className="flex h-fit w-80 shrink-0 flex-col rounded-2xl border border-slate-300 bg-slate-50/50 p-3 dark:border-white/10 dark:bg-slate-800/20"
           >
             {/* Column Header */}
             <div className="mb-3 flex items-center justify-between">
@@ -68,7 +68,7 @@ function BoardSkeleton() {
               {Array.from({ length: taskCount }).map((_, taskIndex) => (
                 <div
                   key={taskIndex}
-                  className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-white/10 dark:bg-slate-900"
+                  className="rounded-xl border border-slate-300 bg-white p-3 shadow-sm dark:border-white/10 dark:bg-slate-900"
                 >
                   <div className="mb-2 flex items-start justify-between">
                     <div className="h-4 w-3/4 rounded bg-slate-200 dark:bg-slate-800"></div>
@@ -806,8 +806,8 @@ export default function Board({ workspaceId, projectId }) {
         </button>
       </section>
 
-      <section className="mb-4 rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
-        <div className="border-t border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/20">
+      <section className="mb-4 rounded-2xl border border-slate-300 bg-white dark:border-white/10 dark:bg-slate-900">
+        <div className="border-t border-slate-300 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/20">
           <div className="flex flex-wrap gap-2">
             <input
               type="text"
@@ -819,7 +819,7 @@ export default function Board({ workspaceId, projectId }) {
                 }))
               }
               placeholder="Task Name"
-              className="h-10 min-w-42.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 min-w-42.5 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
             />
 
             <select
@@ -830,7 +830,7 @@ export default function Board({ workspaceId, projectId }) {
                   status: event.target.value,
                 }))
               }
-              className="h-10 min-w-32.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 min-w-32.5 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
             >
               <option value="all">Status</option>
               <option value="todo">To Do</option>
@@ -847,7 +847,7 @@ export default function Board({ workspaceId, projectId }) {
                   priority: event.target.value,
                 }))
               }
-              className="h-10 min-w-27.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 min-w-27.5 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
             >
               <option value="all">Priority</option>
               <option value="P0">P0</option>
@@ -864,7 +864,7 @@ export default function Board({ workspaceId, projectId }) {
                   assigneeId: event.target.value,
                 }))
               }
-              className="h-10 min-w-37.5 rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 min-w-37.5 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
             >
               <option value="all">Assignee</option>
               {(membersQuery.data || []).map((member) => (
@@ -878,7 +878,7 @@ export default function Board({ workspaceId, projectId }) {
               <button
                 type="button"
                 onClick={() => setMoreFiltersOpen((prev) => !prev)}
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
               >
                 <Filter className="size-4" />
                 More filters
@@ -890,7 +890,7 @@ export default function Board({ workspaceId, projectId }) {
                     className="fixed inset-0 z-40"
                     onClick={() => setMoreFiltersOpen(false)}
                   />
-                  <div className="absolute right-0 top-11 z-50 w-[320px] space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                  <div className="absolute right-0 top-11 z-50 w-[320px] space-y-3 rounded-xl border border-slate-300 bg-white p-3 shadow-xl dark:border-white/10 dark:bg-slate-900">
                     <div className="space-y-1">
                       <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
                         Reporter
@@ -905,7 +905,7 @@ export default function Board({ workspaceId, projectId }) {
                           }))
                         }
                         placeholder="Filter by reporter"
-                        className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                       />
                     </div>
 
@@ -922,7 +922,7 @@ export default function Board({ workspaceId, projectId }) {
                             updatedAt: event.target.value,
                           }))
                         }
-                        className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                       />
                     </div>
 
@@ -939,7 +939,7 @@ export default function Board({ workspaceId, projectId }) {
                             createdAt: event.target.value,
                           }))
                         }
-                        className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                       />
                     </div>
 
@@ -956,7 +956,7 @@ export default function Board({ workspaceId, projectId }) {
                             dueDate: event.target.value,
                           }))
                         }
-                        className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                        className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                       />
                     </div>
                   </div>

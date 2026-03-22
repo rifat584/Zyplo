@@ -37,7 +37,7 @@ function CalendarSkeleton() {
   return (
     <div className="space-y-4 animate-pulse">
       {/* Top Filter Bar Skeleton */}
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
+      <section className="rounded-2xl border border-slate-300 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
         <div className="flex flex-wrap gap-2">
           <div className="h-10 flex-1 min-w-[220px] rounded-lg bg-slate-200 dark:bg-slate-800"></div>
           <div className="h-10 min-w-[140px] rounded-lg bg-slate-200 dark:bg-slate-800"></div>
@@ -55,13 +55,13 @@ function CalendarSkeleton() {
       </section>
 
       {/* Calendar Grid Skeleton */}
-      <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
+      <section className="overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-white/10 dark:bg-slate-900">
         <div className="overflow-x-auto">
           <div className="min-w-[700px]">
             {/* Header Days */}
-            <div className="grid grid-cols-7 border-b border-slate-200 dark:border-white/10">
+            <div className="grid grid-cols-7 border-b border-slate-300 dark:border-white/10">
               {Array.from({ length: 7 }).map((_, i) => (
-                <div key={i} className="border-r border-slate-200 p-2 last:border-r-0 sm:p-3 dark:border-white/10">
+                <div key={i} className="border-r border-slate-300 p-2 last:border-r-0 sm:p-3 dark:border-white/10">
                   <div className="mx-auto h-4 w-8 rounded bg-slate-200 dark:bg-slate-800"></div>
                 </div>
               ))}
@@ -69,7 +69,7 @@ function CalendarSkeleton() {
             {/* Grid Cells (6 rows x 7 cols = 42) */}
             <div className="grid grid-cols-7">
               {Array.from({ length: 42 }).map((_, i) => (
-                <div key={i} className="min-h-24 sm:min-h-32 border-b border-r border-slate-200 p-1.5 sm:p-2 last:border-r-0 dark:border-white/10">
+                <div key={i} className="min-h-24 sm:min-h-32 border-b border-r border-slate-300 p-1.5 sm:p-2 last:border-r-0 dark:border-white/10">
                   <div className="flex justify-between items-start">
                     <div className="h-4 w-4 rounded bg-slate-200 dark:bg-slate-800"></div>
                     <div className="size-5 sm:size-6 rounded-md bg-slate-200 dark:bg-slate-800"></div>
@@ -278,7 +278,7 @@ function CalendarDayCell({
   return (
     <div
       ref={setNodeRef}
-      className={`min-h-24 cursor-pointer border-b border-r border-slate-200 p-1.5 last:border-r-0 hover:bg-slate-50 sm:min-h-32 sm:p-2 dark:border-white/10 dark:hover:bg-slate-800/40 ${
+      className={`min-h-24 cursor-pointer border-b border-r border-slate-300 p-1.5 last:border-r-0 hover:bg-slate-50 sm:min-h-32 sm:p-2 dark:border-white/10 dark:hover:bg-slate-800/40 ${
         isOver ? "bg-cyan-50 dark:bg-cyan-500/10" : ""
       }`}
       onClick={() => onOpenDayDetails(dateKey)}
@@ -299,7 +299,7 @@ function CalendarDayCell({
             event.stopPropagation();
             onOpenCreateModal(dateKey);
           }}
-          className="inline-flex size-5 cursor-pointer items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-slate-200 sm:size-6 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800"
+          className="inline-flex size-5 cursor-pointer items-center justify-center rounded-md border border-slate-300 text-slate-500 hover:bg-slate-200 sm:size-6 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800"
           aria-label={`Create task on ${dateKey}`}
         >
           <Plus className="size-3 sm:size-3.5" />
@@ -809,7 +809,7 @@ export default function WorkspaceCalenderPage() {
 
   return (
     <div className="space-y-4">
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
+      <section className="rounded-2xl border border-slate-300 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
         <div className="flex flex-wrap gap-2">
           <div className="relative min-w-[220px] flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
@@ -817,13 +817,13 @@ export default function WorkspaceCalenderPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search calendar"
-              className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
             />
           </div>
           <select
             value={assignee}
             onChange={(e) => setAssignee(e.target.value)}
-            className="h-10 min-w-[140px] rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+            className="h-10 min-w-[140px] rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
           >
             <option value="all">Assignee</option>
             {members.map((member) => (
@@ -835,7 +835,7 @@ export default function WorkspaceCalenderPage() {
           <select
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
-            className="h-10 min-w-[110px] rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+            className="h-10 min-w-[110px] rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
           >
             <option value="all">Priority</option>
             <option value="P1">P1</option>
@@ -846,7 +846,7 @@ export default function WorkspaceCalenderPage() {
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="h-10 min-w-[120px] rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+            className="h-10 min-w-[120px] rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
           >
             <option value="all">Status</option>
             <option value="todo">To Do</option>
@@ -858,7 +858,7 @@ export default function WorkspaceCalenderPage() {
             <button
               type="button"
               onClick={() => setMoreFiltersOpen((prev) => !prev)}
-              className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 px-3 text-sm text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800"
+              className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800"
             >
               <CalendarDays className="size-4" />
               More filters
@@ -870,7 +870,7 @@ export default function WorkspaceCalenderPage() {
                   className="fixed inset-0 z-40"
                   onClick={() => setMoreFiltersOpen(false)}
                 />
-                <div className="absolute right-0 top-11 z-50 w-[320px] space-y-3 rounded-xl border border-slate-200 bg-white p-3 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                <div className="absolute right-0 top-11 z-50 w-[320px] space-y-3 rounded-xl border border-slate-300 bg-white p-3 shadow-xl dark:border-white/10 dark:bg-slate-900">
                   <div className="space-y-1">
                     <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
                       Reporter
@@ -885,7 +885,7 @@ export default function WorkspaceCalenderPage() {
                         }))
                       }
                       placeholder="Filter by reporter"
-                      className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                      className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                     />
                   </div>
 
@@ -902,7 +902,7 @@ export default function WorkspaceCalenderPage() {
                           updatedAt: event.target.value,
                         }))
                       }
-                      className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                      className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                     />
                   </div>
 
@@ -919,7 +919,7 @@ export default function WorkspaceCalenderPage() {
                           createdAt: event.target.value,
                         }))
                       }
-                      className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                      className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                     />
                   </div>
 
@@ -936,7 +936,7 @@ export default function WorkspaceCalenderPage() {
                           dueDate: event.target.value,
                         }))
                       }
-                      className="h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                      className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                     />
                   </div>
                 </div>
@@ -949,7 +949,7 @@ export default function WorkspaceCalenderPage() {
           <button
             type="button"
             onClick={() => setMonthDate(new Date())}
-            className="h-9 rounded-lg border border-slate-200 px-3 text-sm text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="h-9 rounded-lg border border-slate-300 px-3 text-sm text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             Today
           </button>
@@ -961,11 +961,11 @@ export default function WorkspaceCalenderPage() {
                   new Date(current.getFullYear(), current.getMonth() - 1, 1),
               )
             }
-            className="inline-flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="inline-flex size-9 items-center justify-center rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             <ChevronLeft className="size-4" />
           </button>
-          <div className="h-9 rounded-lg border border-slate-200 px-3 text-sm leading-9 text-slate-800 dark:border-white/10 dark:text-slate-100">
+          <div className="h-9 rounded-lg border border-slate-300 px-3 text-sm leading-9 text-slate-800 dark:border-white/10 dark:text-slate-100">
             {formatMonthLabel(monthDate)}
           </div>
           <button
@@ -976,13 +976,13 @@ export default function WorkspaceCalenderPage() {
                   new Date(current.getFullYear(), current.getMonth() + 1, 1),
               )
             }
-            className="inline-flex size-9 items-center justify-center rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="inline-flex size-9 items-center justify-center rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             <ChevronRight className="size-4" />
           </button>
           <select
             defaultValue="month"
-            className="h-9 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+            className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-700 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
           >
             <option value="month">Month</option>
           </select>
@@ -996,14 +996,14 @@ export default function WorkspaceCalenderPage() {
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
       >
-        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900">
+        <section className="overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-white/10 dark:bg-slate-900">
           <div className="overflow-x-auto">
             <div className="min-w-[700px]">
-              <div className="grid grid-cols-7 border-b border-slate-200 dark:border-white/10">
+              <div className="grid grid-cols-7 border-b border-slate-300 dark:border-white/10">
                 {WEEK_DAYS.map((day) => (
                   <div
                     key={day}
-                    className="border-r border-slate-200 px-2 py-2 text-center text-xs font-medium text-slate-600 last:border-r-0 sm:px-3 sm:text-sm dark:border-white/10 dark:text-slate-300"
+                    className="border-r border-slate-300 px-2 py-2 text-center text-xs font-medium text-slate-600 last:border-r-0 sm:px-3 sm:text-sm dark:border-white/10 dark:text-slate-300"
                   >
                     {day}
                   </div>
@@ -1047,8 +1047,8 @@ export default function WorkspaceCalenderPage() {
             onClick={() => (createBusy ? null : setCreateOpen(false))}
             aria-label="Close task create modal"
           />
-          <div className="absolute left-1/2 top-1/2 w-[94vw] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-900">
-            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-white/10">
+          <div className="absolute left-1/2 top-1/2 w-[94vw] max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-900">
+            <div className="flex items-center justify-between border-b border-slate-300 px-5 py-4 dark:border-white/10">
               <div>
                 <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   Calendar
@@ -1060,7 +1060,7 @@ export default function WorkspaceCalenderPage() {
               <button
                 type="button"
                 onClick={() => (createBusy ? null : setCreateOpen(false))}
-                className="inline-flex size-8 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800"
+                className="inline-flex size-8 items-center justify-center rounded-md border border-slate-300 text-slate-500 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800"
                 aria-label="Close"
               >
                 <X className="size-4" />
@@ -1078,7 +1078,7 @@ export default function WorkspaceCalenderPage() {
                     setForm((prev) => ({ ...prev, title: e.target.value }))
                   }
                   required
-                  className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                  className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                   placeholder="Enter task title"
                 />
               </div>
@@ -1096,7 +1096,7 @@ export default function WorkspaceCalenderPage() {
                       description: e.target.value,
                     }))
                   }
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                   placeholder="Optional description"
                 />
               </div>
@@ -1114,7 +1114,7 @@ export default function WorkspaceCalenderPage() {
                         projectId: e.target.value,
                       }))
                     }
-                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                   >
                     <option value="">No project</option>
                     {filteredProjects.map((project) => (
@@ -1136,7 +1136,7 @@ export default function WorkspaceCalenderPage() {
                         assigneeId: e.target.value,
                       }))
                     }
-                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                   >
                     <option value="">Auto assignee</option>
                     {members.map((member) => (
@@ -1159,7 +1159,7 @@ export default function WorkspaceCalenderPage() {
                     onChange={(e) =>
                       setForm((prev) => ({ ...prev, dueDate: e.target.value }))
                     }
-                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                   />
                 </div>
                 <div>
@@ -1171,7 +1171,7 @@ export default function WorkspaceCalenderPage() {
                     onChange={(e) =>
                       setForm((prev) => ({ ...prev, priority: e.target.value }))
                     }
-                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                   >
                     <option value="P1">P1</option>
                     <option value="P2">P2</option>
@@ -1188,7 +1188,7 @@ export default function WorkspaceCalenderPage() {
                     onChange={(e) =>
                       setForm((prev) => ({ ...prev, status: e.target.value }))
                     }
-                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                   >
                     <option value="todo">To Do</option>
                     <option value="inprogress">In Progress</option>
@@ -1210,7 +1210,7 @@ export default function WorkspaceCalenderPage() {
                         estimatedTime: e.target.value,
                       }))
                     }
-                    className="h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                    className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                     placeholder="0"
                   />
                 </div>
@@ -1222,12 +1222,12 @@ export default function WorkspaceCalenderPage() {
                 </p>
               ) : null}
 
-              <div className="flex justify-end gap-2 border-t border-slate-200 pt-4 dark:border-white/10">
+              <div className="flex justify-end gap-2 border-t border-slate-300 pt-4 dark:border-white/10">
                 <button
                   type="button"
                   onClick={() => setCreateOpen(false)}
                   disabled={createBusy}
-                  className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
+                  className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:border-white/10 dark:text-slate-200 dark:hover:bg-slate-800"
                 >
                   Cancel
                 </button>
@@ -1258,8 +1258,8 @@ export default function WorkspaceCalenderPage() {
             onClick={() => setDayDetailsOpen(false)}
             aria-label="Close day details modal"
           />
-          <div className="absolute left-1/2 top-1/2 w-[94vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-900">
-            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-white/10">
+          <div className="absolute left-1/2 top-1/2 w-[94vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-900">
+            <div className="flex items-center justify-between border-b border-slate-300 px-5 py-4 dark:border-white/10">
               <div>
                 <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
                   Day Details
@@ -1271,7 +1271,7 @@ export default function WorkspaceCalenderPage() {
               <button
                 type="button"
                 onClick={() => setDayDetailsOpen(false)}
-                className="inline-flex size-8 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800"
+                className="inline-flex size-8 items-center justify-center rounded-md border border-slate-300 text-slate-500 hover:bg-slate-50 dark:border-white/10 dark:text-slate-300 dark:hover:bg-slate-800"
                 aria-label="Close"
               >
                 <X className="size-4" />
@@ -1284,7 +1284,7 @@ export default function WorkspaceCalenderPage() {
                   <div
                     key={task.id}
                     onClick={() => setSelectedTask(task)} // Opens Reusable Modal
-                    className="group flex cursor-pointer items-center justify-between rounded-xl border border-slate-200 bg-white p-3.5 transition-all hover:border-indigo-300 hover:shadow-sm dark:border-white/10 dark:bg-slate-900/50 dark:hover:border-indigo-500/50"
+                    className="group flex cursor-pointer items-center justify-between rounded-xl border border-slate-300 bg-white p-3.5 transition-all hover:border-indigo-300 hover:shadow-sm dark:border-white/10 dark:bg-slate-900/50 dark:hover:border-indigo-500/50"
                   >
                     <div className="flex flex-col gap-1">
                       <h3 className="text-sm font-medium text-slate-900 group-hover:text-indigo-600 dark:text-slate-100 dark:group-hover:text-indigo-400">

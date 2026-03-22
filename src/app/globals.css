@@ -318,11 +318,11 @@ body {
   --info-foreground: oklch(0.985 0 0);
 
   /* Layout Essentials */
-  --border: oklch(0.92 0.01 255);
-  --input: oklch(0.94 0.008 255);
+  --border: oklch(0.87 0.012 255);
+  --input: oklch(0.9 0.01 255);
   --ring: oklch(58.5% 0.233 277.117 / 28%);
   --dashboard-hover: oklch(0.958 0.01 252);
-  --dashboard-hover-border: oklch(0.91 0.012 252);
+  --dashboard-hover-border: oklch(0.855 0.014 252);
   --dashboard-active: oklch(0.946 0.026 277);
   --dashboard-active-border: oklch(0.875 0.05 277);
   --dashboard-active-foreground: oklch(0.47 0.18 277);
@@ -333,7 +333,7 @@ body {
   --chart-warning: var(--warning);
   --chart-destructive: var(--destructive);
   --chart-accent: oklch(0.64 0.18 315);
-  --chart-muted: var(--muted-foreground);
+  --chart-muted: oklch(0.58 0.06 255);
   --chart-grid: oklch(0.88 0.01 255);
   --chart-tick: var(--muted-foreground);
 }
@@ -387,7 +387,7 @@ body {
   --chart-warning: var(--warning);
   --chart-destructive: var(--destructive);
   --chart-accent: oklch(0.72 0.17 315);
-  --chart-muted: var(--muted-foreground);
+  --chart-muted: oklch(0.72 0.05 255);
   --chart-grid: oklch(1 0 0 / 16%);
   --chart-tick: var(--muted-foreground);
 }

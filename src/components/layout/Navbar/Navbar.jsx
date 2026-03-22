@@ -222,8 +222,8 @@ const Navbar = () => {
                   </button>
 
                   {profileOpen ? (
-                    <div className="absolute right-0 top-12 z-30 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg dark:border-white/10 dark:bg-slate-900">
-                      <div className="mb-2 border-b border-slate-200 pb-2 px-2 dark:border-white/10">
+                    <div className="absolute right-0 top-12 z-30 w-56 rounded-xl border border-slate-300 bg-white p-2 shadow-lg dark:border-white/10 dark:bg-slate-900">
+                      <div className="mb-2 border-b border-slate-300 pb-2 px-2 dark:border-white/10">
                         <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
                           {displayName}
                         </p>
@@ -375,8 +375,8 @@ const Navbar = () => {
                 </Link>
 
                 {/* Mobile User Info & Logout */}
-                <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-800/50">
-                  <div className="mb-3 border-b border-slate-200 pb-3 dark:border-white/10 flex items-center gap-3">
+                <div className="mt-2 rounded-xl border border-slate-300 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-800/50">
+                  <div className="mb-3 border-b border-slate-300 pb-3 dark:border-white/10 flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-bold text-primary dark:bg-primary/20 dark:text-primary">
                       {displayAvatarUrl ? (
                         <img

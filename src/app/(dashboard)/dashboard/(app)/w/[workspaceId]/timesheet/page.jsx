@@ -80,7 +80,7 @@ function TooltipCard({ active, payload, label, keyName = "seconds" }) {
   if (!active || !payload?.length) return null;
   const row = payload[0]?.payload || {};
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white/95 px-3.5 py-2.5 text-xs shadow-[0_18px_40px_-24px_rgba(15,23,42,0.45)] backdrop-blur dark:border-white/10 dark:bg-slate-950/90">
+    <div className="rounded-2xl border border-slate-300/80 bg-white/95 px-3.5 py-2.5 text-xs shadow-[0_18px_40px_-24px_rgba(15,23,42,0.45)] backdrop-blur dark:border-white/10 dark:bg-slate-950/90">
       <p className="text-[11px] uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">{label}</p>
       <p className="mt-1 font-semibold text-slate-900 dark:text-slate-100">{fmtSeconds(row[keyName] || 0)}</p>
     </div>
@@ -134,7 +134,7 @@ function StatCard({ title, value, subtitle, Icon, tone = "indigo" }) {
   const toneStyles = tones[tone] || tones.indigo;
 
   return (
-    <div className="relative overflow-hidden rounded-[26px] border border-slate-200/80 bg-white/95 p-4 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-slate-900/95">
+    <div className="relative overflow-hidden rounded-[26px] border border-slate-300/80 bg-white/95 p-4 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-slate-900/95">
       <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${toneStyles.bar}`} />
       <div className={`pointer-events-none absolute -right-8 -top-10 size-24 rounded-full blur-3xl ${toneStyles.glow}`} />
       <div className="relative flex items-center justify-between gap-3">
@@ -424,7 +424,7 @@ export default function WorkspaceTimesheetPage() {
 
   return (
     <div className="space-y-4">
-      <section className="relative overflow-hidden rounded-[32px] border border-slate-200/80 bg-[linear-gradient(135deg,#0f172a_0%,#111827_55%,#0f766e_150%)] p-5 shadow-[0_32px_90px_-54px_rgba(15,23,42,0.8)] dark:border-white/10 sm:p-6">
+      <section className="relative overflow-hidden rounded-[32px] border border-slate-300/80 bg-[linear-gradient(135deg,#0f172a_0%,#111827_55%,#0f766e_150%)] p-5 shadow-[0_32px_90px_-54px_rgba(15,23,42,0.8)] dark:border-white/10 sm:p-6">
         <div className="pointer-events-none absolute -left-16 top-10 size-56 rounded-full bg-sky-400/20 blur-3xl" />
         <div className="pointer-events-none absolute -right-20 top-0 size-64 rounded-full bg-cyan-300/15 blur-3xl" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white/5 to-transparent" />
@@ -466,7 +466,7 @@ export default function WorkspaceTimesheetPage() {
                 <p className="text-[11px] uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Filters</p>
                 <h3 className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">Refine the view</h3>
               </div>
-              <span className="rounded-full border border-slate-200/80 bg-white/80 px-3 py-1 text-xs font-medium text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+              <span className="rounded-full border border-slate-300/80 bg-white/80 px-3 py-1 text-xs font-medium text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
                 {projects.length} projects
               </span>
             </div>
@@ -476,7 +476,7 @@ export default function WorkspaceTimesheetPage() {
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="h-11 w-full rounded-2xl border border-slate-200/80 bg-white/90 pl-10 pr-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-white/10 dark:bg-slate-900/80 dark:text-slate-100"
+                  className="h-11 w-full rounded-2xl border border-slate-300/80 bg-white/90 pl-10 pr-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-white/10 dark:bg-slate-900/80 dark:text-slate-100"
                 />
               </FilterField>
               <FilterField label="End date" icon={CalendarRange}>
@@ -484,14 +484,14 @@ export default function WorkspaceTimesheetPage() {
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="h-11 w-full rounded-2xl border border-slate-200/80 bg-white/90 pl-10 pr-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-white/10 dark:bg-slate-900/80 dark:text-slate-100"
+                  className="h-11 w-full rounded-2xl border border-slate-300/80 bg-white/90 pl-10 pr-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-white/10 dark:bg-slate-900/80 dark:text-slate-100"
                 />
               </FilterField>
               <FilterField label="Project" icon={PieIcon}>
                 <select
                   value={selectedProjectId}
                   onChange={(e) => setSelectedProjectId(e.target.value)}
-                  className="h-11 w-full rounded-2xl border border-slate-200/80 bg-white/90 pl-10 pr-9 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-white/10 dark:bg-slate-900/80 dark:text-slate-100"
+                  className="h-11 w-full rounded-2xl border border-slate-300/80 bg-white/90 pl-10 pr-9 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-white/10 dark:bg-slate-900/80 dark:text-slate-100"
                 >
                   {!projects.length ? <option value="">No project</option> : null}
                   {projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
@@ -501,7 +501,7 @@ export default function WorkspaceTimesheetPage() {
                 <select
                   value={selectedTaskId}
                   onChange={(e) => setSelectedTaskId(e.target.value)}
-                  className="h-11 w-full rounded-2xl border border-slate-200/80 bg-white/90 pl-10 pr-9 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-white/10 dark:bg-slate-900/80 dark:text-slate-100"
+                  className="h-11 w-full rounded-2xl border border-slate-300/80 bg-white/90 pl-10 pr-9 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 dark:border-white/10 dark:bg-slate-900/80 dark:text-slate-100"
                 >
                   {!tasksForProject.length ? <option value="">No task</option> : null}
                   {tasksForProject.map((task) => <option key={task.id} value={task.id}>{task.title}</option>)}
@@ -523,7 +523,7 @@ export default function WorkspaceTimesheetPage() {
       {memberError ? <div className="rounded-[22px] border border-amber-200/80 bg-amber-50/90 p-3.5 text-sm text-amber-700 shadow-sm backdrop-blur dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">{memberError}</div> : null}
 
       <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
-        <div className="relative overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/95 p-5 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-slate-900/95">
+        <div className="relative overflow-hidden rounded-[28px] border border-slate-300/80 bg-white/95 p-5 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-slate-900/95">
           <div className="mb-4 flex items-start justify-between gap-3">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Timesheet Trend</h3>
             <span className="text-xs text-slate-500 dark:text-slate-400">Hours by day</span>
@@ -553,7 +553,7 @@ export default function WorkspaceTimesheetPage() {
           )}
         </div>
 
-        <div className="relative overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/95 p-5 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-slate-900/95">
+        <div className="relative overflow-hidden rounded-[28px] border border-slate-300/80 bg-white/95 p-5 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-slate-900/95">
           <div className="mb-4 flex items-start justify-between gap-3">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Project Distribution</h3>
             <PieIcon className="size-4 text-slate-400" />
@@ -589,7 +589,7 @@ export default function WorkspaceTimesheetPage() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-2">
-        <div className="relative overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/95 p-5 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-slate-900/95">
+        <div className="relative overflow-hidden rounded-[28px] border border-slate-300/80 bg-white/95 p-5 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-slate-900/95">
           <div className="mb-4 flex items-start justify-between gap-3">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Selected Project Contribution</h3>
             <span className="text-xs text-slate-500 dark:text-slate-400">{selectedProject?.name || "Select project"}</span>
@@ -620,7 +620,7 @@ export default function WorkspaceTimesheetPage() {
               </div>
               <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
                 {selectedProjectContribChart.map((row) => (
-                  <div key={row.key} className="rounded-xl border border-slate-200 bg-white/80 px-3 py-2.5 dark:border-white/10 dark:bg-slate-900/70">
+                  <div key={row.key} className="rounded-xl border border-slate-300 bg-white/80 px-3 py-2.5 dark:border-white/10 dark:bg-slate-900/70">
                     <div className="flex items-center justify-between gap-3">
                       <div className="inline-flex min-w-0 items-center gap-2">
                         <span className="inline-block size-2.5 rounded-full" style={{ background: row.fill }} />
@@ -646,7 +646,7 @@ export default function WorkspaceTimesheetPage() {
           )}
         </div>
 
-        <div className="relative overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/95 p-5 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-slate-900/95">
+        <div className="relative overflow-hidden rounded-[28px] border border-slate-300/80 bg-white/95 p-5 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-slate-900/95">
           <div className="mb-4 flex items-start justify-between gap-3">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">All Members Contribution</h3>
             <span className="text-xs text-slate-500 dark:text-slate-400">All projects (all-time)</span>
@@ -679,7 +679,7 @@ export default function WorkspaceTimesheetPage() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-        <div className="relative overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/95 p-5 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-slate-900/95">
+        <div className="relative overflow-hidden rounded-[28px] border border-slate-300/80 bg-white/95 p-5 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-slate-900/95">
           <div className="mb-4 flex items-start justify-between gap-3">
             <div>
               <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Snapshot</h3>
@@ -690,7 +690,7 @@ export default function WorkspaceTimesheetPage() {
             </div>
           </div>
           <div className="grid gap-3 text-sm">
-            <div className="overflow-hidden rounded-[26px] border border-slate-200/80 bg-[linear-gradient(135deg,#e0f2fe_0%,#ffffff_45%,#ecfeff_100%)] p-4 shadow-sm dark:border-white/10 dark:bg-[linear-gradient(135deg,rgba(14,116,144,0.18)_0%,rgba(15,23,42,0.92)_100%)]">
+            <div className="overflow-hidden rounded-[26px] border border-slate-300/80 bg-[linear-gradient(135deg,#e0f2fe_0%,#ffffff_45%,#ecfeff_100%)] p-4 shadow-sm dark:border-white/10 dark:bg-[linear-gradient(135deg,rgba(14,116,144,0.18)_0%,rgba(15,23,42,0.92)_100%)]">
               <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Top Contributor</p>
               <div className="mt-3 flex items-end justify-between gap-3">
                 <div className="min-w-0">
@@ -706,7 +706,7 @@ export default function WorkspaceTimesheetPage() {
               </div>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-[24px] border border-slate-200/80 bg-white/85 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/70">
+              <div className="rounded-[24px] border border-slate-300/80 bg-white/85 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/70">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Selected Project</p>
                 <p className="mt-2 line-clamp-2 min-h-[2.5rem] font-semibold text-slate-800 dark:text-slate-100">{selectedProject?.name || "N/A"}</p>
                 <div className="mt-4 h-2 rounded-full bg-slate-100 dark:bg-slate-800">
@@ -717,7 +717,7 @@ export default function WorkspaceTimesheetPage() {
                 </div>
                 <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">{fmtSeconds(projectRows.reduce((sum, row) => sum + Number(row.totalTime || 0), 0))}</p>
               </div>
-              <div className="rounded-[24px] border border-slate-200/80 bg-white/85 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/70">
+              <div className="rounded-[24px] border border-slate-300/80 bg-white/85 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/70">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Selected Task</p>
                 <p className="mt-2 line-clamp-2 min-h-[2.5rem] font-semibold text-slate-800 dark:text-slate-100">{selectedTask?.title || "N/A"}</p>
                 <div className="mt-4 h-2 rounded-full bg-slate-100 dark:bg-slate-800">
@@ -734,7 +734,7 @@ export default function WorkspaceTimesheetPage() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/95 p-5 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-slate-900/95">
+        <div className="relative overflow-hidden rounded-[28px] border border-slate-300/80 bg-white/95 p-5 shadow-[0_24px_80px_-42px_rgba(15,23,42,0.45)] dark:border-white/10 dark:bg-slate-900/95">
           <div className="mb-4 flex items-start justify-between gap-3">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Task Report</h3>
             <Clock3 className="size-4 text-slate-400" />
@@ -743,15 +743,15 @@ export default function WorkspaceTimesheetPage() {
             <div className="space-y-4">
               <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{selectedTask?.title || "Selected task"}</p>
               <div className="grid gap-2 sm:grid-cols-3">
-                <div className="rounded-2xl border border-slate-200/70 bg-slate-50/90 p-3 dark:border-white/10 dark:bg-slate-800/60">
+                <div className="rounded-2xl border border-slate-300/70 bg-slate-50/90 p-3 dark:border-white/10 dark:bg-slate-800/60">
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">Estimated</p>
                   <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{fmtSeconds(taskReport.estimatedTime)}</p>
                 </div>
-                <div className="rounded-2xl border border-slate-200/70 bg-slate-50/90 p-3 dark:border-white/10 dark:bg-slate-800/60">
+                <div className="rounded-2xl border border-slate-300/70 bg-slate-50/90 p-3 dark:border-white/10 dark:bg-slate-800/60">
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">Spent</p>
                   <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{fmtSeconds(taskReport.totalTimeSpent)}</p>
                 </div>
-                <div className="rounded-2xl border border-slate-200/70 bg-slate-50/90 p-3 dark:border-white/10 dark:bg-slate-800/60">
+                <div className="rounded-2xl border border-slate-300/70 bg-slate-50/90 p-3 dark:border-white/10 dark:bg-slate-800/60">
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">Remaining</p>
                   <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{fmtSeconds(taskReport.remainingTime)}</p>
                 </div>
@@ -769,7 +769,7 @@ export default function WorkspaceTimesheetPage() {
                 <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Recent Logs</p>
                 <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
                   {(taskReport.logs || []).slice(0, 10).map((log) => (
-                    <div key={log.id} className="flex items-center justify-between rounded-2xl border border-slate-200/80 bg-white/80 px-3 py-2.5 text-xs shadow-sm dark:border-white/10 dark:bg-slate-900/70">
+                    <div key={log.id} className="flex items-center justify-between rounded-2xl border border-slate-300/80 bg-white/80 px-3 py-2.5 text-xs shadow-sm dark:border-white/10 dark:bg-slate-900/70">
                       <div className="min-w-0">
                         <p className="truncate text-slate-700 dark:text-slate-200">
                           {log.startTime ? new Date(log.startTime).toLocaleString() : "Unknown"} - {log.endTime ? new Date(log.endTime).toLocaleString() : "Running"}

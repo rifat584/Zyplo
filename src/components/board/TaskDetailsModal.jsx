@@ -170,7 +170,7 @@ function getStatusLabel(options, value) {
 function OverviewRow({ label, children, alignTop = false }) {
   return (
     <div
-      className={`grid gap-2 border-b border-slate-200/80 py-4 last:border-b-0 dark:border-white/10 sm:grid-cols-[112px_minmax(0,1fr)] lg:grid-cols-[128px_minmax(0,1fr)] ${
+      className={`grid gap-2 border-b border-slate-300/80 py-4 last:border-b-0 dark:border-white/10 sm:grid-cols-[112px_minmax(0,1fr)] lg:grid-cols-[128px_minmax(0,1fr)] ${
         alignTop ? "items-start" : "items-center"
       }`}
     >
@@ -190,7 +190,7 @@ function TaskTabButton({ active, icon: Icon, label, onClick, badge }) {
       className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1.5 text-xs font-semibold transition ${
         active
           ? "border-slate-900 bg-slate-900 text-white shadow-lg shadow-slate-900/10 dark:border-white dark:bg-white dark:text-slate-900"
-          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-white/20 dark:hover:bg-slate-800"
+          : "border-slate-300 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-white/20 dark:hover:bg-slate-800"
       }`}
       aria-pressed={active}
     >
@@ -620,8 +620,8 @@ export default function TaskDetailsModal({
         aria-label="Close task details modal"
       />
 
-      <div className="absolute left-1/2 top-1/2 w-[96vw] max-w-6xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-900 flex max-h-[90vh] flex-col">
-        <div className="border-b border-slate-200 px-5 py-3.5 dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shrink-0">
+      <div className="absolute left-1/2 top-1/2 w-[96vw] max-w-6xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-900 flex max-h-[90vh] flex-col">
+        <div className="border-b border-slate-300 px-5 py-3.5 dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800 shrink-0">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 space-y-2.5">
               <div className="flex flex-wrap items-center gap-2">
@@ -629,11 +629,11 @@ export default function TaskDetailsModal({
                   {task.projectName || "Unknown Project"}
                 </span>
                 {task?.taskRef ? (
-                  <span className="rounded-full border border-slate-200 bg-white px-3 py-1 font-mono text-[11px] font-semibold text-slate-600 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300">
+                  <span className="rounded-full border border-slate-300 bg-white px-3 py-1 font-mono text-[11px] font-semibold text-slate-600 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300">
                     {task.taskRef}
                   </span>
                 ) : null}
-                <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-medium text-slate-500 dark:border-white/10 dark:bg-slate-900 dark:text-slate-400">
+                <span className="rounded-full border border-slate-300 bg-white px-3 py-1 text-[11px] font-medium text-slate-500 dark:border-white/10 dark:bg-slate-900 dark:text-slate-400">
                   Reporter: {reporterDisplayName}
                 </span>
               </div>
@@ -648,7 +648,7 @@ export default function TaskDetailsModal({
               type="button"
               onClick={onClose}
               disabled={isBusy}
-              className="inline-flex size-9 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-500 transition hover:border-slate-300 hover:text-slate-700 disabled:opacity-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-white/20 dark:hover:text-slate-100"
+              className="inline-flex size-9 items-center justify-center rounded-2xl border border-slate-300 bg-white text-slate-500 transition hover:border-slate-300 hover:text-slate-700 disabled:opacity-50 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-white/20 dark:hover:text-slate-100"
               aria-label="Close task details modal"
             >
               <X className="size-4" />
@@ -676,8 +676,8 @@ export default function TaskDetailsModal({
             }}
           >
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.95fr)]">
-              <section className="min-w-0 overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-slate-900">
-                <div className="border-b border-slate-200 bg-gradient-to-br from-slate-50 via-white to-slate-100 px-5 py-5 dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
+              <section className="min-w-0 overflow-hidden rounded-[28px] border border-slate-300 bg-white shadow-sm dark:border-white/10 dark:bg-slate-900">
+                <div className="border-b border-slate-300 bg-gradient-to-br from-slate-50 via-white to-slate-100 px-5 py-5 dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
                   <div className="flex flex-col gap-4">
                     <div className="space-y-1">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
@@ -733,7 +733,7 @@ export default function TaskDetailsModal({
 
                 <div className="space-y-5 p-5">
                   {activeTab === "time" ? (
-                    <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
+                    <div className="rounded-xl border border-slate-300 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
                       <div className="flex items-start justify-between gap-3">
                         <button
                           type="button"
@@ -939,7 +939,7 @@ export default function TaskDetailsModal({
                                   }))
                                 }
                                 placeholder="e.g. 1h 30m, 90m, 5400s, 01:30:00"
-                                className="h-10 min-w-[360px] w-full whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                                className="h-10 min-w-[360px] w-full whitespace-nowrap rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                               />
                             </div>
                             <p className="text-[11px] text-slate-500 dark:text-slate-400">
@@ -955,7 +955,7 @@ export default function TaskDetailsModal({
                               onClick={() =>
                                 setIsManualEntryOpen((prev) => !prev)
                               }
-                              className="flex w-full items-start justify-between gap-2 rounded-lg border border-transparent px-1 py-0.5 text-left hover:border-slate-200 hover:bg-slate-50 dark:hover:border-white/10 dark:hover:bg-slate-800/40"
+                              className="flex w-full items-start justify-between gap-2 rounded-lg border border-transparent px-1 py-0.5 text-left hover:border-slate-300 hover:bg-slate-50 dark:hover:border-white/10 dark:hover:bg-slate-800/40"
                             >
                               <span>
                                 <span className="text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
@@ -982,7 +982,7 @@ export default function TaskDetailsModal({
                               }`}
                               aria-hidden={!isManualEntryOpen}
                             >
-                              <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-slate-900">
+                              <div className="rounded-xl border border-slate-300 bg-white p-3 dark:border-white/10 dark:bg-slate-900">
                                 <div className="grid gap-3 sm:grid-cols-2">
                                   <div className="space-y-1">
                                     <label
@@ -1001,7 +1001,7 @@ export default function TaskDetailsModal({
                                           startTime: event.target.value,
                                         }))
                                       }
-                                      className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                                      className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                                     />
                                   </div>
 
@@ -1022,7 +1022,7 @@ export default function TaskDetailsModal({
                                           endTime: event.target.value,
                                         }))
                                       }
-                                      className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                                      className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                                     />
                                   </div>
                                 </div>
@@ -1046,7 +1046,7 @@ export default function TaskDetailsModal({
                                         }))
                                       }
                                       placeholder="What did you work on?"
-                                      className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                                      className="h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
                                     />
                                   </div>
 
@@ -1161,7 +1161,7 @@ export default function TaskDetailsModal({
                               {timeLogs.slice(0, 5).map((log) => (
                                 <div
                                   key={log.id}
-                                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-white/10 dark:bg-slate-900"
+                                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2 dark:border-white/10 dark:bg-slate-900"
                                 >
                                   <span>
                                     {log.startTime
@@ -1190,7 +1190,7 @@ export default function TaskDetailsModal({
                   ) : null}
 
                   {activeTab === "attachments" ? (
-                    <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
+                    <div className="rounded-xl border border-slate-300 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
                       <div className="flex items-center justify-between">
                         <button
                           type="button"
@@ -1238,10 +1238,10 @@ export default function TaskDetailsModal({
                           {form.attachments.map((file, idx) => (
                             <div
                               key={idx}
-                              className="group relative flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md dark:border-white/10 dark:bg-slate-900"
+                              className="group relative flex flex-col overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm transition hover:shadow-md dark:border-white/10 dark:bg-slate-900"
                             >
                               {/* Preview Area */}
-                              <div className="relative h-28 w-full bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-white/10">
+                              <div className="relative h-28 w-full bg-slate-100 dark:bg-slate-800 border-b border-slate-300 dark:border-white/10">
                                 {file.type.startsWith("image/") ? (
                                   <img
                                     src={file.url}
@@ -1307,7 +1307,7 @@ export default function TaskDetailsModal({
                   ) : null}
 
                   {activeTab === "github" ? (
-                    <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
+                    <div className="rounded-xl border border-slate-300 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
                       <button
                         type="button"
                         onClick={() => setIsGithubOpen((prev) => !prev)}
@@ -1375,7 +1375,7 @@ export default function TaskDetailsModal({
                             {githubActivities.map((activity) => (
                               <div
                                 key={activity._id}
-                                className="flex items-start gap-3 rounded-lg border border-slate-200 bg-white p-3 dark:border-white/10 dark:bg-slate-900"
+                                className="flex items-start gap-3 rounded-lg border border-slate-300 bg-white p-3 dark:border-white/10 dark:bg-slate-900"
                               >
                                 {/* icon: commit vs PR */}
                                 <span className="mt-0.5 shrink-0 text-slate-400">
@@ -1437,7 +1437,7 @@ export default function TaskDetailsModal({
                                     src={activity.meta.githubAvatarUrl}
                                     alt={activity.meta.githubUsername}
                                     title={`@${activity.meta.githubUsername}`}
-                                    className="size-6 shrink-0 rounded-full border border-slate-200 dark:border-white/10"
+                                    className="size-6 shrink-0 rounded-full border border-slate-300 dark:border-white/10"
                                   />
                                 )}
                               </div>
@@ -1449,7 +1449,7 @@ export default function TaskDetailsModal({
                   ) : null}
 
                   {activeTab === "comments" ? (
-                    <div className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
+                    <div className="rounded-xl border border-slate-300 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/30">
                       <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
                         <MessageSquare size={14} />
                         Activity & Comments
@@ -1465,7 +1465,7 @@ export default function TaskDetailsModal({
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
                             placeholder="Write a comment..."
-                            className="w-full rounded-xl border border-slate-200 bg-slate-50/50 p-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800/50 dark:text-slate-100"
+                            className="w-full rounded-xl border border-slate-300 bg-slate-50/50 p-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-white/10 dark:bg-slate-800/50 dark:text-slate-100"
                             rows={2}
                           />
                           <button
@@ -1511,8 +1511,8 @@ export default function TaskDetailsModal({
                 </div>
               </section>
 
-              <aside className="h-fit rounded-[28px] border border-slate-200 bg-white shadow-sm xl:sticky xl:top-0 xl:self-start dark:border-white/10 dark:bg-slate-900">
-                <div className="border-b rounded-t-[28px] border-slate-200 px-5 py-5 dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
+              <aside className="h-fit rounded-[28px] border border-slate-300 bg-white shadow-sm xl:sticky xl:top-0 xl:self-start dark:border-white/10 dark:bg-slate-900">
+                <div className="border-b rounded-t-[28px] border-slate-300 px-5 py-5 dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1">
                       <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
@@ -1744,7 +1744,7 @@ export default function TaskDetailsModal({
           </form>
         </div>
 
-        <div className="border-t border-slate-200 bg-slate-50 px-5 py-3 dark:border-white/10 dark:bg-slate-800/30 shrink-0">
+        <div className="border-t border-slate-300 bg-slate-50 px-5 py-3 dark:border-white/10 dark:bg-slate-800/30 shrink-0">
           <div className="flex items-center justify-end gap-2">
             <button
               type="button"
