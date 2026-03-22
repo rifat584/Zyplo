@@ -102,41 +102,6 @@ const WORKSPACE_NAV_ITEMS = [
   { id: "members", label: "Members", icon: Users, href: (id) => `/dashboard/w/${id}/members` },
 ];
 
-function getWorkspaceBillingBadge(subscription) {
-  const planId = String(subscription?.planId || "").trim().toLowerCase();
-  const status = String(subscription?.status || "").trim().toLowerCase();
-
-  if (!planId) return null;
-  if (["inactive", "canceled", "incomplete_expired"].includes(status)) return null;
-
-  const label = planId.charAt(0).toUpperCase() + planId.slice(1);
-
-  if (["active", "trialing"].includes(status)) {
-    return {
-      label,
-      short: label.charAt(0),
-      pillClassName: "border-success/25 bg-success/10 text-success",
-      chipClassName: "bg-success text-success-foreground",
-    };
-  }
-
-  if (["past_due", "unpaid", "incomplete"].includes(status)) {
-    return {
-      label,
-      short: label.charAt(0),
-      pillClassName: "border-warning/25 bg-warning/10 text-warning",
-      chipClassName: "bg-warning text-warning-foreground",
-    };
-  }
-
-  return {
-    label,
-    short: label.charAt(0),
-    pillClassName: "border-border bg-muted/70 text-muted-foreground",
-    chipClassName: "bg-muted text-foreground",
-  };
-}
-
 function useSidebarState() {
   const [collapsed, setCollapsed] = useState(false);
   const [ready, setReady] = useState(false);
@@ -769,7 +734,6 @@ function ThemeToggle() {
 function AppSidebar({ mobileOpen, onCloseMobile }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { status: sessionStatus } = useSession();
   const { collapsed, toggle } = useSidebarState();
   const effectiveCollapsed = mobileOpen ? true : collapsed;
   const { workspaces, currentUser } = useMockStore((state) => ({
@@ -779,7 +743,6 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   const [actionsOpenFor, setActionsOpenFor] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState("");
   const [deleting, setDeleting] = useState(false);
-  const [workspaceBilling, setWorkspaceBilling] = useState({});
   const actionsMenuRef = useRef(null);
 
   const pickWorkspaceGradient = (workspace) => {
@@ -809,49 +772,6 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     return () => document.removeEventListener("mousedown", onPointerDown);
   }, [actionsOpenFor]);
 
-  useEffect(() => {
-    let alive = true;
-
-    if (sessionStatus === "loading") {
-      return undefined;
-    }
-
-    if (sessionStatus !== "authenticated" || !workspaces.length) {
-      setWorkspaceBilling({});
-      return undefined;
-    }
-
-    async function loadWorkspaceBilling() {
-      const entries = await Promise.all(
-        workspaces.map(async (workspace) => {
-          try {
-            const response = await fetch(
-              `/api/billing/subscription?workspaceId=${encodeURIComponent(workspace.id)}`,
-              { cache: "no-store" },
-            );
-            const text = await response.text();
-            const data = parseJsonSafe(text, null);
-
-            if (!response.ok) return [workspace.id, null];
-            return [workspace.id, getWorkspaceBillingBadge(data?.subscription)];
-          } catch {
-            return [workspace.id, null];
-          }
-        }),
-      );
-
-      if (!alive) return;
-      setWorkspaceBilling(
-        Object.fromEntries(entries.filter(([, badge]) => Boolean(badge))),
-      );
-    }
-
-    loadWorkspaceBilling().catch(() => {});
-
-    return () => {
-      alive = false;
-    };
-  }, [sessionStatus, workspaces]);
 
   const rootItem = (
     <Link
@@ -902,7 +822,6 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         const isAdmin = resolveWorkspaceRole(workspace, currentUser) === "admin";
         const badgeLabel = getWorkspaceBadgeLabel(workspace);
         const badgeGradient = pickWorkspaceGradient(workspace);
-        const billingBadge = workspaceBilling[workspace.id] || null;
         const href = `/dashboard/w/${workspace.id}`;
         const active = pathname === href || pathname.startsWith(`${href}/`);
         const menuOpen = actionsOpenFor === workspace.id;
@@ -932,28 +851,8 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                 )}
               >
                 {badgeLabel}
-                {effectiveCollapsed && billingBadge ? (
-                  <span
-                    className={cn(
-                      "absolute -right-1 -top-1 inline-flex min-h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold shadow-sm",
-                      billingBadge.chipClassName,
-                    )}
-                  >
-                    {billingBadge.short}
-                  </span>
-                ) : null}
               </span>
               {!effectiveCollapsed ? <span className="truncate text-sm">{workspace.name}</span> : null}
-              {!effectiveCollapsed && billingBadge ? (
-                <span
-                  className={cn(
-                    "ml-auto inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold",
-                    billingBadge.pillClassName,
-                  )}
-                >
-                  {billingBadge.label}
-                </span>
-              ) : null}
             </button>
 
             {!effectiveCollapsed ? (
@@ -1673,3 +1572,4 @@ export function AppShell({ children }) {
 }
 
 export default AppShell;
+
