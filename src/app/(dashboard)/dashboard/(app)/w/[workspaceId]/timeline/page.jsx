@@ -89,7 +89,7 @@ function AgendaRow({ task, showNoDueDate = false }) {
   return (
     <article className="rounded-xl border border-border bg-card shadow-sm shadow-black/5 dark:shadow-none">
       <div className="flex flex-col gap-2.5 px-3 py-3 sm:grid sm:grid-cols-[8.5rem_minmax(0,1fr)_auto] sm:items-center sm:gap-3 sm:px-4">
-        <div className="order-2 sm:order-none">
+        <div className="order-2 sm:order-0">
           <span className="inline-flex w-fit items-center gap-1.5 rounded-md border border-border/80 bg-background px-2 py-1 text-[11px] font-medium text-foreground">
             <CalendarDays className="size-3.5 text-muted-foreground" />
             {dueLabel}
@@ -99,7 +99,7 @@ function AgendaRow({ task, showNoDueDate = false }) {
           ) : null}
         </div>
 
-        <div className="order-1 min-w-0 sm:order-none">
+        <div className="order-1 min-w-0 sm:order-0">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="truncate text-sm font-medium text-foreground">
               {task?.title || "Untitled task"}
@@ -218,7 +218,7 @@ function EmptyState({ title, description }) {
       <div className="mx-auto flex size-10 items-center justify-center rounded-full bg-secondary/45 text-foreground">
         <CalendarDays className="size-4.5" />
       </div>
-      <h3 className="mt-3 text-base font-semibold tracking-tight text-foreground">
+      <h3 className="mt-3 font-semibold tracking-tight text-foreground">
         {title}
       </h3>
       <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
@@ -334,7 +334,7 @@ export default function WorkspaceTimelinePage() {
 
   if (!workspaceId) {
     return (
-      <section className="rounded-2xl border border-destructive/20 bg-destructive/[0.03] p-4 text-sm text-destructive">
+      <section className="rounded-2xl border border-destructive/20 bg-destructive/3 p-4 text-sm text-destructive">
         Invalid workspace route.
       </section>
     );
