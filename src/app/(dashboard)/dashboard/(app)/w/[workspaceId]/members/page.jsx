@@ -604,7 +604,7 @@ export default function WorkspaceMembersPage() {
               return (
                 <div
                   key={memberId || memberEmail || `member-${index}`}
-                  className="flex flex-col gap-4 rounded-xl border border-border bg-card/80 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm shadow-black/5 dark:shadow-none sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div className="flex min-w-0 items-start gap-3">
                     <Avatar
@@ -726,7 +726,7 @@ export default function WorkspaceMembersPage() {
                     return (
                       <div
                         key={inviteId || `${invite?.email}-${index}`}
-                        className="flex flex-col gap-4 rounded-xl border border-border bg-card/80 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
+                        className="flex flex-col gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm shadow-black/5 dark:shadow-none sm:flex-row sm:items-center sm:justify-between"
                       >
                         <div className="min-w-0 space-y-1">
                           <div className="flex flex-wrap items-center gap-2">
