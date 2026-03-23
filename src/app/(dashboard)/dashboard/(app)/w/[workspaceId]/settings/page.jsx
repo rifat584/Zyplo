@@ -198,6 +198,44 @@ function WorkspaceSettingsPageContent() {
     };
   }, [workspaceId, isAdmin]);
 
+  useEffect(() => {
+    if (!loaded || loading) return;
+
+    if (!workspaceId || !isAdmin) {
+      setBillingStatus(null);
+      setBillingLoading(false);
+      setBillingError("");
+      return;
+    }
+
+    let alive = true;
+
+    async function loadBillingStatus() {
+      try {
+        setBillingLoading(true);
+        setBillingError("");
+        const data = await requestJson(
+          `/api/billing/subscription?workspaceId=${encodeURIComponent(workspaceId)}`,
+        );
+
+        if (!alive) return;
+        setBillingStatus(data);
+      } catch (err) {
+        if (!alive) return;
+        setBillingStatus(null);
+        setBillingError(String(err?.message || "Failed to load billing status."));
+      } finally {
+        if (alive) setBillingLoading(false);
+      }
+    }
+
+    loadBillingStatus();
+
+    return () => {
+      alive = false;
+    };
+  }, [workspaceId, isAdmin, loaded, loading]);
+
   async function refreshGithubStatus() {
     if (!workspaceId || !isAdmin) return;
     try {
