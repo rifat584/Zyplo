@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { CreditCard, LoaderCircle } from "lucide-react";
 import { useMockStore, useWorkspaceAccess } from "@/components/dashboard/mockStore";
@@ -139,7 +139,7 @@ function WorkspaceSettingsSkeleton() {
     </section>
   );
 }
-export default function WorkspaceSettingsPage() {
+function WorkspaceSettingsPageContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const workspaceId = typeof params.workspaceId === "string" ? params.workspaceId : "";
@@ -523,5 +523,13 @@ export default function WorkspaceSettingsPage() {
         )}
       </div>
     </section>
+  );
+}
+
+export default function WorkspaceSettingsPage() {
+  return (
+    <Suspense fallback={<WorkspaceSettingsSkeleton />}>
+      <WorkspaceSettingsPageContent />
+    </Suspense>
   );
 }

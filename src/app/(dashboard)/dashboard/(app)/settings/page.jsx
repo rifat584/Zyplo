@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
@@ -76,7 +76,7 @@ function getStatusTone(status) {
   return "border-border bg-muted/60 text-muted-foreground";
 }
 
-export default function DashboardSettingsPage() {
+function DashboardSettingsPageContent() {
   const searchParams = useSearchParams();
   const { data: session, status: sessionStatus } = useSession();
 
@@ -403,5 +403,13 @@ export default function DashboardSettingsPage() {
         </section>
       </div>
     </div>
+  );
+}
+
+export default function DashboardSettingsPage() {
+  return (
+    <Suspense fallback={null}>
+      <DashboardSettingsPageContent />
+    </Suspense>
   );
 }
