@@ -57,18 +57,105 @@ async function requestJson(url, options = {}) {
   return data;
 }
 
+function WorkspaceSettingsSkeleton() {
+  return (
+    <section className="rounded-2xl border border-border bg-card p-4 dark:border-white/10">
+      <div className="animate-pulse space-y-4">
+        <div className="h-4 w-40 rounded bg-muted" />
+
+        <div className="space-y-1">
+          <div className="h-3 w-28 rounded bg-muted" />
+          <div className="h-10 w-full rounded-xl bg-muted/70" />
+          <div className="h-3 w-52 rounded bg-muted" />
+        </div>
+
+        <div className="rounded-xl border border-border bg-muted/40 p-3 dark:border-white/10 dark:bg-surface/40">
+          <div className="space-y-2">
+            <div className="h-3 w-40 rounded bg-muted" />
+            <div className="h-3 w-24 rounded bg-muted" />
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-background p-4 dark:border-white/10">
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-xl bg-muted" />
+                <div className="space-y-2">
+                  <div className="h-4 w-20 rounded bg-muted" />
+                  <div className="h-3 w-56 rounded bg-muted" />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="h-9 w-20 rounded-lg bg-muted" />
+                <div className="h-9 w-24 rounded-lg bg-muted" />
+                <div className="h-9 w-28 rounded-lg bg-muted" />
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="h-8 w-20 rounded bg-muted" />
+                <div className="h-6 w-24 rounded-full bg-muted" />
+              </div>
+
+              <div className="rounded-xl border border-border bg-muted/40 p-3 dark:border-white/10 dark:bg-surface/50">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="h-3 w-20 rounded bg-muted" />
+                    <div className="h-3 w-24 rounded bg-muted" />
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="h-3 w-16 rounded bg-muted" />
+                    <div className="h-3 w-28 rounded bg-muted" />
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="h-3 w-14 rounded bg-muted" />
+                    <div className="h-3 w-16 rounded bg-muted" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="h-3 w-72 rounded bg-muted" />
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border bg-background p-4 dark:border-white/10">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="size-8 rounded-lg bg-muted" />
+              <div className="space-y-2">
+                <div className="h-4 w-20 rounded bg-muted" />
+                <div className="h-3 w-40 rounded bg-muted" />
+              </div>
+            </div>
+
+            <div className="h-9 w-28 rounded-lg bg-muted" />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function WorkspaceSettingsPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const workspaceId = typeof params.workspaceId === "string" ? params.workspaceId : "";
   const { isAdmin } = useWorkspaceAccess(workspaceId);
-  const workspaces = useMockStore((state) => state.workspaces || []);
+  const { workspaces, loaded, loading } = useMockStore((state) => ({
+    workspaces: state.workspaces || [],
+    loaded: Boolean(state.loaded),
+    loading: Boolean(state.loading),
+  }));
   const workspace = useMemo(
     () => workspaces.find((item) => item.id === workspaceId) || null,
     [workspaces, workspaceId]
   );
+  const workspaceName = workspace?.name || "Untitled workspace";
 
-  const [name, setName] = useState(workspace?.name || "");
   const [githubStatus, setGithubStatus] = useState(null);
   const [githubLoading, setGithubLoading] = useState(true);
   const [githubError, setGithubError] = useState("");
@@ -77,10 +164,6 @@ export default function WorkspaceSettingsPage() {
   const [billingLoading, setBillingLoading] = useState(true);
   const [billingError, setBillingError] = useState("");
   const [billingPortalLoading, setBillingPortalLoading] = useState(false);
-
-  useEffect(() => {
-    setName(workspace?.name || "");
-  }, [workspace?.name]);
 
   const appSlug = process.env.NEXT_PUBLIC_GITHUB_APP_SLUG || "";
   const connectUrl = useMemo(() => {
@@ -125,17 +208,9 @@ export default function WorkspaceSettingsPage() {
       try {
         setGithubLoading(true);
         setGithubError("");
-
-        const res = await fetch(
+        const data = await requestJson(
           `/api/dashboard/github/status?workspaceId=${encodeURIComponent(workspaceId)}`,
-          { cache: "no-store" },
         );
-        const data = await res.json().catch(() => null);
-
-        if (!res.ok) {
-          const message = String(data?.error || data?.message || "").trim();
-          throw new Error(message || "Failed to load GitHub status.");
-        }
 
         if (!alive) return;
         setGithubStatus(data);
@@ -158,15 +233,9 @@ export default function WorkspaceSettingsPage() {
     try {
       setGithubLoading(true);
       setGithubError("");
-      const res = await fetch(
+      const data = await requestJson(
         `/api/dashboard/github/status?workspaceId=${encodeURIComponent(workspaceId)}`,
-        { cache: "no-store" },
       );
-      const data = await res.json().catch(() => null);
-      if (!res.ok) {
-        const message = String(data?.error || data?.message || "").trim();
-        throw new Error(message || "Failed to load GitHub status.");
-      }
       setGithubStatus(data);
     } catch (err) {
       setGithubError(String(err?.message || "Failed to load GitHub status."));
@@ -180,16 +249,10 @@ export default function WorkspaceSettingsPage() {
     setGithubDisconnecting(true);
     setGithubError("");
     try {
-      const res = await fetch("/api/dashboard/github/disconnect", {
+      await requestJson("/api/dashboard/github/disconnect", {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ workspaceId }),
       });
-      const data = await res.json().catch(() => null);
-      if (!res.ok) {
-        const message = String(data?.error || data?.message || "").trim();
-        throw new Error(message || "Failed to disconnect GitHub.");
-      }
       await refreshGithubStatus();
     } catch (err) {
       setGithubError(String(err?.message || "Failed to disconnect GitHub."));
@@ -250,6 +313,10 @@ export default function WorkspaceSettingsPage() {
     return "border-border bg-muted/60 text-muted-foreground";
   })();
 
+  if (!loaded || loading) {
+    return <WorkspaceSettingsSkeleton />;
+  }
+
   if (!isAdmin) {
     return (
       <section className="space-y-4 rounded-2xl border border-warning/25 bg-warning/10 p-4">
@@ -261,6 +328,14 @@ export default function WorkspaceSettingsPage() {
         </p>
       </section>
     );
+  }
+
+  const showInitialSkeleton =
+    (billingLoading && billingStatus === null) ||
+    (githubLoading && githubStatus === null);
+
+  if (showInitialSkeleton) {
+    return <WorkspaceSettingsSkeleton />;
   }
 
   return (
@@ -298,12 +373,12 @@ export default function WorkspaceSettingsPage() {
       <div className="space-y-1">
         <label className="text-xs text-muted-foreground">Workspace Name</label>
         <input
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          className="h-10 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none dark:border-white/10 dark:bg-surface dark:text-foreground"
+          value={workspaceName}
+          readOnly
+          className="h-10 w-full cursor-not-allowed rounded-xl border border-border bg-muted/40 px-3 text-sm text-foreground/80 outline-none dark:border-white/10 dark:bg-surface/60"
         />
         <p className="text-xs text-muted-foreground">
-          Rename is UI-only right now. Tell me and I will wire backend update endpoint.
+          Workspace renaming is not available yet.
         </p>
       </div>
 
@@ -312,9 +387,8 @@ export default function WorkspaceSettingsPage() {
         <p>Members: {workspace?.members?.length || 0}</p>
       </div>
 
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-4 dark:border-white/10">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(79,70,229,0.14),transparent_34%),radial-gradient(circle_at_100%_0%,rgba(34,211,238,0.14),transparent_28%)]" />
-        <div className="relative flex flex-col gap-4">
+      <div className="rounded-2xl border border-border bg-background p-4 dark:border-white/10">
+        <div className="flex flex-col gap-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               <span className="inline-flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -360,75 +434,62 @@ export default function WorkspaceSettingsPage() {
               Loading billing status...
             </div>
           ) : (
-            <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
-              <div className="space-y-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-2xl font-semibold text-foreground">
-                    {subscription?.planId
-                      ? subscription.planId.charAt(0).toUpperCase() + subscription.planId.slice(1)
-                      : "Free"}
-                  </span>
-                  <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${billingStatusTone}`}>
-                    {formatBillingState(subscription?.status)}
-                  </span>
-                </div>
-
-                <div className="grid gap-2 rounded-xl border border-border bg-muted/40 p-3 text-sm dark:border-white/10 dark:bg-surface/50">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-muted-foreground">Billing cycle</span>
-                    <span className="font-medium text-foreground">
-                      {subscription?.billingCycle ? formatBillingState(subscription.billingCycle) : "Not started"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-muted-foreground">
-                      {subscription?.cancelAtPeriodEnd ? "Ends on" : "Renews on"}
-                    </span>
-                    <span className="font-medium text-foreground">
-                      {formatBillingDate(subscription?.currentPeriodEnd) || "Not scheduled"}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-muted-foreground">Access</span>
-                    <span className="font-medium text-foreground">
-                      {subscription?.hasAccess ? "Included" : "Restricted"}
-                    </span>
-                  </div>
-                </div>
-
-                {billingError ? (
-                  <p className="text-sm text-destructive">{billingError}</p>
-                ) : subscription?.portalAvailable ? (
-                  <p className="text-xs leading-relaxed text-muted-foreground">
-                    Changes to cards, invoices, cancellations, and plan updates are handled inside Stripe Billing Portal.
-                  </p>
-                ) : (
-                  <p className="text-xs leading-relaxed text-muted-foreground">
-                    This workspace does not have a Stripe customer yet. Pick a paid plan on the pricing page to start
-                    billing.
-                  </p>
-                )}
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-2xl font-semibold text-foreground">
+                  {subscription?.planId
+                    ? subscription.planId.charAt(0).toUpperCase() + subscription.planId.slice(1)
+                    : "Free"}
+                </span>
+                <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${billingStatusTone}`}>
+                  {formatBillingState(subscription?.status)}
+                </span>
               </div>
 
-              <div className="rounded-xl border border-border bg-background/80 p-3 text-xs text-muted-foreground dark:border-white/10 dark:bg-surface/60 lg:min-w-56">
-                <p className="font-semibold uppercase tracking-wide text-foreground">Quick Actions</p>
-                <p className="mt-2">
-                  Use <span className="font-medium text-foreground">View Plans</span> to start or compare subscriptions.
-                </p>
-                <p className="mt-2">
-                  Use <span className="font-medium text-foreground">Manage Billing</span> after checkout to update cards
-                  or change plans.
-                </p>
+              <div className="grid gap-2 rounded-xl border border-border bg-muted/40 p-3 text-sm dark:border-white/10 dark:bg-surface/50">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">Billing cycle</span>
+                  <span className="font-medium text-foreground">
+                    {subscription?.billingCycle ? formatBillingState(subscription.billingCycle) : "Not started"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">
+                    {subscription?.cancelAtPeriodEnd ? "Ends on" : "Renews on"}
+                  </span>
+                  <span className="font-medium text-foreground">
+                    {formatBillingDate(subscription?.currentPeriodEnd) || "Not scheduled"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-muted-foreground">Access</span>
+                  <span className="font-medium text-foreground">
+                    {subscription?.hasAccess ? "Included" : "Restricted"}
+                  </span>
+                </div>
               </div>
+
+              {billingError ? (
+                <p className="text-sm text-destructive">{billingError}</p>
+              ) : subscription?.portalAvailable ? (
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  Changes to cards, invoices, cancellations, and plan updates are handled inside Stripe Billing Portal.
+                </p>
+              ) : (
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  This workspace does not have a Stripe customer yet. Pick a paid plan on the pricing page to start
+                  billing.
+                </p>
+              )}
             </div>
           )}
         </div>
       </div>
 
-      <div className="flex items-center justify-between rounded-xl border border-border p-4 dark:border-white/10">
+      <div className="flex items-center justify-between rounded-xl border border-border bg-background p-4 dark:border-white/10">
         <div className="flex items-center gap-3">
-          <span className="inline-flex size-8 items-center justify-center rounded-lg bg-card dark:bg-white/10">
-            <svg viewBox="0 0 24 24" fill="white" className="size-4">
+          <span className="inline-flex size-8 items-center justify-center rounded-lg bg-muted text-foreground">
+            <svg viewBox="0 0 24 24" fill="currentColor" className="size-4">
               <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12" />
             </svg>
           </span>
@@ -456,7 +517,12 @@ export default function WorkspaceSettingsPage() {
           </div>
         </div>
 
-        {githubStatus?.connected ? (
+        {githubLoading ? (
+          <div className="inline-flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs font-semibold text-muted-foreground">
+            <LoaderCircle className="size-3.5 animate-spin" />
+            Checking...
+          </div>
+        ) : githubStatus?.connected ? (
           <div className="flex items-center gap-2">
             <span className="rounded-full bg-success/10 px-3 py-1 text-xs font-medium text-success">
               Connected

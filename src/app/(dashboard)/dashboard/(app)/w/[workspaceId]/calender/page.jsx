@@ -63,9 +63,9 @@ function CalendarSkeleton() {
         <div className="space-y-2 lg:flex lg:items-center lg:justify-between lg:gap-2 lg:space-y-0">
           <div className="h-10 w-full rounded-lg bg-muted lg:w-56 lg:shrink-0"></div>
           <div className="flex flex-col gap-2 md:flex-row md:flex-nowrap md:items-center lg:min-w-0 lg:flex-1">
-            <div className="h-10 w-full rounded-lg bg-muted md:w-[8.5rem] md:shrink-0"></div>
-            <div className="h-10 w-full rounded-lg bg-muted md:w-[6.75rem] md:shrink-0"></div>
-            <div className="h-10 w-full rounded-lg bg-muted md:w-[7.5rem] md:shrink-0"></div>
+            <div className="h-10 w-full rounded-lg bg-muted md:w-34 md:shrink-0"></div>
+            <div className="h-10 w-full rounded-lg bg-muted md:w-27 md:shrink-0"></div>
+            <div className="h-10 w-full rounded-lg bg-muted md:w-30 md:shrink-0"></div>
           </div>
           <div className="flex flex-wrap items-center gap-2 md:flex-nowrap lg:shrink-0">
             <div className="h-9 w-16 rounded-lg bg-muted"></div>
@@ -81,7 +81,7 @@ function CalendarSkeleton() {
       {/* Calendar Grid Skeleton */}
       <section className={`overflow-hidden ${calendarPanelClass}`}>
         <div className="overflow-x-auto">
-          <div className="min-w-[700px]">
+          <div className="min-w-175">
             {/* Header Days */}
             <div className="grid grid-cols-7 border-b border-border bg-muted/30">
               {Array.from({ length: 7 }).map((_, i) => (
@@ -798,7 +798,7 @@ export default function WorkspaceCalenderPage() {
             <select
               value={assignee}
               onChange={(e) => setAssignee(e.target.value)}
-              className={`${calendarInputClass} w-full md:w-[8.5rem] md:shrink-0`}
+              className={`${calendarInputClass} w-full md:w-34 md:shrink-0`}
             >
               <option value="all">Assignee</option>
               {members.map((member) => (
@@ -810,7 +810,7 @@ export default function WorkspaceCalenderPage() {
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
-              className={`${calendarInputClass} w-full md:w-[6.75rem] md:shrink-0`}
+              className={`${calendarInputClass} w-full md:w-27 md:shrink-0`}
             >
               <option value="all">Priority</option>
               <option value="P1">P1</option>
@@ -821,7 +821,7 @@ export default function WorkspaceCalenderPage() {
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className={`${calendarInputClass} w-full md:w-[7.5rem] md:shrink-0`}
+              className={`${calendarInputClass} w-full md:w-30 md:shrink-0`}
             >
               <option value="all">Status</option>
               <option value="todo">To Do</option>
