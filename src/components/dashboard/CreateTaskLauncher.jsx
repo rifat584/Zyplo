@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { loadDashboard, useMockStore } from "@/components/dashboard/mockStore";
 import { useWorkspaceProjectSelection } from "@/components/dashboard/projectSelection";
 import CreateTaskModal from "@/components/board/CreateTaskModal";
+import { Button } from "@/components/ui/button";
 import {
   findColumnByStatus,
   getTaskStatusLabel,
@@ -161,14 +162,15 @@ export default function CreateTaskLauncher({
 
   return (
     <>
-      <button
+      <Button
         type="button"
+        size="sm"
         onClick={handleOpen}
         disabled={!selectedProject || loadingTarget || submitting}
         className={buttonClassName}
       >
         <Plus size={16} /> {loadingTarget ? "Loading..." : label}
-      </button>
+      </Button>
 
       <CreateTaskModal
         open={open}

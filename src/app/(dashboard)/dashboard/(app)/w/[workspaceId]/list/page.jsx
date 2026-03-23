@@ -7,6 +7,7 @@ import CreateTaskLauncher from "@/components/dashboard/CreateTaskLauncher";
 import { toast } from "sonner";
 import TaskDetailsModal from "@/components/board/TaskDetailsModal";
 import TaskDeleteDialog from "@/components/dashboard/taskDeleteDialog";
+import { cn } from "@/lib/utils";
 import {
   CheckCircle2,
   Circle,
@@ -17,7 +18,6 @@ import {
   ArrowDown,
   Calendar,
   Eye,
-  Search,
   Filter,
   MoreHorizontal,
   Trash2,
@@ -25,6 +25,49 @@ import {
   X,
   Check,
 } from "lucide-react";
+
+const listShellClass =
+  "relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm min-h-150";
+const listHeaderClass = "border-b border-border";
+const listToolbarClass = "border-t border-border bg-card p-4";
+const listFieldClass =
+  "h-10 rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20";
+const listSecondaryButtonClass =
+  "inline-flex h-10 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition hover:bg-accent hover:text-accent-foreground";
+const listPopoverClass =
+  "absolute right-0 top-11 z-50 w-[320px] space-y-3 rounded-xl border border-border bg-popover p-3 text-popover-foreground shadow-xl";
+const listPrimaryButtonClass =
+  "w-full sm:w-auto";
+const listTableClass = "min-w-7xl w-full text-left text-sm text-muted-foreground";
+const listTableHeadClass =
+  "border-b border-border/80 bg-card text-xs uppercase tracking-wider text-muted-foreground";
+const listTableBodyClass = "divide-y divide-border/80 bg-muted/20";
+const listCheckboxClass =
+  "rounded border-border text-primary focus:ring-primary/30 dark:bg-background";
+const listInlineFieldClass =
+  "h-8 rounded-md border border-border bg-background px-2 text-sm text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/30";
+const listMenuClass =
+  "rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-xl";
+const listMenuItemClass =
+  "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-foreground transition hover:bg-accent";
+const listRowGhostButtonClass =
+  "relative z-20 flex items-center gap-2 rounded-md px-2 py-1 -ml-2 transition-colors hover:bg-accent";
+const listIconButtonClass =
+  "relative z-20 inline-flex items-center justify-center rounded-lg border border-border bg-background p-2 text-muted-foreground transition hover:bg-accent hover:text-accent-foreground";
+const listDangerMenuItemClass =
+  "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-destructive transition hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-60";
+const listBulkBarClass =
+  "flex items-center gap-4 rounded-full border border-border bg-card/95 px-5 py-3 shadow-2xl backdrop-blur-xl";
+const listBulkActionButtonClass =
+  "relative z-20 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-foreground transition-colors hover:bg-accent";
+const listStatusButtonBaseClass =
+  "relative z-20 inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors hover:bg-accent";
+const listStatusButtonStyles = {
+  todo: "border-border bg-background text-muted-foreground",
+  inprogress: "border-primary/20 bg-primary/10 text-primary",
+  inreview: "border-secondary/30 bg-secondary/15 text-foreground",
+  done: "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+};
 
 const formatDate = (dateString) => {
   if (!dateString) return "--";
@@ -39,7 +82,7 @@ const formatDate = (dateString) => {
 };
 
 const STATUSES = [
-  { value: "todo", label: "Todo", icon: Circle, color: "text-slate-500" },
+  { value: "todo", label: "Todo", icon: Circle, color: "text-muted-foreground" },
   {
     value: "inprogress",
     label: "In Progress",
@@ -86,8 +129,8 @@ const PRIORITIES = [
     value: "P3",
     label: "Low",
     icon: ArrowDown,
-    color: "text-slate-500",
-    bg: "bg-slate-50 dark:bg-slate-500/10",
+    color: "text-muted-foreground",
+    bg: "bg-muted/50",
   },
 ];
 
@@ -167,7 +210,6 @@ export default function TaskListView() {
         ?.members || [],
   }));
 
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
@@ -220,11 +262,6 @@ export default function TaskListView() {
     return workspaceTasks
       .map((t) => ({ ...t, ...(localEdits[t.id] || {}) }))
       .filter((t) => {
-        const bySearch = String(t.title || "")
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase());
-        if (!bySearch) return false;
-
         const byTaskName = columnFilters.taskName
           ? String(t.title || "")
               .toLowerCase()
@@ -274,7 +311,7 @@ export default function TaskListView() {
 
         return byDueDate;
       });
-  }, [workspaceTasks, searchQuery, localEdits, columnFilters]);
+  }, [workspaceTasks, localEdits, columnFilters]);
 
   const toggleSelectAll = () => {
     if (selectedIds.size === filteredTasks.length) {
@@ -559,80 +596,20 @@ export default function TaskListView() {
 
   return (
     <>
-      <div className="relative rounded-2xl border border-slate-300 bg-white shadow-sm dark:border-white/10 dark:bg-[#0B0F19] overflow-hidden min-h-150">
-      <div className="flex flex-col border-b border-slate-300 dark:border-white/10">
+      <div className={listShellClass}>
+      <div className={`flex flex-col ${listHeaderClass}`}>
         <div className="px-6 py-4">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+          <h2 className="text-lg font-semibold text-foreground">
             All Tasks
           </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-muted-foreground">
             {workspaceTasks.length} tasks in this workspace
           </p>
         </div>
 
-        <div className="flex flex-col gap-4 bg-slate-50/50 p-4 dark:bg-slate-800/20 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-1 items-center gap-3">
-            {/* Live Search */}
-            <div className="relative max-w-xs flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Filter tasks..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="block w-full rounded-lg border border-slate-300 bg-white py-1.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-white/10 dark:bg-[#050505] dark:text-white dark:placeholder-slate-500"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {/* === DISPLAY TOGGLE BUTTON === */}
-            <div className="relative">
-              <button
-                onClick={() => setDisplayMenuOpen(!displayMenuOpen)}
-                className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-white/10 dark:bg-transparent dark:text-slate-300 dark:hover:bg-white/5"
-              >
-                <Filter size={16} /> Display
-              </button>
-
-              {/* Display Dropdown */}
-              {displayMenuOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setDisplayMenuOpen(false)}
-                  />
-                  <div className="absolute right-0 top-10 z-20 w-48 rounded-lg border border-slate-300 bg-white p-2 shadow-xl dark:border-white/10 dark:bg-slate-900">
-                    <p className="px-2 py-1 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                      Visible Columns
-                    </p>
-                    {Object.keys(visibleCols).map((col) => (
-                      <button
-                        key={col}
-                        onClick={() => toggleColumn(col)}
-                        className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5 capitalize"
-                      >
-                        {col.replace(/([A-Z])/g, " $1").trim()}
-                        {visibleCols[col] && (
-                          <Check size={14} className="text-indigo-500" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
-            <CreateTaskLauncher
-              workspaceId={workspaceId}
-              buttonClassName="flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:opacity-60 dark:bg-indigo-500 dark:hover:bg-indigo-600"
-              label="Create Task"
-            />
-          </div>
-        </div>
-
-        <div className="border-t border-slate-300 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-slate-800/20">
-          <div className="flex flex-wrap gap-2">
+        <div className={listToolbarClass}>
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center">
             <input
               type="text"
               value={columnFilters.taskName}
@@ -643,7 +620,7 @@ export default function TaskListView() {
                 }))
               }
               placeholder="Task Name"
-              className="h-10 min-w-42.5 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+              className={`${listFieldClass} w-full md:min-w-42.5 md:flex-1`}
             />
 
             {visibleCols.status && (
@@ -655,7 +632,7 @@ export default function TaskListView() {
                     status: event.target.value,
                   }))
                 }
-                className="h-10 min-w-32.5 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                className={`${listFieldClass} w-full md:min-w-32.5 md:w-auto`}
               >
                 <option value="all">Status</option>
                 <option value="todo">To Do</option>
@@ -674,7 +651,7 @@ export default function TaskListView() {
                     priority: event.target.value,
                   }))
                 }
-                className="h-10 min-w-27.5 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                className={`${listFieldClass} w-full md:min-w-27.5 md:w-auto`}
               >
                 <option value="all">Priority</option>
                 <option value="P0">P0</option>
@@ -693,7 +670,7 @@ export default function TaskListView() {
                     assigneeId: event.target.value,
                   }))
                 }
-                className="h-10 min-w-37.5 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                className={`${listFieldClass} w-full md:min-w-37.5 md:w-auto`}
               >
                 <option value="all">Assignee</option>
                 {workspaceMembers.map((member) => (
@@ -708,7 +685,7 @@ export default function TaskListView() {
               <button
                 type="button"
                 onClick={() => setMoreFiltersOpen((prev) => !prev)}
-                className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                className={`${listSecondaryButtonClass} w-full md:w-auto`}
               >
                 <Filter className="size-4" />
                 More filters
@@ -720,10 +697,10 @@ export default function TaskListView() {
                     className="fixed inset-0 z-40"
                     onClick={() => setMoreFiltersOpen(false)}
                   />
-                  <div className="absolute right-0 top-11 z-50 w-[320px] space-y-3 rounded-xl border border-slate-300 bg-white p-3 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                  <div className={listPopoverClass}>
                     {visibleCols.reporter && (
                       <div className="space-y-1">
-                        <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                        <label className="text-xs font-medium text-muted-foreground">
                           Reporter
                         </label>
                         <input
@@ -736,14 +713,14 @@ export default function TaskListView() {
                             }))
                           }
                           placeholder="Filter by reporter"
-                          className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                          className={`${listFieldClass} h-9 w-full`}
                         />
                       </div>
                     )}
 
                     {visibleCols.updated && (
                       <div className="space-y-1">
-                        <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                        <label className="text-xs font-medium text-muted-foreground">
                           Updated At
                         </label>
                         <input
@@ -755,14 +732,14 @@ export default function TaskListView() {
                               updatedAt: event.target.value,
                             }))
                           }
-                          className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                          className={`${listFieldClass} h-9 w-full`}
                         />
                       </div>
                     )}
 
                     {visibleCols.createdAt && (
                       <div className="space-y-1">
-                        <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                        <label className="text-xs font-medium text-muted-foreground">
                           Created At
                         </label>
                         <input
@@ -774,14 +751,14 @@ export default function TaskListView() {
                               createdAt: event.target.value,
                             }))
                           }
-                          className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                          className={`${listFieldClass} h-9 w-full`}
                         />
                       </div>
                     )}
 
                     {visibleCols.dueDate && (
                       <div className="space-y-1">
-                        <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                        <label className="text-xs font-medium text-muted-foreground">
                           Due Date
                         </label>
                         <input
@@ -793,7 +770,7 @@ export default function TaskListView() {
                               dueDate: event.target.value,
                             }))
                           }
-                          className="h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-indigo-300 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100"
+                          className={`${listFieldClass} h-9 w-full`}
                         />
                       </div>
                     )}
@@ -801,14 +778,58 @@ export default function TaskListView() {
                 </>
               )}
             </div>
+            </div>
+
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center lg:shrink-0">
+              <div className="relative">
+                <button
+                  onClick={() => setDisplayMenuOpen(!displayMenuOpen)}
+                  className={`${listSecondaryButtonClass} w-full sm:w-auto`}
+                >
+                  <Filter size={16} /> Display
+                </button>
+
+                {displayMenuOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setDisplayMenuOpen(false)}
+                    />
+                    <div className="absolute right-0 top-11 z-20 w-48 rounded-lg border border-border bg-popover p-2 text-popover-foreground shadow-xl">
+                      <p className="px-2 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                        Visible Columns
+                      </p>
+                      {Object.keys(visibleCols).map((col) => (
+                        <button
+                          key={col}
+                          onClick={() => toggleColumn(col)}
+                          className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm text-foreground transition hover:bg-accent capitalize"
+                        >
+                          {col.replace(/([A-Z])/g, " $1").trim()}
+                          {visibleCols[col] && (
+                            <Check size={14} className="text-primary" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <CreateTaskLauncher
+                workspaceId={workspaceId}
+                buttonClassName={listPrimaryButtonClass}
+                label="Create Task"
+              />
+            </div>
           </div>
         </div>
       </div>
 
       {/* === INTERACTIVE DATA GRID === */}
       <div className="overflow-x-auto pb-32 min-h-100">
-        <table className="min-w-7xl w-full text-left text-sm text-slate-600 dark:text-slate-400">
-          <thead className="border-b border-slate-300 bg-slate-50/50 text-xs uppercase tracking-wider text-slate-500 dark:border-white/10 dark:bg-slate-800/50 dark:text-slate-400">
+        <table className={listTableClass}>
+          <thead className={listTableHeadClass}>
             <tr>
               <th className="px-6 py-3 font-medium w-10">
                 <input
@@ -818,7 +839,7 @@ export default function TaskListView() {
                     selectedIds.size === filteredTasks.length
                   }
                   onChange={toggleSelectAll}
-                  className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 dark:border-slate-600 dark:bg-slate-900"
+                  className={listCheckboxClass}
                 />
               </th>
               <th className="px-4 py-3 font-medium">Task Name</th>
@@ -847,7 +868,7 @@ export default function TaskListView() {
             </tr>
           </thead>
 
-          <tbody className="divide-y divide-slate-300 dark:divide-white/10">
+          <tbody className={listTableBodyClass}>
             {filteredTasks.map((task) => {
               const rawStatus = (task.status || "todo")
                 .toLowerCase()
@@ -861,18 +882,22 @@ export default function TaskListView() {
               return (
                 <tr
                   key={task.id}
-                  className={`group transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/50 ${selectedIds.has(task.id) ? "bg-indigo-50/50 dark:bg-indigo-500/10" : ""}`}
+                  className={`group transition-colors ${
+                    selectedIds.has(task.id)
+                      ? "bg-primary/10"
+                      : "bg-card hover:bg-accent/18"
+                  }`}
                 >
                   <td className="px-6 py-4">
                     <input
                       type="checkbox"
                       checked={selectedIds.has(task.id)}
                       onChange={() => toggleSelect(task.id)}
-                      className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-600 dark:border-slate-600 dark:bg-slate-900"
+                      className={listCheckboxClass}
                     />
                   </td>
 
-                  <td className="px-4 py-4 font-medium text-slate-900 dark:text-slate-100">
+                  <td className="px-4 py-4 font-medium text-foreground">
                     {inlineEdit?.taskId === task.id &&
                     inlineEdit?.field === "title" ? (
                       <input
@@ -895,7 +920,7 @@ export default function TaskListView() {
                             setInlineEdit(null);
                           }
                         }}
-                        className="h-8 w-full rounded-md border border-slate-300 bg-white px-2 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100"
+                        className={`${listInlineFieldClass} w-full`}
                       />
                     ) : (
                       <button
@@ -909,7 +934,7 @@ export default function TaskListView() {
                       </button>
                     )}
                     {task.projectName && (
-                      <div className="mt-0.5 text-xs font-normal text-slate-500">
+                      <div className="mt-0.5 text-xs font-normal text-muted-foreground">
                         {task.projectName}
                       </div>
                     )}
@@ -932,29 +957,32 @@ export default function TaskListView() {
                               : `status-${task.id}`,
                           )
                         }
-                        className="flex items-center gap-2 rounded-md px-2 py-1 -ml-2 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors relative z-20"
+                        className={cn(
+                          listStatusButtonBaseClass,
+                          listStatusButtonStyles[rawStatus] || listStatusButtonStyles.todo,
+                        )}
                       >
                         <currentStatus.icon
-                          size={14}
+                          size={12}
                           className={currentStatus.color}
                         />
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        <span>
                           {currentStatus.label}
                         </span>
                       </button>
 
                       {activeDropdown === `status-${task.id}` && (
-                        <div className="absolute top-10 left-4 z-30 w-40 rounded-lg border border-slate-300 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                        <div className={`absolute top-10 left-4 z-30 w-40 ${listMenuClass}`}>
                           {STATUSES.map((s) => (
                             <button
                               key={s.value}
                               onClick={() =>
                                 handleInlineEdit(task, "status", s.value)
                               }
-                              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
+                              className={listMenuItemClass}
                             >
                               <s.icon size={14} className={s.color} />
-                              <span className="text-slate-700 dark:text-slate-300">
+                              <span className="text-foreground">
                                 {s.label}
                               </span>
                             </button>
@@ -988,17 +1016,17 @@ export default function TaskListView() {
                       </button>
 
                       {activeDropdown === `priority-${task.id}` && (
-                        <div className="absolute top-10 left-4 z-30 w-36 rounded-lg border border-slate-300 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                        <div className={`absolute top-10 left-4 z-30 w-36 ${listMenuClass}`}>
                           {PRIORITIES.map((p) => (
                             <button
                               key={p.value}
                               onClick={() =>
                                 handleInlineEdit(task, "priority", p.value)
                               }
-                              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
+                              className={listMenuItemClass}
                             >
                               <p.icon size={14} className={p.color} />
-                              <span className="text-slate-700 dark:text-slate-300">
+                              <span className="text-foreground">
                                 {p.label}
                               </span>
                             </button>
@@ -1026,9 +1054,9 @@ export default function TaskListView() {
                               : `assignee-${task.id}`,
                           )
                         }
-                        className="relative z-20 flex w-full items-center gap-2 rounded-md px-2 py-1 -ml-2 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                        className={`${listRowGhostButtonClass} w-full`}
                       >
-                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+                        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/12 text-xs font-bold text-primary">
                           {task.assigneeName
                             ? task.assigneeName.charAt(0).toUpperCase()
                             : "?"}
@@ -1039,7 +1067,7 @@ export default function TaskListView() {
                       </button>
 
                       {activeDropdown === `assignee-${task.id}` && (
-                        <div className="absolute top-10 left-4 z-30 w-48 rounded-lg border border-slate-300 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                        <div className={`absolute top-10 left-4 z-30 w-48 ${listMenuClass}`}>
                           <button
                             type="button"
                             onClick={() =>
@@ -1048,9 +1076,9 @@ export default function TaskListView() {
                                 assigneeName: "Unassigned",
                               })
                             }
-                            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
+                            className={listMenuItemClass}
                           >
-                            <span className="text-slate-700 dark:text-slate-300">
+                            <span className="text-foreground">
                               Unassigned
                             </span>
                           </button>
@@ -1065,9 +1093,9 @@ export default function TaskListView() {
                                     member.name || member.email || "Unassigned",
                                 })
                               }
-                              className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
+                              className={listMenuItemClass}
                             >
-                              <span className="text-slate-700 dark:text-slate-300">
+                              <span className="text-foreground">
                                 {member.name || member.email || "Unknown"}
                               </span>
                             </button>
@@ -1080,7 +1108,7 @@ export default function TaskListView() {
                   {/* Reporter */}
                   {visibleCols.reporter && (
                     <td className="px-4 py-4 truncate max-w-25">
-                      <span className="text-slate-500 dark:text-slate-400">
+                      <span className="text-muted-foreground">
                         {task.reporterName || "Admin"}
                       </span>
                     </td>
@@ -1088,21 +1116,21 @@ export default function TaskListView() {
 
                   {/* Updated Date */}
                   {visibleCols.updated && (
-                    <td className="px-4 py-4 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
+                    <td className="px-4 py-4 whitespace-nowrap text-xs text-muted-foreground">
                       {formatDate(task.updatedAt)}
                     </td>
                   )}
 
                   {/* Created At */}
                   {visibleCols.createdAt && (
-                    <td className="px-4 py-4 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
+                    <td className="px-4 py-4 whitespace-nowrap text-xs text-muted-foreground">
                       {formatDate(task.createdAt)}
                     </td>
                   )}
 
                   {/* Due Date */}
                   {visibleCols.dueDate && (
-                    <td className="px-4 py-4 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400">
+                    <td className="px-4 py-4 whitespace-nowrap text-xs text-muted-foreground">
                       {inlineEdit?.taskId === task.id &&
                       inlineEdit?.field === "dueDate" ? (
                         <input
@@ -1126,7 +1154,7 @@ export default function TaskListView() {
                               setInlineEdit(null);
                             }
                           }}
-                          className="h-8 rounded-md border border-slate-300 bg-white px-2 text-xs outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100"
+                          className={`${listInlineFieldClass} text-xs`}
                         />
                       ) : (
                         <button
@@ -1140,7 +1168,7 @@ export default function TaskListView() {
                                 : "",
                             )
                           }
-                          className="flex items-center gap-1.5 rounded-md px-1 py-0.5 hover:bg-slate-100 dark:hover:bg-white/5"
+                          className="flex items-center gap-1.5 rounded-md px-1 py-0.5 transition hover:bg-accent"
                         >
                           {task.dueDate ? (
                             <>
@@ -1172,20 +1200,20 @@ export default function TaskListView() {
                       }
                       aria-label="Open task actions"
                       title="Task actions"
-                      className="relative z-20 inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white p-2 text-slate-600 hover:bg-slate-100 dark:border-white/10 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-white/10"
+                      className={listIconButtonClass}
                     >
                       <MoreHorizontal size={16} />
                     </button>
 
                     {activeDropdown === `actions-${task.id}` && (
-                      <div className="absolute right-4 top-12 z-30 w-40 rounded-lg border border-slate-300 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                      <div className={`absolute right-4 top-12 z-30 w-40 ${listMenuClass}`}>
                         <button
                           type="button"
                           onClick={() => {
                             setSelectedTask(task);
                             setActiveDropdown(null);
                           }}
-                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5"
+                          className={listMenuItemClass}
                         >
                           <Eye size={14} />
                           <span>Open</span>
@@ -1197,7 +1225,7 @@ export default function TaskListView() {
                             handleDeleteSingleTask(task.id);
                           }}
                           disabled={deletingIds.has(String(task.id))}
-                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-red-400 dark:hover:bg-red-500/10"
+                          className={listDangerMenuItemClass}
                         >
                           <Trash2
                             size={14}
@@ -1221,7 +1249,7 @@ export default function TaskListView() {
               <tr>
                 <td
                   colSpan={actionColSpan}
-                  className="py-12 text-center text-slate-500"
+                  className="py-12 text-center text-muted-foreground"
                 >
                   No tasks match your search.
                 </td>
@@ -1239,12 +1267,12 @@ export default function TaskListView() {
             : "translate-y-10 opacity-0 pointer-events-none"
         }`}
       >
-        <div className="flex items-center gap-4 rounded-full border border-slate-300/50 bg-white/90 px-5 py-3 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-slate-800/90">
-          <div className="flex items-center gap-2 border-r border-slate-300 pr-4 dark:border-white/10">
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-bold text-white dark:bg-indigo-500">
+        <div className={listBulkBarClass}>
+          <div className="flex items-center gap-2 border-r border-border pr-4">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
               {selectedIds.size}
             </div>
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+            <span className="text-sm font-medium text-foreground">
               Selected
             </span>
           </div>
@@ -1262,21 +1290,21 @@ export default function TaskListView() {
                 onClick={() =>
                   setBulkDropdown(bulkDropdown === "status" ? null : "status")
                 }
-                className="relative z-20 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10 transition-colors"
+                className={listBulkActionButtonClass}
               >
                 <Circle size={16} /> Set Status
               </button>
 
               {bulkDropdown === "status" && (
-                <div className="absolute bottom-full mb-2 left-0 z-30 w-40 rounded-lg border border-slate-300 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                <div className={`absolute bottom-full mb-2 left-0 z-30 w-40 ${listMenuClass}`}>
                   {STATUSES.map((s) => (
                     <button
                       key={s.value}
                       onClick={() => handleBulkStatus(s.value)}
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
+                      className={listMenuItemClass}
                     >
                       <s.icon size={14} className={s.color} />
-                      <span className="text-slate-700 dark:text-slate-300">
+                      <span className="text-foreground">
                         {s.label}
                       </span>
                     </button>
@@ -1297,18 +1325,18 @@ export default function TaskListView() {
                 onClick={() =>
                   setBulkDropdown(bulkDropdown === "assign" ? null : "assign")
                 }
-                className="relative z-20 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10 transition-colors"
+                className={listBulkActionButtonClass}
               >
                 <UserPlus size={16} /> Assign
               </button>
 
               {bulkDropdown === "assign" && (
-                <div className="absolute bottom-full mb-2 left-0 z-30 w-48 rounded-lg border border-slate-300 bg-white p-1 shadow-xl dark:border-white/10 dark:bg-slate-900">
+                <div className={`absolute bottom-full mb-2 left-0 z-30 w-48 ${listMenuClass}`}>
                   <button
                     onClick={() => handleBulkAssign("", "Unassigned")}
-                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
+                    className={listMenuItemClass}
                   >
-                    <span className="text-slate-700 dark:text-slate-300">
+                    <span className="text-foreground">
                       Unassigned
                     </span>
                   </button>
@@ -1321,9 +1349,9 @@ export default function TaskListView() {
                           member.name || member.email || "Unknown",
                         )
                       }
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-slate-100 dark:hover:bg-white/5"
+                      className={listMenuItemClass}
                     >
-                      <span className="text-slate-700 dark:text-slate-300">
+                      <span className="text-foreground">
                         {member.name || member.email || "Unknown"}
                       </span>
                     </button>
@@ -1343,7 +1371,7 @@ export default function TaskListView() {
               }
               aria-label="Delete selected tasks"
               title="Delete selected tasks"
-              className="flex items-center justify-center rounded-lg p-2 text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-500/10 transition-colors"
+              className="flex items-center justify-center rounded-lg p-2 text-destructive transition-colors hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Trash2 size={16} />
             </button>
@@ -1351,7 +1379,7 @@ export default function TaskListView() {
 
           <button
             onClick={() => setSelectedIds(new Set())}
-            className="ml-2 rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-white/10 dark:hover:text-slate-300"
+            className="ml-2 rounded-full p-1 text-muted-foreground transition hover:bg-accent hover:text-foreground"
           >
             <X size={16} />
           </button>

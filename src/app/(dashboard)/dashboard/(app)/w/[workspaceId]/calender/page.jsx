@@ -52,7 +52,7 @@ const calendarPopoverClass =
 const calendarTaskChipClass =
   "truncate rounded-md border border-primary/20 bg-primary/10 px-1.5 py-1 text-[11px] text-primary sm:px-2 sm:text-xs";
 const calendarDayCellClass =
-  "min-h-24 cursor-pointer border-b border-r border-border p-1.5 last:border-r-0 transition-colors sm:min-h-32 sm:p-2";
+  "min-h-24 cursor-pointer rounded-none border border-primary/20 bg-card p-1.5 transition-colors sm:min-h-32 sm:p-2";
 
 // --- SMART CALENDAR SKELETON ---
 function CalendarSkeleton() {
@@ -60,19 +60,21 @@ function CalendarSkeleton() {
     <div className="space-y-4 animate-pulse">
       {/* Top Filter Bar Skeleton */}
       <section className={`${calendarPanelClass} p-4`}>
-        <div className="flex flex-col gap-2 md:flex-row md:flex-nowrap md:items-center">
-          <div className="h-10 w-full rounded-lg bg-muted md:min-w-[12rem] md:flex-1"></div>
-          <div className="h-10 w-full rounded-lg bg-muted md:w-[8.5rem] md:shrink-0"></div>
-          <div className="h-10 w-full rounded-lg bg-muted md:w-[6.75rem] md:shrink-0"></div>
-          <div className="h-10 w-full rounded-lg bg-muted md:w-[7.5rem] md:shrink-0"></div>
-          <div className="h-10 w-full rounded-lg bg-muted md:w-auto md:shrink-0"></div>
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <div className="h-9 w-16 rounded-lg bg-muted"></div>
-          <div className="h-9 w-9 rounded-lg bg-muted"></div>
-          <div className="h-9 w-32 rounded-lg bg-muted"></div>
-          <div className="h-9 w-9 rounded-lg bg-muted"></div>
-          <div className="h-9 w-24 rounded-lg bg-muted"></div>
+        <div className="space-y-2 lg:flex lg:items-center lg:justify-between lg:gap-2 lg:space-y-0">
+          <div className="h-10 w-full rounded-lg bg-muted lg:w-56 lg:shrink-0"></div>
+          <div className="flex flex-col gap-2 md:flex-row md:flex-nowrap md:items-center lg:min-w-0 lg:flex-1">
+            <div className="h-10 w-full rounded-lg bg-muted md:w-[8.5rem] md:shrink-0"></div>
+            <div className="h-10 w-full rounded-lg bg-muted md:w-[6.75rem] md:shrink-0"></div>
+            <div className="h-10 w-full rounded-lg bg-muted md:w-[7.5rem] md:shrink-0"></div>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 md:flex-nowrap lg:shrink-0">
+            <div className="h-9 w-16 rounded-lg bg-muted"></div>
+            <div className="h-9 w-9 rounded-lg bg-muted"></div>
+            <div className="h-9 w-32 rounded-lg bg-muted"></div>
+            <div className="h-9 w-9 rounded-lg bg-muted"></div>
+            <div className="h-9 w-24 rounded-lg bg-muted"></div>
+            <div className="h-10 w-full rounded-lg bg-muted md:w-32 md:shrink-0"></div>
+          </div>
         </div>
       </section>
 
@@ -91,7 +93,7 @@ function CalendarSkeleton() {
             {/* Grid Cells (6 rows x 7 cols = 42) */}
             <div className="grid grid-cols-7">
               {Array.from({ length: 42 }).map((_, i) => (
-                <div key={i} className="min-h-24 border-b border-r border-border p-1.5 last:border-r-0 sm:min-h-32 sm:p-2">
+                <div key={i} className="min-h-24 border border-primary/20 bg-card p-1.5 sm:min-h-32 sm:p-2">
                   <div className="flex justify-between items-start">
                     <div className="h-4 w-4 rounded bg-muted"></div>
                     <div className="size-5 rounded-md bg-muted sm:size-6"></div>
@@ -781,8 +783,8 @@ export default function WorkspaceCalenderPage() {
   return (
     <div className="space-y-4">
       <section className={`${calendarPanelClass} p-4`}>
-        <div className="flex flex-col gap-2 md:flex-row md:flex-nowrap md:items-center">
-          <div className="relative w-full md:min-w-[12rem] md:flex-1">
+        <div className="space-y-2 lg:flex lg:items-center lg:justify-between lg:gap-2 lg:space-y-0">
+          <div className="relative w-full lg:w-56 lg:shrink-0">
             <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <input
               value={search}
@@ -791,172 +793,175 @@ export default function WorkspaceCalenderPage() {
               className={`${calendarInputClass} w-full pl-9 pr-3`}
             />
           </div>
-          <select
-            value={assignee}
-            onChange={(e) => setAssignee(e.target.value)}
-            className={`${calendarInputClass} w-full md:w-[8.5rem] md:shrink-0`}
-          >
-            <option value="all">Assignee</option>
-            {members.map((member) => (
-              <option key={member.id} value={member.id}>
-                {member.name || member.email || "Member"}
-              </option>
-            ))}
-          </select>
-          <select
-            value={priority}
-            onChange={(e) => setPriority(e.target.value)}
-            className={`${calendarInputClass} w-full md:w-[6.75rem] md:shrink-0`}
-          >
-            <option value="all">Priority</option>
-            <option value="P1">P1</option>
-            <option value="P2">P2</option>
-            <option value="P3">P3</option>
-            <option value="P4">P4</option>
-          </select>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className={`${calendarInputClass} w-full md:w-[7.5rem] md:shrink-0`}
-          >
-            <option value="all">Status</option>
-            <option value="todo">To Do</option>
-            <option value="inprogress">In Progress</option>
-            <option value="inreview">In Review</option>
-            <option value="done">Done</option>
-          </select>
-          <div className="relative md:shrink-0">
+
+          <div className="flex flex-col gap-2 md:flex-row md:flex-nowrap md:items-center lg:min-w-0 lg:flex-1">
+            <select
+              value={assignee}
+              onChange={(e) => setAssignee(e.target.value)}
+              className={`${calendarInputClass} w-full md:w-[8.5rem] md:shrink-0`}
+            >
+              <option value="all">Assignee</option>
+              {members.map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.name || member.email || "Member"}
+                </option>
+              ))}
+            </select>
+            <select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+              className={`${calendarInputClass} w-full md:w-[6.75rem] md:shrink-0`}
+            >
+              <option value="all">Priority</option>
+              <option value="P1">P1</option>
+              <option value="P2">P2</option>
+              <option value="P3">P3</option>
+              <option value="P4">P4</option>
+            </select>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className={`${calendarInputClass} w-full md:w-[7.5rem] md:shrink-0`}
+            >
+              <option value="all">Status</option>
+              <option value="todo">To Do</option>
+              <option value="inprogress">In Progress</option>
+              <option value="inreview">In Review</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 md:flex-nowrap lg:shrink-0">
             <button
               type="button"
-              onClick={() => setMoreFiltersOpen((prev) => !prev)}
-              className={`${calendarSecondaryButtonClass} w-full md:w-auto`}
+              onClick={() => setMonthDate(new Date())}
+              className={`${calendarSecondaryButtonClass} h-9`}
             >
-              <CalendarDays className="size-4" />
-              More filters
+              Today
             </button>
+            <button
+              type="button"
+              onClick={() =>
+                setMonthDate(
+                  (current) =>
+                    new Date(current.getFullYear(), current.getMonth() - 1, 1),
+                )
+              }
+              className={calendarIconButtonClass}
+            >
+              <ChevronLeft className="size-4" />
+            </button>
+            <div className="h-9 rounded-lg border border-border bg-background px-3 text-sm leading-9 text-foreground">
+              {formatMonthLabel(monthDate)}
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                setMonthDate(
+                  (current) =>
+                    new Date(current.getFullYear(), current.getMonth() + 1, 1),
+                )
+              }
+              className={calendarIconButtonClass}
+            >
+              <ChevronRight className="size-4" />
+            </button>
+            <select
+              defaultValue="month"
+              className="h-9 rounded-lg border border-border bg-background px-3 text-sm text-foreground"
+            >
+              <option value="month">Month</option>
+            </select>
+            <div className="relative md:shrink-0">
+              <button
+                type="button"
+                onClick={() => setMoreFiltersOpen((prev) => !prev)}
+                className={`${calendarSecondaryButtonClass} w-full md:w-auto`}
+              >
+                <CalendarDays className="size-4" />
+                More filters
+              </button>
 
-            {moreFiltersOpen ? (
-              <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setMoreFiltersOpen(false)}
-                />
-                <div className={calendarPopoverClass}>
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">
-                      Reporter
-                    </label>
-                    <input
-                      type="text"
-                      value={moreFilters.reporter}
-                      onChange={(event) =>
-                        setMoreFilters((prev) => ({
-                          ...prev,
-                          reporter: event.target.value,
-                        }))
-                      }
-                      placeholder="Filter by reporter"
-                      className={`${calendarInputClass} h-9 w-full`}
-                    />
-                  </div>
+              {moreFiltersOpen ? (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setMoreFiltersOpen(false)}
+                  />
+                  <div className={calendarPopoverClass}>
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-muted-foreground">
+                        Reporter
+                      </label>
+                      <input
+                        type="text"
+                        value={moreFilters.reporter}
+                        onChange={(event) =>
+                          setMoreFilters((prev) => ({
+                            ...prev,
+                            reporter: event.target.value,
+                          }))
+                        }
+                        placeholder="Filter by reporter"
+                        className={`${calendarInputClass} h-9 w-full`}
+                      />
+                    </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">
-                      Updated At
-                    </label>
-                    <input
-                      type="date"
-                      value={moreFilters.updatedAt}
-                      onChange={(event) =>
-                        setMoreFilters((prev) => ({
-                          ...prev,
-                          updatedAt: event.target.value,
-                        }))
-                      }
-                      className={`${calendarInputClass} h-9 w-full`}
-                    />
-                  </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-muted-foreground">
+                        Updated At
+                      </label>
+                      <input
+                        type="date"
+                        value={moreFilters.updatedAt}
+                        onChange={(event) =>
+                          setMoreFilters((prev) => ({
+                            ...prev,
+                            updatedAt: event.target.value,
+                          }))
+                        }
+                        className={`${calendarInputClass} h-9 w-full`}
+                      />
+                    </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">
-                      Created At
-                    </label>
-                    <input
-                      type="date"
-                      value={moreFilters.createdAt}
-                      onChange={(event) =>
-                        setMoreFilters((prev) => ({
-                          ...prev,
-                          createdAt: event.target.value,
-                        }))
-                      }
-                      className={`${calendarInputClass} h-9 w-full`}
-                    />
-                  </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-muted-foreground">
+                        Created At
+                      </label>
+                      <input
+                        type="date"
+                        value={moreFilters.createdAt}
+                        onChange={(event) =>
+                          setMoreFilters((prev) => ({
+                            ...prev,
+                            createdAt: event.target.value,
+                          }))
+                        }
+                        className={`${calendarInputClass} h-9 w-full`}
+                      />
+                    </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-medium text-muted-foreground">
-                      Due Date
-                    </label>
-                    <input
-                      type="date"
-                      value={moreFilters.dueDate}
-                      onChange={(event) =>
-                        setMoreFilters((prev) => ({
-                          ...prev,
-                          dueDate: event.target.value,
-                        }))
-                      }
-                      className={`${calendarInputClass} h-9 w-full`}
-                    />
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-muted-foreground">
+                        Due Date
+                      </label>
+                      <input
+                        type="date"
+                        value={moreFilters.dueDate}
+                        onChange={(event) =>
+                          setMoreFilters((prev) => ({
+                            ...prev,
+                            dueDate: event.target.value,
+                          }))
+                        }
+                        className={`${calendarInputClass} h-9 w-full`}
+                      />
+                    </div>
                   </div>
-                </div>
-              </>
-            ) : null}
+                </>
+              ) : null}
+            </div>
           </div>
-        </div>
-
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setMonthDate(new Date())}
-            className={`${calendarSecondaryButtonClass} h-9`}
-          >
-            Today
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              setMonthDate(
-                (current) =>
-                  new Date(current.getFullYear(), current.getMonth() - 1, 1),
-              )
-            }
-            className={calendarIconButtonClass}
-          >
-            <ChevronLeft className="size-4" />
-          </button>
-          <div className="h-9 rounded-lg border border-border bg-background px-3 text-sm leading-9 text-foreground">
-            {formatMonthLabel(monthDate)}
-          </div>
-          <button
-            type="button"
-            onClick={() =>
-              setMonthDate(
-                (current) =>
-                  new Date(current.getFullYear(), current.getMonth() + 1, 1),
-              )
-            }
-            className={calendarIconButtonClass}
-          >
-            <ChevronRight className="size-4" />
-          </button>
-          <select
-            defaultValue="month"
-            className="h-9 rounded-lg border border-border bg-background px-3 text-sm text-foreground"
-          >
-            <option value="month">Month</option>
-          </select>
         </div>
       </section>
 
