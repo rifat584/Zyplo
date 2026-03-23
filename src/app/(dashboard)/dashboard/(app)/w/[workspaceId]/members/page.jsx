@@ -21,6 +21,17 @@ const inviteSchema = z.object({
   role: z.enum(["admin", "member"]),
 });
 
+function resolvePersonAvatar(person) {
+  return String(
+    person?.avatarUrl ||
+      person?.image ||
+      person?.profileImage ||
+      person?.user?.avatarUrl ||
+      person?.user?.image ||
+      "",
+  ).trim();
+}
+
 function getWorkspaceAccessError(status, payload, fallback) {
   const message = String(payload?.message || payload?.error || "").trim();
 
@@ -609,6 +620,7 @@ export default function WorkspaceMembersPage() {
                   <div className="flex min-w-0 items-start gap-3">
                     <Avatar
                       name={memberName || memberEmail || "Member"}
+                      src={resolvePersonAvatar(member)}
                       className="size-10 shrink-0 text-sm"
                     />
 

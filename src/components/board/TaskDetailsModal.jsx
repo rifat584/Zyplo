@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { flushSync } from "react-dom";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
+import { Avatar } from "@/components/dashboard/ui";
 import { Button } from "@/components/ui/button";
 import {
   CheckCircle2,
@@ -1549,10 +1550,11 @@ export default function TaskDetailsModal({
                       </h3>
 
                       <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[10px] font-bold text-primary">
-                          {session?.user?.name?.slice(0, 2).toUpperCase() ||
-                            "U"}
-                        </div>
+                        <Avatar
+                          name={session?.user?.name || "User"}
+                          src={session?.user?.image || ""}
+                          className="h-9 w-9 shrink-0 text-[10px]"
+                        />
                         <div className="flex-1 space-y-2">
                           <textarea
                             value={comment}

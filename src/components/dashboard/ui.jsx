@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 export function Avatar({ name, className, src = "" }) {
+  const [failedSrc, setFailedSrc] = useState("");
   const letters = (name || "")
     .split(" ")
     .filter(Boolean)
@@ -10,6 +12,8 @@ export function Avatar({ name, className, src = "" }) {
     .map((item) => item[0])
     .join("")
     .toUpperCase();
+  const normalizedSrc = String(src || "").trim();
+  const showImage = Boolean(normalizedSrc) && failedSrc !== normalizedSrc;
 
   return (
     <div
@@ -18,12 +22,13 @@ export function Avatar({ name, className, src = "" }) {
         className
       )}
     >
-      {src ? (
+      {showImage ? (
         <img
-          src={src}
+          src={normalizedSrc}
           alt={name || "User avatar"}
           className="h-full w-full object-cover"
           referrerPolicy="no-referrer"
+          onError={() => setFailedSrc(normalizedSrc)}
         />
       ) : (
         letters || "U"
