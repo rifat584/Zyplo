@@ -35,6 +35,117 @@ const timesheetFilterInputClass =
 const timesheetFilterSelectClass =
   "h-11 w-full rounded-2xl border border-border bg-background pl-10 pr-9 text-sm text-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10";
 
+function TimesheetPageSkeleton() {
+  return (
+    <div className="animate-pulse space-y-4">
+      <section className="relative overflow-hidden rounded-[32px] border border-border bg-card p-5 shadow-sm sm:p-6">
+        <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
+          <div className="space-y-5">
+            <div className="h-7 w-28 rounded-full bg-muted" />
+            <div className="space-y-3">
+              <div className="h-3 w-28 rounded bg-muted" />
+              <div className="h-8 w-56 rounded bg-muted" />
+              <div className="h-4 w-72 max-w-full rounded bg-muted" />
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={`timesheet-chip-skeleton-${index}`}
+                  className="rounded-2xl border border-border bg-background px-4 py-3"
+                >
+                  <div className="h-3 w-20 rounded bg-muted" />
+                  <div className="mt-3 h-4 w-28 rounded bg-muted" />
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={`timesheet-pill-skeleton-${index}`}
+                  className="h-8 w-32 rounded-full border border-border bg-background"
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className={timesheetInsetCardClass}>
+            <div className="flex items-center justify-between gap-3">
+              <div className="space-y-2">
+                <div className="h-3 w-14 rounded bg-muted" />
+                <div className="h-6 w-36 rounded bg-muted" />
+              </div>
+              <div className="h-7 w-24 rounded-full bg-muted" />
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={`timesheet-filter-skeleton-${index}`} className="space-y-2">
+                  <div className="h-3 w-20 rounded bg-muted" />
+                  <div className="h-11 rounded-2xl bg-muted" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div
+            key={`timesheet-stat-skeleton-${index}`}
+            className="rounded-[26px] border border-border bg-card p-4 shadow-sm"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="space-y-3">
+                <div className="h-3 w-20 rounded bg-muted" />
+                <div className="h-8 w-28 rounded bg-muted" />
+              </div>
+              <div className="size-10 rounded-2xl bg-muted" />
+            </div>
+            <div className="mt-3 h-3 w-32 rounded bg-muted" />
+          </div>
+        ))}
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
+        <div className={timesheetPanelClass}>
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div className="h-4 w-28 rounded bg-muted" />
+            <div className="h-3 w-20 rounded bg-muted" />
+          </div>
+          <div className="h-72 rounded-2xl bg-muted" />
+        </div>
+        <div className={timesheetPanelClass}>
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div className="h-4 w-36 rounded bg-muted" />
+            <div className="size-4 rounded bg-muted" />
+          </div>
+          <div className="h-56 rounded-2xl bg-muted" />
+          <div className="mt-4 space-y-2">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={`timesheet-legend-skeleton-${index}`} className="flex items-center justify-between">
+                <div className="h-3 w-24 rounded bg-muted" />
+                <div className="h-3 w-14 rounded bg-muted" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-2">
+        {Array.from({ length: 2 }).map((_, index) => (
+          <div key={`timesheet-lower-skeleton-${index}`} className={timesheetPanelClass}>
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div className="h-4 w-40 rounded bg-muted" />
+              <div className="h-3 w-24 rounded bg-muted" />
+            </div>
+            <div className="h-72 rounded-2xl bg-muted" />
+          </div>
+        ))}
+      </section>
+    </div>
+  );
+}
+
 function safeDate(value) {
   const d = new Date(value);
   return Number.isNaN(d.getTime()) ? null : d;
@@ -154,6 +265,8 @@ export default function WorkspaceTimesheetPage() {
   const allTasks = useMockStore((state) => state.tasks || EMPTY_ARR);
   const allWorkspaces = useMockStore((state) => state.workspaces || EMPTY_ARR);
   const currentUser = useMockStore((state) => state.currentUser || null);
+  const dashboardLoaded = useMockStore((state) => Boolean(state.loaded));
+  const dashboardLoading = useMockStore((state) => Boolean(state.loading));
 
   const workspace = useMemo(
     () => allWorkspaces.find((w) => w.id === workspaceId) || null,
@@ -416,6 +529,21 @@ export default function WorkspaceTimesheetPage() {
   const taskProgress = taskReport?.estimatedTime
     ? Math.min(100, Math.round((Number(taskReport.totalTimeSpent || 0) / Math.max(1, Number(taskReport.estimatedTime || 0))) * 100))
     : 0;
+  const showInitialSkeleton =
+    !dashboardLoaded ||
+    dashboardLoading ||
+    ((loading || loadingMembers) &&
+      !error &&
+      !memberError &&
+      !timesheetRows.length &&
+      !workspaceRows.length &&
+      !projectRows.length &&
+      taskReport === null &&
+      !allMemberRows.length);
+
+  if (showInitialSkeleton) {
+    return <TimesheetPageSkeleton />;
+  }
 
   return (
     <div className="space-y-4">

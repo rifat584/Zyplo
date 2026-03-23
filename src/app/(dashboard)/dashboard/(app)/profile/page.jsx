@@ -30,11 +30,78 @@ const textareaClass =
 const fileInputClass =
   "block w-full cursor-pointer rounded-xl border border-border bg-background px-3 py-2 text-sm text-foreground file:mr-3 file:rounded-lg file:border-0 file:bg-primary/10 file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-primary hover:file:bg-primary/15 disabled:opacity-50 dark:border-white/10 dark:bg-surface";
 
+function ProfilePageSkeleton() {
+  return (
+    <div className="mx-auto max-w-4xl pt-3 sm:pt-4 md:pt-6">
+      <div className="space-y-5 rounded-2xl border border-border bg-card p-4 shadow-sm dark:border-white/10 sm:p-5">
+        <div className="animate-pulse">
+          <div className="flex flex-col gap-3 border-b border-border pb-4 dark:border-white/10 sm:flex-row sm:items-start sm:justify-between">
+            <div className="space-y-2">
+              <div className="h-7 w-24 rounded bg-muted" />
+              <div className="h-4 w-64 rounded bg-muted" />
+            </div>
+
+            <div className="w-full sm:max-w-52">
+              <div className="mb-2 flex items-center justify-between text-xs">
+                <div className="h-3 w-20 rounded bg-muted" />
+                <div className="h-3 w-10 rounded bg-muted" />
+              </div>
+              <div className="h-1.5 rounded-full bg-muted" />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4 border-b border-border py-4 dark:border-white/10 md:flex-row md:items-start">
+            <div className="flex items-center gap-3 md:w-64 md:shrink-0">
+              <div className="size-14 rounded-2xl bg-muted" />
+              <div className="min-w-0 space-y-2">
+                <div className="h-4 w-28 rounded bg-muted" />
+                <div className="h-3 w-40 rounded bg-muted" />
+              </div>
+            </div>
+
+            <div className="grid flex-1 gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <div className="h-3 w-20 rounded bg-muted" />
+                <div className="h-10 rounded-xl bg-muted" />
+                <div className="h-3 w-40 rounded bg-muted" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-3 w-20 rounded bg-muted" />
+                <div className="h-10 rounded-xl bg-muted" />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-4 py-4 md:grid-cols-2">
+            {Array.from({ length: 7 }).map((_, index) => (
+              <div key={`profile-field-skeleton-${index}`} className="space-y-2">
+                <div className="h-3 w-20 rounded bg-muted" />
+                <div className="h-10 rounded-xl bg-muted" />
+              </div>
+            ))}
+
+            <div className="space-y-2 md:col-span-2">
+              <div className="h-3 w-16 rounded bg-muted" />
+              <div className="h-28 rounded-xl bg-muted" />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 border-t border-border pt-4 dark:border-white/10 sm:flex-row sm:items-center sm:justify-between">
+            <div className="h-3 w-48 rounded bg-muted" />
+            <div className="h-10 w-full rounded-xl bg-muted sm:w-36" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function DashboardProfilePage() {
   const { data: session } = useSession();
-  const { currentUser, loaded } = useMockStore((state) => ({
+  const { currentUser, loaded, loading } = useMockStore((state) => ({
     currentUser: state.currentUser || null,
     loaded: Boolean(state.loaded),
+    loading: Boolean(state.loading),
   }));
   const email = currentUser?.email || session?.user?.email || "";
 
@@ -144,6 +211,10 @@ export default function DashboardProfilePage() {
       event.target.value = "";
       setUploadingAvatar(false);
     }
+  }
+
+  if (!loaded || loading) {
+    return <ProfilePageSkeleton />;
   }
 
   return (

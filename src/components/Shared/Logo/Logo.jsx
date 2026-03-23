@@ -17,9 +17,9 @@ export default function Logo({
             />
             {showText && (
                 <span className="text-xl font-bold text-foreground">
-                    Zypl
+                    ZYPL
                     <span className="text-transparent bg-clip-text bg-size-[200%_200%] bg-linear-to-r from-indigo-400 via-cyan-300 to-fuchsia-400 animate-gradient">
-                        o
+                        O
                     </span>
                 </span>
             )}

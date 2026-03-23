@@ -5,14 +5,112 @@ import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useMockStore } from "@/components/dashboard/mockStore";
 
+function WorkspaceOverviewSkeleton() {
+  return (
+    <div className="animate-pulse space-y-4">
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div
+            key={`overview-insight-skeleton-${index}`}
+            className="rounded-2xl border border-border bg-card p-4"
+          >
+            <div className="h-3 w-20 rounded bg-muted" />
+            <div className="mt-2 h-8 w-14 rounded bg-muted" />
+            <div className="mt-2 h-3 w-24 rounded bg-muted" />
+          </div>
+        ))}
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-[380px_minmax(0,1fr)]">
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="h-4 w-28 rounded bg-muted" />
+          <div className="mt-4 flex flex-col items-center gap-4 sm:flex-row">
+            <div className="size-32 rounded-full bg-muted sm:size-40" />
+            <div className="w-full max-w-48 space-y-3">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={`overview-legend-skeleton-${index}`}
+                  className="flex items-center gap-2"
+                >
+                  <div className="size-2.5 rounded-full bg-muted" />
+                  <div className="h-3 flex-1 rounded bg-muted" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="h-4 w-44 rounded bg-muted" />
+          <div className="mt-6 space-y-4">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={`overview-bar-skeleton-${index}`} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="h-3 w-20 rounded bg-muted" />
+                  <div className="h-3 w-8 rounded bg-muted" />
+                </div>
+                <div className="h-2.5 rounded-full bg-muted" />
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 h-3 w-48 rounded bg-muted" />
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-border bg-card p-4">
+        <div className="mb-3 h-4 w-28 rounded bg-muted" />
+        <div className="space-y-3">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <div
+              key={`overview-activity-skeleton-${index}`}
+              className="flex items-start gap-3 rounded-xl border border-border p-3"
+            >
+              <div className="size-7 rounded-full bg-muted" />
+              <div className="min-w-0 flex-1 space-y-2">
+                <div className="h-4 w-2/3 rounded bg-muted" />
+                <div className="h-3 w-1/2 rounded bg-muted" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <div
+            key={`overview-card-skeleton-${index}`}
+            className="rounded-2xl border border-border bg-card p-4"
+          >
+            <div className="h-5 w-36 rounded bg-muted" />
+            <div className="mt-2 h-4 w-40 rounded bg-muted" />
+            <div className="mt-5 space-y-3">
+              {Array.from({ length: 4 }).map((_, rowIndex) => (
+                <div key={`overview-card-skeleton-${index}-${rowIndex}`} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="h-3 w-20 rounded bg-muted" />
+                    <div className="h-3 w-10 rounded bg-muted" />
+                  </div>
+                  <div className="h-6 rounded-md bg-muted" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
+    </div>
+  );
+}
+
 export default function WorkspaceOverviewPage() {
   const params = useParams();
   const workspaceId = typeof params.workspaceId === "string" ? params.workspaceId : "";
 
-  const { projects, tasks, members } = useMockStore((state) => ({
+  const { projects, tasks, members, loaded, loading } = useMockStore((state) => ({
     projects: state.projects || [],
     tasks: state.tasks || [],
     members: state.workspaces.find((item) => item.id === workspaceId)?.members || [],
+    loaded: Boolean(state.loaded),
+    loading: Boolean(state.loading),
   }));
 
   const workspaceProjects = useMemo(
@@ -137,6 +235,10 @@ export default function WorkspaceOverviewPage() {
     { id: "p2", label: "Medium", value: priorityCounts.P2, color: "bg-violet-500", textClass: "text-white" },
     { id: "p3", label: "Low", value: priorityCounts.P3, color: "bg-emerald-500", textClass: "text-white" },
   ];
+
+  if (!loaded || loading) {
+    return <WorkspaceOverviewSkeleton />;
+  }
 
   return (
     <div className="space-y-4">

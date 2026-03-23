@@ -69,6 +69,72 @@ const listStatusButtonStyles = {
   done: "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
 };
 
+function TaskListSkeleton() {
+  return (
+    <div className={`${listShellClass} animate-pulse`}>
+      <div className={`flex flex-col ${listHeaderClass}`}>
+        <div className="px-6 py-4">
+          <div className="h-6 w-24 rounded bg-muted" />
+          <div className="mt-2 h-4 w-40 rounded bg-muted" />
+        </div>
+
+        <div className={listToolbarClass}>
+          <div className="flex flex-col gap-3">
+            <div className="h-10 w-full rounded-lg bg-muted lg:max-w-72" />
+            <div className="flex flex-col gap-2 md:flex-row md:flex-wrap">
+              <div className="h-10 w-full rounded-lg bg-muted md:w-32.5" />
+              <div className="h-10 w-full rounded-lg bg-muted md:w-27.5" />
+              <div className="h-10 w-full rounded-lg bg-muted md:w-37.5" />
+              <div className="h-10 w-full rounded-lg bg-muted md:w-32" />
+              <div className="h-10 w-full rounded-lg bg-muted sm:w-32" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto pb-32 min-h-100">
+        <table className={listTableClass}>
+          <thead className={listTableHeadClass}>
+            <tr>
+              {Array.from({ length: 9 }).map((_, index) => (
+                <th key={`list-head-skeleton-${index}`} className="px-4 py-3 font-medium">
+                  <div className="h-3 rounded bg-muted" />
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className={listTableBodyClass}>
+            {Array.from({ length: 6 }).map((_, index) => (
+              <tr key={`list-row-skeleton-${index}`} className="bg-card">
+                <td className="px-6 py-4">
+                  <div className="size-4 rounded bg-muted" />
+                </td>
+                <td className="px-4 py-4">
+                  <div className="space-y-2">
+                    <div className="h-4 w-40 rounded bg-muted" />
+                    <div className="h-3 w-20 rounded bg-muted" />
+                  </div>
+                </td>
+                <td className="px-4 py-4"><div className="h-6 w-24 rounded-full bg-muted" /></td>
+                <td className="px-4 py-4"><div className="h-6 w-20 rounded-full bg-muted" /></td>
+                <td className="px-4 py-4"><div className="h-4 w-28 rounded bg-muted" /></td>
+                <td className="px-4 py-4"><div className="h-4 w-28 rounded bg-muted" /></td>
+                <td className="px-4 py-4"><div className="h-4 w-32 rounded bg-muted" /></td>
+                <td className="px-4 py-4"><div className="h-4 w-32 rounded bg-muted" /></td>
+                <td className="px-4 py-4">
+                  <div className="flex justify-end">
+                    <div className="size-9 rounded-lg bg-muted" />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 const formatDate = (dateString) => {
   if (!dateString) return "--";
   const date = new Date(dateString);
@@ -203,11 +269,13 @@ export default function TaskListView() {
   const workspaceId =
     typeof params.workspaceId === "string" ? params.workspaceId : "";
 
-  const { allTasks, workspaceMembers } = useMockStore((state) => ({
+  const { allTasks, workspaceMembers, loaded, loading } = useMockStore((state) => ({
     allTasks: state.tasks || [],
     workspaceMembers:
       (state.workspaces || []).find((workspace) => workspace.id === workspaceId)
         ?.members || [],
+    loaded: Boolean(state.loaded),
+    loading: Boolean(state.loading),
   }));
 
   const [selectedIds, setSelectedIds] = useState(new Set());
@@ -312,6 +380,10 @@ export default function TaskListView() {
         return byDueDate;
       });
   }, [workspaceTasks, localEdits, columnFilters]);
+
+  if (!loaded || loading) {
+    return <TaskListSkeleton />;
+  }
 
   const toggleSelectAll = () => {
     if (selectedIds.size === filteredTasks.length) {

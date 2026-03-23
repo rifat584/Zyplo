@@ -34,22 +34,22 @@ const toolbarPopoverClasses =
   "absolute right-0 top-11 z-50 w-[min(20rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] space-y-3 rounded-xl border border-border bg-popover p-3 text-popover-foreground shadow-xl";
 
 // --- SMART BOARD SKELETON ---
-function BoardSkeleton() {
+export function BoardSkeleton() {
   const columnTaskCounts = [3, 2, 4, 1]; // Creates a staggered, natural look
 
   return (
     <div className="animate-pulse space-y-4">
       {/* Filter Bar Skeleton */}
       <section className="mb-4 rounded-2xl border border-border bg-card">
-        <div className="space-y-2 p-4">
-          <div className="h-10 w-full rounded-lg bg-muted/80 md:w-42.5 md:shrink-0"></div>
-          <div className="flex flex-col gap-2 md:flex-row md:flex-nowrap md:items-center">
-            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-32 lg:w-[6.75rem] xl:w-32"></div>
+        <div className="flex flex-col gap-2 p-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center lg:min-w-0 lg:flex-1 lg:flex-nowrap">
+            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-42.5 md:shrink-0"></div>
+            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-32 lg:w-27 xl:w-32"></div>
             <div className="h-10 w-full rounded-lg bg-muted/80 md:w-28 lg:w-[6rem] xl:w-28"></div>
             <div className="h-10 w-full rounded-lg bg-muted/80 md:w-36 lg:w-[7.25rem] xl:w-36"></div>
             <div className="h-10 w-full rounded-lg bg-muted/80 sm:w-36"></div>
-            <div className="h-10 w-full rounded-lg bg-muted/80 sm:w-32"></div>
           </div>
+          <div className="h-10 w-full rounded-lg bg-muted/80 sm:w-32 lg:shrink-0"></div>
         </div>
       </section>
 
@@ -767,21 +767,21 @@ export default function Board({ workspaceId, projectId }) {
   return (
     <>
       <section className="mb-4 rounded-2xl border border-border bg-card">
-        <div className="space-y-2 p-4">
-          <input
-            type="text"
-            value={columnFilters.taskName}
-            onChange={(event) =>
-              setColumnFilters((prev) => ({
-                ...prev,
-                taskName: event.target.value,
-              }))
-            }
-            placeholder="Task Name"
-            className={`${toolbarFieldClasses} w-full md:w-42.5 md:shrink-0`}
-          />
+        <div className="flex flex-col gap-2 p-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center lg:min-w-0 lg:flex-1 lg:flex-nowrap">
+            <input
+              type="text"
+              value={columnFilters.taskName}
+              onChange={(event) =>
+                setColumnFilters((prev) => ({
+                  ...prev,
+                  taskName: event.target.value,
+                }))
+              }
+              placeholder="Task Name"
+              className={`${toolbarFieldClasses} w-full md:w-42.5 md:shrink-0`}
+            />
 
-          <div className="flex flex-col gap-2 md:flex-row md:flex-nowrap md:items-center">
             <select
               value={columnFilters.status}
               onChange={(event) =>
@@ -790,7 +790,7 @@ export default function Board({ workspaceId, projectId }) {
                   status: event.target.value,
                 }))
               }
-              className={`${toolbarFieldClasses} w-full md:w-32 lg:w-[6.75rem] xl:w-32`}
+              className={`${toolbarFieldClasses} w-full md:w-32 lg:w-27 xl:w-32`}
             >
               <option value="all">Status</option>
               <option value="todo">To Do</option>
@@ -923,18 +923,18 @@ export default function Board({ workspaceId, projectId }) {
                 </>
               )}
             </div>
-
-            <Button
-              type="button"
-              size="sm"
-              onClick={() => openCreateModal(columns[0]?.id || "")}
-              disabled={!columns.length}
-              className="w-full shadow-none hover:scale-100 hover:bg-primary/90 hover:shadow-none sm:w-auto md:shrink-0"
-            >
-              <Plus className="size-4" />
-              Create Task
-            </Button>
           </div>
+
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => openCreateModal(columns[0]?.id || "")}
+            disabled={!columns.length}
+            className="w-full shadow-none hover:scale-100 hover:bg-primary/90 hover:shadow-none sm:w-auto lg:shrink-0"
+          >
+            <Plus className="size-4" />
+            Create Task
+          </Button>
         </div>
       </section>
 

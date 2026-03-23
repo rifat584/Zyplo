@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
-import Board from "@/components/board/Board";
+import Board, { BoardSkeleton } from "@/components/board/Board";
 import {
   createProject,
   loadDashboard,
@@ -105,11 +105,7 @@ export default function WorkspaceBoardPage() {
   }
 
   if (!loaded || loading) {
-    return (
-      <div className="border-b border-border px-0 py-4 text-sm text-muted-foreground">
-        Loading board...
-      </div>
-    );
+    return <BoardSkeleton />;
   }
 
   return (

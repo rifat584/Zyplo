@@ -21,6 +21,74 @@ const inviteSchema = z.object({
   role: z.enum(["admin", "member"]),
 });
 
+function MembersPageSkeleton() {
+  return (
+    <div className="space-y-10 animate-pulse">
+      <section>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-2">
+            <div className="h-6 w-28 rounded bg-muted" />
+            <div className="h-4 w-72 rounded bg-muted" />
+          </div>
+          <div className="h-9 w-32 rounded-lg bg-muted" />
+        </div>
+
+        <div className="mt-4 space-y-3">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div
+              key={`member-skeleton-${index}`}
+              className="flex flex-col gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm shadow-black/5 dark:shadow-none sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div className="flex min-w-0 items-start gap-3">
+                <div className="size-10 shrink-0 rounded-full bg-muted" />
+                <div className="min-w-0 space-y-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="h-4 w-28 rounded bg-muted" />
+                    <div className="h-5 w-16 rounded-md bg-muted" />
+                  </div>
+                  <div className="h-4 w-44 rounded bg-muted" />
+                </div>
+              </div>
+
+              <div className="grid w-full grid-cols-2 gap-2 sm:w-[18rem]">
+                <div className="h-9 rounded-lg bg-muted" />
+                <div className="h-9 rounded-lg bg-muted" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <div className="space-y-2">
+          <div className="h-6 w-36 rounded bg-muted" />
+          <div className="h-4 w-72 rounded bg-muted" />
+        </div>
+
+        <div className="mt-4 space-y-3">
+          {Array.from({ length: 2 }).map((_, index) => (
+            <div
+              key={`invite-skeleton-${index}`}
+              className="flex flex-col gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm shadow-black/5 dark:shadow-none sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div className="min-w-0 space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="h-4 w-40 rounded bg-muted" />
+                  <div className="h-5 w-16 rounded-md bg-muted" />
+                  <div className="h-5 w-20 rounded-md bg-muted" />
+                </div>
+                <div className="h-3 w-32 rounded bg-muted" />
+              </div>
+
+              <div className="h-9 w-full rounded-lg bg-muted sm:w-28" />
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}
+
 function resolvePersonAvatar(person) {
   return String(
     person?.avatarUrl ||
@@ -554,11 +622,7 @@ export default function WorkspaceMembersPage() {
   }
 
   if (!loaded || loading) {
-    return (
-      <div className="border-b border-border px-0 py-4 text-sm text-muted-foreground">
-        Loading members...
-      </div>
-    );
+    return <MembersPageSkeleton />;
   }
 
   if (!workspace) {
@@ -699,9 +763,25 @@ export default function WorkspaceMembersPage() {
 
             <div className="mt-4 space-y-3">
               {loadingInvites ? (
-                <div className="py-4 text-sm text-muted-foreground">
-                  Loading pending invites...
-                </div>
+                <>
+                  {Array.from({ length: 2 }).map((_, index) => (
+                    <div
+                      key={`pending-invite-skeleton-${index}`}
+                      className="animate-pulse flex flex-col gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm shadow-black/5 dark:shadow-none sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div className="min-w-0 space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <div className="h-4 w-40 rounded bg-muted" />
+                          <div className="h-5 w-16 rounded-md bg-muted" />
+                          <div className="h-5 w-20 rounded-md bg-muted" />
+                        </div>
+                        <div className="h-3 w-32 rounded bg-muted" />
+                      </div>
+
+                      <div className="h-9 w-full rounded-lg bg-muted sm:w-28" />
+                    </div>
+                  ))}
+                </>
               ) : null}
 
               {!loadingInvites && inviteError ? (

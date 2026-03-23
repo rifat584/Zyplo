@@ -775,9 +775,10 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   const { status: sessionStatus } = useSession();
   const { collapsed, toggle } = useSidebarState();
   const effectiveCollapsed = mobileOpen ? true : collapsed;
-  const { workspaces, currentUser } = useMockStore((state) => ({
+  const { workspaces, currentUser, loaded } = useMockStore((state) => ({
     workspaces: state.workspaces || [],
     currentUser: state.currentUser || null,
+    loaded: Boolean(state.loaded),
   }));
   const [actionsOpenFor, setActionsOpenFor] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState("");
@@ -814,6 +815,11 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
 
   useEffect(() => {
     let alive = true;
+
+    if (!loaded) {
+      setWorkspaceBilling({});
+      return undefined;
+    }
 
     if (sessionStatus === "loading") {
       return undefined;
@@ -854,7 +860,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     return () => {
       alive = false;
     };
-  }, [sessionStatus, workspaces]);
+  }, [loaded, sessionStatus, workspaces]);
 
   const rootItem = (
     <Link
@@ -1045,6 +1051,56 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     </div>
   );
 
+  const skeletonContent = (
+    <div
+      className={cn(
+        "flex h-full flex-col overflow-visible animate-pulse",
+        mobileOpen ? "p-3" : effectiveCollapsed ? "p-0" : "p-3",
+      )}
+    >
+      <div
+        className={cn(
+          "mb-3 flex h-[45px] items-center",
+          effectiveCollapsed ? "justify-center" : "justify-between",
+        )}
+      >
+        {!effectiveCollapsed ? <div className="h-9 w-28 rounded bg-muted" /> : null}
+        <div className="hidden h-8 w-8 rounded-lg bg-muted md:block" />
+      </div>
+
+      <div className={effectiveCollapsed ? "flex justify-center" : ""}>
+        <div className={cn("rounded-xl bg-muted", effectiveCollapsed ? "size-9" : "h-9 w-full")} />
+      </div>
+
+      <div className={`mt-3 space-y-1 ${effectiveCollapsed ? "flex flex-col items-center" : ""}`}>
+        {!effectiveCollapsed ? (
+          <div className="mx-3 h-3 w-28 rounded bg-muted" />
+        ) : null}
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div
+            key={`sidebar-skeleton-${index}`}
+            className={cn(
+              "flex items-center rounded-xl",
+              effectiveCollapsed ? "size-9 justify-center px-0" : "gap-2 py-2 pl-4 pr-3",
+            )}
+          >
+            <div className="size-6 shrink-0 rounded-md bg-muted" />
+            {!effectiveCollapsed ? (
+              <>
+                <div className="h-4 flex-1 rounded bg-muted" />
+                <div className="h-5 w-12 rounded-full bg-muted" />
+              </>
+            ) : null}
+          </div>
+        ))}
+      </div>
+
+      <div className={`${effectiveCollapsed ? "mt-auto flex justify-center pt-3" : "mt-auto pt-3"}`}>
+        <div className={cn("rounded-xl bg-muted", effectiveCollapsed ? "size-9" : "h-9 w-full")} />
+      </div>
+    </div>
+  );
+
   const content = (
     <div
       className={cn(
@@ -1061,7 +1117,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         {!effectiveCollapsed ? (
           <div className="text-xs font-semibold tracking-wide text-muted-foreground">
             <Link href={"/"}>
-              <Logo size={45} className="ml-0.5" />
+              <Logo size={30} className="ml-2" />
             </Link>
           </div>
         ) : null}
@@ -1094,7 +1150,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         className={`relative z-40 hidden h-screen shrink-0 border-r border-border bg-background md:sticky md:top-0 md:flex md:flex-col ${effectiveCollapsed ? "md:w-12" : "md:w-64"
           }`}
       >
-        {content}
+        {loaded ? content : skeletonContent}
       </aside>
 
       {mobileOpen ? (
@@ -1105,7 +1161,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
             onClick={onCloseMobile}
           />
           <div className="absolute left-0 top-0 h-full w-20 border-r border-border bg-background">
-            {content}
+            {loaded ? content : skeletonContent}
           </div>
         </div>
       ) : null}
@@ -1512,7 +1568,10 @@ function WorkspaceToolbar() {
 function Topbar({ onOpenSidebar }) {
   const pathname = usePathname();
   const params = useParams();
-  const workspaces = useMockStore((state) => state.workspaces || []);
+  const { workspaces, loaded } = useMockStore((state) => ({
+    workspaces: state.workspaces || [],
+    loaded: Boolean(state.loaded),
+  }));
 
   const workspaceId = typeof params.workspaceId === "string" ? params.workspaceId : "";
   const workspace = useMemo(
@@ -1544,6 +1603,65 @@ function Topbar({ onOpenSidebar }) {
     }
     return [{ label: "Dashboard", href: "/dashboard/workspaces" }];
   }, [pathname, workspace?.name, workspaceId]);
+
+  if (!loaded) {
+    const isWorkspaceRoute = pathname.startsWith("/dashboard/w/");
+
+    return (
+      <div className="sticky top-0 z-30 bg-background animate-pulse">
+        <header className="border-b border-border bg-background px-3 sm:px-4 lg:px-7">
+          <div className="flex h-11 items-center justify-between gap-2 sm:gap-3">
+            <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+              <div className="h-8 w-8 rounded-md bg-muted md:hidden" />
+              <div className="flex min-w-0 items-center gap-1.5">
+                <div className="h-3 w-16 rounded bg-muted" />
+                <div className="h-3 w-3 rounded bg-muted" />
+                <div className="h-3 w-24 rounded bg-muted" />
+                <div className="h-3 w-3 rounded bg-muted" />
+                <div className="h-3 w-20 rounded bg-muted" />
+              </div>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-1.5">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={`topbar-action-skeleton-${index}`}
+                  className="h-8 w-8 rounded-lg bg-muted sm:h-9 sm:w-9"
+                />
+              ))}
+            </div>
+          </div>
+        </header>
+
+        {isWorkspaceRoute ? (
+          <section className="border-b border-border/80 bg-background px-3 py-3 sm:px-4 md:px-6 lg:px-7">
+            <div className="space-y-3">
+              <div className="flex items-start justify-between gap-3 lg:items-center">
+                <div className="flex min-w-0 flex-1 items-center gap-2">
+                  <div className="h-7 w-28 rounded bg-muted" />
+                  <div className="h-4 w-3 rounded bg-muted" />
+                  <div className="h-7 w-24 rounded bg-muted" />
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <div className="h-9 w-28 rounded-lg bg-muted" />
+                  <div className="h-9 w-24 rounded-lg bg-muted" />
+                </div>
+              </div>
+
+              <div className="flex min-w-max items-center gap-1">
+                {Array.from({ length: 7 }).map((_, index) => (
+                  <div
+                    key={`workspace-nav-skeleton-${index}`}
+                    className="h-9 w-24 rounded-md bg-muted"
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+        ) : null}
+      </div>
+    );
+  }
 
   return (
     <div className="sticky top-0 z-30 bg-background">
