@@ -89,40 +89,64 @@ function AgendaRow({ task, showNoDueDate = false }) {
   return (
     <article className="rounded-xl border border-border bg-card shadow-sm shadow-black/5 dark:shadow-none">
       <div className="flex flex-col gap-2.5 px-3 py-3 sm:grid sm:grid-cols-[8.5rem_minmax(0,1fr)_auto] sm:items-center sm:gap-3 sm:px-4">
-        <div className="order-2 sm:order-0">
+        <div className="hidden sm:order-0 sm:block">
           <span className="inline-flex w-fit items-center gap-1.5 rounded-md border border-border/80 bg-background px-2 py-1 text-[11px] font-medium text-foreground">
             <CalendarDays className="size-3.5 text-muted-foreground" />
             {dueLabel}
           </span>
           {dueTime && !showNoDueDate ? (
-            <p className="mt-1 text-[11px] text-muted-foreground">{dueTime}</p>
+            <p className="hidden text-[11px] text-muted-foreground sm:mt-1 sm:block">{dueTime}</p>
           ) : null}
         </div>
 
-        <div className="order-1 min-w-0 sm:order-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <h3 className="truncate text-sm font-medium text-foreground">
-              {task?.title || "Untitled task"}
-            </h3>
-            {task?.taskRef ? (
-              <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
-                {task.taskRef}
-              </span>
-            ) : null}
+        <div className="order-1 min-w-0 space-y-2 sm:order-0 sm:space-y-0">
+          <div className="flex items-start justify-between gap-2 sm:block">
+            <div className="min-w-0 flex flex-wrap items-center gap-2">
+              <h3 className="truncate text-sm font-medium text-foreground">
+                {task?.title || "Untitled task"}
+              </h3>
+              {task?.taskRef ? (
+                <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                  {task.taskRef}
+                </span>
+              ) : null}
+            </div>
+            <span
+              className={cn(
+                "inline-flex shrink-0 items-center rounded-md border px-2 py-1 text-[10px] font-medium sm:hidden",
+                STATUS_BADGE_STYLES[status] || STATUS_BADGE_STYLES.todo,
+              )}
+            >
+              {getTaskStatusLabel(status)}
+            </span>
           </div>
 
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1">
-              <User className="size-3.5" />
-              {task?.assigneeName || "Unassigned"}
+          <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground sm:mt-1 sm:flex-wrap sm:justify-start sm:gap-x-3 sm:gap-y-1">
+            <span className="inline-flex min-w-0 items-center gap-1 truncate">
+              <User className="size-3.5 shrink-0" />
+              <span className="truncate">{task?.assigneeName || "Unassigned"}</span>
             </span>
+            <div className="flex shrink-0 items-center gap-1.5 sm:hidden">
+              <span className="inline-flex items-center gap-1 rounded-md border border-border/80 bg-background px-2 py-1 text-[10px] font-medium text-foreground">
+                <CalendarDays className="size-3 text-muted-foreground" />
+                {dueLabel}
+              </span>
+              <span
+                className={cn(
+                  "inline-flex items-center rounded-md border px-2 py-1 text-[10px] font-semibold uppercase",
+                  PRIORITY_BADGE_STYLES[priority] || PRIORITY_BADGE_STYLES.P2,
+                )}
+              >
+                {priority}
+              </span>
+            </div>
             {task?.description ? (
-              <span className="max-w-full truncate">{task.description}</span>
+              <span className="hidden max-w-full truncate sm:inline">{task.description}</span>
             ) : null}
           </div>
         </div>
 
-        <div className="order-3 flex flex-wrap items-center gap-1.5 sm:justify-end">
+        <div className="hidden items-center gap-1.5 sm:flex sm:justify-end">
           <span
             className={cn(
               "inline-flex items-center rounded-md border px-2 py-1 text-[10px] font-medium",
@@ -150,14 +174,14 @@ function AgendaSection({ sectionId, title, count, tasks }) {
 
   return (
     <section className="space-y-2.5">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-col gap-1.5 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h3 className="text-sm font-semibold tracking-tight text-foreground">
             {title}
           </h3>
           <p className="mt-1 text-xs text-muted-foreground">{helper}</p>
         </div>
-        <span className={cn("shrink-0 pt-0.5 text-xs font-medium", neutralSectionCountClass)}>
+        <span className={cn("shrink-0 text-xs font-medium sm:pt-0.5", neutralSectionCountClass)}>
           {count} {count === 1 ? "task" : "tasks"}
         </span>
       </div>
@@ -190,15 +214,24 @@ function TimelineLoadingState() {
                 key={rowIndex}
                 className="rounded-xl border border-border bg-card px-3 py-3 shadow-sm shadow-black/5 dark:shadow-none sm:px-4"
               >
-                <div className="grid gap-2.5 sm:grid-cols-[8.5rem_minmax(0,1fr)_auto] sm:items-center sm:gap-3">
-                  <div className="space-y-2">
+                <div className="flex flex-col gap-2.5 sm:grid sm:grid-cols-[8.5rem_minmax(0,1fr)_auto] sm:items-center sm:gap-3">
+                  <div className="hidden space-y-2 sm:block">
                     <div className="h-6 w-24 animate-pulse rounded-md bg-muted" />
                   </div>
                   <div className="space-y-2">
-                    <div className="h-4 w-40 animate-pulse rounded bg-muted" />
-                    <div className="h-3 w-32 animate-pulse rounded bg-muted" />
+                    <div className="flex items-start justify-between gap-2 sm:block">
+                      <div className="h-4 w-40 animate-pulse rounded bg-muted" />
+                      <div className="h-6 w-16 shrink-0 animate-pulse rounded-md bg-muted sm:hidden" />
+                    </div>
+                    <div className="flex items-center justify-between gap-2 sm:block">
+                      <div className="h-3 w-32 animate-pulse rounded bg-muted" />
+                      <div className="flex shrink-0 gap-2 sm:hidden">
+                        <div className="h-6 w-20 animate-pulse rounded-md bg-muted" />
+                        <div className="h-6 w-10 animate-pulse rounded-md bg-muted" />
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex gap-2 sm:justify-end">
+                  <div className="hidden gap-2 sm:flex sm:justify-end">
                     <div className="h-6 w-16 animate-pulse rounded-md bg-muted" />
                     <div className="h-6 w-10 animate-pulse rounded-md bg-muted" />
                   </div>
