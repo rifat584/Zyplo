@@ -75,7 +75,7 @@ export default function FAQ() {
                   onClick={() => setOpenIndex(isOpen ? -1 : index)}
                   className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left"
                 >
-                  <span className="text-base font-semibold text-foreground sm:text-lg">
+                  <span className="font-semibold text-foreground sm:text-lg">
                     {faq.question}
                   </span>
 
@@ -97,7 +97,7 @@ export default function FAQ() {
                       transition={{ duration: 0.25 }}
                       className="overflow-hidden border-t border-border/60 bg-background/90 dark:bg-card/95"
                     >
-                      <p className="px-5 pb-5 pt-4 text-sm leading-7 text-foreground sm:text-base">
+                      <p className="px-5 pb-5 pt-4 text-sm leading-7 text-foreground">
                         {faq.answer}
                       </p>
                     </motion.div>
