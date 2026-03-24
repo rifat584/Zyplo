@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { useSession } from "next-auth/react"; // Added useSession
 import { toast } from "sonner";
 import { 
   Search, Folder, Plus, CheckCircle2, Clock, Eye, AlertCircle, 
   ArrowUp, ArrowRight, ArrowDown, User, Command, Building2, 
-  LayoutDashboard, CalendarDays, List, CornerDownLeft, Circle
+  LayoutDashboard, CalendarDays, List, CornerDownLeft, Circle,
+  Home, CreditCard, Newspaper, LogIn, UserPlus // Added new icons for public pages
 } from "lucide-react";
 import { useMockStore, loadDashboard } from "@/components/dashboard/mockStore";
 
@@ -45,6 +47,8 @@ const FAB_POSITION_KEY = "dashboard.commandPalette.fabPosition";
 export default function CommandPalette() {
   const router = useRouter();
   const params = useParams();
+  const { status: authStatus } = useSession(); // Added Session Status
+  const isAuthenticated = authStatus === "authenticated"; // Guest Check
   
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -276,190 +280,237 @@ export default function CommandPalette() {
     const scopeTasks = isGlobalMode ? tasks : tasks.filter(t => t.workspaceId === currentWorkspaceId);
     const scopeProjects = isGlobalMode ? projects : projects.filter(p => p.workspaceId === currentWorkspaceId);
 
+    // ==========================================
+    // 1. PUBLIC / GUEST COMMANDS
+    // ==========================================
+    const publicNavs = [
+      { name: "Home", icon: Home, path: "/" },
+      { name: "Pricing", icon: CreditCard, path: "/pricing" },
+      { name: "Blog", icon: Newspaper, path: "/blog" },
+    ];
+
+    if (!isAuthenticated) {
+      publicNavs.push(
+        { name: "Sign In", icon: LogIn, path: "/login" },
+        { name: "Register", icon: UserPlus, path: "/register" }
+      );
+    }
+
     if (view.type === "root") {
-      if (q.length > 0) {
+      publicNavs.filter(n => fuzzyMatch(`go to ${n.name}`, q)).forEach(n => {
         list.push({
-          id: "create-task",
-          group: "Create",
-          icon: <Plus className="size-4 text-indigo-500" />,
-          label: `Create Task: "${q}"`,
-          action: () => {
-            setView({ type: "create", title: q });
-            setQuery("");
-            setSelectedIndex(0);
-          },
-        });
-      }
-
-      STATUSES.filter(s => fuzzyMatch(`change set status ${s.label}`, q)).forEach(s => {
-        list.push({
-          id: `g-status-${s.value}`,
-          group: "Workflow Commands",
-          icon: <s.icon className={`size-4 ${s.color}`} />,
-          label: `Set Status to ${s.label}`,
-          subtitle: "Apply to a specific task...",
-          action: () => { 
-            setView({ type: "select_task", patch: { status: s.value }, actionLabel: `Set Status to ${s.label}` }); 
-            setQuery(""); 
-            setSelectedIndex(0);
-          }
+          id: `public-nav-${n.path}`,
+          group: "Pages",
+          icon: <n.icon className="size-4 text-slate-500" />,
+          label: n.name,
+          action: () => { router.push(n.path); setOpen(false); }
         });
       });
+    }
 
-      PRIORITIES.filter(p => fuzzyMatch(`change set priority ${p.label}`, q)).forEach(p => {
-        list.push({
-          id: `g-priority-${p.value}`,
-          group: "Workflow Commands",
-          icon: <p.icon className={`size-4 ${p.color}`} />,
-          label: `Set Priority to ${p.label}`,
-          subtitle: "Apply to a specific task...",
-          action: () => { 
-            setView({ type: "select_task", patch: { priority: p.value }, actionLabel: `Set Priority to ${p.label}` }); 
-            setQuery(""); 
-            setSelectedIndex(0);
-          }
-        });
-      });
-
-      members.filter(m => fuzzyMatch(`assign to member user ${m.name} ${m.email}`, q)).forEach(m => {
-        const name = m.name || m.email.split('@')[0];
-        list.push({
-          id: `g-assign-${m.id}`,
-          group: "Workflow Commands",
-          icon: <User className="size-4 text-slate-400" />,
-          label: `Assign to ${name}`,
-          subtitle: "Apply to a specific task...",
-          action: () => { 
-            setView({ type: "select_task", patch: { assigneeId: m.id, assigneeName: name }, actionLabel: `Assign to ${name}` }); 
-            setQuery(""); 
-            setSelectedIndex(0);
-          }
-        });
-      });
-
-      if (!isGlobalMode) {
-        const navs = [
-          { name: "Board", icon: LayoutDashboard, path: "board" },
-          { name: "List", icon: List, path: "list" },
-          { name: "Calendar", icon: CalendarDays, path: "calender" },
-          { name: "Timeline", icon: Clock, path: "timeline" },
-        ];
-        navs.filter(n => fuzzyMatch(`go to navigate view ${n.name}`, q)).forEach(n => {
+    // ==========================================
+    // 2. AUTHENTICATED COMMANDS
+    // ==========================================
+    if (isAuthenticated) {
+      if (view.type === "root") {
+        if (q.length > 0) {
           list.push({
-            id: `nav-${n.path}`,
-            group: "Navigation",
-            icon: <n.icon className="size-4 text-slate-500" />,
-            label: `Go to ${n.name}`,
-            action: () => { router.push(`/dashboard/w/${currentWorkspaceId}/${n.path}`); setOpen(false); }
+            id: "create-task",
+            group: "Create",
+            icon: <Plus className="size-4 text-indigo-500" />,
+            label: `Create Task: "${q}"`,
+            action: () => {
+              setView({ type: "create", title: q });
+              setQuery("");
+              setSelectedIndex(0);
+            },
+          });
+        }
+
+        STATUSES.filter(s => fuzzyMatch(`change set status ${s.label}`, q)).forEach(s => {
+          list.push({
+            id: `g-status-${s.value}`,
+            group: "Workflow Commands",
+            icon: <s.icon className={`size-4 ${s.color}`} />,
+            label: `Set Status to ${s.label}`,
+            subtitle: "Apply to a specific task...",
+            action: () => { 
+              setView({ type: "select_task", patch: { status: s.value }, actionLabel: `Set Status to ${s.label}` }); 
+              setQuery(""); 
+              setSelectedIndex(0);
+            }
+          });
+        });
+
+        PRIORITIES.filter(p => fuzzyMatch(`change set priority ${p.label}`, q)).forEach(p => {
+          list.push({
+            id: `g-priority-${p.value}`,
+            group: "Workflow Commands",
+            icon: <p.icon className={`size-4 ${p.color}`} />,
+            label: `Set Priority to ${p.label}`,
+            subtitle: "Apply to a specific task...",
+            action: () => { 
+              setView({ type: "select_task", patch: { priority: p.value }, actionLabel: `Set Priority to ${p.label}` }); 
+              setQuery(""); 
+              setSelectedIndex(0);
+            }
+          });
+        });
+
+        members.filter(m => fuzzyMatch(`assign to member user ${m.name} ${m.email}`, q)).forEach(m => {
+          const name = m.name || m.email.split('@')[0];
+          list.push({
+            id: `g-assign-${m.id}`,
+            group: "Workflow Commands",
+            icon: <User className="size-4 text-slate-400" />,
+            label: `Assign to ${name}`,
+            subtitle: "Apply to a specific task...",
+            action: () => { 
+              setView({ type: "select_task", patch: { assigneeId: m.id, assigneeName: name }, actionLabel: `Assign to ${name}` }); 
+              setQuery(""); 
+              setSelectedIndex(0);
+            }
+          });
+        });
+
+        if (!isGlobalMode) {
+          const navs = [
+            { name: "Board", icon: LayoutDashboard, path: "board" },
+            { name: "List", icon: List, path: "list" },
+            { name: "Calendar", icon: CalendarDays, path: "calender" },
+            { name: "Timeline", icon: Clock, path: "timeline" },
+          ];
+          navs.filter(n => fuzzyMatch(`go to navigate view ${n.name}`, q)).forEach(n => {
+            list.push({
+              id: `nav-${n.path}`,
+              group: "Navigation",
+              icon: <n.icon className="size-4 text-slate-500" />,
+              label: `Go to ${n.name}`,
+              action: () => { router.push(`/dashboard/w/${currentWorkspaceId}/${n.path}`); setOpen(false); }
+            });
+          });
+        } else {
+          // Additional Dashboard navigation if in global mode
+          const globalNavs = [
+            { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard/workspaces" }
+          ];
+          globalNavs.filter(n => fuzzyMatch(`go to navigate view ${n.name}`, q)).forEach(n => {
+            list.push({
+              id: `nav-${n.path}`,
+              group: "Navigation",
+              icon: <n.icon className="size-4 text-slate-500" />,
+              label: `Go to ${n.name}`,
+              action: () => { router.push(n.path); setOpen(false); }
+            });
+          });
+        }
+
+        scopeProjects.filter(p => fuzzyMatch(`go to open project ${p.name}`, q)).slice(0, 5).forEach(p => {
+          list.push({
+            id: `proj-${p.id}`,
+            group: "Projects",
+            icon: <Folder className="size-4 text-sky-500" />,
+            label: `Open Project: ${p.name}`,
+            subtitle: isGlobalMode ? (workspaces.find(w => w.id === p.workspaceId)?.name || "Workspace") : "",
+            action: () => {
+              localStorage.setItem(`dashboard.selectedProject.${p.workspaceId}`, p.id);
+              router.push(`/dashboard/w/${p.workspaceId}/board`);
+              setOpen(false);
+            },
+          });
+        });
+
+        if (!query || "switch workspace".includes(q.toLowerCase())) {
+          workspaces.filter(w => fuzzyMatch(w.name, q)).slice(0, 3).forEach(w => {
+            list.push({
+              id: `ws-${w.id}`,
+              group: "Workspaces",
+              icon: <Building2 className="size-4 text-emerald-500" />,
+              label: `Switch to Workspace: ${w.name}`,
+              action: () => { router.push(`/dashboard/w/${w.id}`); setOpen(false); }
+            });
+          });
+        }
+
+        scopeTasks.filter(t => fuzzyMatch(`task edit ${t.title} ${t.status}`, q)).slice(0, 8).forEach(t => {
+          list.push({
+            id: `task-${t.id}`,
+            group: "Manage Specific Tasks",
+            icon: <CheckCircle2 className="size-4 text-slate-400" />,
+            label: t.title,
+            subtitle: `${t.projectName || "No Project"} (${t.status || "todo"})`,
+            action: () => {
+              setView({ type: "task", task: t });
+              setQuery("");
+              setSelectedIndex(0);
+            },
           });
         });
       }
 
-      scopeProjects.filter(p => fuzzyMatch(`go to open project ${p.name}`, q)).slice(0, 5).forEach(p => {
-        list.push({
-          id: `proj-${p.id}`,
-          group: "Projects",
-          icon: <Folder className="size-4 text-sky-500" />,
-          label: `Open Project: ${p.name}`,
-          subtitle: isGlobalMode ? (workspaces.find(w => w.id === p.workspaceId)?.name || "Workspace") : "",
-          action: () => {
-            localStorage.setItem(`dashboard.selectedProject.${p.workspaceId}`, p.id);
-            router.push(`/dashboard/w/${p.workspaceId}/board`);
-            setOpen(false);
-          },
-        });
-      });
+      if (view.type === "task") {
+        const task = view.task;
 
-      if (!query || "switch workspace".includes(q.toLowerCase())) {
-        workspaces.filter(w => fuzzyMatch(w.name, q)).slice(0, 3).forEach(w => {
+        STATUSES.filter(s => fuzzyMatch(`status ${s.label}`, q)).forEach(s => {
           list.push({
-            id: `ws-${w.id}`,
-            group: "Workspaces",
-            icon: <Building2 className="size-4 text-emerald-500" />,
-            label: `Switch to Workspace: ${w.name}`,
-            action: () => { router.push(`/dashboard/w/${w.id}`); setOpen(false); }
+            id: `t-status-${s.value}`,
+            group: "Update Status",
+            icon: <s.icon className={`size-4 ${s.color}`} />,
+            label: s.label,
+            action: () => executeTaskUpdate(task, { status: s.value }),
+          });
+        });
+
+        PRIORITIES.filter(p => fuzzyMatch(`priority ${p.label}`, q)).forEach(p => {
+          list.push({
+            id: `t-priority-${p.value}`,
+            group: "Update Priority",
+            icon: <p.icon className={`size-4 ${p.color}`} />,
+            label: p.label,
+            action: () => executeTaskUpdate(task, { priority: p.value }),
+          });
+        });
+
+        members.filter(m => fuzzyMatch(`assign to ${m.name} ${m.email}`, q)).forEach(m => {
+          list.push({
+            id: `t-assign-${m.id}`,
+            group: "Reassign Task",
+            icon: <User className="size-4 text-slate-400" />,
+            label: m.name || m.email.split('@')[0],
+            action: () => executeTaskUpdate(task, { assigneeId: m.id, assigneeName: m.name || m.email }),
           });
         });
       }
 
-      scopeTasks.filter(t => fuzzyMatch(`task edit ${t.title} ${t.status}`, q)).slice(0, 8).forEach(t => {
-        list.push({
-          id: `task-${t.id}`,
-          group: "Manage Specific Tasks",
-          icon: <CheckCircle2 className="size-4 text-slate-400" />,
-          label: t.title,
-          subtitle: `${t.projectName || "No Project"} (${t.status || "todo"})`,
-          action: () => {
-            setView({ type: "task", task: t });
-            setQuery("");
-            setSelectedIndex(0);
-          },
+      if (view.type === "select_task") {
+        scopeTasks.filter(t => fuzzyMatch(t.title, q)).forEach(t => {
+          list.push({
+            id: `apply-${t.id}`,
+            group: `Select a task to apply changes`,
+            icon: <CheckCircle2 className="size-4 text-slate-400" />,
+            label: t.title,
+            subtitle: t.projectName,
+            action: () => executeTaskUpdate(t, view.patch)
+          });
         });
-      });
-    }
+      }
 
-    if (view.type === "task") {
-      const task = view.task;
-
-      STATUSES.filter(s => fuzzyMatch(`status ${s.label}`, q)).forEach(s => {
-        list.push({
-          id: `t-status-${s.value}`,
-          group: "Update Status",
-          icon: <s.icon className={`size-4 ${s.color}`} />,
-          label: s.label,
-          action: () => executeTaskUpdate(task, { status: s.value }),
+      if (view.type === "create") {
+        scopeProjects.filter(p => fuzzyMatch(p.name, q)).forEach(p => {
+          list.push({
+            id: `create-in-${p.id}`,
+            group: "Select Project for new task",
+            icon: <Folder className="size-4 text-indigo-500" />,
+            label: p.name,
+            subtitle: isGlobalMode ? (workspaces.find(w => w.id === p.workspaceId)?.name || "Workspace") : "",
+            action: () => executeTaskCreate(p.id, p.workspaceId, view.title),
+          });
         });
-      });
-
-      PRIORITIES.filter(p => fuzzyMatch(`priority ${p.label}`, q)).forEach(p => {
-        list.push({
-          id: `t-priority-${p.value}`,
-          group: "Update Priority",
-          icon: <p.icon className={`size-4 ${p.color}`} />,
-          label: p.label,
-          action: () => executeTaskUpdate(task, { priority: p.value }),
-        });
-      });
-
-      members.filter(m => fuzzyMatch(`assign to ${m.name} ${m.email}`, q)).forEach(m => {
-        list.push({
-          id: `t-assign-${m.id}`,
-          group: "Reassign Task",
-          icon: <User className="size-4 text-slate-400" />,
-          label: m.name || m.email.split('@')[0],
-          action: () => executeTaskUpdate(task, { assigneeId: m.id, assigneeName: m.name || m.email }),
-        });
-      });
-    }
-
-    if (view.type === "select_task") {
-      scopeTasks.filter(t => fuzzyMatch(t.title, q)).forEach(t => {
-        list.push({
-          id: `apply-${t.id}`,
-          group: `Select a task to apply changes`,
-          icon: <CheckCircle2 className="size-4 text-slate-400" />,
-          label: t.title,
-          subtitle: t.projectName,
-          action: () => executeTaskUpdate(t, view.patch)
-        });
-      });
-    }
-
-    if (view.type === "create") {
-      scopeProjects.filter(p => fuzzyMatch(p.name, q)).forEach(p => {
-        list.push({
-          id: `create-in-${p.id}`,
-          group: "Select Project for new task",
-          icon: <Folder className="size-4 text-indigo-500" />,
-          label: p.name,
-          subtitle: isGlobalMode ? (workspaces.find(w => w.id === p.workspaceId)?.name || "Workspace") : "",
-          action: () => executeTaskCreate(p.id, p.workspaceId, view.title),
-        });
-      });
+      }
     }
 
     return list;
-  }, [query, view, tasks, projects, workspaces, members, currentWorkspaceId, isGlobalMode, router]);
+  }, [query, view, tasks, projects, workspaces, members, currentWorkspaceId, isGlobalMode, isAuthenticated, router]);
 
   const executeTaskUpdate = async (task, patch) => {
     setIsProcessing(true);
@@ -592,7 +643,7 @@ export default function CommandPalette() {
           onPointerUp={handleFabPointerUp}
           onPointerCancel={handleFabPointerUp}
           title="Open Command Palette"
-          className={`fixed bottom-6 right-6 z-[90] flex items-center justify-center gap-2 rounded-full border border-slate-200/80 bg-white/90 p-3 text-xs font-bold uppercase tracking-widest text-slate-500 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-md transition-all hover:scale-105 hover:bg-white hover:text-slate-700 hover:shadow-[0_8px_30px_rgb(0,0,0,0.16)] sm:bottom-8 sm:right-8 sm:px-4 sm:py-2.5 dark:border-white/20 dark:bg-slate-900/80 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 ${isDraggingFab ? "cursor-grabbing select-none" : "cursor-grab"}`}
+          className={`fixed bottom-6 right-6 z-[90] flex items-center justify-center gap-2 rounded-full border border-slate-300/80 bg-white/90 p-3 text-xs font-bold uppercase tracking-widest text-slate-500 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-md transition-all hover:scale-105 hover:bg-white hover:text-slate-700 hover:shadow-[0_8px_30px_rgb(0,0,0,0.16)] sm:bottom-8 sm:right-8 sm:px-4 sm:py-2.5 dark:border-white/20 dark:bg-slate-900/80 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 ${isDraggingFab ? "cursor-grabbing select-none" : "cursor-grab"}`}
           style={(() => {
             const drag = dragStateRef.current;
             if (drag) {
@@ -635,10 +686,10 @@ export default function CommandPalette() {
           />
 
           {/* Modal */}
-          <div className="relative w-full max-w-[640px] transform overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl transition-all dark:border-white/10 dark:bg-[#0B0F19] mx-4 flex flex-col max-h-[65vh]">
+          <div className="relative w-full max-w-[640px] transform overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-2xl transition-all dark:border-white/10 dark:bg-[#0B0F19] mx-4 flex flex-col max-h-[65vh]">
             
             {/* Input Area */}
-            <div className="flex items-center border-b border-slate-200 px-4 py-4 dark:border-white/10">
+            <div className="flex items-center border-b border-slate-300 px-4 py-4 dark:border-white/10">
               
               {/* Breadcrumbs for Sub-menus */}
               {view.type !== "root" ? (
@@ -666,10 +717,11 @@ export default function CommandPalette() {
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleInputKeyDown}
                 placeholder={
-                  view.type === "root" ? "Search commands, tasks, or projects..." :
-                  view.type === "task" ? "Type status, priority, or name..." :
-                  view.type === "select_task" ? "Search for task to apply..." :
-                  "Search project..."
+                  view.type === "root" 
+                    ? (isAuthenticated ? "Search commands, tasks, or projects..." : "Search pages...") 
+                    : view.type === "task" ? "Type status, priority, or name..." 
+                    : view.type === "select_task" ? "Search for task to apply..." 
+                    : "Search project..."
                 }
                 className="ml-2 flex-1 bg-transparent text-[17px] text-slate-900 placeholder-slate-400 outline-none dark:text-slate-100 min-w-0"
                 disabled={isProcessing}
@@ -691,7 +743,7 @@ export default function CommandPalette() {
             <div className="flex-1 overflow-y-auto p-2 scroll-smooth">
               {commands.length === 0 ? (
                 <div className="py-14 text-center text-sm text-slate-500 dark:text-slate-400">
-                  No results found for "{query}"
+                  No results found for &quot;{query}&quot;
                 </div>
               ) : (
                 Object.entries(groupedCommands).map(([group, items]) => (
@@ -732,7 +784,7 @@ export default function CommandPalette() {
                             </div>
                             {isSelected && (
                               <span className="flex shrink-0 items-center gap-1 text-[11px] font-semibold text-indigo-500 dark:text-indigo-400">
-                                {view.type === "root" && !cmd.id.includes("nav") && !cmd.id.includes("proj") && !cmd.id.includes("ws") ? (
+                                {view.type === "root" && !cmd.id.includes("nav") && !cmd.id.includes("proj") && !cmd.id.includes("ws") && !cmd.id.includes("public") ? (
                                    <>Select <CornerDownLeft className="size-3 ml-0.5" /></>
                                 ) : (
                                    <>Execute <CornerDownLeft className="size-3 ml-0.5" /></>
@@ -749,22 +801,22 @@ export default function CommandPalette() {
             </div>
             
             {/* Footer */}
-            <div className="hidden sm:flex shrink-0 items-center justify-between border-t border-slate-200 bg-slate-50/50 px-4 py-3 text-[11px] text-slate-500 dark:border-white/10 dark:bg-[#050505]/50 dark:text-slate-400">
+            <div className="hidden sm:flex shrink-0 items-center justify-between border-t border-slate-300 bg-slate-50/50 px-4 py-3 text-[11px] text-slate-500 dark:border-white/10 dark:bg-[#050505]/50 dark:text-slate-400">
               <div className="flex items-center gap-4">
                  <div className="flex items-center gap-1.5">
                    <div className="flex items-center gap-0.5">
-                     <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1 font-sans dark:border-white/10 dark:bg-slate-800 shadow-sm">↑</kbd>
-                     <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1 font-sans dark:border-white/10 dark:bg-slate-800 shadow-sm">↓</kbd>
+                     <kbd className="flex h-5 items-center justify-center rounded border border-slate-300 bg-white px-1 font-sans dark:border-white/10 dark:bg-slate-800 shadow-sm">↑</kbd>
+                     <kbd className="flex h-5 items-center justify-center rounded border border-slate-300 bg-white px-1 font-sans dark:border-white/10 dark:bg-slate-800 shadow-sm">↓</kbd>
                    </div>
                    <span>Navigate</span>
                  </div>
                  <div className="flex items-center gap-1.5">
-                   <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1.5 font-sans font-medium dark:border-white/10 dark:bg-slate-800 shadow-sm">↵</kbd>
+                   <kbd className="flex h-5 items-center justify-center rounded border border-slate-300 bg-white px-1.5 font-sans font-medium dark:border-white/10 dark:bg-slate-800 shadow-sm">↵</kbd>
                    <span>Select</span>
                  </div>
                  {view.type !== "root" && (
                     <div className="flex items-center gap-1.5">
-                      <kbd className="flex h-5 items-center justify-center rounded border border-slate-200 bg-white px-1.5 font-sans font-medium dark:border-white/10 dark:bg-slate-800 shadow-sm">Backspace</kbd>
+                      <kbd className="flex h-5 items-center justify-center rounded border border-slate-300 bg-white px-1.5 font-sans font-medium dark:border-white/10 dark:bg-slate-800 shadow-sm">Backspace</kbd>
                       <span>Go back</span>
                     </div>
                  )}

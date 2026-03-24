@@ -8,15 +8,15 @@ const AUTO_SLIDE_MS = 4000;
 
 function SkeletonCard() {
     return (
-        <div className="animate-pulse rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0B0f19] p-6">
-            <div className="mb-3 h-4 w-3/4 rounded bg-gray-200 dark:bg-gray-700" />
-            <div className="mb-2 h-3 w-full rounded bg-gray-200 dark:bg-gray-700" />
-            <div className="mb-2 h-3 w-5/6 rounded bg-gray-200 dark:bg-gray-700" />
+        <div className="animate-pulse rounded-xl border border-border bg-white dark:bg-[#0B0f19] p-6">
+            <div className="mb-3 h-4 w-3/4 rounded bg-muted dark:bg-surface" />
+            <div className="mb-2 h-3 w-full rounded bg-muted dark:bg-surface" />
+            <div className="mb-2 h-3 w-5/6 rounded bg-muted dark:bg-surface" />
             <div className="mt-6 flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700" />
+                <div className="h-10 w-10 rounded-full bg-muted dark:bg-surface" />
                 <div className="flex-1">
-                    <div className="mb-2 h-3 w-1/2 rounded bg-gray-200 dark:bg-gray-700" />
-                    <div className="h-3 w-1/3 rounded bg-gray-200 dark:bg-gray-700" />
+                    <div className="mb-2 h-3 w-1/2 rounded bg-muted dark:bg-surface" />
+                    <div className="h-3 w-1/3 rounded bg-muted dark:bg-surface" />
                 </div>
             </div>
         </div>
@@ -25,17 +25,17 @@ function SkeletonCard() {
 
 function TestimonialCard({ t }) {
     return (
-        <div className="h-full rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#111A2E] p-6 shadow-sm">
-            <p className="text-sm text-gray-700 dark:text-gray-300">“{t.quote}”</p>
+        <div className="h-full rounded-xl border border-border bg-card p-6 shadow-sm">
+            <p className="text-sm text-foreground">“{t.quote}”</p>
             <div className="mt-6 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-300 dark:border-gray-700 text-sm font-semibold text-gray-700 dark:text-gray-200">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full border border-border text-sm font-semibold text-foreground">
                     {t.avatar || t.name?.[0]}
                 </div>
                 <div>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                    <p className="text-sm font-semibold text-foreground">
                         {t.name}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-muted-foreground">
                         {t.role} · {t.company}
                     </p>
                 </div>
@@ -100,10 +100,10 @@ export default function Testimonials() {
     return (
         <section className="bg-white py-20 dark:bg-[#0B0f19]">
             <div className="mx-auto max-w-7xl px-6">
-                <h2 className="text-center text-3xl md:text-5xl font-bold text-gray-900 dark:text-gray-100">
+                <h2 className="text-center text-3xl md:text-5xl font-bold text-foreground">
                     Loved by modern teams
                 </h2>
-                <p className="mt-3 text-center text-gray-600 dark:text-gray-400">
+                <p className="mt-3 text-center text-muted-foreground">
                     Real feedback from developers, managers, and product teams
                 </p>
 

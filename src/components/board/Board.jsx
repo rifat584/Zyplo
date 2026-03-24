@@ -10,14 +10,91 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { RefreshCw, Plus } from "lucide-react";
-import Swal from "sweetalert2";
+import { RefreshCw, Plus, Filter } from "lucide-react";
 import { toast } from "sonner";
 import { loadDashboard } from "@/components/dashboard/mockStore";
+import TaskDeleteDialog from "@/components/dashboard/taskDeleteDialog";
+import { Button } from "@/components/ui/button";
+import {
+  findColumnByStatus,
+  getStatusFromColumnName,
+  getTaskStatusLabel,
+  normalizeStatusKey,
+} from "@/components/dashboard/taskStatus";
 import Column from "./Column";
 import TaskCard from "./TaskCard";
 import CreateTaskModal from "./CreateTaskModal";
 import TaskDetailsModal from "./TaskDetailsModal";
+
+const toolbarFieldClasses =
+  "h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 md:w-auto";
+const toolbarSecondaryButtonClasses =
+  "inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60 md:w-auto";
+const toolbarPopoverClasses =
+  "absolute right-0 top-11 z-50 w-[min(20rem,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] space-y-3 rounded-xl border border-border bg-popover p-3 text-popover-foreground shadow-xl";
+
+// --- SMART BOARD SKELETON ---
+export function BoardSkeleton() {
+  const columnTaskCounts = [3, 2, 4, 1]; // Creates a staggered, natural look
+
+  return (
+    <div className="animate-pulse space-y-4">
+      {/* Filter Bar Skeleton */}
+      <section className="mb-4 rounded-2xl border border-border bg-card">
+        <div className="flex flex-col gap-2 p-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center lg:min-w-0 lg:flex-1 lg:flex-nowrap">
+            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-42.5 md:shrink-0"></div>
+            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-32 lg:w-27 xl:w-32"></div>
+            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-28 lg:w-[6rem] xl:w-28"></div>
+            <div className="h-10 w-full rounded-lg bg-muted/80 md:w-36 lg:w-[7.25rem] xl:w-36"></div>
+            <div className="h-10 w-full rounded-lg bg-muted/80 sm:w-36"></div>
+          </div>
+          <div className="h-10 w-full rounded-lg bg-muted/80 sm:w-32 lg:shrink-0"></div>
+        </div>
+      </section>
+
+      {/* Columns & Tasks Skeleton */}
+      <section className="flex gap-3 overflow-x-hidden pb-2">
+        {columnTaskCounts.map((taskCount, colIndex) => (
+          <div
+            key={colIndex}
+            className="flex h-fit w-80 shrink-0 flex-col rounded-2xl border border-border bg-muted/40 p-3"
+          >
+            {/* Column Header */}
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="h-5 w-5 rounded-full bg-muted"></div>
+                <div className="h-5 w-24 rounded bg-muted"></div>
+              </div>
+              <div className="h-5 w-8 rounded-full bg-muted"></div>
+            </div>
+
+            {/* Task Cards */}
+            <div className="flex flex-col gap-2">
+              {Array.from({ length: taskCount }).map((_, taskIndex) => (
+                <div
+                  key={taskIndex}
+                  className="rounded-xl border border-border bg-card p-3 shadow-sm"
+                >
+                  <div className="mb-2 flex items-start justify-between">
+                    <div className="h-4 w-3/4 rounded bg-muted"></div>
+                    <div className="h-4 w-4 rounded bg-muted"></div>
+                  </div>
+                  <div className="mb-4 h-3 w-1/2 rounded bg-muted"></div>
+                  <div className="flex items-center justify-between">
+                    <div className="h-5 w-16 rounded bg-muted"></div>
+                    <div className="h-6 w-6 rounded-full border-2 border-card bg-muted"></div>
+                    <div className="h-6 w-6 rounded-full border-2 border-card bg-muted"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
+    </div>
+  );
+}
 
 function sortColumns(columns = []) {
   return [...columns].sort(
@@ -29,34 +106,16 @@ function sortTasks(tasks = []) {
   return [...tasks].sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
 }
 
-function getStatusFromColumnName(columnName, fallback = "") {
-  const normalized = String(columnName || "")
-    .toLowerCase()
-    .replace(/[^a-z]/g, "");
-
-  if (normalized === "todo" || normalized === "backlog") return "todo";
-  if (normalized === "inprogress" || normalized === "doing")
-    return "inprogress";
-  if (normalized === "inreview" || normalized === "review") return "inreview";
-  if (normalized === "done" || normalized === "completed") return "done";
-  return fallback;
-}
-
-function normalizeStatusKey(value) {
-  return String(value || "")
-    .toLowerCase()
-    .replace(/[^a-z]/g, "");
-}
-
-function findColumnByStatus(columns = [], status = "") {
-  const target = normalizeStatusKey(status);
-  if (!target) return null;
-  return (
-    columns.find(
-      (column) =>
-        normalizeStatusKey(getStatusFromColumnName(column.name, "")) === target,
-    ) || null
-  );
+function toDateKey(value) {
+  if (!value) return "";
+  const raw = String(value).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(raw)) return raw.slice(0, 10);
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }
 
 function normalizeColumns(columns = []) {
@@ -205,6 +264,18 @@ export default function Board({ workspaceId, projectId }) {
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedColumnId, setSelectedColumnId] = useState("");
   const [selectedTaskId, setSelectedTaskId] = useState("");
+  const [pendingDeleteTask, setPendingDeleteTask] = useState(null);
+  const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
+  const [columnFilters, setColumnFilters] = useState({
+    taskName: "",
+    status: "all",
+    priority: "all",
+    assigneeId: "all",
+    reporter: "",
+    updatedAt: "",
+    createdAt: "",
+    dueDate: "",
+  });
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -215,6 +286,11 @@ export default function Board({ workspaceId, projectId }) {
   const boardQuery = useQuery({
     queryKey: boardQueryKey,
     queryFn: async () => {
+      
+      // 🛑 ADD THIS LINE TEMPORARILY TO TEST THE SKELETON
+      // using for better skeleton
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      
       const data = await fetchJson(`/api/dashboard/boards/${projectId}`);
       return normalizeBoardResponse(data);
     },
@@ -225,7 +301,12 @@ export default function Board({ workspaceId, projectId }) {
 
   const membersQuery = useQuery({
     queryKey: ["dashboard-workspace-members", workspaceId],
-    queryFn: () => fetchJson("/api/dashboard/bootstrap"),
+    queryFn: () => 
+      fetchJson("/api/dashboard/bootstrap", {
+        headers: {
+          "x-silent-fetch": "true" // <--- This hides it from the Global Loader!
+        }
+      }),
     select: (data) =>
       data?.workspaces?.find((workspace) => workspace.id === workspaceId)
         ?.members || [],
@@ -388,6 +469,61 @@ export default function Board({ workspaceId, projectId }) {
 
   const boardData = boardQuery.data || { board: null, columns: [] };
   const columns = boardData.columns || [];
+  const filteredColumns = useMemo(() => {
+    return columns.map((column) => ({
+      ...column,
+      tasks: (column.tasks || []).filter((task) => {
+        const byTaskName = columnFilters.taskName
+          ? String(task.title || "")
+              .toLowerCase()
+              .includes(columnFilters.taskName.toLowerCase())
+          : true;
+        if (!byTaskName) return false;
+
+        const byStatus =
+          columnFilters.status === "all"
+            ? true
+            : normalizeStatusKey(task.status || "todo") ===
+              normalizeStatusKey(columnFilters.status);
+        if (!byStatus) return false;
+
+        const byPriority =
+          columnFilters.priority === "all"
+            ? true
+            : String(task.priority || "") === columnFilters.priority;
+        if (!byPriority) return false;
+
+        const byAssignee =
+          columnFilters.assigneeId === "all"
+            ? true
+            : String(task.assigneeId || "") === columnFilters.assigneeId;
+        if (!byAssignee) return false;
+
+        const byReporter = columnFilters.reporter
+          ? String(task.reporterName || "Unknown")
+              .toLowerCase()
+              .includes(columnFilters.reporter.toLowerCase())
+          : true;
+        if (!byReporter) return false;
+
+        const byUpdatedAt = columnFilters.updatedAt
+          ? toDateKey(task.updatedAt) === columnFilters.updatedAt
+          : true;
+        if (!byUpdatedAt) return false;
+
+        const byCreatedAt = columnFilters.createdAt
+          ? toDateKey(task.createdAt) === columnFilters.createdAt
+          : true;
+        if (!byCreatedAt) return false;
+
+        const byDueDate = columnFilters.dueDate
+          ? toDateKey(task.dueDate) === columnFilters.dueDate
+          : true;
+
+        return byDueDate;
+      }),
+    }));
+  }, [columns, columnFilters]);
   const selectedColumn =
     columns.find((column) => column.id === selectedColumnId) ||
     columns[0] ||
@@ -413,6 +549,7 @@ export default function Board({ workspaceId, projectId }) {
 
   function closeTaskDetails() {
     if (updateTaskMutation.isPending) return;
+    setPendingDeleteTask(null);
     setSelectedTaskId("");
   }
 
@@ -420,20 +557,29 @@ export default function Board({ workspaceId, projectId }) {
     if (!selectedColumn) return;
     const boardId = boardData?.board?.id;
     if (!boardId) return;
+    const nextStatus = values.status || "todo";
+    const destinationColumn = findColumnByStatus(columns, nextStatus);
+
+    if (!destinationColumn?.id) {
+      toast.error(
+        `This board does not have an ${getTaskStatusLabel(nextStatus)} column.`,
+      );
+      return;
+    }
 
     createTaskMutation.mutate({
       workspaceId,
       projectId,
       boardId,
-      columnId: selectedColumn.id,
+      columnId: destinationColumn.id,
       title: values.title,
       description: values.description || "",
       assigneeId: values.assigneeId || "",
       dueDate: values.dueDate || "",
       priority: values.priority || "P2",
-      status: getStatusFromColumnName(selectedColumn.name, "todo") || "todo",
-      estimatedTime: values.estimatedTime || 0,
-      attachments: values.attachments || [], // <--- FIXED: Sent attachments!
+      status: nextStatus,
+      status: nextStatus,
+      attachments: values.attachments || [],
     });
   }
 
@@ -577,39 +723,28 @@ export default function Board({ workspaceId, projectId }) {
         assigneeId: values.assigneeId,
         assigneeName,
         estimatedTime: values.estimatedTime,
-        attachments: values.attachments || [], // <--- FIXED: Sent attachments!
+        attachments: values.attachments || [],
       },
     });
   }
 
-  async function handleTaskDelete() {
+  function handleTaskDeleteRequest() {
     if (!selectedTask?.id || deleteTaskMutation.isPending) return;
-    const result = await Swal.fire({
-      title: "Delete task?",
-      text: `Delete "${selectedTask.title || "Untitled Task"}"?`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, delete",
-      cancelButtonText: "Cancel",
-      reverseButtons: true,
-      background: "#0f172a",
-      color: "#e2e8f0",
-      confirmButtonColor: "#dc2626",
-      cancelButtonColor: "#334155",
+    setPendingDeleteTask({
+      id: String(selectedTask.id),
+      title: selectedTask.title || "",
     });
-    if (!result.isConfirmed) return;
-
-    deleteTaskMutation.mutate(selectedTask.id);
   }
 
+  function handleTaskDeleteConfirm() {
+    if (!pendingDeleteTask?.id || deleteTaskMutation.isPending) return;
+    const taskId = pendingDeleteTask.id;
+    setPendingDeleteTask(null);
+    deleteTaskMutation.mutate(taskId);
+  }
+  // --- SHOW SKELETON ON LOAD ---
   if (boardQuery.isLoading) {
-    return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900">
-        <p className="text-sm text-slate-600 dark:text-slate-300">
-          Loading board...
-        </p>
-      </div>
-    );
+    return <BoardSkeleton />;
   }
 
   if (boardQuery.isError) {
@@ -632,25 +767,176 @@ export default function Board({ workspaceId, projectId }) {
 
   return (
     <>
-      <section className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
-            Project Board
-          </p>
-          <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-            {boardData?.board?.name || "Kanban Board"}
-          </h1>
-        </div>
+      <section className="mb-4 rounded-2xl border border-border bg-card">
+        <div className="flex flex-col gap-2 p-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center lg:min-w-0 lg:flex-1 lg:flex-nowrap">
+            <input
+              type="text"
+              value={columnFilters.taskName}
+              onChange={(event) =>
+                setColumnFilters((prev) => ({
+                  ...prev,
+                  taskName: event.target.value,
+                }))
+              }
+              placeholder="Task Name"
+              className={`${toolbarFieldClasses} w-full md:w-42.5 md:shrink-0`}
+            />
 
-        <button
-          type="button"
-          onClick={() => openCreateModal(columns[0]?.id || "")}
-          disabled={!columns.length}
-          className="inline-flex items-center gap-2 rounded-lg bg-indigo-500 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-600 disabled:opacity-50"
-        >
-          <Plus className="size-4" />
-          Create Task
-        </button>
+            <select
+              value={columnFilters.status}
+              onChange={(event) =>
+                setColumnFilters((prev) => ({
+                  ...prev,
+                  status: event.target.value,
+                }))
+              }
+              className={`${toolbarFieldClasses} w-full md:w-32 lg:w-27 xl:w-32`}
+            >
+              <option value="all">Status</option>
+              <option value="todo">To Do</option>
+              <option value="inprogress">In Progress</option>
+              <option value="inreview">In Review</option>
+              <option value="done">Done</option>
+            </select>
+
+            <select
+              value={columnFilters.priority}
+              onChange={(event) =>
+                setColumnFilters((prev) => ({
+                  ...prev,
+                  priority: event.target.value,
+                }))
+              }
+              className={`${toolbarFieldClasses} w-full md:w-28 lg:w-[6rem] xl:w-28`}
+            >
+              <option value="all">Priority</option>
+              <option value="P0">P0</option>
+              <option value="P1">P1</option>
+              <option value="P2">P2</option>
+              <option value="P3">P3</option>
+            </select>
+
+            <select
+              value={columnFilters.assigneeId}
+              onChange={(event) =>
+                setColumnFilters((prev) => ({
+                  ...prev,
+                  assigneeId: event.target.value,
+                }))
+              }
+              className={`${toolbarFieldClasses} w-full md:w-36 lg:w-[7.25rem] xl:w-36`}
+            >
+              <option value="all">Assignee</option>
+              {(membersQuery.data || []).map((member) => (
+                <option key={member.id} value={member.id}>
+                  {member.name || member.email || "Member"}
+                </option>
+              ))}
+            </select>
+
+            <div className="relative w-full sm:w-auto md:shrink-0">
+              <button
+                type="button"
+                onClick={() => setMoreFiltersOpen((prev) => !prev)}
+                className={toolbarSecondaryButtonClasses}
+              >
+                <Filter className="size-4" />
+                More filters
+              </button>
+
+              {moreFiltersOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setMoreFiltersOpen(false)}
+                  />
+                  <div className={toolbarPopoverClasses}>
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-muted-foreground">
+                        Reporter
+                      </label>
+                      <input
+                        type="text"
+                        value={columnFilters.reporter}
+                        onChange={(event) =>
+                          setColumnFilters((prev) => ({
+                            ...prev,
+                            reporter: event.target.value,
+                          }))
+                        }
+                        placeholder="Filter by reporter"
+                        className={`${toolbarFieldClasses} h-9 w-full md:w-full`}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-muted-foreground">
+                        Updated At
+                      </label>
+                      <input
+                        type="date"
+                        value={columnFilters.updatedAt}
+                        onChange={(event) =>
+                          setColumnFilters((prev) => ({
+                            ...prev,
+                            updatedAt: event.target.value,
+                          }))
+                        }
+                        className={`${toolbarFieldClasses} h-9 w-full md:w-full`}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-muted-foreground">
+                        Created At
+                      </label>
+                      <input
+                        type="date"
+                        value={columnFilters.createdAt}
+                        onChange={(event) =>
+                          setColumnFilters((prev) => ({
+                            ...prev,
+                            createdAt: event.target.value,
+                          }))
+                        }
+                        className={`${toolbarFieldClasses} h-9 w-full md:w-full`}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-muted-foreground">
+                        Due Date
+                      </label>
+                      <input
+                        type="date"
+                        value={columnFilters.dueDate}
+                        onChange={(event) =>
+                          setColumnFilters((prev) => ({
+                            ...prev,
+                            dueDate: event.target.value,
+                          }))
+                        }
+                        className={`${toolbarFieldClasses} h-9 w-full md:w-full`}
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            size="sm"
+            onClick={() => openCreateModal(columns[0]?.id || "")}
+            disabled={!columns.length}
+            className="w-full shadow-none hover:scale-100 hover:bg-primary/90 hover:shadow-none sm:w-auto lg:shrink-0"
+          >
+            <Plus className="size-4" />
+            Create Task
+          </Button>
+        </div>
       </section>
 
       <DndContext
@@ -662,7 +948,7 @@ export default function Board({ workspaceId, projectId }) {
       >
         <section className="overflow-x-auto pb-2">
           <div className="flex min-w-full gap-3">
-            {columns.map((column) => (
+            {filteredColumns.map((column) => (
               <Column
                 key={column.id}
                 column={column}
@@ -696,7 +982,9 @@ export default function Board({ workspaceId, projectId }) {
         onClose={() => setCreateOpen(false)}
         onSubmit={handleCreateTask}
         members={membersQuery.data || []}
-        columnName={selectedColumn?.name || ""}
+        defaultStatus={
+          getStatusFromColumnName(selectedColumn?.name, "todo") || "todo"
+        }
         submitting={createTaskMutation.isPending}
       />
 
@@ -708,7 +996,18 @@ export default function Board({ workspaceId, projectId }) {
         deleting={deleteTaskMutation.isPending}
         onClose={closeTaskDetails}
         onSubmit={handleTaskUpdate}
-        onDelete={handleTaskDelete}
+        onDelete={handleTaskDeleteRequest}
+      />
+
+      <TaskDeleteDialog
+        open={Boolean(pendingDeleteTask)}
+        taskTitle={pendingDeleteTask?.title}
+        busy={deleteTaskMutation.isPending}
+        onClose={() => {
+          if (deleteTaskMutation.isPending) return;
+          setPendingDeleteTask(null);
+        }}
+        onConfirm={handleTaskDeleteConfirm}
       />
     </>
   );

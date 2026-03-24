@@ -100,22 +100,22 @@ function LoginForm() {
       return;
     }
 
-    window.location.href = result?.url || callbackUrl;
+    window.location.assign(result?.url || callbackUrl);
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5">
       {serverError && (
-        <p className="text-xs text-red-500 text-center">{serverError}</p>
+        <p className="text-xs text-destructive text-center">{serverError}</p>
       )}
       {lockUntil && (
-        <p className="text-xs text-red-500 text-center">
+        <p className="text-xs text-destructive text-center">
           {" "}
           Try again in {remainingTime} seconds.
         </p>
       )}{" "}
       <div className="space-y-1.5">
-        <Label htmlFor="email" className="text-slate-700 dark:text-slate-200">
+        <Label htmlFor="email" className="text-foreground">
           Email
         </Label>
         <Input
@@ -125,7 +125,7 @@ function LoginForm() {
           {...register("email")}
         />
         {errors.email ? (
-          <p className="text-xs text-red-500">{errors.email.message}</p>
+          <p className="text-xs text-destructive">{errors.email.message}</p>
         ) : null}
       </div>
       <PasswordField
@@ -138,14 +138,14 @@ function LoginForm() {
       <div className="flex items-center justify-between gap-3">
         <Label
           htmlFor="remember"
-          className="inline-flex cursor-pointer items-center gap-2 text-slate-600 dark:text-slate-300"
+          className="inline-flex cursor-pointer items-center gap-2 text-muted-foreground"
         >
           <Checkbox id="remember" className="cursor-pointer" {...register("remember")} />
           Remember me
         </Label>
         <Link
           href="/forgot-password"
-          className="cursor-pointer text-sm text-cyan-600 transition-colors hover:text-cyan-700 dark:text-cyan-300 dark:hover:text-cyan-200"
+          className="cursor-pointer text-sm text-secondary transition-colors hover:text-secondary dark:text-secondary dark:hover:text-secondary"
         >
           Forgot password?
         </Link>
@@ -161,11 +161,11 @@ function LoginForm() {
             ? "Signing in..."
             : "Sign in"}
       </Button>
-      <p className="text-center text-sm text-slate-600 dark:text-slate-300">
+      <p className="text-center text-sm text-muted-foreground">
         New to Zyplo?{" "}
         <Link
           href={`/register?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-          className="cursor-pointer text-cyan-600 transition-colors hover:text-cyan-700 dark:text-cyan-300 dark:hover:text-cyan-200"
+          className="cursor-pointer text-secondary transition-colors hover:text-secondary dark:text-secondary dark:hover:text-secondary"
         >
           Create an account
         </Link>

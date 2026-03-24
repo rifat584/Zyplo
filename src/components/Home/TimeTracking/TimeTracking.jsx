@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Download, Play, Square } from "lucide-react";
+import { Play, Square, Clock, FileText } from "lucide-react";
 
 // --- Configuration Data ---
 const timeTrackingData = {
@@ -238,20 +238,40 @@ export default function TimeTracking() {
               </div>
             </motion.div>
 
-            {/* === 4. Export Card (Bottom Right) === */}
+            {/* === 4. Feature Information Card (Bottom Right, Replaced Export) === */}
             <motion.div
               variants={cardVariants}
-              className="col-span-1 lg:col-span-2 flex flex-col justify-between rounded-3xl border border-white/60 bg-white/60 p-6 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-white/5 sm:flex-row sm:items-center"
+              className="col-span-1 lg:col-span-2 flex flex-col justify-center rounded-3xl border border-white/60 bg-white/60 p-6 sm:p-8 shadow-sm backdrop-blur-xl dark:border-white/10 dark:bg-white/5"
             >
-              <div className="mb-4 sm:mb-0">
-                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Worklog export</p>
-                <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-200">
-                  CSV ready for sprint review and client invoicing.
-                </p>
+              <p className="mb-5 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                Built-in Productivity
+              </p>
+              
+              <div className="grid grid-cols-1 gap-6 sm:gap-8 sm:grid-cols-2">
+                <div className="flex flex-col gap-2.5">
+                  <div className="flex items-center gap-2.5 text-sm font-bold text-gray-900 dark:text-white">
+                     <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400">
+                       <Clock size={14} strokeWidth={2.5} />
+                     </div>
+                     Global Timer Access
+                  </div>
+                  <p className="text-sm leading-relaxed font-medium text-gray-600 dark:text-gray-400">
+                    Start, stop, or pause your timer from anywhere in the app using the command palette or sticky navbar. Say goodbye to context switching.
+                  </p>
+                </div>
+                
+                <div className="flex flex-col gap-2.5">
+                  <div className="flex items-center gap-2.5 text-sm font-bold text-gray-900 dark:text-white">
+                     <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400">
+                       <FileText size={14} strokeWidth={2.5} />
+                     </div>
+                     Automated Timesheets
+                  </div>
+                  <p className="text-sm leading-relaxed font-medium text-gray-600 dark:text-gray-400">
+                    Every tracked minute is instantly synced to your task, automatically generating accurate daily and weekly reports for invoicing and sprint reviews.
+                  </p>
+                </div>
               </div>
-              <button className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 shadow-sm transition-all hover:scale-105 hover:border-gray-300 hover:bg-gray-50 dark:border-white/10 dark:bg-white/5 dark:text-gray-200 dark:hover:bg-white/10">
-                <Download size={16} /> Export CSV
-              </button>
             </motion.div>
 
           </motion.div>

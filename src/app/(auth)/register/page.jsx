@@ -1,12 +1,13 @@
 import { Suspense } from "react";
 import { AuthCard, BackToHomeLink, RegisterForm, SocialButtons } from "@/components/auth";
+import ZyploLoader from "@/components/Shared/Loader/ZyploLoader";
 
 function RegisterPage() {
   return (
     <AuthCard title="Create your account" subtitle="Start organizing work with Zyplo.">
       <BackToHomeLink />
       
-      <Suspense fallback={<div className="p-4 text-center text-sm text-slate-500">Loading...</div>}>
+      <Suspense fallback={<ZyploLoader className="py-8" />}>
         <SocialButtons />
         <RegisterForm />
       </Suspense>

@@ -16,7 +16,7 @@ const headline = ["Plan faster.", "Ship better."];
 
 export default function Hero() {
   return (
-    <section className="relative z-10 overflow-hidden py-6 sm:py-8 bg-white dark:bg-[#0B0F19]">
+    <section className="relative z-10 overflow-hidden py-6 sm:py-8 bg-background">
       {/* Background gradient */}
       <div className="absolute inset-0 -z-10 bg-secondary/15 dark:bg-secondary/10" />
 
@@ -39,20 +39,20 @@ export default function Hero() {
               hidden: { opacity: 0, y: 8 },
               show: { opacity: 1, y: 0 },
             }}
-            className="inline-block mb-4 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-sm text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950/40 dark:text-indigo-300"
+            className="inline-block mb-4 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-sm text-primary "
           >
             Built for modern dev teams
           </motion.span>
 
           <motion.h1
             className="text-4xl font-heading font-bold tracking-tight sm:text-5xl lg:text-6xl
-             text-gray-900 dark:text-gray-100"
+             text-foreground"
           >
             {headline.map((line, i) => (
               <motion.span
                 key={i}
                 className={`block ${i === 1
-                  ? "text-transparent bg-clip-text bg-size-[200%_200%] bg-linear-to-r from-indigo-400 via-cyan-300 to-indigo-400"
+                  ? "text-transparent bg-clip-text bg-size-[200%_200%] bg-linear-to-r from-primary via-secondary to-primary"
                   : ""
                   }`}
                 animate={
@@ -76,7 +76,7 @@ export default function Hero() {
               hidden: { opacity: 0, y: 12 },
               show: { opacity: 1, y: 0 },
             }}
-            className="mt-5 max-w-xl text-lg text-gray-600 dark:text-gray-400"
+            className="mt-5 max-w-xl text-lg text-muted-foreground"
           >
             Zyplo is a developer-focused project management tool with Kanban
             boards, smart priorities, and lightning-fast navigation for teams
@@ -93,9 +93,9 @@ export default function Hero() {
             {features.map((item) => (
               <p
                 key={item}
-                className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300 "
+                className="flex items-start gap-2 text-sm text-muted-foreground "
               >
-                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" />
                 {item}
               </p>
             ))}
@@ -115,7 +115,7 @@ export default function Hero() {
               href="/register"
               className="inline-flex items-center justify-center 
               px-6 py-3 rounded-lg font-semibold text-white
-              bg-linear-to-br from-indigo-500 to-cyan-400
+              bg-linear-to-br from-primary to-secondary
               shadow-lg shadow-indigo-500/20
               transition-all duration-300
               hover:scale-[1.03] hover:shadow-indigo-500/40
@@ -128,7 +128,7 @@ export default function Hero() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
               href="/demo"
-              className="inline-flex items-center justify-center rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-900 hover:bg-gray-100 dark:border-gray-700 dark:text-primary dark:hover:bg-surface"
+              className="inline-flex items-center justify-center rounded-lg border border-border px-6 py-3 font-medium text-foreground hover:bg-accent"
             >
               View demo
             </motion.a>

@@ -127,7 +127,7 @@ export default function CommandPaletteSection() {
     }, []);
 
     return (
-        <section className="relative overflow-hidden py-24 bg-white dark:bg-[#0B0F19]">
+        <section className="relative overflow-hidden py-24 bg-background">
             {/* Distinct background: grid + spotlight with parallax */}
             <div className="pointer-events-none absolute inset-0 -z-10">
                 <motion.div
@@ -148,19 +148,19 @@ export default function CommandPaletteSection() {
                             <Command className="h-4 w-4" />
                             Command Palette
                         </span>
-                        <h2 className="mt-4 text-3xl font-heading font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+                        <h2 className="mt-4 text-3xl font-heading font-bold tracking-tight text-foreground sm:text-5xl">
   Work at the{" "}
-  <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-cyan-500">
+  <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-secondary">
     speed of thought
   </span>
 </h2>
-                        <p className="mt-3 max-w-2xl text-gray-600 dark:text-gray-400">
+                        <p className="mt-3 max-w-2xl text-muted-foreground">
                             Search, create, assign, and move work without touching the mouse.
                             The command palette keeps you in flow—always.
                         </p>
                     </div>
                     <div className="mt-4 md:mt-0">
-                        <span className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">
+                        <span className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm text-foreground dark:border-border dark:text-muted-foreground">
                             Press <kbd className="rounded border px-2 py-0.5 text-xs">Ctrl</kbd> +
                             <kbd className="rounded border px-2 py-0.5 text-xs">K</kbd>
                         </span>
@@ -185,10 +185,10 @@ export default function CommandPaletteSection() {
                                     <span className="absolute left-0 top-1.5 inline-flex h-7 w-7 items-center justify-center rounded-full border border-secondary/40 bg-secondary/10 text-secondary">
                                         {r.icon}
                                     </span>
-                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                                    <h3 className="text-lg font-semibold text-foreground">
                                         {r.title}
                                     </h3>
-                                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                    <p className="mt-1 text-sm text-muted-foreground">
                                         {r.desc}
                                     </p>
                                 </motion.div>
@@ -204,7 +204,7 @@ export default function CommandPaletteSection() {
                         >
                             <a
                                 href="/resources/guide"
-                                className="inline-flex items-center gap-2 rounded-lg border border-gray-300 dark:border-gray-700 px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-[#111A2E]"
+                                className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm text-gray-800 dark:text-foreground hover:bg-muted dark:hover:bg-[#111A2E]"
                             >
                                 Learn shortcuts <ArrowRight className="h-4 w-4" />
                             </a>
@@ -219,9 +219,9 @@ export default function CommandPaletteSection() {
                         transition={base}
                         className="lg:sticky lg:top-24"
                     >
-                        <div className="rounded-2xl border border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-[#0F1629]/90 shadow-2xl backdrop-blur">
+                        <div className="rounded-2xl border border-border bg-card/90 shadow-2xl backdrop-blur">
                             {/* Search bar with real typing */}
-                            <div className="flex items-center gap-2 border-b border-gray-200 px-4 py-3 text-sm text-gray-600 dark:border-gray-800 dark:text-gray-300">
+                            <div className="flex items-center gap-2 border-b border-border px-4 py-3 text-sm text-gray-600 dark:border-gray-800 dark:text-muted-foreground">
                                 <Search className="h-4 w-4" />
                                 <span className="relative text-gray-800 dark:text-gray-100">
                                     {typed || " "}
@@ -232,14 +232,14 @@ export default function CommandPaletteSection() {
                                         transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
                                     />
                                 </span>
-                                <span className="ml-auto inline-flex items-center gap-1 rounded border border-gray-300 px-2 py-0.5 text-xs dark:border-gray-700">
+                                <span className="ml-auto inline-flex items-center gap-1 rounded border border-gray-300 px-2 py-0.5 text-xs dark:border-border">
                                     <Command className="h-3 w-3" /> K
                                 </span>
                             </div>
 
                             {/* Results list (cycles over time) */}
                             <div className="p-3">
-                                <div className="mb-2 text-[10px] uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                <div className="mb-2 text-[10px] uppercase tracking-wide text-muted-foreground">
                                     Actions
                                 </div>
                                 <div className="space-y-2">
@@ -253,11 +253,11 @@ export default function CommandPaletteSection() {
                                             className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm
                         ${i === 0
                                                     ? "border-secondary/40 bg-secondary/10 text-secondary"
-                                                    : "border-gray-200 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-[#111A2E]"
+                                                    : "border-border text-foreground hover:bg-surface dark:border-border dark:text-muted-foreground dark:hover:bg-[#111A2E]"
                                                 }`}
                                         >
                                             <span>{r.label}</span>
-                                            <span className="inline-flex items-center gap-1 text-xs text-gray-400">
+                                            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
                                                 <CornerDownLeft className="h-3.5 w-3.5" /> ↵
                                             </span>
                                         </motion.div>
@@ -266,7 +266,7 @@ export default function CommandPaletteSection() {
                             </div>
 
                             {/* Footer hint */}
-                            <div className="flex items-center justify-between border-t border-gray-200 px-4 py-2 text-xs text-gray-500 dark:border-gray-800 dark:text-gray-400">
+                            <div className="flex items-center justify-between border-t border-border px-4 py-2 text-xs text-muted-foreground dark:border-gray-800 dark:text-muted-foreground">
                                 <span>↑ ↓ navigate</span>
                                 <span>Enter select</span>
                                 <span>Esc close</span>

@@ -1,18 +1,116 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { useMockStore } from "@/components/dashboard/mockStore";
+
+function WorkspaceOverviewSkeleton() {
+  return (
+    <div className="animate-pulse space-y-4">
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div
+            key={`overview-insight-skeleton-${index}`}
+            className="rounded-2xl border border-border bg-card p-4"
+          >
+            <div className="h-3 w-20 rounded bg-muted" />
+            <div className="mt-2 h-8 w-14 rounded bg-muted" />
+            <div className="mt-2 h-3 w-24 rounded bg-muted" />
+          </div>
+        ))}
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-[380px_minmax(0,1fr)]">
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="h-4 w-28 rounded bg-muted" />
+          <div className="mt-4 flex flex-col items-center gap-4 sm:flex-row">
+            <div className="size-32 rounded-full bg-muted sm:size-40" />
+            <div className="w-full max-w-48 space-y-3">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div
+                  key={`overview-legend-skeleton-${index}`}
+                  className="flex items-center gap-2"
+                >
+                  <div className="size-2.5 rounded-full bg-muted" />
+                  <div className="h-3 flex-1 rounded bg-muted" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="h-4 w-44 rounded bg-muted" />
+          <div className="mt-6 space-y-4">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={`overview-bar-skeleton-${index}`} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="h-3 w-20 rounded bg-muted" />
+                  <div className="h-3 w-8 rounded bg-muted" />
+                </div>
+                <div className="h-2.5 rounded-full bg-muted" />
+              </div>
+            ))}
+          </div>
+          <div className="mt-5 h-3 w-48 rounded bg-muted" />
+        </div>
+      </section>
+
+      <section className="rounded-2xl border border-border bg-card p-4">
+        <div className="mb-3 h-4 w-28 rounded bg-muted" />
+        <div className="space-y-3">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <div
+              key={`overview-activity-skeleton-${index}`}
+              className="flex items-start gap-3 rounded-xl border border-border p-3"
+            >
+              <div className="size-7 rounded-full bg-muted" />
+              <div className="min-w-0 flex-1 space-y-2">
+                <div className="h-4 w-2/3 rounded bg-muted" />
+                <div className="h-3 w-1/2 rounded bg-muted" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <div
+            key={`overview-card-skeleton-${index}`}
+            className="rounded-2xl border border-border bg-card p-4"
+          >
+            <div className="h-5 w-36 rounded bg-muted" />
+            <div className="mt-2 h-4 w-40 rounded bg-muted" />
+            <div className="mt-5 space-y-3">
+              {Array.from({ length: 4 }).map((_, rowIndex) => (
+                <div key={`overview-card-skeleton-${index}-${rowIndex}`} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="h-3 w-20 rounded bg-muted" />
+                    <div className="h-3 w-10 rounded bg-muted" />
+                  </div>
+                  <div className="h-6 rounded-md bg-muted" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
+    </div>
+  );
+}
 
 export default function WorkspaceOverviewPage() {
   const params = useParams();
   const workspaceId = typeof params.workspaceId === "string" ? params.workspaceId : "";
 
-  const { projects, tasks, members } = useMockStore((state) => ({
+  const { projects, tasks, members, loaded, loading } = useMockStore((state) => ({
     projects: state.projects || [],
     tasks: state.tasks || [],
     members: state.workspaces.find((item) => item.id === workspaceId)?.members || [],
+    loaded: Boolean(state.loaded),
+    loading: Boolean(state.loading),
   }));
 
   const workspaceProjects = useMemo(
@@ -23,6 +121,7 @@ export default function WorkspaceOverviewPage() {
     () => tasks.filter((item) => item.workspaceId === workspaceId),
     [tasks, workspaceId]
   );
+  const [referenceNow] = useState(() => Date.now());
 
   const counts = useMemo(() => {
     const result = { todo: 0, inprogress: 0, inreview: 0, done: 0 };
@@ -33,7 +132,7 @@ export default function WorkspaceOverviewPage() {
     return result;
   }, [workspaceTasks]);
 
-  const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const sevenDaysAgo = referenceNow - 7 * 24 * 60 * 60 * 1000;
   const last7DaysTasks = useMemo(
     () =>
       workspaceTasks.filter((task) => {
@@ -64,7 +163,7 @@ export default function WorkspaceOverviewPage() {
   const dueSoon = workspaceTasks.filter((task) => {
     if (!task.dueDate || (task.status || "todo") === "done") return false;
     const due = new Date(task.dueDate).getTime();
-    return due >= Date.now() && due <= Date.now() + 7 * 24 * 60 * 60 * 1000;
+    return due >= referenceNow && due <= referenceNow + 7 * 24 * 60 * 60 * 1000;
   }).length;
 
   const priorityCounts = useMemo(() => {
@@ -112,20 +211,38 @@ export default function WorkspaceOverviewPage() {
   const maxWorkload = Math.max(1, ...teamWorkload.map((item) => item.active));
   const maxPriority = Math.max(1, priorityCounts.P1, priorityCounts.P2, priorityCounts.P3);
   const typeTotal = Math.max(1, typeCounts.feature + typeCounts.bug + typeCounts.chore);
+  const statusChartColors = {
+    done: "var(--chart-success)",
+    inprogress: "var(--chart-secondary)",
+    inreview: "var(--chart-primary)",
+    todo: "var(--chart-muted)",
+  };
+  const teamWorkloadPalette = [
+    { color: "bg-sky-500", textClass: "text-white" },
+    { color: "bg-violet-500", textClass: "text-white" },
+    { color: "bg-emerald-500", textClass: "text-white" },
+    { color: "bg-rose-500", textClass: "text-white" },
+    { color: "bg-cyan-500", textClass: "text-white" },
+    { color: "bg-indigo-500", textClass: "text-white" },
+  ];
   const typeRows = [
-    { id: "feature", label: "Feature", value: typeCounts.feature, color: "bg-indigo-600" },
-    { id: "bug", label: "Bug", value: typeCounts.bug, color: "bg-rose-600" },
-    { id: "chore", label: "Chore", value: typeCounts.chore, color: "bg-slate-600" },
+    { id: "feature", label: "Feature", value: typeCounts.feature, color: "bg-indigo-500", textClass: "text-white" },
+    { id: "bug", label: "Bug", value: typeCounts.bug, color: "bg-rose-500", textClass: "text-white" },
+    { id: "chore", label: "Chore", value: typeCounts.chore, color: "bg-cyan-500", textClass: "text-white" },
   ];
   const priorityRows = [
-    { id: "p1", label: "High", value: priorityCounts.P1, color: "bg-rose-600" },
-    { id: "p2", label: "Medium", value: priorityCounts.P2, color: "bg-amber-600" },
-    { id: "p3", label: "Low", value: priorityCounts.P3, color: "bg-emerald-600" },
+    { id: "p1", label: "High", value: priorityCounts.P1, color: "bg-rose-500", textClass: "text-white" },
+    { id: "p2", label: "Medium", value: priorityCounts.P2, color: "bg-violet-500", textClass: "text-white" },
+    { id: "p3", label: "Low", value: priorityCounts.P3, color: "bg-emerald-500", textClass: "text-white" },
   ];
+
+  if (!loaded || loading) {
+    return <WorkspaceOverviewSkeleton />;
+  }
 
   return (
     <div className="space-y-4">
-      <section className="grid gap-3 md:grid-cols-4">
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <InsightCard title="Completed" value={String(recentCompleted)} subtitle="in last 7 days" href={`/dashboard/w/${workspaceId}/board`} />
         <InsightCard title="Updated" value={String(recentUpdated)} subtitle="in last 7 days" href={`/dashboard/w/${workspaceId}/timeline`} />
         <InsightCard title="Created" value={String(recentCreated)} subtitle="in last 7 days" href={`/dashboard/w/${workspaceId}/board`} />
@@ -133,81 +250,81 @@ export default function WorkspaceOverviewPage() {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[380px_minmax(0,1fr)]">
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Status Overview
           </h2>
-          <div className="mt-4 flex items-center gap-4">
+          <div className="mt-4 flex flex-col items-center gap-4 sm:flex-row sm:items-center">
             <div
-              className="relative size-40 rounded-full"
+              className="relative mx-auto size-32 shrink-0 rounded-full sm:mx-0 sm:size-40"
               style={{
-                background: `conic-gradient(#16a34a 0% ${donePct}%, #0891b2 ${donePct}% ${donePct + inProgressPct}%, #7c3aed ${donePct + inProgressPct}% ${donePct + inProgressPct + reviewPct}%, #94a3b8 ${donePct + inProgressPct + reviewPct}% 100%)`,
+                background: `conic-gradient(var(--chart-success) 0% ${donePct}%, var(--chart-secondary) ${donePct}% ${donePct + inProgressPct}%, var(--chart-primary) ${donePct + inProgressPct}% ${donePct + inProgressPct + reviewPct}%, var(--chart-muted) ${donePct + inProgressPct + reviewPct}% 100%)`,
               }}
             >
-              <div className="absolute inset-5 flex flex-col items-center justify-center rounded-full bg-white text-center dark:bg-slate-900">
-                <p className="text-2xl font-semibold text-slate-900 dark:text-slate-100">{totalTasks}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Total tasks</p>
+              <div className="absolute inset-4 flex flex-col items-center justify-center rounded-full bg-card text-center sm:inset-5">
+                <p className="text-2xl font-semibold text-foreground">{totalTasks}</p>
+                <p className="text-xs text-muted-foreground">Total tasks</p>
               </div>
             </div>
-            <div className="space-y-2 text-sm">
-              <Legend label={`Done: ${counts.done}`} color="bg-green-600" />
-              <Legend label={`In Progress: ${counts.inprogress}`} color="bg-cyan-600" />
-              <Legend label={`In Review: ${counts.inreview}`} color="bg-violet-600" />
-              <Legend label={`To Do: ${counts.todo}`} color="bg-slate-400" />
+            <div className="mx-auto w-full max-w-48 space-y-2 text-sm sm:mx-0 sm:w-auto sm:max-w-none">
+              <Legend label={`Done: ${counts.done}`} color={statusChartColors.done} />
+              <Legend label={`In Progress: ${counts.inprogress}`} color={statusChartColors.inprogress} />
+              <Legend label={`In Review: ${counts.inreview}`} color={statusChartColors.inreview} />
+              <Legend label={`To Do: ${counts.todo}`} color={statusChartColors.todo} />
             </div>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Throughput (Tasks by Stage)
           </h2>
           <div className="mt-6 space-y-4">
-            <Bar label="Done" value={counts.done} total={Math.max(1, totalTasks)} color="bg-green-600" />
-            <Bar label="In Progress" value={counts.inprogress} total={Math.max(1, totalTasks)} color="bg-cyan-600" />
-            <Bar label="In Review" value={counts.inreview} total={Math.max(1, totalTasks)} color="bg-violet-600" />
-            <Bar label="To Do" value={counts.todo} total={Math.max(1, totalTasks)} color="bg-slate-500" />
+            <Bar label="Done" value={counts.done} total={Math.max(1, totalTasks)} color={statusChartColors.done} />
+            <Bar label="In Progress" value={counts.inprogress} total={Math.max(1, totalTasks)} color={statusChartColors.inprogress} />
+            <Bar label="In Review" value={counts.inreview} total={Math.max(1, totalTasks)} color={statusChartColors.inreview} />
+            <Bar label="To Do" value={counts.todo} total={Math.max(1, totalTasks)} color={statusChartColors.todo} />
           </div>
-          <p className="mt-5 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-5 text-xs text-muted-foreground">
             Completion rate: {donePct}% | In-progress load: {inProgressPct}% | Pending: {todoPct}%
           </p>
         </div>
       </section>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+      <section className="rounded-2xl border border-border bg-card p-4">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           Recent Activity
         </h2>
         <div className="max-h-72 space-y-3 overflow-y-auto pr-1">
           {recentItems.map((task) => (
-            <div key={task.id} className="flex items-start gap-3 rounded-xl border border-slate-200 p-3 dark:border-white/10">
-              <div className="mt-0.5 flex size-7 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+            <div key={task.id} className="flex items-start gap-3 rounded-xl border border-border p-3">
+              <div className="mt-0.5 flex size-7 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary dark:bg-primary/100/20 dark:text-primary">
                 {(task.assigneeName || "U").slice(0, 1).toUpperCase()}
               </div>
               <div className="min-w-0">
-                <p className="text-sm text-slate-900 dark:text-slate-100">
+                <p className="text-sm text-foreground">
                   <span className="font-medium">{task.assigneeName || "Someone"}</span> updated
                   <span className="font-medium"> {task.title}</span>
                 </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-muted-foreground">
                   {task.projectName || "No project"} | {task.status || "todo"} | {task.createdAt ? new Date(task.createdAt).toLocaleString() : "Unknown time"}
                 </p>
               </div>
             </div>
           ))}
-          {!recentItems.length ? <p className="text-sm text-slate-500 dark:text-slate-400">No activity yet.</p> : null}
+          {!recentItems.length ? <p className="text-sm text-muted-foreground">No activity yet.</p> : null}
         </div>
       </section>
 
       <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Priority breakdown</h3>
-          <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <h3 className="text-lg font-semibold text-foreground">Priority breakdown</h3>
+          <p className="mt-0.5 text-sm text-muted-foreground">
             How work is currently prioritized.
           </p>
 
           <div className="mt-5">
-            <div className="grid h-40 grid-cols-3 items-end gap-3 rounded-xl border border-slate-200 p-3 dark:border-white/10">
+            <div className="grid h-40 grid-cols-3 items-end gap-3 rounded-xl border border-border p-3">
               {priorityRows.map((item) => (
                 <div key={item.id} className="flex flex-col items-center gap-2">
                   <div className="flex h-28 w-full items-end">
@@ -216,13 +333,13 @@ export default function WorkspaceOverviewPage() {
                       style={{ height: `${Math.max(8, Math.round((item.value / maxPriority) * 100))}%` }}
                     />
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-300">{item.label}</p>
+                  <p className="text-xs text-muted-foreground">{item.label}</p>
                 </div>
               ))}
             </div>
-            <div className="mt-3 flex items-center justify-center gap-4 text-xs">
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-xs">
               {priorityRows.map((item) => (
-                <span key={`${item.id}-legend`} className="inline-flex items-center gap-1 text-slate-600 dark:text-slate-300">
+                <span key={`${item.id}-legend`} className="inline-flex items-center gap-1 text-muted-foreground">
                   <span className={`inline-block size-2 rounded-full ${item.color}`} />
                   {item.label}: {item.value}
                 </span>
@@ -231,9 +348,9 @@ export default function WorkspaceOverviewPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Types of work</h3>
-          <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <h3 className="text-lg font-semibold text-foreground">Types of work</h3>
+          <p className="mt-0.5 text-sm text-muted-foreground">
             Distribution by task type.
           </p>
           <div className="mt-4 max-h-56 space-y-3 overflow-y-auto pr-1">
@@ -244,28 +361,33 @@ export default function WorkspaceOverviewPage() {
                 value={row.value}
                 total={typeTotal}
                 color={row.color}
+                textClass={row.textClass}
               />
             ))}
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Team workload</h3>
-          <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <h3 className="text-lg font-semibold text-foreground">Team workload</h3>
+          <p className="mt-0.5 text-sm text-muted-foreground">
             Active work distribution per assignee.
           </p>
           <div className="mt-4 max-h-56 space-y-3 overflow-y-auto pr-1">
-            {teamWorkload.map((person) => (
-              <DistRow
-                key={person.id}
-                label={person.name}
-                value={person.active}
-                total={maxWorkload}
-                color="bg-cyan-600"
-                rightLabel={`${person.active} active`}
-              />
-            ))}
-            {!teamWorkload.length ? <p className="text-sm text-slate-500 dark:text-slate-400">No team members found.</p> : null}
+            {teamWorkload.map((person, index) => {
+              const palette = teamWorkloadPalette[index % teamWorkloadPalette.length];
+              return (
+                <DistRow
+                  key={person.id}
+                  label={person.name}
+                  value={person.active}
+                  total={maxWorkload}
+                  color={palette.color}
+                  textClass={palette.textClass}
+                  rightLabel={`${person.active} active`}
+                />
+              );
+            })}
+            {!teamWorkload.length ? <p className="text-sm text-muted-foreground">No team members found.</p> : null}
           </div>
         </div>
       </section>
@@ -276,8 +398,8 @@ export default function WorkspaceOverviewPage() {
 function Legend({ label, color }) {
   return (
     <div className="flex items-center gap-2">
-      <span className={`inline-block size-2.5 rounded-full ${color}`} />
-      <span className="text-slate-700 dark:text-slate-300">{label}</span>
+      <span className="inline-block size-2.5 rounded-full" style={{ backgroundColor: color }} />
+      <span className="text-foreground dark:text-muted-foreground">{label}</span>
     </div>
   );
 }
@@ -286,12 +408,12 @@ function Bar({ label, value, total, color }) {
   const widthPct = Math.max(6, Math.round((value / total) * 100));
   return (
     <div>
-      <div className="mb-1 flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
+      <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
         <span>{label}</span>
         <span>{value}</span>
       </div>
-      <div className="h-2.5 rounded-full bg-slate-100 dark:bg-slate-800">
-        <div className={`h-2.5 rounded-full ${color}`} style={{ width: `${widthPct}%` }} />
+      <div className="h-2.5 rounded-full bg-muted dark:bg-surface">
+        <div className="h-2.5 rounded-full" style={{ width: `${widthPct}%`, backgroundColor: color }} />
       </div>
     </div>
   );
@@ -301,26 +423,26 @@ function InsightCard({ title, value, subtitle, href }) {
   return (
     <Link
       href={href}
-      className="rounded-2xl border border-slate-200 bg-white p-4 transition hover:border-indigo-300 hover:shadow-sm dark:border-white/10 dark:bg-slate-900 dark:hover:border-indigo-500/40"
+      className="rounded-2xl border border-border bg-card p-4 transition hover:border-primary/30 hover:shadow-sm"
     >
-      <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">{title}</p>
-      <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-slate-100">{value}</p>
-      <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{subtitle}</p>
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">{title}</p>
+      <p className="mt-1 text-2xl font-semibold text-foreground">{value}</p>
+      <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
     </Link>
   );
 }
 
-function DistRow({ label, value, total, color, rightLabel }) {
+function DistRow({ label, value, total, color, textClass = "text-primary-foreground", rightLabel }) {
   const pct = Math.round((value / Math.max(1, total)) * 100);
   return (
     <div>
-      <div className="mb-1 flex items-center justify-between text-sm text-slate-700 dark:text-slate-200">
+      <div className="mb-1 flex items-center justify-between text-sm text-foreground">
         <span className="truncate pr-2">{label}</span>
-        <span className="text-xs text-slate-500 dark:text-slate-400">{rightLabel || `${pct}%`}</span>
+        <span className="text-xs text-muted-foreground">{rightLabel || `${pct}%`}</span>
       </div>
-      <div className="h-6 rounded-md bg-slate-100 dark:bg-slate-800">
+      <div className="h-6 rounded-md bg-muted dark:bg-surface">
         <div
-          className={`h-6 rounded-md ${color} px-2 text-xs font-medium leading-6 text-white`}
+          className={`h-6 rounded-md ${color} ${textClass} px-2 text-xs font-medium leading-6`}
           style={{ width: `${Math.max(10, pct)}%` }}
         >
           {pct}%

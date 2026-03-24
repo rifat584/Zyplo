@@ -8,6 +8,57 @@ function normalizeEmail(value) {
     .toLowerCase();
 }
 
+function resolveMemberMatch(member, user) {
+  const userId = String(user?.id || "");
+  const userEmail = normalizeEmail(user?.email);
+  const memberUserId = String(member?.userId || member?.id || "");
+  const memberEmail = normalizeEmail(member?.email);
+
+  return Boolean(
+    (userId && memberUserId === userId) ||
+      (userEmail && memberEmail === userEmail),
+  );
+}
+
+function syncCurrentUserIntoWorkspaces(snapshot) {
+  const currentUser = snapshot?.currentUser || null;
+  const workspaces = Array.isArray(snapshot?.workspaces) ? snapshot.workspaces : null;
+  if (!currentUser || !workspaces?.length) return snapshot;
+
+  let workspacesChanged = false;
+  const nextWorkspaces = workspaces.map((workspace) => {
+    const members = Array.isArray(workspace?.members) ? workspace.members : null;
+    if (!members?.length) return workspace;
+
+    let membersChanged = false;
+    const nextMembers = members.map((member) => {
+      if (!resolveMemberMatch(member, currentUser)) return member;
+
+      const mergedMember = {
+        ...member,
+        name: currentUser?.name || member?.name,
+        email: currentUser?.email || member?.email,
+        avatarUrl: currentUser?.avatarUrl || member?.avatarUrl || "",
+      };
+
+      const changed =
+        mergedMember.name !== member?.name ||
+        mergedMember.email !== member?.email ||
+        mergedMember.avatarUrl !== (member?.avatarUrl || "");
+
+      if (changed) membersChanged = true;
+      return changed ? mergedMember : member;
+    });
+
+    if (!membersChanged) return workspace;
+    workspacesChanged = true;
+    return { ...workspace, members: nextMembers };
+  });
+
+  if (!workspacesChanged) return snapshot;
+  return { ...snapshot, workspaces: nextWorkspaces };
+}
+
 let state = {
   currentUser: null,
   workspaces: [],
@@ -28,7 +79,7 @@ function emit() {
 }
 
 function setState(patch) {
-  state = { ...state, ...patch };
+  state = syncCurrentUserIntoWorkspaces({ ...state, ...patch });
   emit();
 }
 

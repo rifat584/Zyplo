@@ -2,7 +2,7 @@ import AuthBackground from "@/components/auth/AuthBackground";
 
 function AuthShell({ children }) {
   return (
-    <div className="relative min-h-screen overflow-hidden text-slate-900 dark:text-slate-100">
+    <div className="relative min-h-screen overflow-hidden text-foreground">
       <AuthBackground />
       <div className="relative z-10 mx-auto grid min-h-screen w-full max-w-7xl grid-cols-1 items-center px-4 py-8 lg:grid-cols-12 lg:py-10 lg:pr-14">
         <section className="relative w-full max-w-md justify-self-center lg:col-start-5 lg:col-span-5 lg:max-w-lg">

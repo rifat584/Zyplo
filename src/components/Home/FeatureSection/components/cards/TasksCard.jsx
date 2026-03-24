@@ -8,16 +8,16 @@ export function TasksCard({ tasks }) {
         {tasks.map((item) => (
           <div
             key={item.label}
-            className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50/70 px-2.5 py-2 text-xs dark:border-gray-700 dark:bg-[#111A2E]"
+            className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50/70 px-2.5 py-2 text-xs dark:border-border dark:bg-[#111A2E]"
           >
             {item.state === "done" ? (
-              <CheckCircle2 className="h-3.5 w-3.5 text-cyan-600" />
+              <CheckCircle2 className="h-3.5 w-3.5 text-secondary" />
             ) : item.state === "active" ? (
-              <Circle className="h-3.5 w-3.5 fill-indigo-500 text-indigo-500" />
+              <Circle className="h-3.5 w-3.5 fill-indigo-500 text-primary" />
             ) : (
               <Circle className="h-3.5 w-3.5 text-zinc-300 dark:text-gray-600" />
             )}
-            <span className="line-clamp-1 text-zinc-700 dark:text-gray-300">{item.label}</span>
+            <span className="line-clamp-1 text-foreground">{item.label}</span>
           </div>
         ))}
       </div>

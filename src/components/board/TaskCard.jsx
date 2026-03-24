@@ -2,13 +2,14 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Paperclip } from "lucide-react"; 
+import { Paperclip } from "lucide-react";
+import { dashboardTaskCardClasses } from "@/components/dashboard/styles";
 
 const PRIORITY_STYLES = {
-  P0: "bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-300",
-  P1: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
-  P2: "bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300",
-  P3: "bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300",
+  P0: "bg-destructive/10 text-destructive",
+  P1: "bg-warning/15 text-warning",
+  P2: "bg-info/15 text-info",
+  P3: "bg-muted text-muted-foreground",
 };
 
 function formatDueDate(value) {
@@ -25,10 +26,10 @@ function CardBody({ task }) {
     <>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="line-clamp-2 text-sm font-medium text-slate-900 dark:text-slate-100">{task.title}</p>
+          <p className="line-clamp-2 text-sm font-medium text-foreground">{task.title}</p>
           {task?.taskRef ? (
             <p className="mt-1">
-              <span className="rounded-md bg-slate-100 px-1.5 py-0.5 font-mono text-[10px] font-medium text-slate-500 dark:bg-white/10 dark:text-slate-400">
+              <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
                 {task.taskRef}
               </span>
             </p>
@@ -44,10 +45,10 @@ function CardBody({ task }) {
       </div>
 
       {task.description ? (
-        <p className="mt-2 line-clamp-2 text-xs text-slate-600 dark:text-slate-400">{task.description}</p>
+        <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{task.description}</p>
       ) : null}
 
-      <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+      <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
         <span className="truncate">{task.assigneeName || "Unassigned"}</span>
         
         <div className="flex items-center gap-2">
@@ -88,7 +89,7 @@ function SortableTaskCard({ task, columnId, onClick }) {
       onClick={() => {
         if (!isDragging && onClick) onClick();
       }}
-      className={`touch-none rounded-xl border border-slate-200 bg-white p-3 shadow-sm dark:border-white/10 dark:bg-slate-900 ${
+      className={`${dashboardTaskCardClasses} touch-none cursor-pointer rounded-xl border p-3 ${
         isDragging ? "opacity-40" : "opacity-100"
       }`}
     >
@@ -105,7 +106,7 @@ export default function TaskCard({
 }) {
   if (isDragOverlay) {
     return (
-      <article className="rounded-xl border border-slate-200 bg-white p-3 shadow-lg dark:border-white/10 dark:bg-slate-900">
+      <article className={`${dashboardTaskCardClasses} rounded-xl border p-3 shadow-sm`}>
         <CardBody task={task} />
       </article>
     );

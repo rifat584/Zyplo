@@ -21,6 +21,130 @@ import { loadDashboard, useMockStore } from "@/components/dashboard/mockStore";
 
 const COLORS = ["#2563eb", "#06b6d4", "#14b8a6", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
 const EMPTY_ARR = [];
+const timesheetPanelClass =
+  "relative overflow-hidden rounded-[28px] border border-border bg-card p-5 shadow-sm";
+const timesheetInsetCardClass =
+  "rounded-[24px] border border-border bg-background p-4 shadow-sm";
+const timesheetMiniCardClass =
+  "rounded-2xl border border-border bg-background p-3";
+const timesheetTitleClass =
+  "text-sm font-semibold uppercase tracking-wide text-muted-foreground";
+const timesheetMutedTextClass = "text-xs text-muted-foreground";
+const timesheetFilterInputClass =
+  "h-11 w-full rounded-2xl border border-border bg-background pl-10 pr-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10";
+const timesheetFilterSelectClass =
+  "h-11 w-full rounded-2xl border border-border bg-background pl-10 pr-9 text-sm text-foreground outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10";
+
+function TimesheetPageSkeleton() {
+  return (
+    <div className="animate-pulse space-y-4">
+      <section className="relative overflow-hidden rounded-[32px] border border-border bg-card p-5 shadow-sm sm:p-6">
+        <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
+          <div className="space-y-5">
+            <div className="h-7 w-28 rounded-full bg-muted" />
+            <div className="space-y-3">
+              <div className="h-3 w-28 rounded bg-muted" />
+              <div className="h-8 w-56 rounded bg-muted" />
+              <div className="h-4 w-72 max-w-full rounded bg-muted" />
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={`timesheet-chip-skeleton-${index}`}
+                  className="rounded-2xl border border-border bg-background px-4 py-3"
+                >
+                  <div className="h-3 w-20 rounded bg-muted" />
+                  <div className="mt-3 h-4 w-28 rounded bg-muted" />
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={`timesheet-pill-skeleton-${index}`}
+                  className="h-8 w-32 rounded-full border border-border bg-background"
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className={timesheetInsetCardClass}>
+            <div className="flex items-center justify-between gap-3">
+              <div className="space-y-2">
+                <div className="h-3 w-14 rounded bg-muted" />
+                <div className="h-6 w-36 rounded bg-muted" />
+              </div>
+              <div className="h-7 w-24 rounded-full bg-muted" />
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={`timesheet-filter-skeleton-${index}`} className="space-y-2">
+                  <div className="h-3 w-20 rounded bg-muted" />
+                  <div className="h-11 rounded-2xl bg-muted" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div
+            key={`timesheet-stat-skeleton-${index}`}
+            className="rounded-[26px] border border-border bg-card p-4 shadow-sm"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="space-y-3">
+                <div className="h-3 w-20 rounded bg-muted" />
+                <div className="h-8 w-28 rounded bg-muted" />
+              </div>
+              <div className="size-10 rounded-2xl bg-muted" />
+            </div>
+            <div className="mt-3 h-3 w-32 rounded bg-muted" />
+          </div>
+        ))}
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
+        <div className={timesheetPanelClass}>
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div className="h-4 w-28 rounded bg-muted" />
+            <div className="h-3 w-20 rounded bg-muted" />
+          </div>
+          <div className="h-72 rounded-2xl bg-muted" />
+        </div>
+        <div className={timesheetPanelClass}>
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div className="h-4 w-36 rounded bg-muted" />
+            <div className="size-4 rounded bg-muted" />
+          </div>
+          <div className="h-56 rounded-2xl bg-muted" />
+          <div className="mt-4 space-y-2">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={`timesheet-legend-skeleton-${index}`} className="flex items-center justify-between">
+                <div className="h-3 w-24 rounded bg-muted" />
+                <div className="h-3 w-14 rounded bg-muted" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-2">
+        {Array.from({ length: 2 }).map((_, index) => (
+          <div key={`timesheet-lower-skeleton-${index}`} className={timesheetPanelClass}>
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div className="h-4 w-40 rounded bg-muted" />
+              <div className="h-3 w-24 rounded bg-muted" />
+            </div>
+            <div className="h-72 rounded-2xl bg-muted" />
+          </div>
+        ))}
+      </section>
+    </div>
+  );
+}
 
 function safeDate(value) {
   const d = new Date(value);
@@ -80,24 +204,55 @@ function TooltipCard({ active, payload, label, keyName = "seconds" }) {
   if (!active || !payload?.length) return null;
   const row = payload[0]?.payload || {};
   return (
-    <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs shadow dark:border-white/10 dark:bg-slate-900">
-      <p className="text-slate-500 dark:text-slate-400">{label}</p>
-      <p className="font-semibold text-slate-800 dark:text-slate-100">{fmtSeconds(row[keyName] || 0)}</p>
+    <div className="rounded-2xl border border-border bg-card px-3.5 py-2.5 text-xs shadow-sm">
+      <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">{label}</p>
+      <p className="mt-1 font-semibold text-foreground">{fmtSeconds(row[keyName] || 0)}</p>
     </div>
   );
 }
 
-function StatCard({ title, value, subtitle, Icon }) {
+function MetricChip({ label, value }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/90">
-      <div className="flex items-center justify-between">
-        <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">{title}</p>
-        <span className="inline-flex size-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+    <div className="rounded-2xl border border-border bg-background px-4 py-3">
+      <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">{label}</p>
+      <p className="mt-2 truncate text-sm font-semibold text-foreground">{value}</p>
+    </div>
+  );
+}
+
+function FilterField({ label, icon: Icon, children }) {
+  return (
+    <label className="space-y-1.5 text-[11px] font-medium text-muted-foreground">
+      <span className="uppercase tracking-[0.18em]">{label}</span>
+      <div className="relative">
+        {Icon ? <Icon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /> : null}
+        {children}
+      </div>
+    </label>
+  );
+}
+
+function StatCard({ title, value, subtitle, Icon, tone = "indigo" }) {
+  const tones = {
+    indigo: "bg-primary/10 text-primary",
+    cyan: "bg-accent text-accent-foreground",
+    emerald: "bg-secondary text-secondary-foreground",
+    amber: "bg-muted text-foreground",
+  };
+  const toneStyles = tones[tone] || tones.indigo;
+
+  return (
+    <div className="relative overflow-hidden rounded-[26px] border border-border bg-card p-4 shadow-sm">
+      <div className="relative flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.22em] text-muted-foreground">{title}</p>
+          <p className="mt-3 text-2xl font-semibold text-foreground">{value}</p>
+        </div>
+        <span className={`inline-flex size-10 items-center justify-center rounded-2xl ${toneStyles}`}>
           <Icon className="size-4" />
         </span>
       </div>
-      <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">{value}</p>
-      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{subtitle}</p>
+      <p className="relative mt-3 text-xs leading-5 text-muted-foreground">{subtitle}</p>
     </div>
   );
 }
@@ -110,6 +265,8 @@ export default function WorkspaceTimesheetPage() {
   const allTasks = useMockStore((state) => state.tasks || EMPTY_ARR);
   const allWorkspaces = useMockStore((state) => state.workspaces || EMPTY_ARR);
   const currentUser = useMockStore((state) => state.currentUser || null);
+  const dashboardLoaded = useMockStore((state) => Boolean(state.loaded));
+  const dashboardLoading = useMockStore((state) => Boolean(state.loading));
 
   const workspace = useMemo(
     () => allWorkspaces.find((w) => w.id === workspaceId) || null,
@@ -280,7 +437,7 @@ export default function WorkspaceTimesheetPage() {
     return () => {
       alive = false;
     };
-  }, [workspaceId, projectFetchKey, memberFetchKey]);
+  }, [memberFetchKey, members, projectFetchKey, projects, workspaceId]);
 
   const memberNameMap = useMemo(() => {
     const map = new Map();
@@ -348,6 +505,15 @@ export default function WorkspaceTimesheetPage() {
     return rows.sort((a, b) => b.seconds - a.seconds);
   }, [projectRows, members, memberNameMap]);
 
+  const selectedProjectContribChart = useMemo(
+    () =>
+      selectedProjectContrib.map((row, index) => ({
+        ...row,
+        fill: COLORS[index % COLORS.length],
+      })),
+    [selectedProjectContrib],
+  );
+
   const allMemberChart = useMemo(
     () => allMemberRows.map((row) => ({ name: row.name, seconds: row.seconds, hours: row.hours })),
     [allMemberRows],
@@ -363,98 +529,148 @@ export default function WorkspaceTimesheetPage() {
   const taskProgress = taskReport?.estimatedTime
     ? Math.min(100, Math.round((Number(taskReport.totalTimeSpent || 0) / Math.max(1, Number(taskReport.estimatedTime || 0))) * 100))
     : 0;
+  const showInitialSkeleton =
+    !dashboardLoaded ||
+    dashboardLoading ||
+    ((loading || loadingMembers) &&
+      !error &&
+      !memberError &&
+      !timesheetRows.length &&
+      !workspaceRows.length &&
+      !projectRows.length &&
+      taskReport === null &&
+      !allMemberRows.length);
+
+  if (showInitialSkeleton) {
+    return <TimesheetPageSkeleton />;
+  }
 
   return (
     <div className="space-y-4">
-      <section className="relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-sky-50 via-white to-cyan-50 p-4 shadow-sm dark:border-white/10 dark:from-slate-900 dark:via-slate-900 dark:to-cyan-950/20">
-        <div className="pointer-events-none absolute -right-16 -top-20 size-48 rounded-full bg-indigo-500/15 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-20 -left-16 size-56 rounded-full bg-cyan-500/10 blur-3xl" />
-        <div className="relative">
-          <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Reports</p>
-          <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Time Sheet Analytics</h2>
-          <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">Charts + member contribution overview</p>
-          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            <label className="space-y-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
-              <span>Start date</span>
-              <div className="relative">
-                <CalendarRange className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-8 pr-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100" />
+      <section className="relative overflow-hidden rounded-[32px] border border-border bg-card p-5 shadow-sm sm:p-6">
+        <div className="relative grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
+          <div className="space-y-5">
+            <div className="inline-flex items-center rounded-full border border-border bg-background px-3 py-1 text-[11px] font-medium uppercase tracking-[0.28em] text-muted-foreground">
+              Reports Hub
+            </div>
+            <div className="space-y-3">
+              <p className="text-xs uppercase tracking-[0.32em] text-muted-foreground">Workspace Insights</p>
+              <h2 className="max-w-2xl text-2xl font-semibold leading-tight text-foreground sm:text-3xl">
+                Time Sheet Analytics
+              </h2>
+              <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
+                Charts + member contribution overview
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <MetricChip label="Selected Project" value={selectedProject?.name || "No project selected"} />
+              <MetricChip label="Selected Task" value={selectedTask?.title || "No task selected"} />
+              <MetricChip label="Top Contributor" value={topContributor?.name || "No contribution yet"} />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <span className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-foreground">
+                Tracked {fmtSeconds(totalSeconds)}
+              </span>
+              <span className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-foreground">
+                Average {fmtSeconds(averagePerDay)} / day
+              </span>
+              <span className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-foreground">
+                Team total {fmtSeconds(teamTotalSeconds)}
+              </span>
+            </div>
+          </div>
+
+          <div className={timesheetInsetCardClass}>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">Filters</p>
+                <h3 className="mt-1 text-lg font-semibold text-foreground">Refine the view</h3>
               </div>
-            </label>
-            <label className="space-y-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
-              <span>End date</span>
-              <div className="relative">
-                <CalendarRange className="pointer-events-none absolute left-2 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-8 pr-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100" />
-              </div>
-            </label>
-            <label className="space-y-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
-              <span>Project</span>
-              <div className="relative">
-                <select value={selectedProjectId} onChange={(e) => setSelectedProjectId(e.target.value)} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100">
+              <span className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
+                {projects.length} projects
+              </span>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <FilterField label="Start date" icon={CalendarRange}>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className={timesheetFilterInputClass}
+                />
+              </FilterField>
+              <FilterField label="End date" icon={CalendarRange}>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className={timesheetFilterInputClass}
+                />
+              </FilterField>
+              <FilterField label="Project" icon={PieIcon}>
+                <select
+                  value={selectedProjectId}
+                  onChange={(e) => setSelectedProjectId(e.target.value)}
+                  className={timesheetFilterSelectClass}
+                >
                   {!projects.length ? <option value="">No project</option> : null}
                   {projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
                 </select>
-              </div>
-            </label>
-            <label className="space-y-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
-              <span>Task</span>
-              <div className="relative">
-                <select value={selectedTaskId} onChange={(e) => setSelectedTaskId(e.target.value)} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm outline-none focus:border-indigo-500 dark:border-white/10 dark:bg-slate-800 dark:text-slate-100">
+              </FilterField>
+              <FilterField label="Task" icon={Clock3}>
+                <select
+                  value={selectedTaskId}
+                  onChange={(e) => setSelectedTaskId(e.target.value)}
+                  className={timesheetFilterSelectClass}
+                >
                   {!tasksForProject.length ? <option value="">No task</option> : null}
                   {tasksForProject.map((task) => <option key={task.id} value={task.id}>{task.title}</option>)}
                 </select>
-              </div>
-            </label>
+              </FilterField>
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="grid gap-3 md:grid-cols-4">
-        <StatCard title="Tracked Time" value={fmtSeconds(totalSeconds)} subtitle={`${trendData.length} active day${trendData.length === 1 ? "" : "s"}`} Icon={Clock3} />
-        <StatCard title="Average / Day" value={fmtSeconds(averagePerDay)} subtitle="Selected date range" Icon={Timer} />
-        <StatCard title="Team Total" value={fmtSeconds(teamTotalSeconds)} subtitle="All workspace projects (all-time)" Icon={Users} />
-        <StatCard title="Current User" value={currentUser?.name || "User"} subtitle={currentUser?.email || "Account"} Icon={Activity} />
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <StatCard title="Tracked Time" value={fmtSeconds(totalSeconds)} subtitle={`${trendData.length} active day${trendData.length === 1 ? "" : "s"}`} Icon={Clock3} tone="indigo" />
+        <StatCard title="Average / Day" value={fmtSeconds(averagePerDay)} subtitle="Selected date range" Icon={Timer} tone="cyan" />
+        <StatCard title="Team Total" value={fmtSeconds(teamTotalSeconds)} subtitle="All workspace projects (all-time)" Icon={Users} tone="emerald" />
+        <StatCard title="Current User" value={currentUser?.name || "User"} subtitle={currentUser?.email || "Account"} Icon={Activity} tone="amber" />
       </section>
 
-      {error ? <div className="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">{error}</div> : null}
-      {memberError ? <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">{memberError}</div> : null}
+      {error ? <div className="rounded-[22px] border border-rose-200/80 bg-rose-50/90 p-3.5 text-sm text-rose-700 shadow-sm backdrop-blur dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">{error}</div> : null}
+      {memberError ? <div className="rounded-[22px] border border-amber-200/80 bg-amber-50/90 p-3.5 text-sm text-amber-700 shadow-sm backdrop-blur dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">{memberError}</div> : null}
 
       <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
-        <div className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/95">
-          <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Timesheet Trend</h3>
-            <span className="text-xs text-slate-500 dark:text-slate-400">Hours by day</span>
+        <div className={timesheetPanelClass}>
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <h3 className={timesheetTitleClass}>Timesheet Trend</h3>
+            <span className={timesheetMutedTextClass}>Hours by day</span>
           </div>
           {loading ? (
-            <p className="text-sm text-slate-500 dark:text-slate-400">Loading chart...</p>
+            <p className="text-sm text-muted-foreground">Loading chart...</p>
           ) : trendData.length ? (
             <div className="h-72 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={trendData} margin={{ top: 8, right: 8, left: -8, bottom: 8 }}>
-                  <defs>
-                    <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#2563eb" stopOpacity={0.35} />
-                      <stop offset="95%" stopColor="#2563eb" stopOpacity={0.03} />
-                    </linearGradient>
-                  </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" opacity={0.5} />
                   <XAxis dataKey="label" tick={{ fill: "#64748b", fontSize: 11 }} tickLine={false} axisLine={false} />
                   <YAxis tickFormatter={(v) => `${v}h`} tick={{ fill: "#64748b", fontSize: 11 }} tickLine={false} axisLine={false} />
                   <Tooltip content={<TooltipCard keyName="seconds" />} />
-                  <Area type="monotone" dataKey="hours" stroke="#2563eb" strokeWidth={2.5} fill="url(#trendFill)" dot={{ r: 3, fill: "#2563eb" }} activeDot={{ r: 5 }} />
+                  <Area type="monotone" dataKey="hours" stroke="#4586ff" strokeWidth={2.5} fill="rgba(69, 134, 255, 0.14)" dot={{ r: 3, fill: "#4586ff" }} activeDot={{ r: 5 }} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <p className="text-sm text-slate-500 dark:text-slate-400">No timesheet data for selected range.</p>
+            <p className="text-sm text-muted-foreground">No timesheet data for selected range.</p>
           )}
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/95">
-          <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Project Distribution</h3>
-            <PieIcon className="size-4 text-slate-400" />
+        <div className={timesheetPanelClass}>
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <h3 className={timesheetTitleClass}>Project Distribution</h3>
+            <PieIcon className="size-4 text-muted-foreground" />
           </div>
           {projectTotalsPie.length ? (
             <>
@@ -471,157 +687,211 @@ export default function WorkspaceTimesheetPage() {
               <div className="max-h-40 space-y-2 overflow-y-auto pr-1">
                 {projectTotalsPie.map((row) => (
                   <div key={row.name} className="flex items-center justify-between text-xs">
-                    <div className="inline-flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                    <div className="inline-flex items-center gap-2 text-muted-foreground">
                       <span className="inline-block size-2.5 rounded-full" style={{ background: row.fill }} />
                       <span className="truncate">{row.name}</span>
                     </div>
-                    <span className="font-medium text-slate-700 dark:text-slate-200">{fmtSeconds(row.seconds)}</span>
+                    <span className="font-medium text-foreground">{fmtSeconds(row.seconds)}</span>
                   </div>
                 ))}
               </div>
             </>
           ) : (
-            <p className="text-sm text-slate-500 dark:text-slate-400">No workspace project data found.</p>
+            <p className="text-sm text-muted-foreground">No workspace project data found.</p>
           )}
         </div>
       </section>
 
       <section className="grid gap-4 xl:grid-cols-2">
-        <div className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/95">
-          <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Selected Project Contribution</h3>
-            <span className="text-xs text-slate-500 dark:text-slate-400">{selectedProject?.name || "Select project"}</span>
+        <div className={timesheetPanelClass}>
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <h3 className={timesheetTitleClass}>Selected Project Contribution</h3>
+            <span className={timesheetMutedTextClass}>{selectedProject?.name || "Select project"}</span>
           </div>
-          {selectedProjectContrib.length ? (
-            <div className="h-72 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={selectedProjectContrib} layout="vertical" margin={{ top: 4, right: 12, left: 12, bottom: 4 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" opacity={0.4} />
-                  <XAxis type="number" tickFormatter={(v) => `${v}h`} tick={{ fill: "#64748b", fontSize: 11 }} tickLine={false} axisLine={false} />
-                  <YAxis type="category" dataKey="name" width={120} tick={{ fill: "#64748b", fontSize: 11 }} tickLine={false} axisLine={false} />
-                  <Tooltip content={<TooltipCard keyName="seconds" />} />
-                  <Bar dataKey="hours" radius={[0, 6, 6, 0]}>
-                    {selectedProjectContrib.map((row, index) => <Cell key={row.key} fill={COLORS[index % COLORS.length]} />)}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          ) : (
-            <p className="text-sm text-slate-500 dark:text-slate-400">No contributor data found for this project.</p>
-          )}
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/95">
-          <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">All Members Contribution</h3>
-            <span className="text-xs text-slate-500 dark:text-slate-400">All projects (all-time)</span>
-          </div>
-          {loadingMembers ? (
-            <p className="text-sm text-slate-500 dark:text-slate-400">Loading member contribution...</p>
-          ) : allMemberChart.length ? (
-            <div className="grid gap-3 lg:grid-cols-[1fr_0.95fr]">
+          {selectedProjectContribChart.length ? (
+            <div className="grid gap-3 lg:grid-cols-[0.9fr_1.1fr]">
               <div className="h-72 w-full">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={allMemberChart} margin={{ top: 4, right: 8, left: -12, bottom: 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" opacity={0.35} />
-                    <XAxis dataKey="name" angle={-20} textAnchor="end" height={60} interval={0} tick={{ fill: "#64748b", fontSize: 10 }} tickLine={false} axisLine={false} />
-                    <YAxis tickFormatter={(v) => `${v}h`} tick={{ fill: "#64748b", fontSize: 11 }} tickLine={false} axisLine={false} />
+                  <PieChart>
+                    <Pie
+                      data={selectedProjectContribChart}
+                      dataKey="hours"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={62}
+                      outerRadius={102}
+                      paddingAngle={3}
+                      strokeWidth={0}
+                    >
+                      {selectedProjectContribChart.map((row) => (
+                        <Cell key={row.key} fill={row.fill} />
+                      ))}
+                    </Pie>
                     <Tooltip content={<TooltipCard keyName="seconds" />} />
-                    <Bar dataKey="hours" radius={[6, 6, 0, 0]} fill="#06b6d4" />
-                  </BarChart>
+                  </PieChart>
                 </ResponsiveContainer>
               </div>
               <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
-                {allMemberRows.map((row) => (
-                  <div key={row.key} className="flex items-center justify-between rounded-xl border border-slate-200 bg-white/80 px-3 py-2 text-sm dark:border-white/10 dark:bg-slate-900/70">
-                    <div className="min-w-0">
-                      <p className="truncate font-medium text-slate-800 dark:text-slate-100">{row.name}</p>
-                      <p className="truncate text-xs text-slate-500 dark:text-slate-400">{row.email || "No email"}</p>
+                {selectedProjectContribChart.map((row) => (
+                  <div key={row.key} className="rounded-xl border border-border bg-background px-3 py-2.5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="inline-flex min-w-0 items-center gap-2">
+                        <span className="inline-block size-2.5 rounded-full" style={{ background: row.fill }} />
+                        <p className="truncate text-sm font-medium text-foreground">{row.name}</p>
+                      </div>
+                      <p className="shrink-0 text-sm font-semibold text-foreground">{fmtSeconds(row.seconds)}</p>
                     </div>
-                    <p className="ml-2 shrink-0 font-semibold text-slate-700 dark:text-slate-200">{fmtSeconds(row.seconds)}</p>
+                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full"
+                        style={{
+                          width: `${Math.max((row.seconds / Math.max(1, selectedProjectContribChart[0]?.seconds || 1)) * 100, 6)}%`,
+                          background: row.fill,
+                        }}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <p className="text-sm text-slate-500 dark:text-slate-400">No member contribution data available.</p>
+            <p className="text-sm text-muted-foreground">No contributor data found for this project.</p>
+          )}
+        </div>
+
+        <div className={timesheetPanelClass}>
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <h3 className={timesheetTitleClass}>All Members Contribution</h3>
+            <span className={timesheetMutedTextClass}>All projects (all-time)</span>
+          </div>
+          {loadingMembers ? (
+            <p className="text-sm text-muted-foreground">Loading member contribution...</p>
+          ) : allMemberChart.length ? (
+            <div className="h-[22rem] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={allMemberChart} margin={{ top: 12, right: 12, left: -18, bottom: 36 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#cbd5e1" opacity={0.3} />
+                  <XAxis dataKey="name" angle={-18} textAnchor="end" height={72} interval={0} tick={{ fill: "#64748b", fontSize: 10 }} tickLine={false} axisLine={false} />
+                  <YAxis tickFormatter={(v) => `${v}h`} tick={{ fill: "#64748b", fontSize: 11 }} tickLine={false} axisLine={false} />
+                  <Tooltip content={<TooltipCard keyName="seconds" />} />
+                  <Bar dataKey="hours" radius={[10, 10, 0, 0]} fill="#4586ff" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">No member contribution data available.</p>
           )}
         </div>
       </section>
 
       <section className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/95">
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Snapshot</h3>
-          <div className="mt-3 space-y-3 text-sm">
-            <div className="rounded-xl border border-slate-200 p-3 dark:border-white/10">
-              <p className="text-xs text-slate-500 dark:text-slate-400">Top Contributor</p>
-              <p className="mt-1 font-semibold text-slate-800 dark:text-slate-100">{topContributor?.name || "N/A"}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{topContributor ? fmtSeconds(topContributor.seconds) : "No data"}</p>
+        <div className={timesheetPanelClass}>
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <h3 className={timesheetTitleClass}>Snapshot</h3>
+              <p className="mt-1 text-xs text-muted-foreground">Quick glance at the strongest signals in this view.</p>
             </div>
-            <div className="rounded-xl border border-slate-200 p-3 dark:border-white/10">
-              <p className="text-xs text-slate-500 dark:text-slate-400">Selected Project</p>
-              <p className="mt-1 font-semibold text-slate-800 dark:text-slate-100">{selectedProject?.name || "N/A"}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{fmtSeconds(projectRows.reduce((sum, row) => sum + Number(row.totalTime || 0), 0))}</p>
+            <div className="inline-flex size-10 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
+              <Activity className="size-4" />
             </div>
-            <div className="rounded-xl border border-slate-200 p-3 dark:border-white/10">
-              <p className="text-xs text-slate-500 dark:text-slate-400">Selected Task</p>
-              <p className="mt-1 font-semibold text-slate-800 dark:text-slate-100">{selectedTask?.title || "N/A"}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{taskReport ? `${fmtSeconds(taskReport.totalTimeSpent || 0)} spent` : "No task report"}</p>
+          </div>
+          <div className="grid gap-3 text-sm">
+            <div className="overflow-hidden rounded-[26px] border border-border bg-background p-4 shadow-sm">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Top Contributor</p>
+              <div className="mt-3 flex items-end justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate text-lg font-semibold text-foreground">{topContributor?.name || "N/A"}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{topContributor?.email || "No contributor data"}</p>
+                </div>
+                <div className="rounded-2xl border border-border bg-card px-3 py-2 text-right shadow-sm">
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Tracked</p>
+                  <p className="mt-1 text-sm font-semibold text-foreground">
+                    {topContributor ? fmtSeconds(topContributor.seconds) : "No data"}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className={timesheetInsetCardClass}>
+                <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Selected Project</p>
+                <p className="mt-2 line-clamp-2 min-h-[2.5rem] font-semibold text-foreground">{selectedProject?.name || "N/A"}</p>
+                <div className="mt-4 h-2 rounded-full bg-muted">
+                  <div
+                    className="h-2 rounded-full bg-primary"
+                    style={{ width: `${Math.min(100, Math.max((projectRows.reduce((sum, row) => sum + Number(row.totalTime || 0), 0) / Math.max(1, teamTotalSeconds)) * 100, 8))}%` }}
+                  />
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">{fmtSeconds(projectRows.reduce((sum, row) => sum + Number(row.totalTime || 0), 0))}</p>
+              </div>
+              <div className={timesheetInsetCardClass}>
+                <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Selected Task</p>
+                <p className="mt-2 line-clamp-2 min-h-[2.5rem] font-semibold text-foreground">{selectedTask?.title || "N/A"}</p>
+                <div className="mt-4 h-2 rounded-full bg-muted">
+                  <div
+                    className="h-2 rounded-full bg-primary"
+                    style={{ width: `${Math.min(100, Math.max(taskProgress, 8))}%` }}
+                  />
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {taskReport ? `${fmtSeconds(taskReport.totalTimeSpent || 0)} spent` : "No task report"}
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-sm dark:border-white/10 dark:bg-slate-900/95">
-          <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Task Report</h3>
-            <Clock3 className="size-4 text-slate-400" />
+        <div className={timesheetPanelClass}>
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <h3 className={timesheetTitleClass}>Task Report</h3>
+            <Clock3 className="size-4 text-muted-foreground" />
           </div>
           {taskReport ? (
             <div className="space-y-4">
-              <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{selectedTask?.title || "Selected task"}</p>
+              <p className="text-sm font-medium text-foreground">{selectedTask?.title || "Selected task"}</p>
               <div className="grid gap-2 sm:grid-cols-3">
-                <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-800/50">
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Estimated</p>
-                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{fmtSeconds(taskReport.estimatedTime)}</p>
+                <div className={timesheetMiniCardClass}>
+                  <p className="text-[11px] text-muted-foreground">Estimated</p>
+                  <p className="text-sm font-semibold text-foreground">{fmtSeconds(taskReport.estimatedTime)}</p>
                 </div>
-                <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-800/50">
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Spent</p>
-                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{fmtSeconds(taskReport.totalTimeSpent)}</p>
+                <div className={timesheetMiniCardClass}>
+                  <p className="text-[11px] text-muted-foreground">Spent</p>
+                  <p className="text-sm font-semibold text-foreground">{fmtSeconds(taskReport.totalTimeSpent)}</p>
                 </div>
-                <div className="rounded-lg bg-slate-50 p-2 dark:bg-slate-800/50">
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Remaining</p>
-                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{fmtSeconds(taskReport.remainingTime)}</p>
+                <div className={timesheetMiniCardClass}>
+                  <p className="text-[11px] text-muted-foreground">Remaining</p>
+                  <p className="text-sm font-semibold text-foreground">{fmtSeconds(taskReport.remainingTime)}</p>
                 </div>
               </div>
               <div>
-                <div className="mb-1 flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
+                <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
                   <span>Progress</span>
                   <span>{taskProgress}%</span>
                 </div>
-                <div className="h-2.5 rounded-full bg-slate-100 dark:bg-slate-800">
-                  <div className="h-2.5 rounded-full bg-gradient-to-r from-indigo-500 to-cyan-500" style={{ width: `${taskProgress}%` }} />
+                <div className="h-2.5 rounded-full bg-muted">
+                  <div className="h-2.5 rounded-full bg-primary" style={{ width: `${taskProgress}%` }} />
                 </div>
               </div>
               <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Recent Logs</p>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Recent Logs</p>
                 <div className="max-h-56 space-y-2 overflow-y-auto pr-1">
                   {(taskReport.logs || []).slice(0, 10).map((log) => (
-                    <div key={log.id} className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-xs dark:border-white/10">
+                    <div key={log.id} className="flex items-center justify-between rounded-2xl border border-border bg-background px-3 py-2.5 text-xs shadow-sm">
                       <div className="min-w-0">
-                        <p className="truncate text-slate-700 dark:text-slate-200">
+                        <p className="truncate text-foreground">
                           {log.startTime ? new Date(log.startTime).toLocaleString() : "Unknown"} - {log.endTime ? new Date(log.endTime).toLocaleString() : "Running"}
                         </p>
-                        {log.description ? <p className="truncate text-slate-500 dark:text-slate-400">{log.description}</p> : null}
+                        {log.description ? <p className="truncate text-muted-foreground">{log.description}</p> : null}
                       </div>
-                      <span className="ml-3 font-semibold text-slate-700 dark:text-slate-200">{fmtSeconds(log.duration)}</span>
+                      <span className="ml-3 font-semibold text-foreground">{fmtSeconds(log.duration)}</span>
                     </div>
                   ))}
-                  {!taskReport.logs?.length ? <p className="text-sm text-slate-500 dark:text-slate-400">No task logs found.</p> : null}
+                  {!taskReport.logs?.length ? <p className="text-sm text-muted-foreground">No task logs found.</p> : null}
                 </div>
               </div>
             </div>
           ) : (
-            <p className="text-sm text-slate-500 dark:text-slate-400">Select a task to view task-level report.</p>
+            <p className="text-sm text-muted-foreground">Select a task to view task-level report.</p>
           )}
         </div>
       </section>

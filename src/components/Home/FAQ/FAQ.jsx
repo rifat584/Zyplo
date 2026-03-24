@@ -50,10 +50,10 @@ export default function FAQ() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 md:mb-8 text-gray-900 dark:text-white">
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 md:mb-8 text-foreground">
             Frequently Asked Questions
           </h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-muted-foreground">
             Have questions? We’ve got answers.
           </p>
         </motion.div>
@@ -69,14 +69,14 @@ export default function FAQ() {
               viewport={{ once: true }}
               className="
                 rounded-xl p-6 cursor-pointer transition-all duration-300
-                bg-gray-50 dark:bg-gray-800
-                border border-gray-200 dark:border-gray-700
+                bg-surface dark:bg-surface
+                border border-border dark:border-border
                 hover:shadow-lg dark:hover:shadow-indigo-500/10
               "
               onClick={() => toggle(index)}
             >
               <div className="flex justify-between items-center">
-                <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+                <h3 className="font-semibold text-lg text-foreground">
                   {faq.question}
                 </h3>
 
@@ -84,7 +84,7 @@ export default function FAQ() {
                 <motion.span
                   animate={{ rotate: openIndex === index ? 45 : 0 }}
                   transition={{ duration: 0.3 }}
-                  className="text-xl font-bold text-sky-500"
+                  className="text-xl font-bold text-secondary"
                 >
                   +
                 </motion.span>
@@ -98,7 +98,7 @@ export default function FAQ() {
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.4 }}
-                    className="mt-4 text-gray-600 dark:text-gray-400 leading-relaxed overflow-hidden"
+                    className="mt-4 text-muted-foreground leading-relaxed overflow-hidden"
                   >
                     {faq.answer}
                   </motion.p>

@@ -7,15 +7,15 @@ export function ProjectsCard({ projects }) {
         {projects.map((project) => (
           <div
             key={project.name}
-            className="rounded-lg border border-zinc-200 bg-white px-2.5 py-2 dark:border-gray-700 dark:bg-[#0F1629]"
+            className="rounded-lg border border-zinc-200 bg-white px-2.5 py-2 dark:border-border dark:bg-[#0F1629]"
           >
             <div className="mb-1.5 flex items-center justify-between text-xs">
-              <p className="font-medium text-zinc-700 dark:text-gray-300">{project.name}</p>
-              <span className="text-zinc-500 dark:text-gray-400">{project.members} members</span>
+              <p className="font-medium text-foreground">{project.name}</p>
+              <span className="text-muted-foreground">{project.members} members</span>
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-zinc-100 dark:bg-[#111A2E]">
               <div
-                className="h-full rounded-full bg-linear-to-r from-indigo-500 to-cyan-400"
+                className="h-full rounded-full bg-linear-to-r from-primary to-secondary"
                 style={{ width: `${project.progress}%` }}
               />
             </div>

@@ -7,37 +7,51 @@ import { Search, Menu, X, ChevronDown, Sun, Moon } from "lucide-react";
 import ResourcesMenu from "./ResourcesMenu/ResourcesMenu";
 import { useTheme } from "@/Context/ThemeContext";
 import Logo from "@/components/Shared/Logo/Logo";
-import { useSession, signOut } from "next-auth/react"; // Added signOut
+import { useSession, signOut } from "next-auth/react";
 import { resources } from "@/lib/resources/resources";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false); // Added profile dropdown state
-  
+  const [profileOpen, setProfileOpen] = useState(false);
+
   const pathname = usePathname();
   const dropdownRef = useRef(null);
-  const profileRef = useRef(null); // Added ref for profile dropdown
-  
+  const profileRef = useRef(null);
+
   const session = useSession();
-  const isAuthenticated = session.status === "authenticated"; // Corrected auth check
+  const isAuthenticated = session.status === "authenticated";
   const [profile, setProfile] = useState(null);
-  
+
   // Theme state
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  const getLinkClass = (path) => {
-    const baseStyles =
-      "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200";
-
-    if (pathname === path) {
-      return `${baseStyles} bg-primary/10 text-gray-900 dark:text-gray-100 font-semibold shadow-sm ring-1 ring-primary/20 dark:bg-primary/20`;
+  const isPathActive = (path) => {
+    if (path === "/") {
+      return pathname === "/";
     }
-
-    return `${baseStyles} text-gray-600 dark:text-gray-300 hover:text-secondary hover:border dark:hover:text-secondary transition-colors`;
+    return pathname === path || pathname.startsWith(`${path}/`);
   };
+
+  const getDesktopLinkClass = (path) =>
+    cn(
+      "inline-flex h-10 items-center border-b-2 px-4 text-sm font-medium transition-colors",
+      isPathActive(path)
+        ? "border-primary text-primary"
+        : "border-transparent text-muted-foreground hover:border-primary/70 hover:text-primary",
+    );
+
+  const getMobileLinkClass = (path) =>
+    cn(
+      "flex w-full items-center rounded-md border-l-2 border-transparent px-3 py-2.5 text-sm font-medium transition-colors",
+      isPathActive(path)
+        ? "border-l-primary text-primary"
+        : "text-foreground hover:border-l-primary/45 hover:text-primary",
+    );
 
   // Close mega menu and profile menu on outside click
   useEffect(() => {
@@ -55,7 +69,11 @@ const Navbar = () => {
 
   // Prevent hydration mismatch for theme toggle
   useEffect(() => {
-    setMounted(true);
+    const frameId = requestAnimationFrame(() => {
+      setMounted(true);
+    });
+
+    return () => cancelAnimationFrame(frameId);
   }, []);
 
   useEffect(() => {
@@ -67,7 +85,9 @@ const Navbar = () => {
         return;
       }
       try {
-        const res = await fetch("/api/dashboard/profile", { cache: "no-store" });
+        const res = await fetch("/api/dashboard/profile", {
+          cache: "no-store",
+        });
         const text = await res.text();
         const data = text ? JSON.parse(text) : null;
         if (!res.ok || !data?.currentUser) return;
@@ -89,34 +109,82 @@ const Navbar = () => {
     setProfileOpen(false);
   };
 
+  const toggleMobileMenu = () => {
+    if (isOpen) {
+      setMobileResourcesOpen(false);
+    }
+    setIsOpen((prev) => !prev);
+  };
+
   const toggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
   };
 
+  // --- TRICK TO OPEN COMMAND PALETTE ---
+  const openCommandPalette = () => {
+    document.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }),
+    );
+  };
+
   const displayName = profile?.name || session.data?.user?.name || "User";
   const displayEmail = profile?.email || session.data?.user?.email || "";
-  const displayAvatarUrl = profile?.avatarUrl || session.data?.user?.image || "";
+  const displayAvatarUrl =
+    profile?.avatarUrl || session.data?.user?.image || "";
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-[#0F1629]/80 backdrop-blur-md transition-colors duration-300">
+    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/85 backdrop-blur-md transition-colors duration-300">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <Logo size={50} />
+          <Logo
+            textSize="2xl md:3xl"
+            size={45}
+            imageClassName="max-md:h-9 max-md:w-9"
+          />
         </Link>
 
         {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-2 relative" ref={dropdownRef}>
-          <Link href="/" className={getLinkClass("/")}>Home</Link>
-          <Link href="/pricing" className={getLinkClass("/pricing")}>Pricing</Link>
-          <Link href="/blog" className={getLinkClass("/blog")}>Blog</Link>
+        <div
+          className="hidden md:flex items-center gap-2 relative"
+          ref={dropdownRef}
+        >
+          <Link
+            href="/"
+            onClick={() => setResourcesOpen(false)}
+            className={getDesktopLinkClass("/")}
+          >
+            Home
+          </Link>
+          <Link
+            href="/pricing"
+            onClick={() => setResourcesOpen(false)}
+            className={getDesktopLinkClass("/pricing")}
+          >
+            Pricing
+          </Link>
+          <Link
+            href="/blog"
+            onClick={() => setResourcesOpen(false)}
+            className={getDesktopLinkClass("/blog")}
+          >
+            Blog
+          </Link>
 
-          {/* Resources Button */}
+          {/* Resources Button (Click only) */}
           <button
             onClick={() => setResourcesOpen((p) => !p)}
-            className={`${getLinkClass("/resources")} flex items-center gap-1 cursor-pointer`}
+            className={cn(
+              getDesktopLinkClass("/resources"),
+              "flex items-center gap-1 cursor-pointer outline-none",
+              resourcesOpen ? "border-primary text-primary" : null,
+            )}
           >
-            Resources <ChevronDown size={16} />
+            Resources
+            <ChevronDown
+              size={16}
+              className={`transition-transform duration-200 ${resourcesOpen ? "rotate-180" : ""}`}
+            />
           </button>
 
           {/* Mega Menu */}
@@ -125,30 +193,33 @@ const Navbar = () => {
             resourcesOpen={resourcesOpen}
             setResourcesOpen={setResourcesOpen}
             mobileResourcesOpen={false}
-            setMobileResourcesOpen={() => { }}
-            closeAll={() => { }}
+            setMobileResourcesOpen={() => {}}
+            closeAll={() => {}}
           />
         </div>
 
         {/* Right Actions */}
         <div className="flex items-center gap-4">
-
           {/* --- Theme Toggle --- */}
           {mounted && (
             <button
               onClick={toggleTheme}
-              className="relative flex h-9 w-9 items-center justify-center rounded-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:scale-105 cursor-pointer"
+              className="relative flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors duration-300 hover:bg-accent hover:text-accent-foreground cursor-pointer"
               aria-label="Toggle theme"
             >
               {theme === "light" ? (
-                <Moon size={16} className="text-gray-600" />
+                <Moon size={16} className="text-current" />
               ) : (
-                <Sun size={16} className="text-yellow-400" />
+                <Sun size={16} className="text-current" />
               )}
             </button>
           )}
 
-          <button className="hidden sm:flex items-center gap-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 transition hover:bg-gray-100 dark:hover:bg-gray-700">
+          {/* Desktop Search Button */}
+          <button
+            onClick={openCommandPalette}
+            className="hidden sm:flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer"
+          >
             <Search size={16} />
             <span className="text-xs">Ctrl+K</span>
           </button>
@@ -156,62 +227,78 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-4">
             {!isAuthenticated ? (
               <>
-                <Link href="/login" className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-secondary">
+                <Button
+                  as={Link}
+                  href="/login"
+                  variant="outline"
+                  size="sm"
+                  className="min-w-25 border-border text-foreground shadow-none hover:scale-100 hover:border-primary/70 hover:bg-accent/70 hover:text-foreground hover:shadow-none transition-colors duration-300"
+                >
                   Sign in
-                </Link>
-                <Link href="/register" className="flex items-center justify-center rounded-lg bg-linear-to-br from-indigo-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-indigo-500/40 active:scale-95">
+                </Button>
+                <Button
+                  as={Link}
+                  href="/register"
+                  size="sm"
+                  className="min-w-32 bg-linear-to-r from-primary to-secondary text-primary-foreground shadow-none hover:scale-105 hover:opacity-95 hover:shadow-none transition-transform duration-300"
+                >
                   Get started
-                </Link>
+                </Button>
               </>
             ) : (
               <>
                 {/* --- Profile Dropdown (Desktop) --- */}
                 <div className="relative" ref={profileRef}>
-                  <button 
+                  <button
                     onClick={() => setProfileOpen(!profileOpen)}
                     className="flex items-center gap-2 outline-none"
                   >
-                    <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 hover:ring-2 hover:ring-indigo-500/50 transition-all cursor-pointer">
+                    <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-bold text-primary dark:bg-primary/20 dark:text-primary hover:ring-2 hover:ring-primary/50 transition-all cursor-pointer">
                       {displayAvatarUrl ? (
-                        <img src={displayAvatarUrl} alt={displayName} className="h-full w-full object-cover" />
+                        <img
+                          src={displayAvatarUrl}
+                          alt={displayName}
+                          className="h-full w-full object-cover"
+                        />
                       ) : (
-                        <span>{(displayName?.charAt(0) || "U").toUpperCase()}</span>
+                        <span>
+                          {(displayName?.charAt(0) || "U").toUpperCase()}
+                        </span>
                       )}
                     </div>
                   </button>
 
                   {profileOpen ? (
-                    <div className="absolute right-0 top-12 z-30 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-lg dark:border-white/10 dark:bg-slate-900">
-                      <div className="mb-2 border-b border-slate-200 pb-2 px-2 dark:border-white/10">
-                        <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+                    <div className="absolute right-0 top-12 z-30 w-56 rounded-xl border border-border bg-popover p-2 text-popover-foreground shadow-lg">
+                      <div className="mb-2 border-b border-border pb-2 px-2">
+                        <p className="text-sm font-medium text-foreground truncate">
                           {displayName}
                         </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                        <p className="text-xs text-muted-foreground truncate">
                           {displayEmail}
                         </p>
                       </div>
-                      
+
                       <div className="flex flex-col gap-1">
-                        {/* Moved Dashboard Link inside the dropdown */}
                         <Link
                           href="/dashboard"
                           onClick={() => setProfileOpen(false)}
-                          className="w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5 transition-colors"
+                          className="flex w-full items-center rounded-md border-l-2 border-transparent px-2 py-2 text-left text-sm font-medium text-foreground transition-colors hover:border-l-primary/45 hover:text-primary"
                         >
                           Dashboard
                         </Link>
                         <Link
                           href="/dashboard/profile"
                           onClick={() => setProfileOpen(false)}
-                          className="w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5 transition-colors"
+                          className="flex w-full items-center rounded-md border-l-2 border-transparent px-2 py-2 text-left text-sm font-medium text-foreground transition-colors hover:border-l-primary/45 hover:text-primary"
                         >
                           Profile
                         </Link>
-                        
+
                         <button
                           type="button"
                           onClick={() => signOut({ callbackUrl: "/login" })}
-                          className="w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10 transition-colors"
+                          className="w-full rounded-lg border border-destructive/20 bg-destructive/6 px-2 py-2 text-left text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
                         >
                           Sign out
                         </button>
@@ -225,118 +312,160 @@ const Navbar = () => {
 
           {/* Mobile Toggle */}
           <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors"
+            onClick={toggleMobileMenu}
+            className="md:hidden rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
 
-      {/* Gradient line */}
-      <div className="absolute bottom-0 left-0 h-px w-full bg-linear-to-r from-transparent via-indigo-500/30 dark:via-cyan-400/30 to-transparent" />
+      <div className="absolute bottom-0 left-0 h-px w-full bg-border" />
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0F1629] px-6 py-4 space-y-4 shadow-xl">
-          {/* Top Links */}
-          <div className="flex flex-col space-y-2">
-            <Link href="/" onClick={closeAllMobile} className={getLinkClass("/")}>Home</Link>
-            <Link href="/pricing" onClick={closeAllMobile} className={getLinkClass("/pricing")}>Pricing</Link>
-            <Link href="/blog" onClick={closeAllMobile} className={getLinkClass("/blog")}>Blog</Link>
+        <div className="md:hidden max-h-[calc(100vh-4rem)] overflow-y-auto overscroll-contain border-t border-border bg-background px-6 py-4 shadow-xl">
+            {/* Top Links */}
+            <div className="flex flex-col space-y-2">
+              <Link
+                href="/"
+                onClick={closeAllMobile}
+                className={getMobileLinkClass("/")}
+              >
+                Home
+              </Link>
+              <Link
+                href="/pricing"
+                onClick={closeAllMobile}
+                className={getMobileLinkClass("/pricing")}
+              >
+                Pricing
+              </Link>
+              <Link
+                href="/blog"
+                onClick={closeAllMobile}
+                className={getMobileLinkClass("/blog")}
+              >
+                Blog
+              </Link>
 
-            {/* Resources Toggle */}
-            <button
-              onClick={() => setMobileResourcesOpen((p) => !p)}
-              className="w-full flex items-center justify-between px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground dark:text-gray-300 hover:bg-secondary/20"
-            >
-              Resources
-              <ChevronDown size={16} className={`${mobileResourcesOpen ? "rotate-180" : ""} transition-transform`} />
-            </button>
+              {/* Resources Toggle */}
+              <button
+                onClick={() => setMobileResourcesOpen((p) => !p)}
+                className={cn(
+                  "flex w-full items-center justify-between rounded-md border-l-2 border-transparent px-3 py-2.5 text-sm font-medium transition-colors",
+                  mobileResourcesOpen || isPathActive("/resources")
+                    ? "border-l-primary text-primary"
+                    : "text-foreground hover:border-l-primary/45 hover:text-primary",
+                )}
+              >
+                Resources
+                <ChevronDown
+                  size={16}
+                  className={`${mobileResourcesOpen ? "rotate-180" : ""} transition-transform`}
+                />
+              </button>
 
-            <ResourcesMenu
-              resources={resources}
-              resourcesOpen={false}
-              setResourcesOpen={() => { }}
-              mobileResourcesOpen={mobileResourcesOpen}
-              setMobileResourcesOpen={setMobileResourcesOpen}
-              closeAll={closeAllMobile}
-            />
-          </div>
+              <ResourcesMenu
+                resources={resources}
+                resourcesOpen={false}
+                setResourcesOpen={() => {}}
+                mobileResourcesOpen={mobileResourcesOpen}
+                setMobileResourcesOpen={setMobileResourcesOpen}
+                closeAll={closeAllMobile}
+              />
+            </div>
 
-          {/* Divider */}
-          <div className="border-t border-gray-100 dark:border-gray-800 pt-4 flex flex-col gap-3">
-            {/* Search */}
-            <button className="flex w-full items-center justify-center gap-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-3 py-2 text-sm text-gray-500 dark:text-gray-300">
-              <Search size={16} />
-              Search...
-            </button>
+            {/* Divider */}
+            <div className="flex flex-col gap-3 border-t border-border pt-4">
+              {/* Mobile Search Button */}
+              <button
+                onClick={() => {
+                  closeAllMobile();
+                  openCommandPalette();
+                }}
+                className="flex w-full items-center gap-2 rounded-md border-l-2 border-transparent px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-l-primary/45 hover:text-primary cursor-pointer"
+              >
+                <Search size={16} />
+                Search...
+              </button>
 
-            {!isAuthenticated ? (
-              <>
-                <Link
-                  href="/login"
-                  onClick={closeAllMobile}
-                  className="flex w-full items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
-                >
-                  Sign in
-                </Link>
-                <Link
-                  href="/register"
-                  onClick={closeAllMobile}
-                  className="flex w-full items-center justify-center rounded-lg bg-linear-to-br from-indigo-500 to-cyan-400 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-indigo-500/40 active:scale-95"
-                >
-                  Get started
-                </Link>
-              </>
-            ) : (
-              <>
-                {/* Dashboard (Mobile) */}
-                <Link
-                  href="/dashboard"
-                  onClick={closeAllMobile}
-                  className="flex w-full items-center justify-center rounded-lg border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 py-2 text-sm font-medium text-indigo-700 dark:text-indigo-300"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/dashboard/profile"
-                  onClick={closeAllMobile}
-                  className="flex w-full items-center justify-center rounded-lg border border-indigo-200 dark:border-indigo-500/30 bg-indigo-50 dark:bg-indigo-500/10 py-2 text-sm font-medium text-indigo-700 dark:text-indigo-300"
-                >
-                  Profile
-                </Link>
-                
-                {/* Mobile User Info & Logout */}
-                <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-slate-800/50">
-                  <div className="mb-3 border-b border-slate-200 pb-3 dark:border-white/10 flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-indigo-100 text-sm font-bold text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
-                      {displayAvatarUrl ? (
-                        <img src={displayAvatarUrl} alt={displayName} className="h-full w-full object-cover" />
-                      ) : (
-                        <span>{(displayName?.charAt(0) || "U").toUpperCase()}</span>
-                      )}
-                    </div>
-                    <div className="overflow-hidden">
-                      <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
-                        {displayName}
-                      </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                        {displayEmail}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => signOut({ callbackUrl: "/login" })}
-                    className="w-full rounded-lg py-2 text-center text-sm font-medium text-rose-600 hover:bg-rose-100 dark:text-rose-400 dark:hover:bg-rose-500/10 transition-colors"
+              {!isAuthenticated ? (
+                <>
+                  <Button
+                    as={Link}
+                    href="/login"
+                    onClick={closeAllMobile}
+                    variant="outline"
+                    size="sm"
+                    className="w-full border-border bg-card text-foreground shadow-none hover:scale-100 hover:border-primary/45 hover:bg-accent/70 hover:text-foreground hover:shadow-none"
                   >
-                    Sign out
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
+                    Sign in
+                  </Button>
+                  <Button
+                    as={Link}
+                    href="/register"
+                    onClick={closeAllMobile}
+                    size="sm"
+                    className="w-full bg-linear-to-r from-primary to-secondary text-primary-foreground shadow-none hover:scale-100 hover:opacity-95 hover:shadow-none"
+                  >
+                    Get started
+                  </Button>
+                </>
+              ) : (
+                <>
+                  {/* Dashboard (Mobile) */}
+                  <Link
+                    href="/dashboard"
+                    onClick={closeAllMobile}
+                    className="flex w-full items-center rounded-md border-l-2 border-transparent px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-l-primary/45 hover:text-primary"
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    href="/dashboard/profile"
+                    onClick={closeAllMobile}
+                    className="flex w-full items-center rounded-md border-l-2 border-transparent px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-l-primary/45 hover:text-primary"
+                  >
+                    Profile
+                  </Link>
+
+                  {/* Mobile User Info & Logout */}
+                  <div className="mt-2 px-3 py-2">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-bold text-primary dark:bg-primary/20 dark:text-primary">
+                        {displayAvatarUrl ? (
+                          <img
+                            src={displayAvatarUrl}
+                            alt={displayName}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span>
+                            {(displayName?.charAt(0) || "U").toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className="truncate text-sm font-medium text-foreground">
+                          {displayName}
+                        </p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {displayEmail}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => signOut({ callbackUrl: "/login" })}
+                      className="mt-3 w-full rounded-lg border border-destructive/20 bg-destructive/6 py-2 text-center text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
         </div>
       )}
     </nav>

@@ -83,7 +83,7 @@ export default function DemoPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
-                        className="mx-auto mt-5 max-w-2xl text-gray-600 dark:text-gray-400"
+                        className="mx-auto mt-5 max-w-2xl text-muted-foreground"
                     >
                         Explore how teams plan faster, collaborate better, and ship with confidence using Zyplo.
                     </motion.p>
@@ -125,7 +125,7 @@ export default function DemoPage() {
                                     </span>
                                     <div>
                                         <p className="font-semibold">{f.title}</p>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                                        <p className="text-sm text-muted-foreground">
                                             {f.desc}
                                         </p>
                                     </div>
@@ -150,7 +150,7 @@ export default function DemoPage() {
                                         <h3 className="text-lg font-semibold">{active.title}</h3>
                                     </div>
 
-                                    <p className="mb-6 text-gray-600 dark:text-gray-400">
+                                    <p className="mb-6 text-muted-foreground">
                                         {active.desc}
                                     </p>
 
