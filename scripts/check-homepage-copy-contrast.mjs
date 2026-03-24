@@ -6,6 +6,11 @@ const root = process.cwd();
 const riskyPatterns = [
   {
     file: "src/components/Home/Hero/Hero.jsx",
+    pattern: 'className="marketing-copy-strong mt-5 max-w-2xl text-base leading-7 sm:text-lg"',
+    reason: "hero lead copy is still using a softened tone instead of full foreground contrast",
+  },
+  {
+    file: "src/components/Home/Hero/Hero.jsx",
     pattern: 'className="marketing-copy mt-5 max-w-2xl text-base leading-7 sm:text-lg"',
     reason: "hero lead copy is still using the generic marketing tier instead of the stronger hero tier",
   },
@@ -58,6 +63,11 @@ const riskyPatterns = [
     file: "src/components/Home/FAQ/FAQ.jsx",
     pattern: "text-sm leading-6 text-muted-foreground sm:text-base",
     reason: "faq section intro still uses the washed-out muted token",
+  },
+  {
+    file: "src/components/Home/Hero/Hero.jsx",
+    pattern: 'className="order-2 relative flex justify-center md:justify-end"',
+    reason: "hero image is still visible on mobile",
   },
 ];
 
