@@ -92,6 +92,91 @@ const WORKSPACE_BADGE_GRADIENTS = [
   "from-slate-500 to-zinc-400 text-white",
 ];
 
+// --- BULLETPROOF STARRED WORKSPACES HOOK ---
+const STARRED_KEY = "dashboard.starredWorkspaces";
+
+function useStarredWorkspaces() {
+  const currentUser = useMockStore((state) => state.currentUser || null);
+  const [starredIds, setStarredIds] = useState([]);
+
+  // 1. Instant Load: Read from LocalStorage so refresh works instantly
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STARRED_KEY);
+      if (stored) setStarredIds(JSON.parse(stored));
+    } catch {}
+  }, []);
+
+  // 2. Database Truth Sync: The DB is the ultimate source of truth.
+  useEffect(() => {
+    if (currentUser && Array.isArray(currentUser.starredWorkspaceIds)) {
+      setStarredIds(currentUser.starredWorkspaceIds);
+      try {
+        localStorage.setItem(STARRED_KEY, JSON.stringify(currentUser.starredWorkspaceIds));
+      } catch {}
+    }
+  }, [currentUser?.starredWorkspaceIds]);
+
+  // 3. Cross-Component Sync: Keep sidebar and page in sync instantly
+  useEffect(() => {
+    const sync = (e) => {
+      if (e.detail) setStarredIds(e.detail);
+    };
+    window.addEventListener("zyplo-stars-updated", sync);
+    return () => window.removeEventListener("zyplo-stars-updated", sync);
+  }, []);
+
+  const toggleStar = async (workspaceId) => {
+    const isCurrentlyStarred = starredIds.includes(workspaceId);
+    const nextStarred = isCurrentlyStarred
+      ? starredIds.filter((id) => id !== workspaceId)
+      : [...starredIds, workspaceId];
+
+    // 4. Optimistic UI Update & Save to LocalStorage
+    setStarredIds(nextStarred);
+    try {
+      localStorage.setItem(STARRED_KEY, JSON.stringify(nextStarred));
+    } catch {}
+    
+    window.dispatchEvent(
+      new CustomEvent("zyplo-stars-updated", { detail: nextStarred })
+    );
+
+    // 5. PIGGYBACK ON THE PROFILE ROUTE (Bypasses all 404/405 errors!)
+    try {
+      const response = await fetch("/api/dashboard/profile", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-silent-fetch": "true", // Invisible to the global loader
+        },
+        body: JSON.stringify({
+          starredWorkspaceIds: nextStarred,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Backend rejected the save: ${response.status}`);
+      }
+
+      // Force the store to quietly re-fetch to guarantee perfect sync
+      await loadDashboard({ force: true, silent: true });
+
+    } catch (error) {
+      console.error("Star sync failed:", error);
+      toast.error("Failed to save star to database!");
+      
+      // Revert the star visually if the database save failed
+      setStarredIds(starredIds);
+      window.dispatchEvent(
+        new CustomEvent("zyplo-stars-updated", { detail: starredIds })
+      );
+    }
+  };
+
+  return { starredIds, toggleStar };
+}
+
 const WORKSPACE_NAV_ITEMS = [
   {
     id: "overview",
@@ -136,6 +221,7 @@ const WORKSPACE_NAV_ITEMS = [
     href: (id) => `/dashboard/w/${id}/members`,
   },
 ];
+
 function getWorkspaceBillingBadge(subscription) {
   const planId = String(subscription?.planId || "").trim().toLowerCase();
   const status = String(subscription?.status || "").trim().toLowerCase();
@@ -899,12 +985,15 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   const pathname = usePathname();
   const { status: sessionStatus } = useSession();
   const { collapsed, toggle } = useSidebarState();
+  const { starredIds, toggleStar } = useStarredWorkspaces();
   const effectiveCollapsed = mobileOpen ? true : collapsed;
+  
   const { workspaces, currentUser, loaded } = useMockStore((state) => ({
     workspaces: state.workspaces || [],
     currentUser: state.currentUser || null,
     loaded: Boolean(state.loaded),
   }));
+
   const [actionsOpenFor, setActionsOpenFor] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState("");
   const [deleting, setDeleting] = useState(false);
@@ -927,6 +1016,19 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     const compact = name.replace(/\s+/g, "");
     return (compact.slice(0, 2) || "WS").toUpperCase();
   };
+
+  // --- SPLIT WORKSPACES INTO TWO GROUPS ---
+  const starredWorkspaces = useMemo(() => {
+    return workspaces
+      .filter((w) => starredIds.includes(w.id))
+      .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+  }, [workspaces, starredIds]);
+
+  const otherWorkspaces = useMemo(() => {
+    return workspaces
+      .filter((w) => !starredIds.includes(w.id))
+      .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+  }, [workspaces, starredIds]);
 
   useEffect(() => {
     function onPointerDown(event) {
@@ -990,6 +1092,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
       alive = false;
     };
   }, [loaded, sessionStatus, workspaces]);
+  
   const rootItem = (
     <Link
       href="/dashboard/workspaces"
@@ -1053,145 +1156,186 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     </Link>
   );
 
-  const workspaceItems = (
-    <div
-      className={`mt-3 space-y-1 ${effectiveCollapsed ? "flex flex-col items-center" : ""}`}
-    >
-      {!effectiveCollapsed ? (
-        <p className="px-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-          Your Workspaces
-        </p>
-      ) : null}
-      {workspaces.map((workspace) => {
-        const isAdmin =
-          resolveWorkspaceRole(workspace, currentUser) === "admin";
-        const badgeLabel = getWorkspaceBadgeLabel(workspace);
-        const badgeGradient = pickWorkspaceGradient(workspace);
-        const href = `/dashboard/w/${workspace.id}`;
-        const active = pathname === href || pathname.startsWith(`${href}/`);
-        const menuOpen = actionsOpenFor === workspace.id;
-        return (
-          <div key={workspace.id} className="group relative">
+  // Helper to render a single workspace item in the sidebar
+  const renderSidebarWorkspace = (workspace) => {
+    const isAdmin = resolveWorkspaceRole(workspace, currentUser) === "admin";
+    const isStarred = starredIds.includes(workspace.id);
+    const badgeLabel = getWorkspaceBadgeLabel(workspace);
+    const badgeGradient = pickWorkspaceGradient(workspace);
+    const href = `/dashboard/w/${workspace.id}`;
+    const active = pathname === href || pathname.startsWith(`${href}/`);
+    const menuOpen = actionsOpenFor === workspace.id;
+
+    return (
+      <div key={workspace.id} className="group relative">
+        <button
+          type="button"
+          onClick={() => {
+            router.push(href);
+            onCloseMobile?.();
+          }}
+          data-collapsed={effectiveCollapsed ? "true" : "false"}
+          className={cn(
+            active
+              ? dashboardSidebarNavItemActiveClasses
+              : dashboardSidebarNavItemClasses,
+            "flex w-full items-center rounded-xl",
+            effectiveCollapsed
+              ? "size-9 justify-center px-0"
+              : "gap-2 py-2 pl-4 pr-10",
+          )}
+          title={workspace.name}
+        >
+          <span
+            className={cn(
+              "relative flex shrink-0 items-center justify-center rounded-md border border-border/60 bg-linear-to-br font-sans font-semibold uppercase tracking-[0.06em]",
+              "size-6 text-[11px]",
+              badgeGradient,
+            )}
+          >
+            {badgeLabel}
+          </span>
+          {!effectiveCollapsed ? (
+            <span className="flex min-w-0 flex-1 items-center gap-2 pr-1">
+              <span className="truncate text-sm">{workspace.name}</span>
+              {isStarred ? (
+                <Star className="size-3.5 shrink-0 fill-amber-400 text-amber-400" />
+              ) : null}
+            </span>
+          ) : null}
+        </button>
+
+        {!effectiveCollapsed ? (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              setActionsOpenFor((current) =>
+                current === workspace.id ? "" : workspace.id,
+              );
+            }}
+            className={cn(
+              dashboardChromeButtonClasses,
+              "absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 group-hover:block",
+            )}
+          >
+            <Ellipsis className="size-4" />
+          </button>
+        ) : null}
+
+        {menuOpen ? (
+          <div
+            ref={actionsMenuRef}
+            className="absolute right-0 top-10 z-50 w-52 rounded-xl border border-border bg-card p-1 shadow-lg"
+          >
             <button
               type="button"
               onClick={() => {
-                router.push(href);
-                onCloseMobile?.();
+                setActionsOpenFor("");
+                toggleStar(workspace.id);
+                toast.success(
+                  isStarred
+                    ? `Removed ${workspace.name} from starred`
+                    : `Added ${workspace.name} to starred`
+                );
               }}
-              data-collapsed={effectiveCollapsed ? "true" : "false"}
               className={cn(
-                active
-                  ? dashboardSidebarNavItemActiveClasses
-                  : dashboardSidebarNavItemClasses,
-                "flex w-full items-center rounded-xl",
-                effectiveCollapsed
-                  ? "size-9 justify-center px-0"
-                  : "gap-2 py-2 pl-4 pr-10",
+                dashboardMenuItemClasses,
+                "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
               )}
-              title={workspace.name}
             >
-              <span
+              <Star
                 className={cn(
-                  "relative flex shrink-0 items-center justify-center rounded-md border border-border/60 bg-linear-to-br font-sans font-semibold uppercase tracking-[0.06em]",
-                  "size-6 text-[11px]",
-                  badgeGradient,
+                  "size-4",
+                  isStarred ? "fill-amber-400 text-amber-400" : ""
                 )}
-              >
-                {badgeLabel}
-              </span>
-              {!effectiveCollapsed ? (
-                <span className="truncate text-sm">{workspace.name}</span>
-              ) : null}
+              />
+              {isStarred ? "Unstar workspace" : "Add to starred"}
             </button>
-
-            {!effectiveCollapsed ? (
-              <button
-                type="button"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setActionsOpenFor((current) =>
-                    current === workspace.id ? "" : workspace.id,
-                  );
-                }}
-                className={cn(
-                  dashboardChromeButtonClasses,
-                  "absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 group-hover:block",
-                )}
-              >
-                <Ellipsis className="size-4" />
-              </button>
-            ) : null}
-
-            {menuOpen ? (
-              <div
-                ref={actionsMenuRef}
-                className="absolute right-0 top-10 z-50 w-52 rounded-xl border border-border bg-card p-1 shadow-lg"
-              >
+            {isAdmin ? (
+              <>
                 <button
                   type="button"
                   onClick={() => {
                     setActionsOpenFor("");
-                    toast.info(`Added ${workspace.name} to starred`);
+                    router.push(`/dashboard/w/${workspace.id}/members`);
                   }}
                   className={cn(
                     dashboardMenuItemClasses,
                     "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
                   )}
                 >
-                  <Star className="size-4" />
-                  Add to starred
+                  <UserPlus className="size-4" />
+                  Add people
                 </button>
-                {isAdmin ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActionsOpenFor("");
-                        router.push(`/dashboard/w/${workspace.id}/members`);
-                      }}
-                      className={cn(
-                        dashboardMenuItemClasses,
-                        "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
-                      )}
-                    >
-                      <UserPlus className="size-4" />
-                      Add people
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActionsOpenFor("");
-                        router.push(`/dashboard/w/${workspace.id}/settings`);
-                      }}
-                      className={cn(
-                        dashboardMenuItemClasses,
-                        "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
-                      )}
-                    >
-                      <Settings className="size-4" />
-                      Workspace settings
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActionsOpenFor("");
-                        setConfirmDeleteId(workspace.id);
-                      }}
-                      className={cn(
-                        dashboardMenuItemDangerClasses,
-                        "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
-                      )}
-                    >
-                      <Trash2 className="size-4" />
-                      Delete workspace
-                    </button>
-                  </>
-                ) : null}
-              </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActionsOpenFor("");
+                    router.push(`/dashboard/w/${workspace.id}/settings`);
+                  }}
+                  className={cn(
+                    dashboardMenuItemClasses,
+                    "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
+                  )}
+                >
+                  <Settings className="size-4" />
+                  Workspace settings
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActionsOpenFor("");
+                    setConfirmDeleteId(workspace.id);
+                  }}
+                  className={cn(
+                    dashboardMenuItemDangerClasses,
+                    "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
+                  )}
+                >
+                  <Trash2 className="size-4" />
+                  Delete workspace
+                </button>
+              </>
             ) : null}
           </div>
-        );
-      })}
+        ) : null}
+      </div>
+    );
+  };
+
+  const workspaceItems = (
+    <div
+      className={cn(
+        "mt-3",
+        effectiveCollapsed ? "flex flex-col items-center space-y-1" : "space-y-1"
+      )}
+    >
+      {/* STARRED SECTION */}
+      {starredWorkspaces.length > 0 && (
+        <div className="mb-4">
+          {!effectiveCollapsed ? (
+            <p className="px-3 mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              Starred
+            </p>
+          ) : null}
+          <div className="space-y-1">
+            {starredWorkspaces.map(renderSidebarWorkspace)}
+          </div>
+        </div>
+      )}
+
+      {/* OTHER WORKSPACES SECTION */}
+      <div>
+        {!effectiveCollapsed ? (
+          <p className="px-3 mb-1 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {starredWorkspaces.length > 0 ? "Your Workspaces" : "Workspaces"}
+          </p>
+        ) : null}
+        <div className="space-y-1">
+          {otherWorkspaces.map(renderSidebarWorkspace)}
+        </div>
+      </div>
     </div>
   );
 
@@ -1361,7 +1505,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                     setDeleting(false);
                   }
                 }}
-                className="rounded-lg bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
+                className="rounded-lg bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground hover:opacity-90 disabled:opacity-50"
               >
                 {deleting ? "Deleting..." : "Delete Workspace"}
               </button>

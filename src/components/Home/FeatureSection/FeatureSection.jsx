@@ -5,11 +5,10 @@ import MainContainer from "@/components/container/MainContainer";
 
 export default function FeatureSection() {
   return (
-    <MainContainer className="w-full">
+    <MainContainer className="px-6 pb-16 sm:pb-20">
       <section
-        className=" max-w-7xl mx-auto overflow-hidden bg-zinc-20/80 py-20 [--feature-grid-color:rgba(15,23,42,0.1)] [--feature-vignette-edge:rgba(255,255,255,0.9)] dark:bg-[#0B0F19] dark:[--feature-grid-color:rgba(148,163,184,0.2)] dark:[--feature-vignette-edge:rgba(11,15,25,0.96)] sm:py-24"
+        className="overflow-hidden rounded-[2.25rem] border border-border/70 bg-card/45 py-14 shadow-[0_24px_60px_-40px_rgba(15,23,42,0.28)] backdrop-blur-sm [--feature-grid-color:rgba(15,23,42,0.08)] [--feature-vignette-edge:rgba(255,255,255,0.92)] dark:[--feature-grid-color:rgba(148,163,184,0.18)] dark:[--feature-vignette-edge:rgba(5,10,23,0.96)] sm:py-16"
         style={{
-          // Lightweight dot-grid texture keeps the section tactile without using images.
           backgroundImage: `
             linear-gradient(to right, var(--feature-vignette-edge) 0%, transparent 16%, transparent 84%, var(--feature-vignette-edge) 100%),
             linear-gradient(to bottom, var(--feature-vignette-edge) 0%, transparent 16%, transparent 84%, var(--feature-vignette-edge) 100%),
@@ -20,25 +19,24 @@ export default function FeatureSection() {
           backgroundRepeat: "no-repeat, no-repeat, repeat, repeat",
         }}
       >
-        <div className="mx-auto w-full max-w-5xl px-4">
+        <div className="mx-auto w-full max-w-5xl px-4 sm:px-6">
           <motion.div
-            // Header enters once when near viewport to avoid repeated motion on scroll.
             initial={{ opacity: 0, y: 26 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="mx-auto max-w-3xl text-center"
           >
-            <h2 className="text-3xl font-semibold tracking-tight dark:text-gray-100 sm:text-5xl">
+            <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-5xl">
               Everything your team ships{" "}
               <span className="relative inline-block">
                 in one place
-                <span className="absolute left-0 -bottom-1 h-0.75 w-full bg-linear-to-r from-primary to-secondary rounded-full" />
+                <span className="absolute left-0 -bottom-1 h-0.75 w-full rounded-full bg-linear-to-r from-primary to-secondary" />
               </span>
             </h2>
-            <p className="mt-4 text-sm text-muted-foreground sm:text-base">
-              Tasks, projects, docs, and collaboration - built for teams
-              shipping production web apps.
+            <p className="marketing-copy mt-4 text-sm leading-6 sm:text-base">
+              Tasks, projects, docs, and delivery context aligned without
+              losing the thread across your product stack.
             </p>
           </motion.div>
           <FeatureGrid />

@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { CheckCircle2, Circle } from "lucide-react";
+import MainContainer from "@/components/container/MainContainer";
 
-// --- Data Configuration  ---
 const workflowSteps = [
   {
     id: "plan",
@@ -94,7 +94,6 @@ const workflowSteps = [
   },
 ];
 
-// --- Animation Variants ---
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -105,10 +104,10 @@ const containerVariants = {
 
 const buttonVariants = {
   hidden: { opacity: 0, x: -20 },
-  visible: { 
-    opacity: 1, 
-    x: 0, 
-    transition: { type: "spring", stiffness: 300, damping: 24 } 
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { type: "spring", stiffness: 280, damping: 26 },
   },
 };
 
@@ -119,179 +118,160 @@ export default function WorkflowStepper() {
     workflowSteps.find((step) => step.id === activeTab) || workflowSteps[0];
 
   return (
+    <section className="relative bg-background py-16 sm:py-20">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.1),transparent_62%)]" />
 
-    <section 
-      className="relative w-full overflow-hidden bg-white py-20 [--feature-dot-color:rgba(15,23,42,0.15)] [--feature-vignette-edge:rgba(255,255,255,1)] dark:bg-[#0B0F19] dark:[--feature-dot-color:rgba(148,163,184,0.25)] dark:[--feature-vignette-edge:rgba(11,15,25,1)] sm:py-24 transition-colors duration-300"
-      style={{
-        backgroundImage: `
-          linear-gradient(to right, var(--feature-vignette-edge) 0%, transparent 15%, transparent 85%, var(--feature-vignette-edge) 100%),
-          linear-gradient(to bottom, var(--feature-vignette-edge) 0%, transparent 10%, transparent 90%, var(--feature-vignette-edge) 100%),
-          radial-gradient(circle at center, var(--feature-dot-color) 1.5px, transparent 1.5px)
-        `,
-        backgroundSize: "100% 100%, 100% 100%, 28px 28px",
-        backgroundRepeat: "no-repeat, no-repeat, repeat",
-      }}
-    >
-      
+      <MainContainer className="relative px-6">
+        <div className="relative overflow-hidden rounded-[2.2rem] border border-border/70 bg-card/46 px-4 py-10 shadow-[0_28px_70px_-44px_rgba(15,23,42,0.28)] backdrop-blur-sm sm:px-8 sm:py-12">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-70 [background-image:radial-gradient(circle_at_center,rgba(15,23,42,0.08)_1.2px,transparent_1.2px)] [background-size:28px_28px] dark:[background-image:radial-gradient(circle_at_center,rgba(148,163,184,0.14)_1.2px,transparent_1.2px)]"
+            aria-hidden
+          />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 h-[440px] w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-secondary/10 blur-[120px]" />
 
-      <div className="pointer-events-none absolute left-1/2 top-1/2 -z-0 h-[600px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-400/10 blur-[120px] dark:bg-primary/15" />
+          <div className="relative z-10">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.5 }}
+              className="mb-14 max-w-2xl"
+            >
+              <h2 className="text-3xl font-heading font-bold tracking-tight text-foreground sm:text-5xl">
+                <span className="bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  Plan, build, and ship
+                </span>{" "}
+                without losing thread
+              </h2>
+              <p className="marketing-copy mt-4 max-w-xl text-sm leading-6 sm:text-base">
+                Keep the whole delivery cycle visible from one place, from early
+                planning to release confidence and ongoing product impact.
+              </p>
+            </motion.div>
 
-      {/* === MAIN CONTENT === */}
-      <div className="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
-        
-        {/* --- Section Header --- */}
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
-          className="mb-16 text-center md:text-left"
-        >
-          <p className="mb-4 text-sm font-semibold text-primary uppercase tracking-wide">
-            Workflow
-          </p>
-          <h2 className="mt-4 text-3xl font-heading font-bold tracking-tight text-foreground sm:text-5xl">
-  <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-secondary">
-    Plan, build, and ship
-  </span>{" "}
-  without losing thread
-</h2>
-        </motion.div>
-
-        {/* --- Main Boxed Layout --- */}
-        <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
-          
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            className="flex flex-col gap-4"
-          >
-            {workflowSteps.map((step) => {
-              const isActive = activeTab === step.id;
-              return (
-                <motion.button
-                  key={step.id}
-                  variants={buttonVariants}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setActiveTab(step.id)}
-                  className={`group relative flex w-full items-center gap-4 rounded-2xl border p-6 text-left transition-all duration-300 backdrop-blur-md
-                    ${
-                      isActive
-                        ? "border-blue-500 bg-white/90 ring-1 ring-primary shadow-xl dark:border-blue-500/50 dark:bg-[#111827]/80 dark:ring-primary/50 dark:shadow-[0_0_30px_rgba(59,130,246,0.1)]"
-                        : "border-border bg-white/50 hover:bg-white/80 dark:border-white/5 dark:bg-[#0B0F19]/60 dark:hover:border-white/10 dark:hover:bg-white/5"
-                    }`}
-                >
-                  {/* Icon */}
-                  <div className="shrink-0">
-                    {isActive ? (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                      >
-                        <CheckCircle2 className="h-6 w-6 text-primary dark:text-blue-400" />
-                      </motion.div>
-                    ) : (
-                      <Circle className="h-6 w-6 text-muted-foreground dark:text-gray-600 group-hover:text-muted-foreground" />
-                    )}
-                  </div>
-
-                  {/* Text */}
-                  <div>
-                    <span
-                      className={`block text-base font-semibold transition-colors duration-200 ${isActive ? "text-foreground" : "text-muted-foreground"}`}
+            <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10">
+              <motion.div
+                variants={containerVariants}
+                initial={false}
+                whileInView="visible"
+                viewport={{ once: true, margin: "-50px" }}
+                className="flex flex-col gap-4"
+              >
+                {workflowSteps.map((step) => {
+                  const isActive = activeTab === step.id;
+                  return (
+                    <motion.button
+                      key={step.id}
+                      variants={buttonVariants}
+                      whileHover={{ y: -2 }}
+                      whileTap={{ scale: 0.99 }}
+                      onClick={() => setActiveTab(step.id)}
+                      className={`group relative flex w-full items-center gap-4 rounded-[1.5rem] border p-5 text-left transition-all duration-300 backdrop-blur-sm ${
+                        isActive
+                          ? "border-primary/20 bg-background/88 shadow-[0_20px_40px_-30px_rgba(15,23,42,0.45)] ring-1 ring-primary/10"
+                          : "border-border/70 bg-background/62 hover:border-primary/15 hover:bg-card/75"
+                      }`}
                     >
-                      {step.stepNumber}. {step.title}
-                    </span>
-                    <span
-                      className={`block text-sm transition-colors duration-200 ${isActive ? "text-foreground dark:text-muted-foreground" : "text-muted-foreground dark:text-muted-foreground"}`}
-                    >
-                      {step.subtitle}
-                    </span>
-                  </div>
-                </motion.button>
-              );
-            })}
-          </motion.div>
+                      <div className="shrink-0">
+                        {isActive ? (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 300,
+                              damping: 20,
+                            }}
+                          >
+                            <CheckCircle2 className="size-6 text-success" />
+                          </motion.div>
+                        ) : (
+                          <Circle className="size-6 text-muted-foreground/70 transition-colors group-hover:text-primary/70" />
+                        )}
+                      </div>
 
-          {/* === RIGHT COLUMN: Content Card === */}
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="relative flex flex-col overflow-hidden rounded-2xl border border-border bg-white/80 backdrop-blur-xl shadow-2xl h-full dark:border-white/10 dark:bg-[#111827]/80"
-          >
-            <div className="p-8 flex flex-col h-full relative z-10">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeStep.id}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                  className="flex flex-col h-full"
-                >
-                  {/* Heading */}
-                  <h3 className="text-2xl font-heading font-bold text-foreground mb-3 transition-colors">
-                    {activeStep.content.heading}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="text-muted-foreground leading-relaxed mb-6 transition-colors">
-                    {activeStep.content.description}
-                  </p>
-
-                  {/* Badges */}
-                  <div className="flex flex-wrap gap-2 mb-8">
-                    {activeStep.content.badges.map((badge, idx) => (
-                      <motion.span
-                        key={badge}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: idx * 0.1 }}
-                        className="inline-flex items-center rounded-full border border-border bg-white px-3 py-1 text-xs font-medium text-foreground dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground transition-colors"
-                      >
-                        {badge}
-                      </motion.span>
-                    ))}
-                  </div>
-
-                  {/* --- Inner Preview Box --- */}
-                  <div className="mt-auto rounded-xl border border-border bg-surface/50 p-6 dark:border-white/5 dark:bg-black/30 transition-colors">
-                    <div className="mb-4 flex items-center justify-between">
-                      <span className="text-sm font-semibold text-gray-900 dark:text-foreground">
-                        {activeStep.content.previewTitle}
-                      </span>
-                      <span className="text-[10px] lowercase tracking-wider text-muted-foreground">
-                        live preview
-                      </span>
-                    </div>
-
-                    {/* List Items inside Preview */}
-                    <div className="space-y-3">
-                      {activeStep.content.previewItems.map((item, idx) => (
-                        <motion.div
-                          key={item}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.2 + (idx * 0.1) }}
-                          className="w-full rounded-lg border border-border bg-white px-4 py-3 text-sm text-foreground shadow-sm dark:border-white/5 dark:bg-white/5 dark:text-muted-foreground transition-colors"
+                      <div>
+                        <span
+                          className={`block text-base font-semibold transition-colors duration-200 ${
+                            isActive ? "text-foreground" : "text-foreground/85"
+                          }`}
                         >
-                          {item}
-                        </motion.div>
+                          {step.stepNumber}. {step.title}
+                        </span>
+                        <span className="marketing-subtle block text-sm">
+                          {step.subtitle}
+                        </span>
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </motion.div>
+
+              <motion.div
+                initial={false}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: 0.15 }}
+                className="relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-border/70 bg-background/78 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.3)] backdrop-blur-sm"
+              >
+                <div className="pointer-events-none absolute inset-x-12 top-0 h-20 bg-linear-to-b from-secondary/12 to-transparent blur-2xl" />
+                <div className="relative z-10 flex h-full flex-col p-6 sm:p-8">
+                  <motion.div
+                    key={activeStep.id}
+                    initial={false}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    className="flex h-full flex-col"
+                  >
+                    <h3 className="text-2xl font-heading font-bold text-foreground">
+                      {activeStep.content.heading}
+                    </h3>
+
+                    <p className="marketing-copy mt-3 max-w-lg leading-relaxed">
+                      {activeStep.content.description}
+                    </p>
+
+                    <div className="mb-8 mt-6 grid gap-3 sm:grid-cols-3">
+                      {activeStep.content.badges.map((badge) => (
+                        <div
+                          key={badge}
+                          className="marketing-subtle flex items-center gap-2 text-sm"
+                        >
+                          <span className="size-1.5 shrink-0 rounded-full bg-secondary/75" />
+                          {badge}
+                        </div>
                       ))}
                     </div>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
+
+                    <div className="mt-auto rounded-[1.5rem] border border-border/70 bg-card/72 p-5 shadow-sm">
+                      <div className="mb-4 flex items-center justify-between gap-3">
+                        <span className="text-sm font-semibold text-foreground">
+                          {activeStep.content.previewTitle}
+                        </span>
+                        <span className="marketing-subtle text-xs font-medium uppercase tracking-[0.16em]">
+                          Live preview
+                        </span>
+                      </div>
+
+                      <div className="space-y-3">
+                        {activeStep.content.previewItems.map((item) => (
+                          <div
+                            key={item}
+                            className="flex items-center gap-3 rounded-xl border border-border/70 bg-background/75 px-4 py-3 text-sm text-foreground shadow-sm"
+                          >
+                            <span className="size-2 shrink-0 rounded-full bg-success" />
+                            <span>{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+              </motion.div>
             </div>
-          </motion.div>
+          </div>
         </div>
-      </div>
+      </MainContainer>
     </section>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, usePathname } from "next/navigation";
 import { useSession } from "next-auth/react"; // Added useSession
 import { toast } from "sonner";
 import { 
@@ -11,6 +11,7 @@ import {
   Home, CreditCard, Newspaper, LogIn, UserPlus // Added new icons for public pages
 } from "lucide-react";
 import { useMockStore, loadDashboard } from "@/components/dashboard/mockStore";
+import { cn } from "@/lib/utils";
 
 // --- API Helpers ---
 async function fetchJson(url, options = {}) {
@@ -47,8 +48,10 @@ const FAB_POSITION_KEY = "dashboard.commandPalette.fabPosition";
 export default function CommandPalette() {
   const router = useRouter();
   const params = useParams();
+  const pathname = usePathname();
   const { status: authStatus } = useSession(); // Added Session Status
   const isAuthenticated = authStatus === "authenticated"; // Guest Check
+  const isMarketingRoute = !pathname?.startsWith("/dashboard");
   
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -643,7 +646,13 @@ export default function CommandPalette() {
           onPointerUp={handleFabPointerUp}
           onPointerCancel={handleFabPointerUp}
           title="Open Command Palette"
-          className={`fixed bottom-6 right-6 z-[90] flex items-center justify-center gap-2 rounded-full border border-slate-300/80 bg-white/90 p-3 text-xs font-bold uppercase tracking-widest text-slate-500 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-md transition-all hover:scale-105 hover:bg-white hover:text-slate-700 hover:shadow-[0_8px_30px_rgb(0,0,0,0.16)] sm:bottom-8 sm:right-8 sm:px-4 sm:py-2.5 dark:border-white/20 dark:bg-slate-900/80 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 ${isDraggingFab ? "cursor-grabbing select-none" : "cursor-grab"}`}
+          className={cn(
+            "fixed bottom-6 right-4 z-[90] flex items-center justify-center gap-2 rounded-full border p-3 text-xs font-bold uppercase tracking-widest backdrop-blur-md transition-all sm:bottom-8 sm:right-8 sm:px-4 sm:py-2.5",
+            isMarketingRoute
+              ? "border-border/75 bg-card/82 text-muted-foreground shadow-[0_18px_40px_-28px_rgba(15,23,42,0.35)] hover:-translate-y-0.5 hover:border-primary/20 hover:bg-card hover:text-foreground hover:shadow-[0_22px_44px_-26px_rgba(15,23,42,0.42)]"
+              : "border-slate-300/80 bg-white/90 text-slate-500 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:scale-105 hover:bg-white hover:text-slate-700 hover:shadow-[0_8px_30px_rgb(0,0,0,0.16)] dark:border-white/20 dark:bg-slate-900/80 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200",
+            isDraggingFab ? "cursor-grabbing select-none" : "cursor-grab",
+          )}
           style={(() => {
             const drag = dragStateRef.current;
             if (drag) {
@@ -669,7 +678,14 @@ export default function CommandPalette() {
         >
           <Command className="size-5 sm:size-4" />
           <span className="hidden sm:inline">Press</span>
-          <span className="hidden rounded bg-slate-200/80 px-1.5 py-0.5 text-[10px] text-slate-700 sm:inline dark:bg-white/10 dark:text-slate-200">
+          <span
+            className={cn(
+              "hidden rounded-full px-1.5 py-0.5 text-[10px] sm:inline",
+              isMarketingRoute
+                ? "border border-border/80 bg-background/80 text-muted-foreground"
+                : "bg-slate-200/80 text-slate-700 dark:bg-white/10 dark:text-slate-200",
+            )}
+          >
             Ctrl K
           </span>
           <span className="hidden sm:inline">to search</span>
