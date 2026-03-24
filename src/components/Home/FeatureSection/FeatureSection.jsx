@@ -34,7 +34,7 @@ export default function FeatureSection() {
                 <span className="absolute left-0 -bottom-1 h-0.75 w-full rounded-full bg-linear-to-r from-primary to-secondary" />
               </span>
             </h2>
-            <p className="mt-4 text-sm leading-6 text-muted-foreground sm:text-base">
+            <p className="marketing-copy mt-4 text-sm leading-6 sm:text-base">
               Tasks, projects, docs, and delivery context aligned without
               losing the thread across your product stack.
             </p>

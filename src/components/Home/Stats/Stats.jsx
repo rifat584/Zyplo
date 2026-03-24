@@ -28,7 +28,7 @@ export default function Stats() {
           <h2 className="text-3xl font-heading font-bold tracking-tight text-foreground sm:text-5xl">
             Zyplo by the numbers
           </h2>
-          <p className="mt-4 text-sm leading-6 text-muted-foreground sm:text-base">
+          <p className="marketing-copy mt-4 text-sm leading-6 sm:text-base">
             A quick read on the scale, adoption, and consistency teams expect
             when they run day-to-day work through Zyplo.
           </p>
@@ -50,7 +50,7 @@ export default function Stats() {
               viewport={{ once: true }}
               className="rounded-[1.8rem] border border-border/70 bg-card/70 p-8 text-center shadow-sm backdrop-blur-sm"
             >
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-info">
+              <p className="marketing-subtle text-sm font-semibold uppercase tracking-[0.22em]">
                 {stat.label}
               </p>
               <h3 className="mt-5 text-5xl font-heading font-black tracking-tight text-foreground lg:text-6xl">

@@ -143,7 +143,7 @@ export default function WorkflowStepper() {
                 </span>{" "}
                 without losing thread
               </h2>
-              <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
+              <p className="marketing-copy mt-4 max-w-xl text-sm leading-6 sm:text-base">
                 Keep the whole delivery cycle visible from one place, from early
                 planning to release confidence and ongoing product impact.
               </p>
@@ -198,7 +198,7 @@ export default function WorkflowStepper() {
                         >
                           {step.stepNumber}. {step.title}
                         </span>
-                        <span className="block text-sm text-muted-foreground">
+                        <span className="marketing-subtle block text-sm">
                           {step.subtitle}
                         </span>
                       </div>
@@ -227,7 +227,7 @@ export default function WorkflowStepper() {
                       {activeStep.content.heading}
                     </h3>
 
-                    <p className="mt-3 max-w-lg leading-relaxed text-muted-foreground">
+                    <p className="marketing-copy mt-3 max-w-lg leading-relaxed">
                       {activeStep.content.description}
                     </p>
 
@@ -235,7 +235,7 @@ export default function WorkflowStepper() {
                       {activeStep.content.badges.map((badge) => (
                         <div
                           key={badge}
-                          className="flex items-center gap-2 text-sm text-muted-foreground"
+                          className="marketing-subtle flex items-center gap-2 text-sm"
                         >
                           <span className="size-1.5 shrink-0 rounded-full bg-secondary/75" />
                           {badge}
@@ -248,7 +248,7 @@ export default function WorkflowStepper() {
                         <span className="text-sm font-semibold text-foreground">
                           {activeStep.content.previewTitle}
                         </span>
-                        <span className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                        <span className="marketing-subtle text-xs font-medium uppercase tracking-[0.16em]">
                           Live preview
                         </span>
                       </div>

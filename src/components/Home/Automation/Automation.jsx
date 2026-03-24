@@ -35,7 +35,7 @@ export default function Automation() {
           <h2 className="text-3xl font-heading font-bold tracking-tight text-foreground sm:text-5xl">
             Smart workflow automation
           </h2>
-          <p className="mt-4 text-sm leading-6 text-muted-foreground sm:text-base">
+          <p className="marketing-copy mt-4 text-sm leading-6 sm:text-base">
             Keep repetitive work moving in the background so your team can stay
             focused on planning, building, and shipping.
           </p>
@@ -61,7 +61,7 @@ export default function Automation() {
               <h3 className="text-xl font-semibold text-foreground">
                 {item.title}
               </h3>
-              <p className="mt-3 leading-7 text-muted-foreground">
+              <p className="marketing-copy mt-3 leading-7">
                 {item.desc}
               </p>
             </motion.article>

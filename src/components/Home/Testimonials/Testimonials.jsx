@@ -22,7 +22,7 @@ function TestimonialCard({ testimonial }) {
           <p className="text-sm font-semibold text-foreground">
             {testimonial.name}
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="marketing-subtle text-xs">
             {testimonial.role} · {testimonial.company}
           </p>
         </div>
@@ -81,7 +81,7 @@ export default function Testimonials() {
           <h2 className="text-3xl font-heading font-bold tracking-tight text-foreground sm:text-5xl">
             Loved by modern teams
           </h2>
-          <p className="mt-4 text-sm leading-6 text-muted-foreground sm:text-base">
+          <p className="marketing-copy mt-4 text-sm leading-6 sm:text-base">
             Feedback from developers, leads, and product managers using Zyplo to
             keep work visible, accountable, and moving.
           </p>

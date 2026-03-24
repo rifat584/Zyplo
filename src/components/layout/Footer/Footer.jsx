@@ -41,7 +41,7 @@ export default function Footer() {
               <Logo showText textSize="3xl" size={44} className="-ml-1" />
             </Link>
 
-            <p className="mb-6 max-w-sm leading-relaxed text-muted-foreground">
+            <p className="marketing-copy mb-6 max-w-sm leading-relaxed">
               Zyplo is a powerful project management platform built to help
               teams plan smarter, collaborate better, and deliver faster.
             </p>
@@ -64,7 +64,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="mb-4 text-sm font-semibold uppercase tracking-wide text-foreground/85">
+            <h4 className="marketing-subtle mb-4 text-sm font-semibold uppercase tracking-wide">
               Quick Links
             </h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
@@ -80,7 +80,7 @@ export default function Footer() {
 
           {/* Resources */}
           <div>
-            <h4 className="mb-4 text-sm font-semibold uppercase tracking-wide text-foreground/85">
+            <h4 className="marketing-subtle mb-4 text-sm font-semibold uppercase tracking-wide">
               Resources
             </h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
@@ -96,10 +96,10 @@ export default function Footer() {
 
           {/* Newsletter */}
           <div className="rounded-3xl border border-border/80 bg-background/75 p-5 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.35)]">
-            <h4 className="mb-3 text-sm font-semibold uppercase tracking-wide text-foreground/85">
+            <h4 className="marketing-subtle mb-3 text-sm font-semibold uppercase tracking-wide">
               Stay Updated
             </h4>
-            <p className="mb-3 max-w-sm text-sm leading-6 text-muted-foreground">
+            <p className="marketing-copy mb-3 max-w-sm text-sm leading-6">
               Get product updates and productivity tips directly in your inbox.
             </p>
 
@@ -122,7 +122,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom */}
-        <div className="mt-14 border-t border-border/80 pt-6 text-center text-sm text-muted-foreground">
+        <div className="marketing-subtle mt-14 border-t border-border/80 pt-6 text-center text-sm">
           <p>© {new Date().getFullYear()} Zyplo. All rights reserved.</p>
         </div>
       </div>

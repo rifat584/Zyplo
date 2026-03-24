@@ -48,7 +48,7 @@ export default function FAQ() {
           <h2 className="text-3xl font-heading font-bold tracking-tight text-foreground sm:text-5xl">
             Frequently asked questions
           </h2>
-          <p className="mt-4 text-sm leading-6 text-muted-foreground sm:text-base">
+          <p className="marketing-copy mt-4 text-sm leading-6 sm:text-base">
             A quick read on pricing, collaboration, security, and who Zyplo is
             built for.
           </p>

@@ -136,7 +136,7 @@ export default function CommandPaletteSection() {
                     speed of thought
                   </span>
                 </h2>
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
+                <p className="marketing-copy mt-3 max-w-2xl text-sm leading-6 sm:text-base">
                   Search, create, assign, and move work without touching the
                   mouse. The command palette keeps you in flow while the rest of
                   your workspace stays one shortcut away.
@@ -148,7 +148,7 @@ export default function CommandPaletteSection() {
                 <kbd className="rounded border border-border/80 bg-card px-2 py-0.5 text-xs text-muted-foreground">
                   Ctrl
                 </kbd>
-                <span className="text-muted-foreground">+</span>
+                <span className="marketing-subtle">+</span>
                 <kbd className="rounded border border-border/80 bg-card px-2 py-0.5 text-xs text-muted-foreground">
                   K
                 </kbd>
@@ -174,7 +174,7 @@ export default function CommandPaletteSection() {
                       <h3 className="text-lg font-semibold text-foreground">
                         {rail.title}
                       </h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
+                      <p className="marketing-copy mt-1 text-sm">
                         {rail.desc}
                       </p>
                     </motion.div>
@@ -209,7 +209,7 @@ export default function CommandPaletteSection() {
                 className="lg:sticky lg:top-24"
               >
                 <div className="overflow-hidden rounded-[1.8rem] border border-border/70 bg-background/88 shadow-[0_24px_60px_-36px_rgba(15,23,42,0.3)] backdrop-blur-sm">
-                  <div className="flex items-center gap-2 border-b border-border/70 px-4 py-3 text-sm text-muted-foreground">
+                  <div className="marketing-subtle flex items-center gap-2 border-b border-border/70 px-4 py-3 text-sm">
                     <Search className="size-4" />
                     <span className="relative text-foreground">
                       {typed || " "}
@@ -224,13 +224,13 @@ export default function CommandPaletteSection() {
                         }}
                       />
                     </span>
-                    <span className="ml-auto inline-flex items-center gap-1 rounded border border-border/80 bg-card px-2 py-0.5 text-xs text-muted-foreground">
+                    <span className="marketing-subtle ml-auto inline-flex items-center gap-1 rounded border border-border/80 bg-card px-2 py-0.5 text-xs">
                       <Command className="size-3" />K
                     </span>
                   </div>
 
                   <div className="p-3">
-                    <div className="mb-2 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                    <div className="marketing-subtle mb-2 text-[10px] uppercase tracking-[0.18em]">
                       Actions
                     </div>
                     <div className="space-y-2">
@@ -250,7 +250,7 @@ export default function CommandPaletteSection() {
                           }`}
                         >
                           <span>{result.label}</span>
-                          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                          <span className="marketing-subtle inline-flex items-center gap-1 text-xs">
                             <CornerDownLeft className="size-3.5" />
                             Enter
                           </span>
@@ -259,7 +259,7 @@ export default function CommandPaletteSection() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between border-t border-border/70 px-4 py-2 text-xs text-muted-foreground">
+                  <div className="marketing-subtle flex items-center justify-between border-t border-border/70 px-4 py-2 text-xs">
                     <span>↑ ↓ navigate</span>
                     <span>Enter select</span>
                     <span>Esc close</span>

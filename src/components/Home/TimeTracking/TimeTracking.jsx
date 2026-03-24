@@ -80,7 +80,7 @@ export default function TimeTracking() {
                 that feels built into the board
               </span>
             </h2>
-            <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
+            <p className="marketing-copy mt-4 max-w-xl text-sm leading-6 sm:text-base">
               Capture focused work without leaving flow, then let reports,
               sprint summaries, and timesheets update themselves in the
               background.
@@ -101,7 +101,7 @@ export default function TimeTracking() {
               <div className="pointer-events-none absolute inset-x-10 top-0 h-20 bg-linear-to-b from-secondary/12 to-transparent blur-2xl" />
               <div className="relative z-10 mb-8 flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                  <p className="marketing-subtle text-xs font-semibold uppercase tracking-[0.2em]">
                     Current task
                   </p>
                   <p className="mt-2 text-lg font-semibold text-foreground">
@@ -160,7 +160,7 @@ export default function TimeTracking() {
                         className="absolute inset-y-0 left-0 rounded-full bg-linear-to-r from-primary to-secondary"
                       />
                     </div>
-                    <p className="flex justify-between text-xs font-medium text-muted-foreground">
+                    <p className="marketing-subtle flex justify-between text-xs font-medium">
                       <span>Session progress</span>
                       <span>Synced to sprint</span>
                     </p>
@@ -174,7 +174,7 @@ export default function TimeTracking() {
               className="flex flex-col justify-between rounded-[1.9rem] border border-border/70 bg-background/78 p-6 shadow-sm backdrop-blur-sm"
             >
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                <p className="marketing-subtle text-xs font-semibold uppercase tracking-[0.2em]">
                   Weekly total
                 </p>
                 <div className="mt-3 flex items-baseline gap-2">
@@ -210,7 +210,7 @@ export default function TimeTracking() {
               variants={cardVariants}
               className="rounded-[1.9rem] border border-border/70 bg-background/78 p-6 shadow-sm backdrop-blur-sm"
             >
-              <p className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              <p className="marketing-subtle mb-5 text-xs font-semibold uppercase tracking-[0.2em]">
                 Recent entries
               </p>
               <div className="space-y-3">
@@ -223,11 +223,11 @@ export default function TimeTracking() {
                       <span className="text-sm font-medium text-foreground transition-colors group-hover:text-primary">
                         {entry.task}
                       </span>
-                      <span className="text-sm font-mono font-medium text-muted-foreground transition-colors group-hover:text-foreground">
+                      <span className="marketing-subtle text-sm font-mono font-medium transition-colors group-hover:text-foreground">
                         {entry.duration}
                       </span>
                     </div>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="marketing-subtle text-xs">
                       {entry.when}
                     </span>
                   </div>
@@ -239,7 +239,7 @@ export default function TimeTracking() {
               variants={cardVariants}
               className="col-span-1 flex flex-col justify-center rounded-[1.9rem] border border-border/70 bg-background/78 p-6 shadow-sm backdrop-blur-sm sm:p-8 lg:col-span-2"
             >
-              <p className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+              <p className="marketing-subtle mb-5 text-xs font-semibold uppercase tracking-[0.2em]">
                 Built-in productivity
               </p>
 
@@ -251,7 +251,7 @@ export default function TimeTracking() {
                     </div>
                     Global Timer Access
                   </div>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
+                  <p className="marketing-copy text-sm leading-relaxed">
                     Start, stop, or pause your timer from anywhere in the app
                     using the command palette or sticky navbar. Say goodbye to
                     context switching.
@@ -265,7 +265,7 @@ export default function TimeTracking() {
                     </div>
                     Automated Timesheets
                   </div>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
+                  <p className="marketing-copy text-sm leading-relaxed">
                     Every tracked minute is instantly synced to your task,
                     automatically generating accurate daily and weekly reports
                     for invoicing and sprint reviews.
