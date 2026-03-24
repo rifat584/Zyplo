@@ -103,7 +103,7 @@ export default function Footer() {
               Get product updates and productivity tips directly in your inbox.
             </p>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-3">
               <input
                 type="email"
                 placeholder="Enter your email"

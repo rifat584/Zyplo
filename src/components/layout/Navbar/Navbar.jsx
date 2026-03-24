@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, Menu, X, ChevronDown, Sun, Moon } from "lucide-react";
+import { Menu, X, ChevronDown, Sun, Moon } from "lucide-react";
 import ResourcesMenu from "./ResourcesMenu/ResourcesMenu";
 import { useTheme } from "@/Context/ThemeContext";
 import Logo from "@/components/Shared/Logo/Logo";
@@ -120,13 +120,6 @@ const Navbar = () => {
     setTheme(theme === "light" ? "dark" : "light");
   };
 
-  // --- TRICK TO OPEN COMMAND PALETTE ---
-  const openCommandPalette = () => {
-    document.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }),
-    );
-  };
-
   const displayName = profile?.name || session.data?.user?.name || "User";
   const displayEmail = profile?.email || session.data?.user?.email || "";
   const displayAvatarUrl =
@@ -214,18 +207,6 @@ const Navbar = () => {
               )}
             </button>
           )}
-
-          {/* Desktop Search Button */}
-          <button
-            onClick={openCommandPalette}
-            className="hidden items-center gap-2 rounded-full border border-border/75 bg-card/80 px-3.5 py-2 text-sm text-muted-foreground shadow-sm transition-colors hover:border-primary/20 hover:bg-card hover:text-foreground cursor-pointer lg:flex"
-          >
-            <Search size={16} />
-            <span className="text-xs font-medium">Search</span>
-            <span className="rounded-full border border-border/80 bg-background/85 px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              Ctrl K
-            </span>
-          </button>
 
           <div className="hidden md:flex items-center gap-4">
             {!isAuthenticated ? (
@@ -382,18 +363,6 @@ const Navbar = () => {
 
             {/* Divider */}
             <div className="flex flex-col gap-3 border-t border-border pt-4">
-              {/* Mobile Search Button */}
-              <button
-                onClick={() => {
-                  closeAllMobile();
-                  openCommandPalette();
-                }}
-                className="flex w-full items-center gap-2 rounded-xl border border-transparent px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-border hover:bg-card/85 hover:text-primary cursor-pointer"
-              >
-                <Search size={16} />
-                Search...
-              </button>
-
               {!isAuthenticated ? (
                 <>
                   <Button

@@ -95,9 +95,9 @@ export default function FAQ() {
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.25 }}
-                      className="overflow-hidden border-t border-border/60 bg-background/55"
+                      className="overflow-hidden border-t border-border/60 bg-background/90 dark:bg-card/95"
                     >
-                      <p className="px-5 pb-5 pt-4 text-sm leading-7 text-foreground/80 sm:text-base">
+                      <p className="px-5 pb-5 pt-4 text-sm leading-7 text-foreground sm:text-base">
                         {faq.answer}
                       </p>
                     </motion.div>

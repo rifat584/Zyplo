@@ -87,15 +87,89 @@ const riskyPatterns = [
       'className="absolute -bottom-28 right-0 h-[440px] w-[440px] rounded-full bg-primary/14 blur-[130px]"',
     reason: "time tracking section still uses the old right blur orb",
   },
+  {
+    file: "src/components/layout/Navbar/Navbar.jsx",
+    pattern: 'const openCommandPalette = () => {',
+    reason: "navbar still wires up an in-nav command palette trigger",
+  },
+  {
+    file: "src/components/layout/Navbar/Navbar.jsx",
+    pattern: "Ctrl K",
+    reason: "navbar still shows the desktop Ctrl K search pill",
+  },
+  {
+    file: "src/components/layout/Navbar/Navbar.jsx",
+    pattern: "Search...",
+    reason: "navbar still shows the mobile search action",
+  },
+  {
+    file: "src/components/Home/Hero/Hero.jsx",
+    pattern:
+      'className="pointer-events-none absolute inset-x-6 bottom-6 top-12 rounded-[2rem] border border-primary/10 bg-linear-to-br from-background/10 via-background/5 to-secondary/10 blur-3xl"',
+    reason: "hero image still has the outer framed glow shell",
+  },
+  {
+    file: "src/components/Home/Hero/Hero.jsx",
+    pattern:
+      'className="relative w-full max-w-[39rem] rounded-[2rem] border border-border/70 bg-card/55 p-3 shadow-[0_30px_80px_-48px_rgba(15,23,42,0.45)] backdrop-blur-sm sm:p-4"',
+    reason: "hero image still has the padded border frame around it",
+  },
+  {
+    file: "src/components/Home/Hero/Hero.jsx",
+    pattern:
+      'className="absolute inset-x-12 top-0 h-14 bg-linear-to-b from-secondary/25 to-transparent blur-2xl"',
+    reason: "hero image still keeps the decorative top glow inside the old frame",
+  },
+  {
+    file: "src/components/Home/FAQ/FAQ.jsx",
+    pattern: 'className="overflow-hidden border-t border-border/60 bg-background/55"',
+    reason: "faq answers still use the washed-out answer surface",
+  },
+  {
+    file: "src/components/Home/FAQ/FAQ.jsx",
+    pattern: 'className="px-5 pb-5 pt-4 text-sm leading-7 text-foreground/80 sm:text-base"',
+    reason: "faq answers still use softened text on the answer surface",
+  },
+  {
+    file: "src/components/layout/Footer/Footer.jsx",
+    pattern: 'className="flex flex-col gap-2"',
+    reason: "footer email field and subscribe button are still too tightly stacked",
+  },
+  {
+    file: "src/components/marquee/PartnerMarquee.jsx",
+    pattern: 'className="px-6 pb-8 pt-6 sm:pb-12 sm:pt-8"',
+    reason: "marquee section still sits too close to the feature section",
+  },
 ];
 
 const requiredPatterns = [
   {
     file: "src/components/Home/TimeTracking/TimeTracking.jsx",
     pattern:
-      '<div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.1),transparent_62%)]" />',
+      '<div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.08),transparent_34%),radial-gradient(circle_at_top,rgba(16,185,129,0.1),transparent_68%)]" />',
     reason:
-      "time tracking section is missing the new centered radial background treatment",
+      "time tracking section is missing the updated distinct backdrop treatment",
+  },
+  {
+    file: "src/components/Home/Hero/Hero.jsx",
+    pattern: 'className="relative w-full max-w-[39rem]"',
+    reason: "hero image wrapper still is not reduced to a frameless shell",
+  },
+  {
+    file: "src/components/Home/FAQ/FAQ.jsx",
+    pattern:
+      'className="overflow-hidden border-t border-border/60 bg-background/90 dark:bg-card/95"',
+    reason: "faq answers are missing the stronger readable answer surface",
+  },
+  {
+    file: "src/components/layout/Footer/Footer.jsx",
+    pattern: 'className="flex flex-col gap-3"',
+    reason: "footer stack is missing the added spacing between input and button",
+  },
+  {
+    file: "src/components/marquee/PartnerMarquee.jsx",
+    pattern: 'className="px-6 pb-12 pt-6 sm:pb-16 sm:pt-8"',
+    reason: "marquee section is missing the added gap before the feature section",
   },
 ];
 

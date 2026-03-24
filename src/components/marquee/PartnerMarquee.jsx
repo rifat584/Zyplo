@@ -65,7 +65,7 @@ const PartnerLogo = ({ partner, subtle = false }) => (
 const PartnerMarquee = () => {
   return (
     <section className="bg-background">
-      <MainContainer className="px-6 pb-8 pt-6 sm:pb-12 sm:pt-8">
+      <MainContainer className="px-6 pb-12 pt-6 sm:pb-16 sm:pt-8">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-5xl">
             Fits into the tools your team already trusts

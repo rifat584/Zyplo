@@ -59,7 +59,6 @@ export default function Hero() {
         </div>
 
         <div className="order-2 relative hidden justify-center md:flex md:justify-end">
-          <div className="pointer-events-none absolute inset-x-6 bottom-6 top-12 rounded-[2rem] border border-primary/10 bg-linear-to-br from-background/10 via-background/5 to-secondary/10 blur-3xl" />
           <motion.div
             initial={false}
             animate={!shouldReduceMotion ? { y: [0, -10, 0] } : undefined}
@@ -68,9 +67,8 @@ export default function Hero() {
                 ? { duration: 4.5, ease: "easeInOut", repeat: Infinity }
                 : undefined
             }
-            className="relative w-full max-w-[39rem] rounded-[2rem] border border-border/70 bg-card/55 p-3 shadow-[0_30px_80px_-48px_rgba(15,23,42,0.45)] backdrop-blur-sm sm:p-4"
+            className="relative w-full max-w-[39rem]"
           >
-            <div className="absolute inset-x-12 top-0 h-14 bg-linear-to-b from-secondary/25 to-transparent blur-2xl" />
             <Image
               src={rightHeroImg}
               alt="Zyplo App Preview"
@@ -78,7 +76,7 @@ export default function Hero() {
               height={500}
               priority
               sizes="(min-width: 1024px) 48vw, 100vw"
-              className="relative h-auto w-full rounded-[1.55rem]"
+              className="relative h-auto w-full rounded-[1.9rem] shadow-[0_30px_80px_-48px_rgba(15,23,42,0.45)]"
             />
           </motion.div>
         </div>

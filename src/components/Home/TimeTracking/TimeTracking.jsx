@@ -39,7 +39,7 @@ export default function TimeTracking() {
 
   return (
     <section className="relative overflow-hidden bg-background py-20 sm:py-24">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.1),transparent_62%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.08),transparent_34%),radial-gradient(circle_at_top,rgba(16,185,129,0.1),transparent_68%)]" />
 
       <MainContainer className="relative z-10 px-6">
         <div className="rounded-[2.4rem] border border-border/70 bg-card/45 p-6 shadow-[0_30px_80px_-50px_rgba(15,23,42,0.32)] backdrop-blur-sm sm:p-10">
