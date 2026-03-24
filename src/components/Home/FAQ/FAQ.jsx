@@ -45,10 +45,7 @@ export default function FAQ() {
           viewport={{ once: true }}
           className="mx-auto mb-12 max-w-3xl text-center"
         >
-          <span className="inline-flex rounded-full border border-info/20 bg-info/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-info">
-            FAQ
-          </span>
-          <h2 className="mt-4 text-3xl font-heading font-bold tracking-tight text-foreground sm:text-5xl">
+          <h2 className="text-3xl font-heading font-bold tracking-tight text-foreground sm:text-5xl">
             Frequently asked questions
           </h2>
           <p className="mt-4 text-sm leading-6 text-muted-foreground sm:text-base">
@@ -98,9 +95,9 @@ export default function FAQ() {
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.25 }}
-                      className="overflow-hidden"
+                      className="overflow-hidden border-t border-border/60 bg-background/55"
                     >
-                      <p className="px-5 pb-5 text-sm leading-7 text-muted-foreground sm:text-base">
+                      <p className="px-5 pb-5 pt-4 text-sm leading-7 text-foreground/80 sm:text-base">
                         {faq.answer}
                       </p>
                     </motion.div>

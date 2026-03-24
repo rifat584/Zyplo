@@ -2,7 +2,7 @@ import Logo from "@/components/Shared/Logo/Logo";
 import Link from "next/link";
 import { FaFacebookF, FaLinkedinIn, FaGithub } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-import Button from "@/components/Shared/Button/Button";
+import { Button } from "@/components/ui/button";
 
 const quickLinks = [
   { href: "/", label: "Home" },
@@ -37,17 +37,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-[1.15fr_0.7fr_0.95fr_1.1fr]">
           {/* Brand */}
           <div className="relative">
-            <span className="mb-4 inline-flex rounded-full border border-secondary/20 bg-secondary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-secondary">
-              Build With Zyplo
-            </span>
-
-            <Link href="/" className="mb-4 flex items-center">
-              <Logo
-                showText
-                textSize="3xl"
-                size={44}
-                className="-ml-1"
-              />
+            <Link href="/" className="mb-4 inline-flex items-center">
+              <Logo showText textSize="3xl" size={44} className="-ml-1" />
             </Link>
 
             <p className="mb-6 max-w-sm leading-relaxed text-muted-foreground">
@@ -131,9 +122,8 @@ export default function Footer() {
         </div>
 
         {/* Bottom */}
-        <div className="mt-14 flex flex-col gap-3 border-t border-border/80 pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-14 border-t border-border/80 pt-6 text-center text-sm text-muted-foreground">
           <p>© {new Date().getFullYear()} Zyplo. All rights reserved.</p>
-          <p>Built for modern dev teams that ship with clarity.</p>
         </div>
       </div>
     </footer>

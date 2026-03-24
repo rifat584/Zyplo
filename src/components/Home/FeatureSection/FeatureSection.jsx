@@ -27,10 +27,7 @@ export default function FeatureSection() {
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="mx-auto max-w-3xl text-center"
           >
-            <span className="inline-flex rounded-full border border-info/20 bg-info/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-info">
-              Plan, track, and ship together
-            </span>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-foreground sm:text-5xl">
+            <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-5xl">
               Everything your team ships{" "}
               <span className="relative inline-block">
                 in one place

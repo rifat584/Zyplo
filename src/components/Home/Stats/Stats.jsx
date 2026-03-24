@@ -25,10 +25,7 @@ export default function Stats() {
           viewport={{ once: true, margin: "-100px" }}
           className="mx-auto mb-12 max-w-3xl text-center"
         >
-          <span className="inline-flex rounded-full border border-info/20 bg-info/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-info">
-            Operational signal
-          </span>
-          <h2 className="mt-4 text-3xl font-heading font-bold tracking-tight text-foreground sm:text-5xl">
+          <h2 className="text-3xl font-heading font-bold tracking-tight text-foreground sm:text-5xl">
             Zyplo by the numbers
           </h2>
           <p className="mt-4 text-sm leading-6 text-muted-foreground sm:text-base">

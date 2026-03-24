@@ -67,10 +67,7 @@ const PartnerMarquee = () => {
     <section className="bg-background">
       <MainContainer className="px-6 pb-8 pt-6 sm:pb-12 sm:pt-8">
         <div className="mx-auto max-w-3xl text-center">
-          <span className="inline-flex rounded-full border border-info/20 bg-info/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-info">
-            Works with your workflow
-          </span>
-          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-foreground sm:text-5xl">
+          <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-5xl">
             Fits into the tools your team already trusts
           </h2>
           <p className="mt-4 text-sm leading-6 text-muted-foreground sm:text-base">

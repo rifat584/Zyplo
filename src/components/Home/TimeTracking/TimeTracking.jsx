@@ -74,10 +74,7 @@ export default function TimeTracking() {
       <MainContainer className="relative z-10 px-6">
         <div className="rounded-[2.4rem] border border-border/70 bg-card/45 p-6 shadow-[0_30px_80px_-50px_rgba(15,23,42,0.32)] backdrop-blur-sm sm:p-10">
           <div className="mb-12 max-w-2xl">
-            <span className="inline-flex rounded-full border border-info/20 bg-info/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-info">
-              Time tracking & worklog
-            </span>
-            <h2 className="mt-4 text-3xl font-heading font-bold tracking-tight text-foreground sm:text-5xl">
+            <h2 className="text-3xl font-heading font-bold tracking-tight text-foreground sm:text-5xl">
               Timer-first logging{" "}
               <span className="bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
                 that feels built into the board

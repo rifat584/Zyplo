@@ -10,7 +10,7 @@ const buttonVariants = cva(
         default:
           "bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:scale-[1.05] hover:shadow-secondary/20",
         marketing:
-          "bg-linear-to-r from-primary via-primary to-secondary text-primary-foreground shadow-[0_16px_36px_-18px_oklch(from_var(--primary)_l_c_h_/_0.85)] hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-18px_oklch(from_var(--secondary)_l_c_h_/_0.75)]",
+          "bg-linear-to-r from-secondary via-info to-primary text-primary-foreground shadow-[0_16px_36px_-18px_rgba(34,211,238,0.42)] hover:-translate-y-0.5 hover:brightness-[1.03] hover:shadow-[0_20px_42px_-18px_rgba(99,102,241,0.42)]",
         "marketing-outline":
           "border border-border/80 bg-card/85 text-foreground shadow-[0_10px_28px_-22px_oklch(from_var(--foreground)_l_c_h_/_0.35)] backdrop-blur-sm hover:border-primary/25 hover:bg-accent/65 hover:text-foreground",
         outline:

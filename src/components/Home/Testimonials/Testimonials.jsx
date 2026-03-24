@@ -10,11 +10,7 @@ const AUTO_SLIDE_MS = 4500;
 function TestimonialCard({ testimonial }) {
   return (
     <article className="flex h-full flex-col rounded-[1.5rem] border border-border/70 bg-card/72 p-6 shadow-sm backdrop-blur-sm">
-      <span className="inline-flex w-fit rounded-full border border-secondary/20 bg-secondary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-secondary">
-        Team feedback
-      </span>
-
-      <p className="mt-5 text-sm leading-7 text-foreground">
+      <p className="text-sm leading-7 text-foreground">
         “{testimonial.quote}”
       </p>
 
@@ -82,10 +78,7 @@ export default function Testimonials() {
     <section className="bg-background py-20 sm:py-24">
       <MainContainer className="px-6">
         <div className="mx-auto max-w-3xl text-center">
-          <span className="inline-flex rounded-full border border-info/20 bg-info/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-info">
-            Trusted by product teams
-          </span>
-          <h2 className="mt-4 text-3xl font-heading font-bold tracking-tight text-foreground sm:text-5xl">
+          <h2 className="text-3xl font-heading font-bold tracking-tight text-foreground sm:text-5xl">
             Loved by modern teams
           </h2>
           <p className="mt-4 text-sm leading-6 text-muted-foreground sm:text-base">

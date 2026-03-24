@@ -39,18 +39,18 @@ const Navbar = () => {
 
   const getDesktopLinkClass = (path) =>
     cn(
-      "inline-flex h-10 items-center rounded-full border px-3.5 text-sm font-medium transition-[background-color,border-color,color,box-shadow] duration-200",
+      "inline-flex h-10 items-center border-b-2 px-4 text-sm font-medium transition-colors",
       isPathActive(path)
-        ? "border-primary/20 bg-primary/10 text-primary"
-        : "border-transparent text-muted-foreground hover:border-border hover:bg-card/90 hover:text-foreground",
+        ? "border-primary text-primary"
+        : "border-transparent text-muted-foreground hover:border-primary/70 hover:text-primary",
     );
 
   const getMobileLinkClass = (path) =>
     cn(
-      "flex w-full items-center rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors",
+      "flex w-full items-center rounded-md border-l-2 border-transparent px-3 py-2.5 text-sm font-medium transition-colors",
       isPathActive(path)
-        ? "border-primary/20 bg-primary/10 text-primary"
-        : "border-transparent text-foreground hover:border-border hover:bg-card/85 hover:text-primary",
+        ? "border-l-primary text-primary"
+        : "text-foreground hover:border-l-primary/45 hover:text-primary",
     );
 
   // Close mega menu and profile menu on outside click
