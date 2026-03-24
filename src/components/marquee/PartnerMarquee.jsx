@@ -42,9 +42,8 @@ const darkModeWhiteLogos = new Set([
 const PartnerLogo = ({ partner, subtle = false }) => (
   <div
     className={[
-      "flex h-14 w-20 shrink-0 items-center justify-center rounded-xl border border-zinc-200/70 bg-white/80 p-2.5 sm:h-16 sm:w-24 sm:p-3",
-      "dark:border-border dark:bg-[#0F1629]/80",
-      subtle ? "opacity-85" : "",
+      "flex h-14 w-20 shrink-0 items-center justify-center rounded-2xl border border-border/70 bg-background/80 p-2.5 shadow-sm backdrop-blur-sm sm:h-16 sm:w-24 sm:p-3",
+      subtle ? "opacity-80" : "",
     ].join(" ")}
   >
     <Image
@@ -66,15 +65,24 @@ const PartnerLogo = ({ partner, subtle = false }) => (
 const PartnerMarquee = () => {
   return (
     <section className="bg-background">
-      <MainContainer className="px-6 py-14 sm:py-16">
-        <h3 className="mb-8 text-center text-3xl font-semibold text-foreground dark:text-gray-100 sm:text-5xl">
-          Our Partners
-        </h3>
+      <MainContainer className="px-6 pb-8 pt-6 sm:pb-12 sm:pt-8">
+        <div className="mx-auto max-w-3xl text-center">
+          <span className="inline-flex rounded-full border border-info/20 bg-info/10 px-3.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-info">
+            Works with your workflow
+          </span>
+          <h2 className="mt-4 text-3xl font-semibold tracking-tight text-foreground sm:text-5xl">
+            Fits into the tools your team already trusts
+          </h2>
+          <p className="mt-4 text-sm leading-6 text-muted-foreground sm:text-base">
+            From code and design to docs, billing, and incident response,
+            Zyplo sits comfortably inside the stack modern product teams already
+            use.
+          </p>
+        </div>
 
         <div
           className="
-            relative overflow-hidden rounded-2xl  bg-zinc-50/70 py-5
-             dark:bg-[#111A2E]/60
+            relative mt-8 overflow-hidden rounded-[2rem] border border-border/70 bg-card/55 py-5 shadow-[0_24px_60px_-40px_rgba(15,23,42,0.28)] backdrop-blur-sm
           "
           style={{
             WebkitMaskImage:
@@ -82,8 +90,10 @@ const PartnerMarquee = () => {
             maskImage:
               "linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)",
           }}
-          aria-label="Partner logos"
+          aria-label="Integrations and tooling logos"
         >
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-linear-to-b from-secondary/8 to-transparent" />
+
           <Marquee speed={42} autoFill pauseOnHover gradient={false}>
             <div className="flex items-center gap-8 px-4 sm:gap-12 sm:px-6">
               {partners.map((partner) => (
