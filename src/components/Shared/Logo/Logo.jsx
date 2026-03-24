@@ -23,7 +23,7 @@ export default function Logo({
   imageClassName = "",
 }) {
   return (
-    <div className={cn("flex items-center gap-1", className)}>
+    <div className={cn("flex items-center gap-2 select-none", className)}>
       <Image
         src="/logo1.png"
         alt="Zyplo Logo"
@@ -33,9 +33,14 @@ export default function Logo({
         className={cn("rounded-full", imageClassName)}
       />
       {showText && (
-        <span className={cn(normalizeTextSize(textSize), "font-bold text-primary")}>
+        <span
+          className={cn(
+            normalizeTextSize(textSize),
+            "font-extrabold leading-none tracking-tight text-primary",
+          )}
+        >
           ZYPL
-          <span>O</span>
+          <span className="text-secondary">O</span>
         </span>
       )}
     </div>

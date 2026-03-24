@@ -39,18 +39,18 @@ const Navbar = () => {
 
   const getDesktopLinkClass = (path) =>
     cn(
-      "inline-flex h-10 items-center border-b-2 px-4 text-sm font-medium transition-colors",
+      "inline-flex h-10 items-center rounded-full border px-3.5 text-sm font-medium transition-[background-color,border-color,color,box-shadow] duration-200",
       isPathActive(path)
-        ? "border-primary text-primary"
-        : "border-transparent text-muted-foreground hover:border-primary/70 hover:text-primary",
+        ? "border-primary/20 bg-primary/10 text-primary"
+        : "border-transparent text-muted-foreground hover:border-border hover:bg-card/90 hover:text-foreground",
     );
 
   const getMobileLinkClass = (path) =>
     cn(
-      "flex w-full items-center rounded-md border-l-2 border-transparent px-3 py-2.5 text-sm font-medium transition-colors",
+      "flex w-full items-center rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors",
       isPathActive(path)
-        ? "border-l-primary text-primary"
-        : "text-foreground hover:border-l-primary/45 hover:text-primary",
+        ? "border-primary/20 bg-primary/10 text-primary"
+        : "border-transparent text-foreground hover:border-border hover:bg-card/85 hover:text-primary",
     );
 
   // Close mega menu and profile menu on outside click
@@ -133,8 +133,8 @@ const Navbar = () => {
     profile?.avatarUrl || session.data?.user?.image || "";
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/85 backdrop-blur-md transition-colors duration-300">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+    <nav className="sticky top-0 z-50 w-full border-b border-border/70 bg-background/78 backdrop-blur-xl transition-colors duration-300 supports-[backdrop-filter]:bg-background/72">
+      <div className="mx-auto flex h-[4.25rem] max-w-7xl items-center justify-between px-4 sm:px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <Logo
@@ -146,7 +146,7 @@ const Navbar = () => {
 
         {/* Desktop Links */}
         <div
-          className="hidden md:flex items-center gap-2 relative"
+          className="relative hidden items-center gap-1.5 md:flex"
           ref={dropdownRef}
         >
           <Link
@@ -176,7 +176,7 @@ const Navbar = () => {
             onClick={() => setResourcesOpen((p) => !p)}
             className={cn(
               getDesktopLinkClass("/resources"),
-              "flex items-center gap-1 cursor-pointer outline-none",
+              "flex cursor-pointer items-center gap-1 outline-none",
               resourcesOpen ? "border-primary text-primary" : null,
             )}
           >
@@ -199,12 +199,12 @@ const Navbar = () => {
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2.5 sm:gap-3">
           {/* --- Theme Toggle --- */}
           {mounted && (
             <button
               onClick={toggleTheme}
-              className="relative flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors duration-300 hover:bg-accent hover:text-accent-foreground cursor-pointer"
+              className="relative flex h-9 w-9 items-center justify-center rounded-full border border-border/75 bg-card/80 text-muted-foreground shadow-sm transition-colors duration-300 hover:border-primary/20 hover:bg-card hover:text-foreground cursor-pointer"
               aria-label="Toggle theme"
             >
               {theme === "light" ? (
@@ -218,10 +218,13 @@ const Navbar = () => {
           {/* Desktop Search Button */}
           <button
             onClick={openCommandPalette}
-            className="hidden sm:flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer"
+            className="hidden items-center gap-2 rounded-full border border-border/75 bg-card/80 px-3.5 py-2 text-sm text-muted-foreground shadow-sm transition-colors hover:border-primary/20 hover:bg-card hover:text-foreground cursor-pointer lg:flex"
           >
             <Search size={16} />
-            <span className="text-xs">Ctrl+K</span>
+            <span className="text-xs font-medium">Search</span>
+            <span className="rounded-full border border-border/80 bg-background/85 px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+              Ctrl K
+            </span>
           </button>
 
           <div className="hidden md:flex items-center gap-4">
@@ -230,17 +233,18 @@ const Navbar = () => {
                 <Button
                   as={Link}
                   href="/login"
-                  variant="outline"
+                  variant="marketing-outline"
                   size="sm"
-                  className="min-w-25 border-border text-foreground shadow-none hover:scale-100 hover:border-primary/70 hover:bg-accent/70 hover:text-foreground hover:shadow-none transition-colors duration-300"
+                  className="min-w-[6.75rem] hover:translate-y-0"
                 >
                   Sign in
                 </Button>
                 <Button
                   as={Link}
                   href="/register"
+                  variant="marketing"
                   size="sm"
-                  className="min-w-32 bg-linear-to-r from-primary to-secondary text-primary-foreground shadow-none hover:scale-105 hover:opacity-95 hover:shadow-none transition-transform duration-300"
+                  className="min-w-[8rem]"
                 >
                   Get started
                 </Button>
@@ -313,7 +317,7 @@ const Navbar = () => {
           {/* Mobile Toggle */}
           <button
             onClick={toggleMobileMenu}
-            className="md:hidden rounded-md p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+            className="rounded-full border border-border/75 bg-card/75 p-2 text-muted-foreground shadow-sm transition-colors hover:border-primary/20 hover:bg-card hover:text-foreground md:hidden"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -324,7 +328,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden max-h-[calc(100vh-4rem)] overflow-y-auto overscroll-contain border-t border-border bg-background px-6 py-4 shadow-xl">
+        <div className="max-h-[calc(100vh-4rem)] overflow-y-auto overscroll-contain border-t border-border/70 bg-background/96 px-6 py-4 shadow-xl backdrop-blur-xl md:hidden">
             {/* Top Links */}
             <div className="flex flex-col space-y-2">
               <Link
@@ -353,10 +357,10 @@ const Navbar = () => {
               <button
                 onClick={() => setMobileResourcesOpen((p) => !p)}
                 className={cn(
-                  "flex w-full items-center justify-between rounded-md border-l-2 border-transparent px-3 py-2.5 text-sm font-medium transition-colors",
+                  "flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors",
                   mobileResourcesOpen || isPathActive("/resources")
-                    ? "border-l-primary text-primary"
-                    : "text-foreground hover:border-l-primary/45 hover:text-primary",
+                    ? "border-primary/20 bg-primary/10 text-primary"
+                    : "border-transparent text-foreground hover:border-border hover:bg-card/85 hover:text-primary",
                 )}
               >
                 Resources
@@ -384,7 +388,7 @@ const Navbar = () => {
                   closeAllMobile();
                   openCommandPalette();
                 }}
-                className="flex w-full items-center gap-2 rounded-md border-l-2 border-transparent px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-l-primary/45 hover:text-primary cursor-pointer"
+                className="flex w-full items-center gap-2 rounded-xl border border-transparent px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-border hover:bg-card/85 hover:text-primary cursor-pointer"
               >
                 <Search size={16} />
                 Search...
@@ -396,9 +400,9 @@ const Navbar = () => {
                     as={Link}
                     href="/login"
                     onClick={closeAllMobile}
-                    variant="outline"
+                    variant="marketing-outline"
                     size="sm"
-                    className="w-full border-border bg-card text-foreground shadow-none hover:scale-100 hover:border-primary/45 hover:bg-accent/70 hover:text-foreground hover:shadow-none"
+                    className="w-full hover:translate-y-0"
                   >
                     Sign in
                   </Button>
@@ -406,8 +410,9 @@ const Navbar = () => {
                     as={Link}
                     href="/register"
                     onClick={closeAllMobile}
+                    variant="marketing"
                     size="sm"
-                    className="w-full bg-linear-to-r from-primary to-secondary text-primary-foreground shadow-none hover:scale-100 hover:opacity-95 hover:shadow-none"
+                    className="w-full"
                   >
                     Get started
                   </Button>
