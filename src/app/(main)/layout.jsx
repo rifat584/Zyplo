@@ -8,7 +8,7 @@ import Footer from "@/components/layout/Footer/Footer";
 
 export default function MainLayout({ children }) {
   return (
-    <div className="flex min-h-screen flex-col bg-white text-slate-900 dark:bg-background dark:text-slate-100">
+    <div className="marketing-shell flex min-h-screen flex-col bg-background text-foreground transition-colors duration-300">
       {/* <ThemeProviders> */}
       <Navbar />
       <div className="flex-1">
