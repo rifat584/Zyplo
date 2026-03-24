@@ -1261,7 +1261,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         {!effectiveCollapsed ? (
           <div className="text-xs font-semibold tracking-wide text-muted-foreground">
             <Link href={"/"}>
-              <Logo size={30} className="ml-2" />
+              <Logo size={35} className="ml-2" />
             </Link>
           </div>
         ) : null}

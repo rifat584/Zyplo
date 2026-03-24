@@ -12,10 +12,8 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <Link href="/" className="flex items-center mb-4">
-              <Logo showText={false} size={65} className="-ml-1 -mt-2" />
-              <span className="ml-2 font-bold font-serif text-3xl text-gray-200 -mt-1">
-                Zyplo
-              </span>
+              <Logo showText={true} textSize="4xl" size={50} className="-ml-1 -mt-2" />
+              
             </Link>
 
             <p className="text-slate-400 leading-relaxed mb-6">

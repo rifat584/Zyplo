@@ -119,7 +119,7 @@ const Navbar = () => {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <Logo size={50} />
+          <Logo textSize="3xl" size={45} />
         </Link>
 
         {/* Desktop Links */}
