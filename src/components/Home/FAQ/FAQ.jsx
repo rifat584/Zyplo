@@ -1,114 +1,113 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import MainContainer from "@/components/container/MainContainer";
 
 const faqs = [
   {
     question: "What is Zyplo?",
     answer:
-      "Zyplo is a modern project management tool that helps teams plan tasks, track progress, and collaborate in real-time."
+      "Zyplo is a modern project management tool that helps teams plan tasks, track progress, and collaborate in real-time.",
   },
   {
     question: "Who can use Zyplo?",
     answer:
-      "Startups, agencies, remote teams, and enterprises can use Zyplo to manage projects efficiently."
+      "Startups, agencies, remote teams, and enterprises can use Zyplo to manage projects efficiently.",
   },
   {
     question: "Does Zyplo offer collaboration features?",
     answer:
-      "Yes. You can assign tasks, set deadlines, track progress, comment on tasks, and manage team roles."
+      "Yes. You can assign tasks, set deadlines, track progress, comment on tasks, and manage team roles.",
   },
   {
     question: "Is there a free plan available?",
     answer:
-      "Yes, Zyplo offers a free plan with essential features. Paid plans unlock advanced analytics and integrations."
+      "Yes, Zyplo offers a free plan with essential features. Paid plans unlock advanced analytics and integrations.",
   },
   {
     question: "How secure is Zyplo?",
     answer:
-      "Zyplo uses secure cloud infrastructure and encrypted connections to keep your data protected."
-  }
+      "Zyplo uses secure cloud infrastructure and encrypted connections to keep your data protected.",
+  },
 ];
 
 export default function FAQ() {
-  const [openIndex, setOpenIndex] = useState(null);
-
-  const toggle = (index) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
+  const [openIndex, setOpenIndex] = useState(0);
 
   return (
-    <section className="bg-white dark:bg-[#0B0f19] py-20 transition-colors duration-300">
-      <div className="max-w-[1280px] mx-auto px-6">
-
-        {/* Heading */}
+    <section className="bg-background py-20 pb-24 sm:py-24 sm:pb-28">
+      <MainContainer className="px-6">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.5 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="mx-auto mb-12 max-w-3xl text-center"
         >
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 md:mb-8 text-foreground">
-            Frequently Asked Questions
+          <h2 className="text-3xl font-heading font-bold tracking-tight text-foreground sm:text-5xl">
+            Frequently asked questions
           </h2>
-          <p className="text-muted-foreground">
-            Have questions? We’ve got answers.
+          <p className="marketing-copy mt-4 text-sm leading-6 sm:text-base">
+            A quick read on pricing, collaboration, security, and who Zyplo is
+            built for.
           </p>
         </motion.div>
 
-        {/* FAQ Items */}
-        <div className="max-w-3xl mx-auto space-y-4">
-          {faqs.map((faq, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              className="
-                rounded-xl p-6 cursor-pointer transition-all duration-300
-                bg-surface dark:bg-surface
-                border border-border dark:border-border
-                hover:shadow-lg dark:hover:shadow-indigo-500/10
-              "
-              onClick={() => toggle(index)}
-            >
-              <div className="flex justify-between items-center">
-                <h3 className="font-semibold text-lg text-foreground">
-                  {faq.question}
-                </h3>
-
-                {/* Rotate Icon */}
-                <motion.span
-                  animate={{ rotate: openIndex === index ? 45 : 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="text-xl font-bold text-secondary"
+        <div className="mx-auto max-w-3xl space-y-4">
+          {faqs.map((faq, index) => {
+            const isOpen = openIndex === index;
+            return (
+              <motion.div
+                key={faq.question}
+                initial={{ opacity: 0, y: 18 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: index * 0.06 }}
+                viewport={{ once: true }}
+                className={`overflow-hidden rounded-[1.4rem] border transition-all duration-300 ${
+                  isOpen
+                    ? "border-primary/15 bg-card/78 shadow-sm"
+                    : "border-border/70 bg-card/68"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => setOpenIndex(isOpen ? -1 : index)}
+                  className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left"
                 >
-                  +
-                </motion.span>
-              </div>
+                  <span className="font-semibold text-foreground sm:text-lg">
+                    {faq.question}
+                  </span>
 
-              {/* Animated Answer */}
-              <AnimatePresence>
-                {openIndex === index && (
-                  <motion.p
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className="mt-4 text-muted-foreground leading-relaxed overflow-hidden"
+                  <motion.span
+                    animate={{ rotate: isOpen ? 45 : 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="inline-flex size-8 items-center justify-center rounded-full border border-secondary/20 bg-secondary/10 text-lg font-semibold text-secondary"
                   >
-                    {faq.answer}
-                  </motion.p>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          ))}
-        </div>
+                    +
+                  </motion.span>
+                </button>
 
-      </div>
+                <AnimatePresence initial={false}>
+                  {isOpen ? (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="overflow-hidden border-t border-border/60 bg-background/90 dark:bg-card/95"
+                    >
+                      <p className="px-5 pb-5 pt-4 text-sm leading-7 text-foreground">
+                        {faq.answer}
+                      </p>
+                    </motion.div>
+                  ) : null}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </div>
+      </MainContainer>
     </section>
   );
 }
