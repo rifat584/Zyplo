@@ -6,6 +6,11 @@ const root = process.cwd();
 const riskyPatterns = [
   {
     file: "src/components/Home/Hero/Hero.jsx",
+    pattern: 'className="marketing-copy mt-5 max-w-2xl text-base leading-7 sm:text-lg"',
+    reason: "hero lead copy is still using the generic marketing tier instead of the stronger hero tier",
+  },
+  {
+    file: "src/components/Home/Hero/Hero.jsx",
     pattern: "text-base leading-7 text-muted-foreground",
     reason: "hero lead copy still uses the washed-out muted token",
   },

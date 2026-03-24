@@ -42,7 +42,7 @@ export default function Hero() {
             ))}
           </h1>
 
-          <p className="marketing-copy mt-5 max-w-2xl text-base leading-7 sm:text-lg">
+          <p className="marketing-copy-strong mt-5 max-w-2xl text-base leading-7 sm:text-lg">
             Zyplo is a developer-focused project management tool with Kanban
             boards, smart priorities, and lightning-fast navigation for teams
             that ship.

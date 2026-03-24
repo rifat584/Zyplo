@@ -80,12 +80,20 @@ body {
   color: oklch(from var(--foreground) l c h / 0.74);
 }
 
+.marketing-copy-strong {
+  color: oklch(from var(--foreground) l c h / 0.82);
+}
+
 .marketing-subtle {
   color: oklch(from var(--foreground) l c h / 0.62);
 }
 
 .dark .marketing-copy {
   color: oklch(from var(--foreground) l c h / 0.82);
+}
+
+.dark .marketing-copy-strong {
+  color: oklch(from var(--foreground) l c h / 0.9);
 }
 
 .dark .marketing-subtle {
