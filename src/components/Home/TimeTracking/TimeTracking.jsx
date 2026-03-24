@@ -39,37 +39,7 @@ export default function TimeTracking() {
 
   return (
     <section className="relative overflow-hidden bg-background py-20 sm:py-24">
-      <div className="pointer-events-none absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(34,211,238,0.14),transparent_34%),radial-gradient(circle_at_82%_20%,rgba(99,102,241,0.16),transparent_30%),linear-gradient(to_bottom,rgba(255,255,255,0.7),transparent_32%,rgba(255,255,255,0.8))] dark:bg-[radial-gradient(circle_at_18%_18%,rgba(34,211,238,0.12),transparent_34%),radial-gradient(circle_at_82%_20%,rgba(99,102,241,0.14),transparent_30%),linear-gradient(to_bottom,rgba(2,6,23,0.92),transparent_34%,rgba(2,6,23,0.96))]" />
-
-        <motion.div
-          animate={
-            !shouldReduceMotion
-              ? { x: [0, 80, 0], y: [0, -40, 0], scale: [1, 1.08, 1] }
-              : undefined
-          }
-          transition={
-            !shouldReduceMotion
-              ? { duration: 16, repeat: Infinity, ease: "easeInOut" }
-              : undefined
-          }
-          className="absolute -left-36 top-0 h-[420px] w-[420px] rounded-full bg-secondary/14 blur-[120px]"
-        />
-
-        <motion.div
-          animate={
-            !shouldReduceMotion
-              ? { x: [0, -70, 0], y: [0, 45, 0], scale: [1, 1.12, 1] }
-              : undefined
-          }
-          transition={
-            !shouldReduceMotion
-              ? { duration: 18, repeat: Infinity, ease: "easeInOut" }
-              : undefined
-          }
-          className="absolute -bottom-28 right-0 h-[440px] w-[440px] rounded-full bg-primary/14 blur-[130px]"
-        />
-      </div>
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.1),transparent_62%)]" />
 
       <MainContainer className="relative z-10 px-6">
         <div className="rounded-[2.4rem] border border-border/70 bg-card/45 p-6 shadow-[0_30px_80px_-50px_rgba(15,23,42,0.32)] backdrop-blur-sm sm:p-10">
