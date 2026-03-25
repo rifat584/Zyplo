@@ -41,16 +41,16 @@ const Navbar = () => {
     cn(
       "inline-flex h-10 items-center border-b-2 px-4 text-sm font-medium transition-colors",
       isPathActive(path)
-        ? "border-primary text-primary"
-        : "border-transparent text-muted-foreground hover:border-primary/70 hover:text-primary",
+        ? "border-secondary text-secondary"
+        : "border-transparent text-muted-foreground hover:border-secondary/70 hover:text-secondary",
     );
 
   const getMobileLinkClass = (path) =>
     cn(
       "flex w-full items-center rounded-md border-l-2 border-transparent px-3 py-2.5 text-sm font-medium transition-colors",
       isPathActive(path)
-        ? "border-l-primary text-primary"
-        : "text-foreground hover:border-l-primary/45 hover:text-primary",
+        ? "border-l-secondary text-secondary"
+        : "text-foreground hover:border-l-secondary/45 hover:text-secondary",
     );
 
   // Close mega menu and profile menu on outside click
@@ -170,7 +170,7 @@ const Navbar = () => {
             className={cn(
               getDesktopLinkClass("/resources"),
               "flex cursor-pointer items-center gap-1 outline-none",
-              resourcesOpen ? "border-primary text-primary" : null,
+              resourcesOpen ? "border-secondary text-secondary" : null,
             )}
           >
             Resources
@@ -268,14 +268,14 @@ const Navbar = () => {
                         <Link
                           href="/dashboard"
                           onClick={() => setProfileOpen(false)}
-                          className="flex w-full items-center rounded-md border-l-2 border-transparent px-2 py-2 text-left text-sm font-medium text-foreground transition-colors hover:border-l-primary/45 hover:text-primary"
+                          className="flex w-full items-center rounded-md border-l-2 border-transparent px-2 py-2 text-left text-sm font-medium text-foreground transition-colors hover:border-l-secondary/45 hover:text-secondary"
                         >
                           Dashboard
                         </Link>
                         <Link
                           href="/dashboard/profile"
                           onClick={() => setProfileOpen(false)}
-                          className="flex w-full items-center rounded-md border-l-2 border-transparent px-2 py-2 text-left text-sm font-medium text-foreground transition-colors hover:border-l-primary/45 hover:text-primary"
+                          className="flex w-full items-center rounded-md border-l-2 border-transparent px-2 py-2 text-left text-sm font-medium text-foreground transition-colors hover:border-l-secondary/45 hover:text-secondary"
                         >
                           Profile
                         </Link>
@@ -298,7 +298,7 @@ const Navbar = () => {
           {/* Mobile Toggle */}
           <button
             onClick={toggleMobileMenu}
-            className="rounded-full border border-border/75 bg-card/75 p-2 text-muted-foreground shadow-sm transition-colors hover:border-primary/20 hover:bg-card hover:text-foreground md:hidden"
+            className="rounded-full border border-border/75 bg-card/75 p-2 text-muted-foreground shadow-sm transition-colors hover:border-secondary/20 hover:bg-card hover:text-foreground md:hidden"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -340,8 +340,8 @@ const Navbar = () => {
                 className={cn(
                   "flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors",
                   mobileResourcesOpen || isPathActive("/resources")
-                    ? "border-primary/20 bg-primary/10 text-primary"
-                    : "border-transparent text-foreground hover:border-border hover:bg-card/85 hover:text-primary",
+                    ? "border-secondary/20 bg-secondary/10 text-secondary"
+                    : "border-transparent text-foreground hover:border-border hover:bg-card/85 hover:text-secondary",
                 )}
               >
                 Resources
@@ -392,14 +392,14 @@ const Navbar = () => {
                   <Link
                     href="/dashboard"
                     onClick={closeAllMobile}
-                    className="flex w-full items-center rounded-md border-l-2 border-transparent px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-l-primary/45 hover:text-primary"
+                    className="flex w-full items-center rounded-md border-l-2 border-transparent px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-l-secondary/45 hover:text-secondary"
                   >
                     Dashboard
                   </Link>
                   <Link
                     href="/dashboard/profile"
                     onClick={closeAllMobile}
-                    className="flex w-full items-center rounded-md border-l-2 border-transparent px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-l-primary/45 hover:text-primary"
+                    className="flex w-full items-center rounded-md border-l-2 border-transparent px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-l-secondary/45 hover:text-secondary"
                   >
                     Profile
                   </Link>
