@@ -1,15 +1,16 @@
 import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
+import authRouteAccess from "@/lib/authRouteAccess";
 
-const privateRoutes = ["/dashboard"];
+const { getAuthRedirectPath } = authRouteAccess;
+
 // This function can be marked `async` if using `await` inside
 export async function proxy(req) {
   const token = await getToken({ req });
-  const reqPath = req.nextUrl.pathname;
-  const isAuthenticated = Boolean(token);
-  const isPrivate = privateRoutes.some((route) => reqPath.startsWith(route));
-  if (!isAuthenticated && isPrivate) {
-    return NextResponse.redirect(new URL("/login", req.url));
+  const redirectPath = getAuthRedirectPath(req.nextUrl.pathname, Boolean(token));
+
+  if (redirectPath) {
+    return NextResponse.redirect(new URL(redirectPath, req.url));
   }
 
   return NextResponse.next();
@@ -19,5 +20,12 @@ export async function proxy(req) {
 // export default function proxy(request) { ... }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  // Next statically analyzes proxy matchers, so this must stay inline.
+  matcher: [
+    "/dashboard/:path*",
+    "/login",
+    "/register",
+    "/forgot-password",
+    "/reset-password",
+  ],
 };
