@@ -67,7 +67,7 @@ export default function Hero() {
                 ? { duration: 4.5, ease: "easeInOut", repeat: Infinity }
                 : undefined
             }
-            className="relative w-full max-w-[28rem] md:max-w-[39rem]"
+            className="relative w-full max-w-md md:max-w-156"
           >
             <Image
               src={rightHeroImg}
