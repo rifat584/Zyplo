@@ -33,7 +33,7 @@ export default function Logo({
         className={cn("rounded-full", imageClassName)}
       />
       {showText && (
-        <span className={cn(normalizeTextSize(textSize), "font-bold text-primary")}>
+        <span className={cn(normalizeTextSize(textSize), "font-bold text-foreground")}>
           ZYPL
           <span>O</span>
         </span>
