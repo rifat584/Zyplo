@@ -42,7 +42,7 @@ export default function Hero() {
             ))}
           </h1>
 
-          <p className="mt-5 max-w-2xl text-base leading-7 text-foreground sm:text-lg">
+          <p className="mt-5 max-w-2xl leading-7 text-foreground sm:text-lg">
             Zyplo is a developer-focused project management tool with Kanban
             boards, smart priorities, and lightning-fast navigation for teams
             that ship.
@@ -58,7 +58,7 @@ export default function Hero() {
           </div>
         </div>
 
-        <div className="order-2 relative hidden justify-center md:flex md:justify-end">
+        <div className="order-2 relative flex justify-center md:justify-end">
           <motion.div
             initial={false}
             animate={!shouldReduceMotion ? { y: [0, -10, 0] } : undefined}
@@ -67,7 +67,7 @@ export default function Hero() {
                 ? { duration: 4.5, ease: "easeInOut", repeat: Infinity }
                 : undefined
             }
-            className="relative w-full max-w-[39rem]"
+            className="relative w-full max-w-[28rem] md:max-w-[39rem]"
           >
             <Image
               src={rightHeroImg}
