@@ -1402,13 +1402,15 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
           effectiveCollapsed ? "justify-center" : "justify-between",
         )}
       >
-        {!effectiveCollapsed ? (
-          <div className="text-xs font-semibold tracking-wide text-muted-foreground">
-            <Link href={"/"}>
-              <Logo size={35} className="ml-2" />
-            </Link>
-          </div>
-        ) : null}
+        <div className="text-xs font-semibold tracking-wide text-muted-foreground">
+          <Link href={"/"} className="flex items-center justify-center">
+            <Logo
+              size={25}
+              showText={!effectiveCollapsed}
+              className={effectiveCollapsed ? "" : "ml-2"}
+            />
+          </Link>
+        </div>
         <button
           type="button"
           onClick={toggle}
