@@ -986,7 +986,9 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   const { status: sessionStatus } = useSession();
   const { collapsed, toggle } = useSidebarState();
   const { starredIds, toggleStar } = useStarredWorkspaces();
+  const [compactWorkspaceActions, setCompactWorkspaceActions] = useState(false);
   const effectiveCollapsed = mobileOpen ? true : collapsed;
+  const useCompactWorkspaceActions = effectiveCollapsed || compactWorkspaceActions;
   
   const { workspaces, currentUser, loaded } = useMockStore((state) => ({
     workspaces: state.workspaces || [],
@@ -999,6 +1001,9 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   const [deleting, setDeleting] = useState(false);
   const [workspaceBilling, setWorkspaceBilling] = useState({});
   const actionsMenuRef = useRef(null);
+  const toggleWorkspaceActions = (workspaceId) => {
+    setActionsOpenFor((current) => (current === workspaceId ? "" : workspaceId));
+  };
 
   const pickWorkspaceGradient = (workspace) => {
     const key = workspace?.id || workspace?.name || "workspace";
@@ -1041,9 +1046,32 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
       }
     }
 
-    document.addEventListener("mousedown", onPointerDown);
-    return () => document.removeEventListener("mousedown", onPointerDown);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [actionsOpenFor]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+
+    const mediaQuery = window.matchMedia(
+      "(max-width: 1023px), (hover: none), (pointer: coarse)",
+    );
+
+    const updateCompactWorkspaceActions = () => {
+      setCompactWorkspaceActions(mediaQuery.matches);
+    };
+
+    updateCompactWorkspaceActions();
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", updateCompactWorkspaceActions);
+      return () =>
+        mediaQuery.removeEventListener("change", updateCompactWorkspaceActions);
+    }
+
+    mediaQuery.addListener(updateCompactWorkspaceActions);
+    return () => mediaQuery.removeListener(updateCompactWorkspaceActions);
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -1171,8 +1199,18 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         <button
           type="button"
           onClick={() => {
+            if (useCompactWorkspaceActions && active) {
+              toggleWorkspaceActions(workspace.id);
+              return;
+            }
+
+            setActionsOpenFor("");
             router.push(href);
             onCloseMobile?.();
+          }}
+          onDoubleClick={() => {
+            if (!active) return;
+            toggleWorkspaceActions(workspace.id);
           }}
           data-collapsed={effectiveCollapsed ? "true" : "false"}
           className={cn(
@@ -1205,18 +1243,17 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
           ) : null}
         </button>
 
-        {!effectiveCollapsed ? (
+        {!useCompactWorkspaceActions ? (
           <button
             type="button"
             onClick={(event) => {
               event.stopPropagation();
-              setActionsOpenFor((current) =>
-                current === workspace.id ? "" : workspace.id,
-              );
+              toggleWorkspaceActions(workspace.id);
             }}
+            aria-label={`Workspace actions for ${workspace.name}`}
             className={cn(
               dashboardChromeButtonClasses,
-              "absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 group-hover:block",
+              "absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 opacity-70 transition-opacity hover:opacity-100",
             )}
           >
             <Ellipsis className="size-4" />
@@ -1226,7 +1263,14 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         {menuOpen ? (
           <div
             ref={actionsMenuRef}
-            className="absolute right-0 top-10 z-50 w-52 rounded-xl border border-border bg-card p-1 shadow-lg"
+            className={cn(
+              "z-50 rounded-xl border border-border bg-card p-1 shadow-lg",
+              useCompactWorkspaceActions
+                ? mobileOpen
+                  ? "fixed left-[5.5rem] top-1/2 w-[min(13rem,calc(100vw-6.5rem))] max-h-[calc(100vh-2rem)] -translate-y-1/2 overflow-y-auto"
+                  : "absolute left-full top-1/2 ml-2 w-52 -translate-y-1/2"
+                : "right-0 top-10",
+            )}
           >
             <button
               type="button"
@@ -1258,6 +1302,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                   type="button"
                   onClick={() => {
                     setActionsOpenFor("");
+                    onCloseMobile?.();
                     router.push(`/dashboard/w/${workspace.id}/members`);
                   }}
                   className={cn(
@@ -1272,6 +1317,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                   type="button"
                   onClick={() => {
                     setActionsOpenFor("");
+                    onCloseMobile?.();
                     router.push(`/dashboard/w/${workspace.id}/settings`);
                   }}
                   className={cn(
@@ -1402,13 +1448,15 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
           effectiveCollapsed ? "justify-center" : "justify-between",
         )}
       >
-        {!effectiveCollapsed ? (
-          <div className="text-xs font-semibold tracking-wide text-muted-foreground">
-            <Link href={"/"}>
-              <Logo size={35} className="ml-2" />
-            </Link>
-          </div>
-        ) : null}
+        <div className="text-xs font-semibold tracking-wide text-muted-foreground">
+          <Link href={"/"} className="flex items-center justify-center">
+            <Logo
+              size={25}
+              showText={!effectiveCollapsed}
+              className={effectiveCollapsed ? "" : "ml-2"}
+            />
+          </Link>
+        </div>
         <button
           type="button"
           onClick={toggle}
