@@ -93,7 +93,9 @@ export default function Hero() {
               height={500}
               priority
               sizes="(min-width: 1024px) 48vw, 100vw"
-              className="relative h-auto w-full rounded-[1.9rem] shadow-[0_30px_80px_-48px_rgba(15,23,42,0.45)]"
+              className="relative h-auto w-full rounded-[1.2rem] origin-center md:origin-right
+  transform-[perspective(1400px)_rotateY(-8deg)_rotateX(4deg)]
+  shadow-[0_32px_80px_-12px_rgba(0,0,0,0.35),0_0_0_1px_rgba(255,255,255,0.06)]"
             />
           </motion.div>
         </div>
