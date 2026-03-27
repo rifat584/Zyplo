@@ -783,6 +783,7 @@ function NotificationsMenu() {
   const notifications = useMockStore((state) => state.notifications || []);
   const unreadCount = notifications.filter((item) => !item.read).length;
   const [open, setOpen] = useState(false);
+  const [syncingReadState, setSyncingReadState] = useState(false);
   const rootRef = useRef(null);
 
   useEffect(() => {
@@ -797,21 +798,29 @@ function NotificationsMenu() {
   }, []);
 
   useEffect(() => {
-    if (!open || unreadCount === 0) return;
+    if (!open || unreadCount === 0 || syncingReadState) return;
 
     let active = true;
 
-    // Mark everything read as soon as the bell opens.
-    markAllNotificationsRead().catch((error) => {
-      if (active) {
-        toast.error(error?.message || "Failed to update notifications");
+    async function syncReadState() {
+      try {
+        setSyncingReadState(true);
+        await markAllNotificationsRead();
+      } catch (error) {
+        if (active) {
+          toast.error(error?.message || "Failed to update notifications");
+        }
+      } finally {
+        if (active) setSyncingReadState(false);
       }
-    });
+    }
+
+    syncReadState().catch(() => {});
 
     return () => {
       active = false;
     };
-  }, [open, unreadCount]);
+  }, [open, unreadCount, syncingReadState]);
 
   return (
     <div ref={rootRef} className="relative">
@@ -840,7 +849,11 @@ function NotificationsMenu() {
                 Notifications
               </p>
               <span className="text-[11px] font-medium text-muted-foreground">
-                {unreadCount > 0 ? `${unreadCount} unread` : "All caught up"}
+                {syncingReadState
+                  ? "Updating..."
+                  : unreadCount > 0
+                    ? `${unreadCount} unread`
+                    : "All caught up"}
               </span>
             </div>
           </div>
