@@ -42,7 +42,7 @@ const Navbar = () => {
       "inline-flex h-10 items-center border-b-2 px-4 text-sm font-medium transition-colors",
       isPathActive(path)
         ? "border-secondary text-secondary"
-        : "border-transparent text-muted-foreground hover:border-secondary/70 hover:text-secondary",
+        : "border-transparent text-muted-foreground hover:text-secondary",
     );
 
   const getMobileLinkClass = (path) =>
@@ -50,7 +50,7 @@ const Navbar = () => {
       "flex w-full items-center rounded-md border-l-2 border-transparent px-3 py-2.5 text-sm font-medium transition-colors",
       isPathActive(path)
         ? "border-l-secondary text-secondary"
-        : "text-foreground hover:border-l-secondary/45 hover:text-secondary",
+        : "text-foreground hover:text-secondary",
     );
 
   // Close mega menu and profile menu on outside click

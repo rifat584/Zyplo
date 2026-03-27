@@ -21,7 +21,7 @@ export default function ResourcesMenu({
                                 key={item.title}
                                 href={item.href}
                                 onClick={() => setResourcesOpen(false)}
-                                className="group block rounded-lg border border-transparent px-3 py-3 text-foreground transition-colors hover:border-secondary hover:text-secondary"
+                                className="group block rounded-lg border border-transparent px-3 py-3 text-foreground transition-colors hover:bg-accent hover:text-secondary"
                             >
                                 <p className="mb-1 font-semibold text-foreground transition-colors group-hover:text-secondary">{item.title}</p>
                                 <p className="text-sm text-muted-foreground">{item.desc}</p>
@@ -40,7 +40,7 @@ export default function ResourcesMenu({
                                 key={item.title}
                                 href={item.href}
                                 onClick={closeAll}
-                                className="group block rounded-md px-2 py-2.5 transition-colors hover:bg-accent/20 hover:text-secondary"
+                                className="group block rounded-md px-2 py-2.5 transition-colors hover:bg-accent hover:text-secondary"
                             >
                                 <div className="flex items-start gap-3">
                                     <span className="mt-0.5 inline-flex h-6 w-4 shrink-0 items-center justify-center text-[11px] font-semibold text-muted-foreground transition-colors group-hover:text-secondary">
