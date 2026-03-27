@@ -1171,6 +1171,14 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         <button
           type="button"
           onClick={() => {
+            if (effectiveCollapsed && active) {
+              setActionsOpenFor((current) =>
+                current === workspace.id ? "" : workspace.id,
+              );
+              return;
+            }
+
+            setActionsOpenFor("");
             router.push(href);
             onCloseMobile?.();
           }}
@@ -1214,6 +1222,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                 current === workspace.id ? "" : workspace.id,
               );
             }}
+            aria-label={`Workspace actions for ${workspace.name}`}
             className={cn(
               dashboardChromeButtonClasses,
               "absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 group-hover:block",
@@ -1226,7 +1235,12 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         {menuOpen ? (
           <div
             ref={actionsMenuRef}
-            className="absolute right-0 top-10 z-50 w-52 rounded-xl border border-border bg-card p-1 shadow-lg"
+            className={cn(
+              "absolute z-50 w-52 rounded-xl border border-border bg-card p-1 shadow-lg",
+              effectiveCollapsed
+                ? "left-full top-1/2 ml-2 -translate-y-1/2"
+                : "right-0 top-10",
+            )}
           >
             <button
               type="button"
@@ -1258,6 +1272,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                   type="button"
                   onClick={() => {
                     setActionsOpenFor("");
+                    onCloseMobile?.();
                     router.push(`/dashboard/w/${workspace.id}/members`);
                   }}
                   className={cn(
@@ -1272,6 +1287,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                   type="button"
                   onClick={() => {
                     setActionsOpenFor("");
+                    onCloseMobile?.();
                     router.push(`/dashboard/w/${workspace.id}/settings`);
                   }}
                   className={cn(
