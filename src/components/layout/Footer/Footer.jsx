@@ -29,7 +29,7 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <footer className="relative overflow-hidden border-t border-border/70 bg-card/80 pt-[4.5rem] pb-20 text-card-foreground backdrop-blur-sm">
+    <footer className="relative overflow-hidden border-t border-border/70 bg-card/80 pt-[4.5rem] pb-6 text-card-foreground backdrop-blur-sm">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-linear-to-b from-secondary/8 to-transparent" />
 
       <div className="mx-auto max-w-7xl px-6">
