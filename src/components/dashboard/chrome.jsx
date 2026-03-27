@@ -14,7 +14,6 @@ import {
   Bell,
   Building2,
   CalendarDays,
-  CheckCheck,
   ChevronDown,
   ChevronLeft,
   Clock3,
@@ -781,7 +780,7 @@ function NotificationsMenu() {
   const notifications = useMockStore((state) => state.notifications || []);
   const unreadCount = notifications.filter((item) => !item.read).length;
   const [open, setOpen] = useState(false);
-  const [markingAllRead, setMarkingAllRead] = useState(false);
+  const [syncingReadState, setSyncingReadState] = useState(false);
   const rootRef = useRef(null);
 
   useEffect(() => {
@@ -794,6 +793,31 @@ function NotificationsMenu() {
     document.addEventListener("mousedown", onPointerDown);
     return () => document.removeEventListener("mousedown", onPointerDown);
   }, []);
+
+  useEffect(() => {
+    if (!open || unreadCount === 0 || syncingReadState) return;
+
+    let active = true;
+
+    async function syncReadState() {
+      try {
+        setSyncingReadState(true);
+        await markAllNotificationsRead();
+      } catch (error) {
+        if (active) {
+          toast.error(error?.message || "Failed to update notifications");
+        }
+      } finally {
+        if (active) setSyncingReadState(false);
+      }
+    }
+
+    syncReadState().catch(() => {});
+
+    return () => {
+      active = false;
+    };
+  }, [open, unreadCount, syncingReadState]);
 
   return (
     <div ref={rootRef} className="relative">
@@ -815,46 +839,34 @@ function NotificationsMenu() {
       </button>
 
       {open ? (
-        <div className="absolute right-0 top-11 z-40 w-[92vw] max-w-sm overflow-hidden rounded-xl border border-border bg-card">
-          <div className="flex items-center justify-between border-b border-border px-3 py-2">
-            <p className="text-sm font-semibold text-foreground">
-              Notifications
-            </p>
-            <button
-              type="button"
-              disabled={markingAllRead || unreadCount === 0}
-              onClick={async () => {
-                try {
-                  setMarkingAllRead(true);
-                  await markAllNotificationsRead();
-                } catch (error) {
-                  toast.error(error?.message || "Failed to mark notifications");
-                } finally {
-                  setMarkingAllRead(false);
-                }
-              }}
-              className={cn(
-                dashboardChromeButtonClasses,
-                "inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-foreground disabled:cursor-not-allowed disabled:opacity-50",
-              )}
-            >
-              <CheckCheck className="size-3.5" />
-              Mark all read
-            </button>
+        <div className="fixed inset-x-3 top-14 z-40 overflow-hidden rounded-xl border border-border bg-card shadow-xl sm:absolute sm:right-0 sm:left-auto sm:top-11 sm:w-[24rem] sm:max-w-[calc(100vw-2rem)]">
+          <div className="border-b border-border px-3 py-2.5 sm:px-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm font-semibold text-foreground">
+                Notifications
+              </p>
+              <span className="text-[11px] font-medium text-muted-foreground">
+                {syncingReadState
+                  ? "Updating..."
+                  : unreadCount > 0
+                    ? `${unreadCount} unread`
+                    : "All caught up"}
+              </span>
+            </div>
           </div>
-          <div className="max-h-80 overflow-y-auto p-2">
+          <div className="max-h-[min(24rem,calc(100vh-5.5rem))] overflow-y-auto p-2 sm:max-h-80">
             {notifications.length ? (
               notifications.map((item) => (
                 <div
                   key={item.id}
                   className={cn(
-                    "mb-1 rounded-lg border px-3 py-2 last:mb-0",
+                    "mb-1 rounded-lg border px-3 py-2.5 last:mb-0 sm:px-3 sm:py-2",
                     item.read
                       ? "border-border bg-card"
                       : dashboardActiveSurfaceClasses,
                   )}
                 >
-                  <p className="text-sm text-foreground">
+                  <p className="text-sm leading-6 text-foreground">
                     {item.text || "Notification"}
                   </p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
