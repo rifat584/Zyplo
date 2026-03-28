@@ -14,7 +14,6 @@ import {
   Bell,
   Building2,
   CalendarDays,
-  CheckCheck,
   ChevronDown,
   ChevronLeft,
   Clock3,
@@ -781,7 +780,7 @@ function NotificationsMenu() {
   const notifications = useMockStore((state) => state.notifications || []);
   const unreadCount = notifications.filter((item) => !item.read).length;
   const [open, setOpen] = useState(false);
-  const [markingAllRead, setMarkingAllRead] = useState(false);
+  const [syncingReadState, setSyncingReadState] = useState(false);
   const rootRef = useRef(null);
 
   useEffect(() => {
@@ -794,6 +793,31 @@ function NotificationsMenu() {
     document.addEventListener("mousedown", onPointerDown);
     return () => document.removeEventListener("mousedown", onPointerDown);
   }, []);
+
+  useEffect(() => {
+    if (!open || unreadCount === 0 || syncingReadState) return;
+
+    let active = true;
+
+    async function syncReadState() {
+      try {
+        setSyncingReadState(true);
+        await markAllNotificationsRead();
+      } catch (error) {
+        if (active) {
+          toast.error(error?.message || "Failed to update notifications");
+        }
+      } finally {
+        if (active) setSyncingReadState(false);
+      }
+    }
+
+    syncReadState().catch(() => {});
+
+    return () => {
+      active = false;
+    };
+  }, [open, unreadCount, syncingReadState]);
 
   return (
     <div ref={rootRef} className="relative">
@@ -815,46 +839,34 @@ function NotificationsMenu() {
       </button>
 
       {open ? (
-        <div className="absolute right-0 top-11 z-40 w-[92vw] max-w-sm overflow-hidden rounded-xl border border-border bg-card">
-          <div className="flex items-center justify-between border-b border-border px-3 py-2">
-            <p className="text-sm font-semibold text-foreground">
-              Notifications
-            </p>
-            <button
-              type="button"
-              disabled={markingAllRead || unreadCount === 0}
-              onClick={async () => {
-                try {
-                  setMarkingAllRead(true);
-                  await markAllNotificationsRead();
-                } catch (error) {
-                  toast.error(error?.message || "Failed to mark notifications");
-                } finally {
-                  setMarkingAllRead(false);
-                }
-              }}
-              className={cn(
-                dashboardChromeButtonClasses,
-                "inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-foreground disabled:cursor-not-allowed disabled:opacity-50",
-              )}
-            >
-              <CheckCheck className="size-3.5" />
-              Mark all read
-            </button>
+        <div className="fixed inset-x-3 top-14 z-40 overflow-hidden rounded-xl border border-border bg-card shadow-xl sm:absolute sm:right-0 sm:left-auto sm:top-11 sm:w-[24rem] sm:max-w-[calc(100vw-2rem)]">
+          <div className="border-b border-border px-3 py-2.5 sm:px-4">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm font-semibold text-foreground">
+                Notifications
+              </p>
+              <span className="text-[11px] font-medium text-muted-foreground">
+                {syncingReadState
+                  ? "Updating..."
+                  : unreadCount > 0
+                    ? `${unreadCount} unread`
+                    : "All caught up"}
+              </span>
+            </div>
           </div>
-          <div className="max-h-80 overflow-y-auto p-2">
+          <div className="max-h-[min(24rem,calc(100vh-5.5rem))] overflow-y-auto p-2 sm:max-h-80">
             {notifications.length ? (
               notifications.map((item) => (
                 <div
                   key={item.id}
                   className={cn(
-                    "mb-1 rounded-lg border px-3 py-2 last:mb-0",
+                    "mb-1 rounded-lg border px-3 py-2.5 last:mb-0 sm:px-3 sm:py-2",
                     item.read
                       ? "border-border bg-card"
                       : dashboardActiveSurfaceClasses,
                   )}
                 >
-                  <p className="text-sm text-foreground">
+                  <p className="text-sm leading-6 text-foreground">
                     {item.text || "Notification"}
                   </p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
@@ -986,7 +998,9 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   const { status: sessionStatus } = useSession();
   const { collapsed, toggle } = useSidebarState();
   const { starredIds, toggleStar } = useStarredWorkspaces();
+  const [compactWorkspaceActions, setCompactWorkspaceActions] = useState(false);
   const effectiveCollapsed = mobileOpen ? true : collapsed;
+  const useCompactWorkspaceActions = effectiveCollapsed || compactWorkspaceActions;
   
   const { workspaces, currentUser, loaded } = useMockStore((state) => ({
     workspaces: state.workspaces || [],
@@ -999,6 +1013,9 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   const [deleting, setDeleting] = useState(false);
   const [workspaceBilling, setWorkspaceBilling] = useState({});
   const actionsMenuRef = useRef(null);
+  const toggleWorkspaceActions = (workspaceId) => {
+    setActionsOpenFor((current) => (current === workspaceId ? "" : workspaceId));
+  };
 
   const pickWorkspaceGradient = (workspace) => {
     const key = workspace?.id || workspace?.name || "workspace";
@@ -1041,9 +1058,32 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
       }
     }
 
-    document.addEventListener("mousedown", onPointerDown);
-    return () => document.removeEventListener("mousedown", onPointerDown);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [actionsOpenFor]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+
+    const mediaQuery = window.matchMedia(
+      "(max-width: 1023px), (hover: none), (pointer: coarse)",
+    );
+
+    const updateCompactWorkspaceActions = () => {
+      setCompactWorkspaceActions(mediaQuery.matches);
+    };
+
+    updateCompactWorkspaceActions();
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", updateCompactWorkspaceActions);
+      return () =>
+        mediaQuery.removeEventListener("change", updateCompactWorkspaceActions);
+    }
+
+    mediaQuery.addListener(updateCompactWorkspaceActions);
+    return () => mediaQuery.removeListener(updateCompactWorkspaceActions);
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -1171,8 +1211,18 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         <button
           type="button"
           onClick={() => {
+            if (useCompactWorkspaceActions && active) {
+              toggleWorkspaceActions(workspace.id);
+              return;
+            }
+
+            setActionsOpenFor("");
             router.push(href);
             onCloseMobile?.();
+          }}
+          onDoubleClick={() => {
+            if (!active) return;
+            toggleWorkspaceActions(workspace.id);
           }}
           data-collapsed={effectiveCollapsed ? "true" : "false"}
           className={cn(
@@ -1205,18 +1255,17 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
           ) : null}
         </button>
 
-        {!effectiveCollapsed ? (
+        {!useCompactWorkspaceActions ? (
           <button
             type="button"
             onClick={(event) => {
               event.stopPropagation();
-              setActionsOpenFor((current) =>
-                current === workspace.id ? "" : workspace.id,
-              );
+              toggleWorkspaceActions(workspace.id);
             }}
+            aria-label={`Workspace actions for ${workspace.name}`}
             className={cn(
               dashboardChromeButtonClasses,
-              "absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 group-hover:block",
+              "absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 opacity-70 transition-opacity hover:opacity-100",
             )}
           >
             <Ellipsis className="size-4" />
@@ -1226,7 +1275,14 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         {menuOpen ? (
           <div
             ref={actionsMenuRef}
-            className="absolute right-0 top-10 z-50 w-52 rounded-xl border border-border bg-card p-1 shadow-lg"
+            className={cn(
+              "z-50 rounded-xl border border-border bg-card p-1 shadow-lg",
+              useCompactWorkspaceActions
+                ? mobileOpen
+                  ? "fixed left-[5.5rem] top-1/2 w-[min(13rem,calc(100vw-6.5rem))] max-h-[calc(100vh-2rem)] -translate-y-1/2 overflow-y-auto"
+                  : "absolute left-full top-1/2 ml-2 w-52 -translate-y-1/2"
+                : "right-0 top-10",
+            )}
           >
             <button
               type="button"
@@ -1258,6 +1314,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                   type="button"
                   onClick={() => {
                     setActionsOpenFor("");
+                    onCloseMobile?.();
                     router.push(`/dashboard/w/${workspace.id}/members`);
                   }}
                   className={cn(
@@ -1272,6 +1329,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                   type="button"
                   onClick={() => {
                     setActionsOpenFor("");
+                    onCloseMobile?.();
                     router.push(`/dashboard/w/${workspace.id}/settings`);
                   }}
                   className={cn(
@@ -1402,13 +1460,15 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
           effectiveCollapsed ? "justify-center" : "justify-between",
         )}
       >
-        {!effectiveCollapsed ? (
-          <div className="text-xs font-semibold tracking-wide text-muted-foreground">
-            <Link href={"/"}>
-              <Logo size={35} className="ml-2" />
-            </Link>
-          </div>
-        ) : null}
+        <div className="text-xs font-semibold tracking-wide text-muted-foreground">
+          <Link href={"/"} className="flex items-center justify-center">
+            <Logo
+              size={25}
+              showText={!effectiveCollapsed}
+              className={effectiveCollapsed ? "" : "ml-2"}
+            />
+          </Link>
+        </div>
         <button
           type="button"
           onClick={toggle}

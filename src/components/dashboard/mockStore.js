@@ -220,8 +220,19 @@ export async function updateTask(taskId, patch) {
 }
 
 export async function markAllNotificationsRead() {
-  await request("/api/dashboard/notifications/read-all", { method: "POST" });
-  await loadDashboard({ force: true });
+  const previousNotifications = state.notifications;
+  const nextNotifications = previousNotifications.map((item) =>
+    item?.read ? item : { ...item, read: true },
+  );
+
+  setState({ notifications: nextNotifications });
+
+  try {
+    await request("/api/dashboard/notifications/read-all", { method: "POST" });
+  } catch (error) {
+    setState({ notifications: previousNotifications });
+    throw error;
+  }
 }
 
 export async function refreshNotifications() {
