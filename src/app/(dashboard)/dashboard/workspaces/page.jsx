@@ -194,6 +194,7 @@ export default function WorkspacesPage() {
   const [errorText, setErrorText] = useState("");
   const [menuOpenFor, setMenuOpenFor] = useState("");
   const [pinnedMenuOpenFor, setPinnedMenuOpenFor] = useState("");
+  const [compactWorkspaceMenuTrigger, setCompactWorkspaceMenuTrigger] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState("");
   const [deleting, setDeleting] = useState(false);
   const actionsRegionRef = useRef(null);
@@ -304,6 +305,29 @@ export default function WorkspacesPage() {
     [],
   );
 
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+
+    const mediaQuery = window.matchMedia(
+      "(max-width: 1023px), (hover: none), (pointer: coarse)",
+    );
+
+    const updateCompactWorkspaceMenuTrigger = () => {
+      setCompactWorkspaceMenuTrigger(mediaQuery.matches);
+    };
+
+    updateCompactWorkspaceMenuTrigger();
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", updateCompactWorkspaceMenuTrigger);
+      return () =>
+        mediaQuery.removeEventListener("change", updateCompactWorkspaceMenuTrigger);
+    }
+
+    mediaQuery.addListener(updateCompactWorkspaceMenuTrigger);
+    return () => mediaQuery.removeListener(updateCompactWorkspaceMenuTrigger);
+  }, []);
+
   async function handleCreateWorkspace() {
     const name = workspaceName.trim();
     if (!name) return;
@@ -385,9 +409,10 @@ export default function WorkspacesPage() {
             event.stopPropagation();
             togglePinnedWorkspaceMenu(workspace.id);
           }}
+          aria-label={`Workspace actions for ${workspace.name}`}
           className={cn(
             "absolute right-2 top-1/2 rounded-md p-1 text-muted-foreground transition-colors hover:bg-(--dashboard-hover) cursor-pointer -translate-y-1/2",
-            menuOpen ? "block" : "hidden group-hover:block",
+            compactWorkspaceMenuTrigger || menuOpen ? "block" : "hidden group-hover:block",
           )}
         >
           <Ellipsis className="size-4" />

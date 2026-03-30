@@ -115,7 +115,7 @@ function useStarredWorkspaces() {
         localStorage.setItem(STARRED_KEY, JSON.stringify(currentUser.starredWorkspaceIds));
       } catch {}
     }
-  }, [currentUser?.starredWorkspaceIds]);
+  }, [currentUser, currentUser?.starredWorkspaceIds]);
 
   // 3. Cross-Component Sync: Keep sidebar and page in sync instantly
   useEffect(() => {
@@ -1001,6 +1001,9 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
   const { starredIds, toggleStar } = useStarredWorkspaces();
   const [compactWorkspaceActions, setCompactWorkspaceActions] = useState(false);
   const effectiveCollapsed = mobileOpen ? true : collapsed;
+  const showSidebarLogo = mobileOpen || !effectiveCollapsed;
+  const showHeaderLogo = showSidebarLogo && !mobileOpen;
+  const showFooterLogo = mobileOpen && showSidebarLogo;
   const useCompactWorkspaceActions = effectiveCollapsed || compactWorkspaceActions;
   
   const { workspaces, currentUser, loaded } = useMockStore((state) => ({
@@ -1035,6 +1038,15 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     setActionsOpenFor("");
     setPinnedActionsFor("");
   };
+  const handleSidebarToggle = () => {
+    closeWorkspaceActions();
+    if (mobileOpen) {
+      onCloseMobile?.();
+      return;
+    }
+    toggle();
+  };
+  const SidebarToggleIcon = mobileOpen ? X : ChevronLeft;
   const openWorkspaceActions = (workspaceId) => {
     clearHoverCloseTimeout();
     if (pinnedActionsFor && pinnedActionsFor !== workspaceId) return;
@@ -1252,6 +1264,8 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     const href = `/dashboard/w/${workspace.id}`;
     const active = pathname === href || pathname.startsWith(`${href}/`);
     const menuOpen = actionsOpenFor === workspace.id;
+    const showCollapsedActiveWorkspaceActions = effectiveCollapsed && active;
+    const showInlineWorkspaceActionsButton = !effectiveCollapsed;
 
     return (
       <div
@@ -1269,7 +1283,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
         <button
           type="button"
           onClick={() => {
-            if (useCompactWorkspaceActions && active) {
+            if (effectiveCollapsed && active) {
               toggleWorkspaceActions(workspace.id);
               return;
             }
@@ -1313,10 +1327,28 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
           ) : null}
         </button>
 
-        {!useCompactWorkspaceActions ? (
+        {showCollapsedActiveWorkspaceActions ? (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              togglePinnedWorkspaceActions(workspace.id);
+            }}
+            aria-label={`More actions for ${workspace.name}`}
+            className={cn(
+              dashboardChromeButtonClasses,
+              "absolute -right-1 -top-1 z-10 rounded-full p-0.5 shadow-sm",
+            )}
+          >
+            <Ellipsis className="size-3" />
+          </button>
+        ) : null}
+
+        {showInlineWorkspaceActionsButton ? (
           <button
             type="button"
             onMouseEnter={() => {
+              if (useCompactWorkspaceActions) return;
               openWorkspaceActions(workspace.id);
             }}
             onClick={(event) => {
@@ -1355,7 +1387,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
                 "origin-left rounded-xl border border-border bg-card p-1 shadow-lg",
                 useCompactWorkspaceActions
                   ? mobileOpen
-                    ? "fixed left-[5.5rem] top-1/2 z-50 w-[min(13rem,calc(100vw-6.5rem))] max-h-[calc(100vh-2rem)] -translate-y-1/2 overflow-y-auto"
+                    ? "absolute left-full top-1/2 z-[60] ml-2 w-[min(13rem,calc(100vw-6.5rem))] max-h-[calc(100vh-2rem)] -translate-y-1/2 overflow-y-auto"
                     : "absolute left-full top-1/2 z-50 ml-2 w-52 -translate-y-1/2"
                   : "absolute left-full top-1/2 z-[60] ml-2 w-52 -translate-y-1/2",
               )}
@@ -1528,34 +1560,37 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
     <div
       className={cn(
         "flex h-full flex-col overflow-visible",
-        mobileOpen ? "p-3" : effectiveCollapsed ? "p-0" : "p-3",
+        mobileOpen ? "px-3 pb-3 pt-2" : effectiveCollapsed ? "p-0" : "p-3",
       )}
     >
       <div
         className={cn(
-          "mb-3 flex h-11.25 items-center",
-          effectiveCollapsed ? "justify-center" : "justify-between",
+          "flex items-center",
+          mobileOpen ? "mb-1 h-8 justify-center" : effectiveCollapsed ? "mb-3 h-11.25 justify-center" : "mb-3 h-11.25 justify-between",
         )}
       >
-        <div className="text-xs font-semibold tracking-wide text-muted-foreground">
-          <Link href={"/"} className="flex items-center justify-center">
-            <Logo
-              size={25}
-              showText={!effectiveCollapsed}
-              className={effectiveCollapsed ? "" : "ml-2"}
-            />
-          </Link>
-        </div>
+        {showHeaderLogo ? (
+          <div className="text-xs font-semibold tracking-wide text-muted-foreground">
+            <Link href={"/"} className="flex items-center justify-center">
+              <Logo
+                size={25}
+                showText={!effectiveCollapsed}
+                className={effectiveCollapsed ? "" : "ml-2"}
+              />
+            </Link>
+          </div>
+        ) : null}
         <button
           type="button"
-          onClick={toggle}
+          onClick={handleSidebarToggle}
           className={cn(
             dashboardChromeButtonClasses,
-            "hidden rounded-lg p-1.5 md:block",
+            mobileOpen ? "rounded-md p-1" : "rounded-lg p-1.5",
+            mobileOpen ? "" : "hidden md:block",
           )}
         >
-          <ChevronLeft
-            className={`size-4 transition ${effectiveCollapsed ? "rotate-180" : ""}`}
+          <SidebarToggleIcon
+            className={`size-4 transition ${!mobileOpen && effectiveCollapsed ? "rotate-180" : ""}`}
           />
         </button>
       </div>
@@ -1570,6 +1605,13 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
             : "mt-auto space-y-1 pt-3",
         )}
       >
+        {showFooterLogo ? (
+          <div className="mb-2 text-xs font-semibold tracking-wide text-muted-foreground">
+            <Link href={"/"} className="flex items-center justify-center">
+              <Logo size={25} showText={false} />
+            </Link>
+          </div>
+        ) : null}
         {profileItem}
         {settingsItem}
       </div>
@@ -1593,7 +1635,7 @@ function AppSidebar({ mobileOpen, onCloseMobile }) {
             className="absolute inset-0 bg-card/35"
             onClick={onCloseMobile}
           />
-          <div className="absolute left-0 top-0 h-full w-20 border-r border-border bg-background">
+          <div className="absolute left-0 top-0 h-full w-14 border-r border-border bg-background">
             {loaded ? content : skeletonContent}
           </div>
         </div>
