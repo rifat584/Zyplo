@@ -2237,6 +2237,27 @@ export function AppShell({ children }) {
   }));
 
   useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+
+    const desktopMediaQuery = window.matchMedia("(min-width: 768px)");
+
+    const syncMobileSidebarToViewport = () => {
+      if (desktopMediaQuery.matches) setMobileOpen(false);
+    };
+
+    syncMobileSidebarToViewport();
+
+    if (typeof desktopMediaQuery.addEventListener === "function") {
+      desktopMediaQuery.addEventListener("change", syncMobileSidebarToViewport);
+      return () =>
+        desktopMediaQuery.removeEventListener("change", syncMobileSidebarToViewport);
+    }
+
+    desktopMediaQuery.addListener(syncMobileSidebarToViewport);
+    return () => desktopMediaQuery.removeListener(syncMobileSidebarToViewport);
+  }, []);
+
+  useEffect(() => {
     loadDashboard({ force: true, silent: true }).catch(() => {});
   }, []);
 
