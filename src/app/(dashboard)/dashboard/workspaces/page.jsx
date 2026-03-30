@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -13,6 +14,7 @@ import {
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import AppShell from "@/components/dashboard/chrome";
+import { cn } from "@/lib/utils";
 import {
   createWorkspace,
   deleteWorkspace,
@@ -191,9 +193,45 @@ export default function WorkspacesPage() {
   const [submitting, setSubmitting] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [menuOpenFor, setMenuOpenFor] = useState("");
+  const [pinnedMenuOpenFor, setPinnedMenuOpenFor] = useState("");
+  const [compactWorkspaceMenuTrigger, setCompactWorkspaceMenuTrigger] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState("");
   const [deleting, setDeleting] = useState(false);
-  const actionsMenuRef = useRef(null);
+  const actionsRegionRef = useRef(null);
+  const hoverCloseTimeoutRef = useRef(null);
+
+  const clearHoverCloseTimeout = () => {
+    if (hoverCloseTimeoutRef.current) {
+      clearTimeout(hoverCloseTimeoutRef.current);
+      hoverCloseTimeoutRef.current = null;
+    }
+  };
+
+  const scheduleWorkspaceMenuClose = (workspaceId) => {
+    clearHoverCloseTimeout();
+    hoverCloseTimeoutRef.current = setTimeout(() => {
+      setMenuOpenFor((current) => (current === workspaceId ? "" : current));
+    }, 120);
+  };
+
+  const closeWorkspaceMenu = () => {
+    clearHoverCloseTimeout();
+    setMenuOpenFor("");
+    setPinnedMenuOpenFor("");
+  };
+
+  const openWorkspaceMenu = (workspaceId) => {
+    clearHoverCloseTimeout();
+    if (pinnedMenuOpenFor && pinnedMenuOpenFor !== workspaceId) return;
+    setMenuOpenFor(workspaceId);
+  };
+
+  const togglePinnedWorkspaceMenu = (workspaceId) => {
+    clearHoverCloseTimeout();
+    const nextPinned = pinnedMenuOpenFor === workspaceId ? "" : workspaceId;
+    setPinnedMenuOpenFor(nextPinned);
+    setMenuOpenFor(nextPinned);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -244,16 +282,51 @@ export default function WorkspacesPage() {
     function onPointerDown(event) {
       if (!menuOpenFor) return;
       if (
-        actionsMenuRef.current &&
-        !actionsMenuRef.current.contains(event.target)
+        actionsRegionRef.current &&
+        !actionsRegionRef.current.contains(event.target)
       ) {
+        clearHoverCloseTimeout();
         setMenuOpenFor("");
+        setPinnedMenuOpenFor("");
       }
     }
 
-    document.addEventListener("mousedown", onPointerDown);
-    return () => document.removeEventListener("mousedown", onPointerDown);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
   }, [menuOpenFor]);
+
+  useEffect(
+    () => () => {
+      if (hoverCloseTimeoutRef.current) {
+        clearTimeout(hoverCloseTimeoutRef.current);
+        hoverCloseTimeoutRef.current = null;
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+
+    const mediaQuery = window.matchMedia(
+      "(max-width: 1023px), (hover: none), (pointer: coarse)",
+    );
+
+    const updateCompactWorkspaceMenuTrigger = () => {
+      setCompactWorkspaceMenuTrigger(mediaQuery.matches);
+    };
+
+    updateCompactWorkspaceMenuTrigger();
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", updateCompactWorkspaceMenuTrigger);
+      return () =>
+        mediaQuery.removeEventListener("change", updateCompactWorkspaceMenuTrigger);
+    }
+
+    mediaQuery.addListener(updateCompactWorkspaceMenuTrigger);
+    return () => mediaQuery.removeListener(updateCompactWorkspaceMenuTrigger);
+  }, []);
 
   async function handleCreateWorkspace() {
     const name = workspaceName.trim();
@@ -283,11 +356,20 @@ export default function WorkspacesPage() {
   const renderWorkspaceCard = (workspace) => {
     const isAdmin = resolveWorkspaceRole(workspace, currentUser) === "admin";
     const isStarred = starredIds.includes(workspace.id);
+    const menuOpen = menuOpenFor === workspace.id;
 
     return (
       <div
         key={workspace.id}
         className="group relative rounded-xl border border-border px-3 py-3 text-left hover:bg-(--dashboard-hover)"
+        ref={menuOpen ? actionsRegionRef : null}
+        onMouseEnter={() => {
+          clearHoverCloseTimeout();
+        }}
+        onMouseLeave={() => {
+          if (pinnedMenuOpenFor === workspace.id) return;
+          scheduleWorkspaceMenuClose(workspace.id);
+        }}
       >
         <button
           type="button"
@@ -320,81 +402,102 @@ export default function WorkspacesPage() {
 
         <button
           type="button"
-          onClick={() =>
-            setMenuOpenFor((current) =>
-              current === workspace.id ? "" : workspace.id,
-            )
-          }
-          className="absolute right-2 top-1/2 hidden -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:bg-(--dashboard-hover) group-hover:block cursor-pointer"
+          onMouseEnter={() => {
+            openWorkspaceMenu(workspace.id);
+          }}
+          onClick={(event) => {
+            event.stopPropagation();
+            togglePinnedWorkspaceMenu(workspace.id);
+          }}
+          aria-label={`Workspace actions for ${workspace.name}`}
+          className={cn(
+            "absolute right-2 top-1/2 rounded-md p-1 text-muted-foreground transition-colors hover:bg-(--dashboard-hover) cursor-pointer -translate-y-1/2",
+            compactWorkspaceMenuTrigger || menuOpen ? "block" : "hidden group-hover:block",
+          )}
         >
           <Ellipsis className="size-4" />
         </button>
 
-        {menuOpenFor === workspace.id ? (
-          <div
-            ref={actionsMenuRef}
-            className="absolute right-2 top-12 z-20 w-56 rounded-xl border border-border bg-card p-1 shadow-lg"
-          >
-            <button
-              type="button"
-              onClick={() => {
-                setMenuOpenFor("");
-                toggleStar(workspace.id);
-                toast.success(
-                  isStarred
-                    ? `Removed ${workspace.name} from starred`
-                    : `Added ${workspace.name} to starred`
-                );
+        <AnimatePresence initial={false}>
+          {menuOpen ? (
+            <motion.div
+              onMouseEnter={() => {
+                clearHoverCloseTimeout();
               }}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-foreground hover:bg-(--dashboard-hover)"
+              onMouseLeave={() => {
+                if (pinnedMenuOpenFor === workspace.id) return;
+                scheduleWorkspaceMenuClose(workspace.id);
+              }}
+              initial={{ opacity: 0, y: -6, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -6, scale: 0.96 }}
+              transition={{
+                duration: 0.16,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className="absolute right-2 top-12 z-20 w-56 origin-top-right rounded-xl border border-border bg-card p-1 shadow-lg"
             >
-              <Star
-                className={cn(
-                  "size-4",
-                  isStarred ? "fill-amber-400 text-amber-400" : ""
-                )}
-              />
-              {isStarred ? "Unstar workspace" : "Add to starred"}
-            </button>
-            {isAdmin ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMenuOpenFor("");
-                    router.push(`/dashboard/w/${workspace.id}/members`);
-                  }}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-foreground hover:bg-(--dashboard-hover)"
-                >
-                  <UserPlus className="size-4" />
-                  Add people
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMenuOpenFor("");
-                    router.push(`/dashboard/w/${workspace.id}/settings`);
-                  }}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-foreground hover:bg-(--dashboard-hover)"
-                >
-                  <Settings className="size-4" />
-                  Workspace settings
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMenuOpenFor("");
-                    setConfirmDeleteId(workspace.id);
-                  }}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-destructive hover:bg-destructive/10"
-                >
-                  <Trash2 className="size-4" />
-                  Delete workspace
-                </button>
-              </>
-            ) : null}
-          </div>
-        ) : null}
+              <button
+                type="button"
+                onClick={() => {
+                  closeWorkspaceMenu();
+                  toggleStar(workspace.id);
+                  toast.success(
+                    isStarred
+                      ? `Removed ${workspace.name} from starred`
+                      : `Added ${workspace.name} to starred`
+                  );
+                }}
+                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-foreground hover:bg-(--dashboard-hover)"
+              >
+                <Star
+                  className={cn(
+                    "size-4",
+                    isStarred ? "fill-amber-400 text-amber-400" : ""
+                  )}
+                />
+                {isStarred ? "Unstar workspace" : "Add to starred"}
+              </button>
+              {isAdmin ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeWorkspaceMenu();
+                      router.push(`/dashboard/w/${workspace.id}/members`);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-foreground hover:bg-(--dashboard-hover)"
+                  >
+                    <UserPlus className="size-4" />
+                    Add people
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeWorkspaceMenu();
+                      router.push(`/dashboard/w/${workspace.id}/settings`);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-foreground hover:bg-(--dashboard-hover)"
+                  >
+                    <Settings className="size-4" />
+                    Workspace settings
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      closeWorkspaceMenu();
+                      setConfirmDeleteId(workspace.id);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="size-4" />
+                    Delete workspace
+                  </button>
+                </>
+              ) : null}
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </div>
     );
   };
