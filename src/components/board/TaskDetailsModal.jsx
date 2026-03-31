@@ -912,9 +912,15 @@ const confirmDeleteComment = async () => {
                           return (
                             <div key={c.id || i} className="flex gap-3">
                               {/* Avatar */}
-                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground">
+                              {/* <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-muted-foreground">
                                 {c.author?.slice(0, 2).toUpperCase()}
-                              </div>
+                              </div> */}
+                              
+                              <Avatar
+                              name={c.author || "Anonymous"}
+                              src={c.authorImage || ""}
+                              className="h-8 w-8 mt-3 shrink-0 text-[10px]  items-center justify-center rounded-full "
+                            />
 
                               <div className="flex-1 rounded-xl rounded-tl-none bg-background p-3">
                                 {/* Header: author + timestamp + (edit/delete if own) */}
