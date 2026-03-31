@@ -66,6 +66,7 @@ let state = {
   projects: [],
   activity: [],
   notifications: [],
+  socketToken: "",
   lastVisited: null,
   loaded: false,
   loading: false,
@@ -117,9 +118,38 @@ export function useMockStore(selector) {
   return selector(snapshot);
 }
 
+// Add or replace one task in the shared dashboard store.
+export function upsertLiveTask(task) {
+  if (!task?.id) return;
+
+  const existingIndex = state.tasks.findIndex((item) => item.id === task.id);
+  if (existingIndex < 0) {
+    setState({ tasks: [task, ...state.tasks] });
+    return;
+  }
+
+  const nextTasks = [...state.tasks];
+  nextTasks[existingIndex] = {
+    ...nextTasks[existingIndex],
+    ...task,
+  };
+  setState({ tasks: nextTasks });
+}
+
+// Remove one task from the shared dashboard store.
+export function removeLiveTask(taskId) {
+  const nextTaskId = String(taskId || "");
+  if (!nextTaskId) return;
+
+  setState({
+    tasks: state.tasks.filter((task) => task.id !== nextTaskId),
+  });
+}
+
 export async function loadDashboard(options = {}) {
   const force = Boolean(options?.force);
   const silent = Boolean(options?.silent);
+  const preserveSocketToken = Boolean(options?.preserveSocketToken);
 
   if (state.loading && pendingLoad) {
     if (!force) return pendingLoad;
@@ -134,7 +164,15 @@ export async function loadDashboard(options = {}) {
   const loadPromise = (async () => {
     try {
       const data = await request("/api/dashboard/bootstrap");
-      const nextState = { ...data, loaded: true };
+      const nextState = {
+        ...data,
+        loaded: true,
+        // Keep the current socket token during silent resyncs.
+        socketToken:
+          preserveSocketToken && state.socketToken
+            ? state.socketToken
+            : String(data?.socketToken || ""),
+      };
       if (!silent) nextState.loading = false;
       setState(nextState);
     } catch (error) {
@@ -151,6 +189,25 @@ export async function loadDashboard(options = {}) {
   } finally {
     if (pendingLoad === loadPromise) pendingLoad = null;
   }
+}
+
+// Add a live notification once and keep the list deduped by id.
+export function receiveLiveNotification(notification) {
+  if (!notification?.id) return;
+  if (state.notifications.some((item) => item.id === notification.id)) return;
+
+  setState({
+    notifications: [notification, ...state.notifications],
+  });
+}
+
+// Mark the current notification list as read in local state.
+export function readAllNotificationsLocally() {
+  setState({
+    notifications: state.notifications.map((item) =>
+      item?.read ? item : { ...item, read: true },
+    ),
+  });
 }
 
 export async function createWorkspace(name, memberEmails = []) {
@@ -197,23 +254,34 @@ export async function createTask(payload) {
     method: "POST",
     body: JSON.stringify(payload),
   });
-  await loadDashboard({ force: true });
+  if (data?.task) upsertLiveTask(data.task);
   return data.task;
 }
 
 export async function updateTask(taskId, patch) {
+  const previousTask =
+    state.tasks.find((item) => item.id === String(taskId || "")) || null;
+
   try {
     const data = await request(`/api/dashboard/tasks/${taskId}`, {
       method: "PATCH",
       body: JSON.stringify(patch),
     });
-    await loadDashboard({ force: true });
+    if (data?.task) upsertLiveTask(data.task);
     return data.task;
   } catch (error) {
     // Some backend setups update the task but still return 404 "Task not found".
     if (error?.message === "Task not found") {
-      await loadDashboard({ force: true });
-      return state.tasks.find((item) => item.id === taskId) || null;
+      const fallbackTask = previousTask
+        ? {
+            ...previousTask,
+            ...patch,
+            updatedAt: new Date().toISOString(),
+          }
+        : null;
+
+      if (fallbackTask) upsertLiveTask(fallbackTask);
+      return fallbackTask;
     }
     throw error;
   }
@@ -221,11 +289,7 @@ export async function updateTask(taskId, patch) {
 
 export async function markAllNotificationsRead() {
   const previousNotifications = state.notifications;
-  const nextNotifications = previousNotifications.map((item) =>
-    item?.read ? item : { ...item, read: true },
-  );
-
-  setState({ notifications: nextNotifications });
+  readAllNotificationsLocally();
 
   try {
     await request("/api/dashboard/notifications/read-all", { method: "POST" });

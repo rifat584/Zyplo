@@ -116,8 +116,8 @@ export default function CommandPaletteSection() {
   }, []);
 
   return (
-    <section className="relative overflow-hidden bg-background py-20 sm:py-24">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.12),transparent_60%)]" />
+    <section className="relative overflow-hidden  py-20 sm:py-24">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-64" />
 
       <MainContainer className="px-6">
         <div className="relative overflow-hidden rounded-[2.2rem] border border-border/70 bg-card/42 px-6 py-10 shadow-[0_28px_70px_-44px_rgba(15,23,42,0.28)] backdrop-blur-sm sm:px-8 sm:py-12">
@@ -125,7 +125,7 @@ export default function CommandPaletteSection() {
             className="pointer-events-none absolute inset-0 opacity-80 [background-image:linear-gradient(to_right,rgba(79,70,229,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(79,70,229,0.08)_1px,transparent_1px)] [background-size:28px_28px]"
             aria-hidden
           />
-          <div className="pointer-events-none absolute left-1/2 top-1/3 h-96 w-96 -translate-x-1/2 rounded-full bg-secondary/14 blur-3xl" />
+          <div className="pointer-events-none absolute left-1/2 top-1/3 h-96 w-96 -translate-x-1/2 rounded-full blur-3xl" />
 
           <div className="relative z-10">
             <div className="mb-12 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -174,9 +174,7 @@ export default function CommandPaletteSection() {
                       <h3 className="text-lg font-semibold text-foreground">
                         {rail.title}
                       </h3>
-                      <p className="marketing-copy mt-1 text-sm">
-                        {rail.desc}
-                      </p>
+                      <p className="marketing-copy mt-1 text-sm">{rail.desc}</p>
                     </motion.div>
                   ))}
                 </div>

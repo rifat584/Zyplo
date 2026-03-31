@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { io as createSocket } from "socket.io-client";
 import {
   useParams,
   usePathname,
@@ -31,6 +32,7 @@ import {
   Settings,
   Sun,
   Star,
+  Sparkles,
   Timer,
   Trash2,
   UserPlus,
@@ -47,8 +49,11 @@ import {
   deleteWorkspace,
   loadDashboard,
   markAllNotificationsRead,
-  refreshNotifications,
+  readAllNotificationsLocally,
+  receiveLiveNotification,
+  removeLiveTask,
   resolveWorkspaceRole,
+  upsertLiveTask,
   useMockStore,
   useWorkspaceAccess,
 } from "./mockStore";
@@ -777,12 +782,27 @@ function GlobalTimerControl() {
   );
 }
 
+export function shouldMarkNotificationsRead({
+  open,
+  previousOpen,
+  unreadCount,
+  syncingReadState,
+}) {
+  return Boolean(
+    !open &&
+      previousOpen &&
+      unreadCount > 0 &&
+      !syncingReadState,
+  );
+}
+
 function NotificationsMenu() {
   const notifications = useMockStore((state) => state.notifications || []);
   const unreadCount = notifications.filter((item) => !item.read).length;
   const [open, setOpen] = useState(false);
   const [syncingReadState, setSyncingReadState] = useState(false);
   const rootRef = useRef(null);
+  const previousOpenRef = useRef(false);
 
   useEffect(() => {
     function onPointerDown(event) {
@@ -796,7 +816,19 @@ function NotificationsMenu() {
   }, []);
 
   useEffect(() => {
-    if (!open || unreadCount === 0 || syncingReadState) return;
+    const previousOpen = previousOpenRef.current;
+    previousOpenRef.current = open;
+
+    if (
+      !shouldMarkNotificationsRead({
+        open,
+        previousOpen,
+        unreadCount,
+        syncingReadState,
+      })
+    ) {
+      return;
+    }
 
     let active = true;
 
@@ -1969,16 +2001,50 @@ function WorkspaceToolbar() {
                     New Project
                   </Button>
 
+                  {/* --- AI KICKSTART BUTTON --- */}
+                  {/* The shared 'ai-kickstart' ID creates a perfectly seamless handoff to the Board! */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const isOnBoard = pathname.endsWith('/board');
+                      if (isOnBoard) {
+                        const event = new CustomEvent("zyplo-open-ai-kickstart", { detail: { workspaceId } });
+                        window.dispatchEvent(event);
+                      } else {
+                        toast.loading("Preparing AI Kickstart...", { id: "ai-kickstart" });
+                        router.push(`/dashboard/w/${workspaceId}/board`);
+                        
+                        setTimeout(() => {
+                          const event = new CustomEvent("zyplo-open-ai-kickstart", { detail: { workspaceId } });
+                          window.dispatchEvent(event);
+                        }, 800);
+                      }
+                    }}
+                    className={cn(
+                      dashboardContextButtonClasses,
+                      "group flex h-9 shrink-0 items-center justify-center overflow-hidden rounded-lg px-2 transition-all hover:px-3"
+                    )}
+                    aria-label="AI Kickstart"
+                  >
+                    <Sparkles className="size-4 shrink-0 text-amber-500" />
+                    <span className="max-w-0 overflow-hidden whitespace-nowrap text-sm font-medium opacity-0 transition-all duration-300 ease-in-out group-hover:max-w-[100px] group-hover:pl-2 group-hover:opacity-100">
+                      AI Kickstart
+                    </span>
+                  </button>
+
+                  {/* --- SETTINGS BUTTON --- */}
                   <Link
                     href={`/dashboard/w/${workspaceId}/settings`}
                     aria-label="Workspace settings"
                     className={cn(
                       dashboardContextButtonClasses,
-                      "inline-flex h-9 shrink-0 items-center gap-2 rounded-lg px-2.5 text-sm sm:px-3",
+                      "group flex h-9 shrink-0 items-center justify-center overflow-hidden rounded-lg px-2 transition-all hover:px-3",
                     )}
                   >
-                    <Settings className="size-4" />
-                    <span className="hidden sm:inline">Settings</span>
+                    <Settings className="size-4 shrink-0" />
+                    <span className="max-w-0 overflow-hidden whitespace-nowrap text-sm font-medium opacity-0 transition-all duration-300 ease-in-out group-hover:max-w-[100px] group-hover:pl-2 group-hover:opacity-100">
+                      Settings
+                    </span>
                   </Link>
                 </div>
               ) : null}
@@ -2230,11 +2296,33 @@ function Topbar({ onOpenSidebar }) {
 }
 
 export function AppShell({ children }) {
+  const params = useParams();
+  const pathname = usePathname();
+  const workspaceId =
+    typeof params?.workspaceId === "string" ? params.workspaceId : "";
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { currentUser, loaded } = useMockStore((state) => ({
+  const socketRef = useRef(null);
+  const { currentUser, loaded, socketToken, projects } = useMockStore((state) => ({
     currentUser: state.currentUser || null,
     loaded: Boolean(state.loaded),
+    projects: state.projects || [],
+    socketToken: String(state.socketToken || ""),
   }));
+  const workspaceProjects = useMemo(
+    () => projects.filter((project) => project.workspaceId === workspaceId),
+    [projects, workspaceId],
+  );
+  const { selectedProjectId } = useWorkspaceProjectSelection(
+    workspaceId,
+    workspaceProjects,
+  );
+  const taskWorkspaceId =
+    workspaceId &&
+    (pathname?.endsWith("/list") || pathname?.endsWith("/calender"))
+      ? workspaceId
+      : "";
+  const taskProjectId =
+    workspaceId && pathname?.endsWith("/board") ? selectedProjectId : "";
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -2262,32 +2350,76 @@ export function AppShell({ children }) {
   }, []);
 
   useEffect(() => {
-    if (!loaded || !currentUser?.id) return;
+    if (!loaded || !currentUser?.id || !socketToken) return;
 
-    const poll = setInterval(() => {
-      if (typeof document !== "undefined" && document.hidden) return;
-      refreshNotifications().catch(() => {});
-    }, 8000);
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backendUrl) return;
 
-    return () => clearInterval(poll);
-  }, [loaded, currentUser?.id]);
+    // Keep one live notification socket for the active dashboard session.
+    const socket = createSocket(backendUrl, {
+      auth: { token: socketToken },
+      transports: ["websocket"],
+    });
+    socketRef.current = socket;
 
-  useEffect(() => {
-    if (!loaded || !currentUser?.id) return;
-
-    const refreshNow = () => {
-      if (typeof document !== "undefined" && document.hidden) return;
-      refreshNotifications().catch(() => {});
-    };
-
-    window.addEventListener("focus", refreshNow);
-    document.addEventListener("visibilitychange", refreshNow);
+    // Add new notifications to the current list without a refresh.
+    socket.on("notification:new", receiveLiveNotification);
+    // Mirror read-all changes across open tabs instantly.
+    socket.on("notification:read-all", readAllNotificationsLocally);
+    // Keep workspace-wide task lists in sync without a full reload.
+    socket.on("task:upsert", (task) => {
+      upsertLiveTask(task);
+      window.dispatchEvent(
+        new CustomEvent("zyplo-task-upsert", {
+          detail: task,
+        }),
+      );
+    });
+    // Remove deleted tasks from all open task views.
+    socket.on("task:deleted", (task) => {
+      removeLiveTask(task?.id);
+      window.dispatchEvent(
+        new CustomEvent("zyplo-task-deleted", {
+          detail: task,
+        }),
+      );
+    });
 
     return () => {
-      window.removeEventListener("focus", refreshNow);
-      document.removeEventListener("visibilitychange", refreshNow);
+      socket.off("notification:new", receiveLiveNotification);
+      socket.off("notification:read-all", readAllNotificationsLocally);
+      socket.off("task:upsert");
+      socket.off("task:deleted");
+      socket.close();
+      if (socketRef.current === socket) socketRef.current = null;
     };
-  }, [loaded, currentUser?.id]);
+  }, [loaded, currentUser?.id, socketToken]);
+
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket) return;
+    if (!taskWorkspaceId && !taskProjectId) return;
+
+    // Listen only to the task rooms visible on the current page.
+    const subscription = {
+      workspaceId: taskWorkspaceId,
+      projectId: taskProjectId,
+    };
+
+    const subscribeToTasks = () => {
+      socket.emit("task:subscribe", subscription);
+    };
+
+    // Join task rooms once the socket exists and again after reconnects.
+    subscribeToTasks();
+    socket.on("connect", subscribeToTasks);
+
+    return () => {
+      socket.off("connect", subscribeToTasks);
+      socket.emit("task:unsubscribe", subscription);
+    };
+  }, [loaded, taskProjectId, taskWorkspaceId]);
+
 
   useEffect(() => {
     if (!loaded || !currentUser?.id) return;

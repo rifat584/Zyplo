@@ -27,7 +27,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 // file attach - helal / bayijid
-import { useMockStore, loadDashboard } from "@/components/dashboard/mockStore";
+import {
+  removeLiveTask,
+  upsertLiveTask,
+  useMockStore,
+} from "@/components/dashboard/mockStore";
 import TaskDeleteDialog from "@/components/dashboard/taskDeleteDialog";
 import { useWorkspaceProjectSelection } from "@/components/dashboard/projectSelection";
 import {
@@ -353,17 +357,28 @@ export default function WorkspaceCalenderPage() {
     loading: state.loading,
   }));
 
+  const workspaceProjects = useMemo(
+    () => projects.filter((project) => project.workspaceId === workspaceId),
+    [projects, workspaceId],
+  );
+  const { selectedProject, selectedProjectId } = useWorkspaceProjectSelection(
+    workspaceId,
+    workspaceProjects,
+  );
+
   const workspaceTasks = useMemo(
     () =>
       tasks.filter((task) => {
         if (task.workspaceId !== workspaceId) return false;
+        if (!selectedProjectId) return false;
+        if (String(task.projectId || "") !== selectedProjectId) return false;
         const due = task.dueDate ? new Date(task.dueDate) : null;
         const created = task.createdAt ? new Date(task.createdAt) : null;
         const hasValidDue = due && !Number.isNaN(due.getTime());
         const hasValidCreated = created && !Number.isNaN(created.getTime());
         return Boolean(hasValidDue || hasValidCreated);
       }),
-    [tasks, workspaceId],
+    [tasks, workspaceId, selectedProjectId],
   );
 
   const [monthDate, setMonthDate] = useState(() => new Date());
@@ -479,14 +494,6 @@ export default function WorkspaceCalenderPage() {
 
   const days = useMemo(() => buildCalendarDays(monthDate), [monthDate]);
   const monthIndex = monthDate.getMonth();
-  const workspaceProjects = useMemo(
-    () => projects.filter((project) => project.workspaceId === workspaceId),
-    [projects, workspaceId],
-  );
-  const { selectedProject } = useWorkspaceProjectSelection(
-    workspaceId,
-    workspaceProjects,
-  );
   const [createTarget, setCreateTarget] = useState(null);
   const [pendingDeleteTask, setPendingDeleteTask] = useState(null);
 
@@ -544,7 +551,7 @@ export default function WorkspaceCalenderPage() {
         );
       }
 
-      await fetchJson("/api/dashboard/tasks", {
+      const data = await fetchJson("/api/dashboard/tasks", {
         method: "POST",
         body: JSON.stringify({
           workspaceId,
@@ -560,7 +567,7 @@ export default function WorkspaceCalenderPage() {
         }),
       });
 
-      await loadDashboard({ force: true, silent: true });
+      if (data?.task) upsertLiveTask(data.task);
       setCreateOpen(false);
       setCreateTarget(null);
     } catch (error) {
@@ -658,7 +665,11 @@ export default function WorkspaceCalenderPage() {
         }
       }
 
-      await loadDashboard({ force: true, silent: true });
+      upsertLiveTask({
+        ...selectedTask,
+        ...values,
+        updatedAt: new Date().toISOString(),
+      });
       setSelectedTask(null);
     } catch (error) {
       console.error("Failed to update task", error);
@@ -683,7 +694,7 @@ export default function WorkspaceCalenderPage() {
       await fetchJson(`/api/dashboard/tasks/${pendingDeleteTask.id}`, {
         method: "DELETE",
       });
-      await loadDashboard({ force: true, silent: true });
+      removeLiveTask(pendingDeleteTask.id);
       setPendingDeleteTask(null);
       setSelectedTask(null);
       toast.success("Task deleted");
@@ -757,7 +768,11 @@ export default function WorkspaceCalenderPage() {
           dueDate: destinationDateKey,
         }),
       });
-      await loadDashboard({ force: true, silent: true });
+      upsertLiveTask({
+        ...movingTask,
+        dueDate: destinationDateKey,
+        updatedAt: new Date().toISOString(),
+      });
       setTaskDateOverrides((prev) => {
         const next = { ...prev };
         delete next[movingTask.id];

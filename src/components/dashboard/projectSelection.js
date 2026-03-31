@@ -5,6 +5,20 @@ import { useEffect, useMemo, useState } from "react";
 const PROJECT_SELECTION_KEY_PREFIX = "dashboard.selectedProject.";
 const PROJECT_SELECTION_EVENT = "zyplo-project-selection-change";
 
+export function resolveSelectedProjectId(storedProjectId, workspaceProjects = []) {
+  const normalizedProjectId = String(storedProjectId || "");
+
+  if (!workspaceProjects.length) {
+    return normalizedProjectId;
+  }
+
+  return workspaceProjects.some(
+    (project) => String(project?.id || "") === normalizedProjectId,
+  )
+    ? normalizedProjectId
+    : String(workspaceProjects[0]?.id || "");
+}
+
 export function getProjectSelectionKey(workspaceId) {
   return `${PROJECT_SELECTION_KEY_PREFIX}${workspaceId}`;
 }
@@ -46,9 +60,12 @@ export function writeSelectedProjectId(workspaceId, projectId) {
 
 export function useWorkspaceProjectSelection(workspaceId, workspaceProjects = []) {
   const [storedProjectId, setStoredProjectId] = useState("");
+  const [hydratedWorkspaceId, setHydratedWorkspaceId] = useState("");
+  const hasReadStoredProjectId = hydratedWorkspaceId === workspaceId;
 
   useEffect(() => {
     setStoredProjectId(readSelectedProjectId(workspaceId));
+    setHydratedWorkspaceId(workspaceId);
   }, [workspaceId]);
 
   useEffect(() => {
@@ -73,32 +90,31 @@ export function useWorkspaceProjectSelection(workspaceId, workspaceProjects = []
     };
   }, [workspaceId]);
 
+  const selectedProjectId = useMemo(
+    () =>
+      hasReadStoredProjectId
+        ? resolveSelectedProjectId(storedProjectId, workspaceProjects)
+        : "",
+    [hasReadStoredProjectId, storedProjectId, workspaceProjects],
+  );
+
   const selectedProject = useMemo(() => {
-    if (!workspaceProjects.length) return null;
+    if (!workspaceProjects.length || !selectedProjectId) return null;
 
-    const matchedProject = workspaceProjects.find(
-      (project) => String(project.id) === String(storedProjectId),
+    return (
+      workspaceProjects.find(
+        (project) => String(project.id) === String(selectedProjectId),
+      ) || null
     );
-
-    return matchedProject || workspaceProjects[0] || null;
-  }, [storedProjectId, workspaceProjects]);
+  }, [selectedProjectId, workspaceProjects]);
 
   useEffect(() => {
-    if (!workspaceId) return;
+    if (!workspaceId || !hasReadStoredProjectId) return;
 
-    if (!workspaceProjects.length) {
-      if (storedProjectId) writeSelectedProjectId(workspaceId, "");
-      return;
+    if (selectedProjectId !== String(storedProjectId || "")) {
+      writeSelectedProjectId(workspaceId, selectedProjectId);
     }
-
-    const hasStoredMatch = workspaceProjects.some(
-      (project) => String(project.id) === String(storedProjectId),
-    );
-
-    if (!hasStoredMatch) {
-      writeSelectedProjectId(workspaceId, String(workspaceProjects[0]?.id || ""));
-    }
-  }, [storedProjectId, workspaceId, workspaceProjects]);
+  }, [hasReadStoredProjectId, selectedProjectId, storedProjectId, workspaceId]);
 
   function updateProjectSelection(nextProjectId) {
     writeSelectedProjectId(workspaceId, nextProjectId);
@@ -107,7 +123,7 @@ export function useWorkspaceProjectSelection(workspaceId, workspaceProjects = []
 
   return {
     selectedProject,
-    selectedProjectId: String(selectedProject?.id || ""),
+    selectedProjectId,
     updateProjectSelection,
   };
 }

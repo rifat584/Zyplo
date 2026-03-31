@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
@@ -43,6 +43,7 @@ export default function WorkspaceBoardPage() {
   const [newProjectKey, setNewProjectKey] = useState("");
   const [creatingProject, setCreatingProject] = useState(false);
   const [createError, setCreateError] = useState("");
+  const [kickstarting, setKickstarting] = useState(false); // AI State
   const firstProjectNameInputRef = useRef(null);
   const { isAdmin } = useWorkspaceAccess(workspaceId);
 
@@ -95,6 +96,58 @@ export default function WorkspaceBoardPage() {
       setCreatingProject(false);
     }
   }
+
+  // --- AI Kickstart Handler (Triggered purely via the global listener now!) ---
+  const handleAIKickstart = useCallback(async () => {
+    if (!selectedProjectId || kickstarting) return;
+    
+    try {
+      setKickstarting(true);
+      toast.loading("🤖 AI is analyzing project and building backlog...", { id: "ai-kickstart" });
+      
+      const response = await fetch(`/api/dashboard/tasks`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "x-silent-fetch": "true" 
+        },
+        body: JSON.stringify({ 
+          isAiKickstart: true, 
+          projectId: selectedProjectId 
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate AI tasks");
+      }
+
+      // 1. Force the global store to reload (Sidebar, Calendar, etc.)
+      await loadDashboard({ force: true, silent: true });
+      
+      // 2. Force the React Query cache to clear so the Board instantly renders the new tasks!
+      await queryClient.invalidateQueries();
+
+      toast.success("✨ Project Backlog Generated!", { id: "ai-kickstart" });
+    } catch (error) {
+      toast.error(error.message || "AI Generation failed.", { id: "ai-kickstart" });
+    } finally {
+      setKickstarting(false);
+    }
+  }, [selectedProjectId, kickstarting, queryClient]);
+
+  // --- MAGIC LISTENER: Connects this page to the Topbar button in chrome.jsx ---
+  useEffect(() => {
+    const onGlobalKickstart = (e) => {
+      // Only trigger if the workspace matches and we aren't already generating
+      if (e.detail?.workspaceId === workspaceId && !kickstarting) {
+        handleAIKickstart();
+      }
+    };
+
+    window.addEventListener("zyplo-open-ai-kickstart", onGlobalKickstart);
+    return () => window.removeEventListener("zyplo-open-ai-kickstart", onGlobalKickstart);
+  }, [workspaceId, kickstarting, handleAIKickstart]);
+
 
   if (!workspaceId) {
     return (
@@ -213,11 +266,13 @@ export default function WorkspaceBoardPage() {
       ) : null}
 
       {selectedProjectId ? (
-        <Board
-          key={selectedProjectId}
-          workspaceId={workspaceId}
-          projectId={selectedProjectId}
-        />
+        <div className="flex flex-col h-full relative">
+          <Board
+            key={selectedProjectId}
+            workspaceId={workspaceId}
+            projectId={selectedProjectId}
+          />
+        </div>
       ) : null}
     </QueryClientProvider>
   );

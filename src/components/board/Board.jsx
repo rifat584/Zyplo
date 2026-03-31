@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -12,7 +12,6 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RefreshCw, Plus, Filter } from "lucide-react";
 import { toast } from "sonner";
-import { loadDashboard } from "@/components/dashboard/mockStore";
 import TaskDeleteDialog from "@/components/dashboard/taskDeleteDialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -137,6 +136,38 @@ function normalizeBoardResponse(data) {
   };
 }
 
+function upsertTaskInColumns(columns = [], task) {
+  const nextColumns = normalizeColumns(columns).map((column) => ({
+    ...column,
+    tasks: (column.tasks || []).filter((item) => item.id !== task.id),
+  }));
+  const destinationColumn = nextColumns.find(
+    (column) => column.id === String(task.columnId || ""),
+  );
+
+  if (!destinationColumn) return normalizeColumns(nextColumns);
+
+  const insertAt = Math.max(
+    0,
+    Math.min(Number(task.order || 0), destinationColumn.tasks.length),
+  );
+  destinationColumn.tasks.splice(insertAt, 0, {
+    ...task,
+    columnId: destinationColumn.id,
+  });
+
+  return normalizeColumns(nextColumns);
+}
+
+function removeTaskFromColumns(columns = [], taskId) {
+  return normalizeColumns(
+    columns.map((column) => ({
+      ...column,
+      tasks: (column.tasks || []).filter((task) => task.id !== String(taskId || "")),
+    })),
+  );
+}
+
 function findTaskById(columns, taskId) {
   for (const column of columns || []) {
     const hit = (column.tasks || []).find((task) => task.id === taskId);
@@ -256,10 +287,6 @@ export default function Board({ workspaceId, projectId }) {
     [projectId],
   );
 
-  async function refreshDashboardStore() {
-    await loadDashboard({ force: true, silent: true });
-  }
-
   const [activeTaskId, setActiveTaskId] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [selectedColumnId, setSelectedColumnId] = useState("");
@@ -315,6 +342,57 @@ export default function Board({ workspaceId, projectId }) {
     refetchOnWindowFocus: false,
   });
 
+  useEffect(() => {
+    function handleTaskUpsert(event) {
+      const task = event?.detail;
+      if (!task?.id || String(task.projectId || "") !== String(projectId)) return;
+
+      queryClient.setQueryData(boardQueryKey, (current) => {
+        if (!current) return current;
+        return {
+          ...current,
+          columns: upsertTaskInColumns(current.columns || [], task),
+        };
+      });
+    }
+
+    function handleTaskDeleted(event) {
+      const taskId = String(event?.detail?.id || "");
+      const taskProjectId = String(event?.detail?.projectId || "");
+      if (!taskId || taskProjectId !== String(projectId)) return;
+
+      queryClient.setQueryData(boardQueryKey, (current) => {
+        if (!current) return current;
+        return {
+          ...current,
+          columns: removeTaskFromColumns(current.columns || [], taskId),
+        };
+      });
+    }
+
+    // Mirror live socket task changes into the board query cache.
+    window.addEventListener("zyplo-task-upsert", handleTaskUpsert);
+    window.addEventListener("zyplo-task-deleted", handleTaskDeleted);
+
+    return () => {
+      window.removeEventListener("zyplo-task-upsert", handleTaskUpsert);
+      window.removeEventListener("zyplo-task-deleted", handleTaskDeleted);
+    };
+  }, [boardQueryKey, projectId, queryClient]);
+
+  useEffect(() => {
+    function handleProjectResync(event) {
+      if (String(event?.detail?.projectId || "") !== String(projectId)) return;
+
+      // Refresh the board after reconnects or project switches.
+      queryClient.invalidateQueries({ queryKey: boardQueryKey }).catch(() => {});
+    }
+
+    window.addEventListener("zyplo-project-resync", handleProjectResync);
+    return () =>
+      window.removeEventListener("zyplo-project-resync", handleProjectResync);
+  }, [boardQueryKey, projectId, queryClient]);
+
   const createTaskMutation = useMutation({
     mutationFn: async (payload) => {
       const data = await fetchJson("/api/dashboard/tasks", {
@@ -326,13 +404,12 @@ export default function Board({ workspaceId, projectId }) {
     onSuccess: async (task) => {
       queryClient.setQueryData(boardQueryKey, (current) => {
         if (!current || !task) return current;
-        const nextColumns = (current.columns || []).map((column) => {
-          if (column.id !== task.columnId) return column;
-          return { ...column, tasks: [...(column.tasks || []), task] };
-        });
-        return { ...current, columns: normalizeColumns(nextColumns) };
+        return {
+          ...current,
+          // Reuse the live upsert path so socket echoes cannot duplicate the task.
+          columns: upsertTaskInColumns(current.columns || [], task),
+        };
       });
-      await refreshDashboardStore();
       setCreateOpen(false);
       toast.success("Task created");
     },
@@ -396,7 +473,6 @@ export default function Board({ workspaceId, projectId }) {
           columns: normalizeColumns(data?.columns || current.columns || []),
         };
       });
-      await refreshDashboardStore();
 
       if (result?.statusSyncError) {
         toast.error(
@@ -433,7 +509,6 @@ export default function Board({ workspaceId, projectId }) {
         }));
         return { ...current, columns: normalizeColumns(nextColumns) };
       });
-      await refreshDashboardStore();
       toast.success("Task updated");
       setSelectedTaskId("");
     },
@@ -459,7 +534,6 @@ export default function Board({ workspaceId, projectId }) {
         return { ...current, columns: normalizeColumns(nextColumns) };
       });
       setSelectedTaskId("");
-      await refreshDashboardStore();
       toast.success("Task deleted");
     },
     onError: (error) => {
@@ -677,8 +751,28 @@ export default function Board({ workspaceId, projectId }) {
       : "Unassigned";
 
     const nextStatus = values.status || selectedTask.status || "todo";
-    const sourceColumnId = selectedTask.columnId;
-    const destinationColumn = findColumnByStatus(columns, nextStatus);
+    const currentStatus = selectedTask.status || "todo";
+    let freshColumns = columns;
+    let sourceColumnId = selectedTask.columnId;
+
+    if (nextStatus !== currentStatus && projectId) {
+      // Fetch the latest board once so move validation uses the real column.
+      const boardData = await fetchJson(`/api/dashboard/boards/${projectId}`);
+      freshColumns = boardData?.columns || [];
+
+      for (const column of freshColumns) {
+        if (
+          column.tasks?.some(
+            (task) => String(task.id) === String(selectedTask.id),
+          )
+        ) {
+          sourceColumnId = String(column.id);
+          break;
+        }
+      }
+    }
+
+    const destinationColumn = findColumnByStatus(freshColumns, nextStatus);
     const shouldMove =
       destinationColumn &&
       sourceColumnId &&
