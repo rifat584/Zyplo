@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { io as createSocket } from "socket.io-client";
 import {
   useParams,
   usePathname,
@@ -47,7 +48,8 @@ import {
   deleteWorkspace,
   loadDashboard,
   markAllNotificationsRead,
-  refreshNotifications,
+  readAllNotificationsLocally,
+  receiveLiveNotification,
   resolveWorkspaceRole,
   useMockStore,
   useWorkspaceAccess,
@@ -781,7 +783,6 @@ function NotificationsMenu() {
   const notifications = useMockStore((state) => state.notifications || []);
   const unreadCount = notifications.filter((item) => !item.read).length;
   const [open, setOpen] = useState(false);
-  const [syncingReadState, setSyncingReadState] = useState(false);
   const rootRef = useRef(null);
 
   useEffect(() => {
@@ -796,29 +797,21 @@ function NotificationsMenu() {
   }, []);
 
   useEffect(() => {
-    if (!open || unreadCount === 0 || syncingReadState) return;
+    if (!open || unreadCount === 0) return;
 
     let active = true;
 
-    async function syncReadState() {
-      try {
-        setSyncingReadState(true);
-        await markAllNotificationsRead();
-      } catch (error) {
-        if (active) {
-          toast.error(error?.message || "Failed to update notifications");
-        }
-      } finally {
-        if (active) setSyncingReadState(false);
+    // Mark everything read as soon as the bell opens.
+    markAllNotificationsRead().catch((error) => {
+      if (active) {
+        toast.error(error?.message || "Failed to update notifications");
       }
-    }
-
-    syncReadState().catch(() => {});
+    });
 
     return () => {
       active = false;
     };
-  }, [open, unreadCount, syncingReadState]);
+  }, [open, unreadCount]);
 
   return (
     <div ref={rootRef} className="relative">
@@ -847,11 +840,7 @@ function NotificationsMenu() {
                 Notifications
               </p>
               <span className="text-[11px] font-medium text-muted-foreground">
-                {syncingReadState
-                  ? "Updating..."
-                  : unreadCount > 0
-                    ? `${unreadCount} unread`
-                    : "All caught up"}
+                {unreadCount > 0 ? `${unreadCount} unread` : "All caught up"}
               </span>
             </div>
           </div>
@@ -2231,9 +2220,10 @@ function Topbar({ onOpenSidebar }) {
 
 export function AppShell({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { currentUser, loaded } = useMockStore((state) => ({
+  const { currentUser, loaded, socketToken } = useMockStore((state) => ({
     currentUser: state.currentUser || null,
     loaded: Boolean(state.loaded),
+    socketToken: String(state.socketToken || ""),
   }));
 
   useEffect(() => {
@@ -2262,32 +2252,29 @@ export function AppShell({ children }) {
   }, []);
 
   useEffect(() => {
-    if (!loaded || !currentUser?.id) return;
+    if (!loaded || !currentUser?.id || !socketToken) return;
 
-    const poll = setInterval(() => {
-      if (typeof document !== "undefined" && document.hidden) return;
-      refreshNotifications().catch(() => {});
-    }, 8000);
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backendUrl) return;
 
-    return () => clearInterval(poll);
-  }, [loaded, currentUser?.id]);
+    // Keep one live notification socket for the active dashboard session.
+    const socket = createSocket(backendUrl, {
+      auth: { token: socketToken },
+      transports: ["websocket"],
+    });
 
-  useEffect(() => {
-    if (!loaded || !currentUser?.id) return;
-
-    const refreshNow = () => {
-      if (typeof document !== "undefined" && document.hidden) return;
-      refreshNotifications().catch(() => {});
-    };
-
-    window.addEventListener("focus", refreshNow);
-    document.addEventListener("visibilitychange", refreshNow);
+    // Add new notifications to the current list without a refresh.
+    socket.on("notification:new", receiveLiveNotification);
+    // Mirror read-all changes across open tabs instantly.
+    socket.on("notification:read-all", readAllNotificationsLocally);
 
     return () => {
-      window.removeEventListener("focus", refreshNow);
-      document.removeEventListener("visibilitychange", refreshNow);
+      socket.off("notification:new", receiveLiveNotification);
+      socket.off("notification:read-all", readAllNotificationsLocally);
+      socket.close();
     };
-  }, [loaded, currentUser?.id]);
+  }, [loaded, currentUser?.id, socketToken]);
+
 
   useEffect(() => {
     if (!loaded || !currentUser?.id) return;
