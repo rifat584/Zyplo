@@ -506,8 +506,6 @@ const confirmDeleteComment = async () => {
     setTimePanelInitialized(false);
   }, [open, task]);
 
-  // ... (all other useEffects remain exactly the same - time, github, keydown, etc.)
-
   useEffect(() => {
     if (!open || !task?.id) return;
     let alive = true;
@@ -861,7 +859,716 @@ const confirmDeleteComment = async () => {
                 </div>
 
                 <div className="space-y-5 p-5">
-                  {/* Time, Attachments, GitHub tabs remain 100% unchanged */}
+                  {activeTab === "time" ? (
+                    <div className={`${sectionPanelClass} p-4`}>
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <button
+                          type="button"
+                          onClick={() => setIsTimeTrackingOpen((prev) => !prev)}
+                          className="flex min-w-0 flex-1 items-start gap-2 text-left"
+                        >
+                          <span className={accentIconClass}>
+                            <Clock size={12} />
+                          </span>
+                          <span className="min-w-0">
+                            <span className={`block ${subtleLabelClass}`}>
+                              Time Tracking
+                            </span>
+                            <span className="mt-1 block truncate text-xs text-muted-foreground">
+                              {timeSummary
+                                ? `Estimated ${formatDurationHMS(timeSummary.estimated)} | Spent ${formatDurationHMS(timeSummary.spent)} | Remaining ${formatDurationHMS(timeSummary.remaining)}`
+                                : "No time tracked yet"}
+                            </span>
+                            {hasOtherActiveTimer ? (
+                              <span className="mt-1 block text-xs text-warning">
+                                Another task has an active timer. Stop it to
+                                start this one.
+                              </span>
+                            ) : null}
+                          </span>
+                          <span className="mt-0.5 shrink-0 text-muted-foreground">
+                            <ChevronDown
+                              size={14}
+                              className={`transition-transform duration-300 ${isTimeTrackingOpen ? "rotate-180" : "rotate-0"}`}
+                            />
+                          </span>
+                        </button>
+
+                        <div className="flex flex-wrap items-center gap-2">
+                          {activeTimer &&
+                          activeTimer.taskId === String(task.id) ? (
+                            <button
+                              type="button"
+                              disabled={isBusy}
+                              onClick={async () => {
+                                if (!activeTimer?.id) return;
+                                setTimerBusy(true);
+                                try {
+                                  const response = await fetch(
+                                    `/api/dashboard/time/${activeTimer.id}/stop`,
+                                    {
+                                      method: "POST",
+                                      headers: {
+                                        "Content-Type": "application/json",
+                                      },
+                                      body: JSON.stringify({}),
+                                    },
+                                  );
+                                  if (!response.ok) {
+                                    const text = await response.text();
+                                    const data = safeJsonParse(text, null);
+                                    throw new Error(
+                                      data?.error ||
+                                        data?.message ||
+                                        "Failed to stop timer",
+                                    );
+                                  }
+                                  const summaryRes = await fetch(
+                                    `/api/dashboard/tasks/${task.id}/time-summary`,
+                                    { cache: "no-store" },
+                                  );
+                                  const logsRes = await fetch(
+                                    `/api/dashboard/tasks/${task.id}/time`,
+                                    { cache: "no-store" },
+                                  );
+                                  const activeRes = await fetch(
+                                    `/api/dashboard/time/active`,
+                                    {
+                                      cache: "no-store",
+                                    },
+                                  );
+                                  const summaryText = await summaryRes.text();
+                                  const logsText = await logsRes.text();
+                                  const activeText = await activeRes.text();
+                                  if (summaryRes.ok) {
+                                    setTimeSummary(
+                                      safeJsonParse(summaryText, null),
+                                    );
+                                  }
+                                  if (logsRes.ok) {
+                                    const data = safeJsonParse(logsText, []);
+                                    setTimeLogs(
+                                      Array.isArray(data) ? data : [],
+                                    );
+                                  }
+                                  if (activeRes.ok) {
+                                    const data = safeJsonParse(
+                                      activeText,
+                                      null,
+                                    );
+                                    setActiveTimer(data?.activeTimer || null);
+                                  }
+                                  if (typeof window !== "undefined") {
+                                    window.dispatchEvent(
+                                      new CustomEvent("zyplo-timer-updated"),
+                                    );
+                                  }
+                                } catch (error) {
+                                  console.error(error);
+                                  toast.error(
+                                    error?.message || "Failed to stop timer",
+                                  );
+                                } finally {
+                                  setTimerBusy(false);
+                                }
+                              }}
+                              className={dangerActionClass}
+                            >
+                              Stop timer
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              disabled={isBusy || hasOtherActiveTimer}
+                              onClick={async () => {
+                                setTimerBusy(true);
+                                try {
+                                  const response = await fetch(
+                                    `/api/dashboard/tasks/${task.id}/time/start`,
+                                    {
+                                      method: "POST",
+                                      headers: {
+                                        "Content-Type": "application/json",
+                                      },
+                                      body: JSON.stringify({}),
+                                    },
+                                  );
+                                  if (!response.ok) {
+                                    const text = await response.text();
+                                    const data = safeJsonParse(text, null);
+                                    throw new Error(
+                                      data?.error ||
+                                        data?.message ||
+                                        "Failed to start timer",
+                                    );
+                                  }
+                                  const activeRes = await fetch(
+                                    `/api/dashboard/time/active`,
+                                    {
+                                      cache: "no-store",
+                                    },
+                                  );
+                                  const activeText = await activeRes.text();
+                                  if (activeRes.ok) {
+                                    const data = safeJsonParse(
+                                      activeText,
+                                      null,
+                                    );
+                                    setActiveTimer(data?.activeTimer || null);
+                                  }
+                                  if (typeof window !== "undefined") {
+                                    window.dispatchEvent(
+                                      new CustomEvent("zyplo-timer-updated"),
+                                    );
+                                  }
+                                } catch (error) {
+                                  console.error(error);
+                                  toast.error(
+                                    error?.message || "Failed to start timer",
+                                  );
+                                } finally {
+                                  setTimerBusy(false);
+                                }
+                              }}
+                              className={primaryActionClass}
+                            >
+                              Start timer
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                          isTimeTrackingOpen
+                            ? "max-h-[800px] opacity-100"
+                            : "max-h-0 opacity-0"
+                        }`}
+                        aria-hidden={!isTimeTrackingOpen}
+                      >
+                        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                          <div className="space-y-1.5">
+                            <label
+                              htmlFor="task-details-estimated-time"
+                              className={subtleLabelClass}
+                            >
+                              Estimate (h / m / s)
+                            </label>
+                            <div className="overflow-x-auto rounded-xl">
+                              <input
+                                id="task-details-estimated-time"
+                                type="text"
+                                value={form.estimatedTime}
+                                onChange={(event) =>
+                                  setForm((prev) => ({
+                                    ...prev,
+                                    estimatedTime: event.target.value,
+                                  }))
+                                }
+                                placeholder="e.g. 1h 30m, 90m, 5400s, 01:30:00"
+                                className={`${fieldClass} h-10 min-w-[360px] whitespace-nowrap`}
+                              />
+                            </div>
+                            <p className="text-[11px] text-muted-foreground">
+                              You can type `h/m/s` (example: `1h 20m 30s`) or
+                              `hh:mm:ss`. If you enter only a number, it is
+                              treated as minutes.
+                            </p>
+                          </div>
+
+                          <div className="space-y-2 sm:col-span-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setIsManualEntryOpen((prev) => !prev)
+                              }
+                              className="flex w-full items-start justify-between gap-2 rounded-lg border border-transparent px-1 py-0.5 text-left transition hover:border-border hover:bg-accent/60"
+                            >
+                              <span>
+                                <span className={subtleLabelClass}>
+                                  Manual Time Entry
+                                </span>
+                                <span className="mt-0.5 block text-[11px] text-muted-foreground">
+                                  Add a past work session by selecting the start
+                                  and end time.
+                                </span>
+                              </span>
+                              <span className="mt-1 text-muted-foreground">
+                                <ChevronDown
+                                  size={14}
+                                  className={`transition-transform duration-300 ${isManualEntryOpen ? "rotate-180" : "rotate-0"}`}
+                                />
+                              </span>
+                            </button>
+
+                            <div
+                              className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                                isManualEntryOpen
+                                  ? "max-h-[420px] opacity-100"
+                                  : "max-h-0 opacity-0"
+                              }`}
+                              aria-hidden={!isManualEntryOpen}
+                            >
+                              <div className="rounded-xl border border-border bg-card p-3">
+                                <div className="grid gap-3 sm:grid-cols-2">
+                                  <div className="space-y-1">
+                                    <label
+                                      htmlFor="task-details-manual-start-time"
+                                      className="text-[11px] font-medium text-muted-foreground"
+                                    >
+                                      Start time
+                                    </label>
+                                    <input
+                                      id="task-details-manual-start-time"
+                                      type="datetime-local"
+                                      value={manualForm.startTime}
+                                      onChange={(event) =>
+                                        setManualForm((prev) => ({
+                                          ...prev,
+                                          startTime: event.target.value,
+                                        }))
+                                      }
+                                      className={compactFieldClass}
+                                    />
+                                  </div>
+
+                                  <div className="space-y-1">
+                                    <label
+                                      htmlFor="task-details-manual-end-time"
+                                      className="text-[11px] font-medium text-muted-foreground"
+                                    >
+                                      End time
+                                    </label>
+                                    <input
+                                      id="task-details-manual-end-time"
+                                      type="datetime-local"
+                                      value={manualForm.endTime}
+                                      onChange={(event) =>
+                                        setManualForm((prev) => ({
+                                          ...prev,
+                                          endTime: event.target.value,
+                                        }))
+                                      }
+                                      className={compactFieldClass}
+                                    />
+                                  </div>
+                                </div>
+
+                                <div className="mt-3 flex flex-col gap-2 lg:flex-row">
+                                  <div className="flex-1 space-y-1">
+                                    <label
+                                      htmlFor="task-details-manual-note"
+                                      className="text-[11px] font-medium text-muted-foreground"
+                                    >
+                                      Work note (optional)
+                                    </label>
+                                    <input
+                                      id="task-details-manual-note"
+                                      type="text"
+                                      value={manualForm.description}
+                                      onChange={(event) =>
+                                        setManualForm((prev) => ({
+                                          ...prev,
+                                          description: event.target.value,
+                                        }))
+                                      }
+                                      placeholder="What did you work on?"
+                                      className={compactFieldClass}
+                                    />
+                                  </div>
+
+                                  <div className="lg:mt-[18px]">
+                                    <button
+                                      type="button"
+                                      disabled={
+                                        isBusy ||
+                                        !manualForm.startTime ||
+                                        !manualForm.endTime
+                                      }
+                                      onClick={async () => {
+                                        if (
+                                          !manualForm.startTime ||
+                                          !manualForm.endTime
+                                        )
+                                          return;
+                                        setManualBusy(true);
+                                        try {
+                                          const response = await fetch(
+                                            `/api/dashboard/tasks/${task.id}/time/manual`,
+                                            {
+                                              method: "POST",
+                                              headers: {
+                                                "Content-Type":
+                                                  "application/json",
+                                              },
+                                              body: JSON.stringify({
+                                                startTime: manualForm.startTime,
+                                                endTime: manualForm.endTime,
+                                                description:
+                                                  manualForm.description,
+                                              }),
+                                            },
+                                          );
+                                          const text = await response.text();
+                                          const data = safeJsonParse(
+                                            text,
+                                            null,
+                                          );
+                                          if (!response.ok) {
+                                            throw new Error(
+                                              data?.error ||
+                                                data?.message ||
+                                                "Failed to save manual time",
+                                            );
+                                          }
+                                          setManualForm({
+                                            startTime: "",
+                                            endTime: "",
+                                            description: "",
+                                          });
+                                          const summaryRes = await fetch(
+                                            `/api/dashboard/tasks/${task.id}/time-summary`,
+                                            { cache: "no-store" },
+                                          );
+                                          const logsRes = await fetch(
+                                            `/api/dashboard/tasks/${task.id}/time`,
+                                            { cache: "no-store" },
+                                          );
+                                          const summaryText =
+                                            await summaryRes.text();
+                                          const logsText = await logsRes.text();
+                                          if (summaryRes.ok) {
+                                            setTimeSummary(
+                                              safeJsonParse(summaryText, null),
+                                            );
+                                          }
+                                          if (logsRes.ok) {
+                                            const logs = safeJsonParse(
+                                              logsText,
+                                              [],
+                                            );
+                                            setTimeLogs(
+                                              Array.isArray(logs) ? logs : [],
+                                            );
+                                          }
+                                          if (typeof window !== "undefined") {
+                                            window.dispatchEvent(
+                                              new CustomEvent(
+                                                "zyplo-timer-updated",
+                                              ),
+                                            );
+                                          }
+                                        } catch (error) {
+                                          console.error(error);
+                                          toast.error(
+                                            error?.message ||
+                                              "Failed to save manual time",
+                                          );
+                                        } finally {
+                                          setManualBusy(false);
+                                        }
+                                      }}
+                                      className={primaryActionClass}
+                                    >
+                                      Save log
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {timeLogs.length ? (
+                          <div className="mt-4 space-y-2">
+                            <p className={subtleLabelClass}>
+                              Recent Logs
+                            </p>
+                            <div className="space-y-2 text-xs text-muted-foreground">
+                              {timeLogs.slice(0, 5).map((log) => (
+                                <div
+                                  key={log.id}
+                                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-background px-3 py-2"
+                                >
+                                  <span>
+                                    {log.startTime
+                                      ? new Date(log.startTime).toLocaleString()
+                                      : "Unknown"}{" "}
+                                    -{" "}
+                                    {log.endTime
+                                      ? new Date(log.endTime).toLocaleString()
+                                      : "Running"}
+                                  </span>
+                                  <span className="font-semibold">
+                                    {formatDurationHMS(log.duration)}
+                                  </span>
+                                  {log.description ? (
+                                    <span className="w-full text-[11px] text-muted-foreground">
+                                      {log.description}
+                                    </span>
+                                  ) : null}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {activeTab === "attachments" ? (
+                    <div className={`${sectionPanelClass} p-4`}>
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setIsAttachmentsOpen(!isAttachmentsOpen)
+                          }
+                          className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground transition-colors hover:text-primary"
+                        >
+                          <Paperclip size={14} />
+                          Attachments{" "}
+                          {form.attachments.length > 0 &&
+                            `(${form.attachments.length})`}
+                          {isAttachmentsOpen ? (
+                            <ChevronUp size={14} />
+                          ) : (
+                            <ChevronDown size={14} />
+                          )}
+                        </button>
+
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleFileUpload}
+                          accept="image/*,video/*,application/pdf"
+                          className="hidden"
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={isUploading}
+                          className={textActionClass}
+                        >
+                          {isUploading ? (
+                            <Loader2 size={14} className="animate-spin" />
+                          ) : (
+                            <Paperclip size={14} />
+                          )}
+                          {isUploading ? "Uploading..." : "Add File"}
+                        </button>
+                      </div>
+
+                      {isAttachmentsOpen && form.attachments.length > 0 && (
+                        <div className="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+                          {form.attachments.map((file, idx) => (
+                            <div
+                              key={idx}
+                              className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+                            >
+                              <div className="relative h-28 w-full border-b border-border bg-muted">
+                                {file.type.startsWith("image/") ? (
+                                  <img
+                                    src={file.url}
+                                    alt={file.name}
+                                    className="h-full w-full object-cover"
+                                  />
+                                ) : file.type.startsWith("video/") ? (
+                                  <video
+                                    src={file.url}
+                                    className="h-full w-full object-cover"
+                                    muted
+                                    preload="metadata"
+                                  />
+                                ) : (
+                                  <div className="flex h-full w-full items-center justify-center">
+                                    <FileText
+                                      size={32}
+                                      className="text-muted-foreground"
+                                    />
+                                  </div>
+                                )}
+
+                                <div className="absolute inset-0 flex items-center justify-center bg-background/80 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                                  <button
+                                    type="button"
+                                    onClick={() => removeAttachment(idx)}
+                                    className="rounded-full bg-destructive p-2 text-destructive-foreground shadow-lg transition-transform hover:scale-110 hover:bg-destructive/90"
+                                    title="Remove attachment"
+                                  >
+                                    <X size={16} />
+                                  </button>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between p-2.5">
+                                <div className="flex flex-1 items-center gap-2 truncate pr-2">
+                                  <span className="text-muted-foreground">
+                                    {getFileIcon(file.type)}
+                                  </span>
+                                  <span
+                                    className="truncate text-xs font-medium text-foreground"
+                                    title={file.name}
+                                  >
+                                    {file.name}
+                                  </span>
+                                </div>
+                                <a
+                                  href={getDownloadUrl(file.url)}
+                                  download={file.name}
+                                  className="flex shrink-0 items-center justify-center rounded bg-background p-1.5 text-muted-foreground transition hover:bg-accent hover:text-accent-foreground"
+                                  title="Download file"
+                                >
+                                  <Download size={14} />
+                                </a>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+
+                  {activeTab === "github" ? (
+                    <div className={`${sectionPanelClass} p-4`}>
+                      <button
+                        type="button"
+                        onClick={() => setIsGithubOpen((prev) => !prev)}
+                        className="flex w-full items-center justify-between gap-2 text-left"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className={neutralIconClass}>
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              className="size-3.5"
+                            >
+                              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12" />
+                            </svg>
+                          </span>
+                          <span className={subtleLabelClass}>
+                            GitHub Activity
+                            {githubActivities.length > 0 && (
+                              <span className="ml-1.5 rounded-full bg-muted px-1.5 py-0.5 text-[10px]">
+                                {githubActivities.length}
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                        <ChevronDown
+                          size={14}
+                          className={`text-muted-foreground transition-transform duration-300 ${isGithubOpen ? "rotate-180" : "rotate-0"}`}
+                        />
+                      </button>
+
+                      <div
+                        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                          isGithubOpen
+                            ? "max-h-[600px] opacity-100"
+                            : "max-h-0 opacity-0"
+                        }`}
+                      >
+                        {githubActivities.length === 0 ? (
+                          <p className="mt-4 text-xs text-muted-foreground">
+                            {githubLoading ? (
+                              <span className="inline-flex items-center gap-2">
+                                <Loader2 className="size-3.5 animate-spin" />
+                                Loading GitHub activity...
+                              </span>
+                            ) : githubError ? (
+                              githubError
+                            ) : (
+                              <>
+                                No GitHub activity yet.
+                                {task?.taskRef ? (
+                                  <>
+                                    {" "}
+                                    Mention{" "}
+                                    <span className="font-mono font-semibold text-foreground">
+                                      {task.taskRef}
+                                    </span>{" "}
+                                    in a PR title or commit message.
+                                  </>
+                                ) : null}
+                              </>
+                            )}
+                          </p>
+                        ) : (
+                          <div className="mt-4 space-y-2">
+                            {githubActivities.map((activity) => (
+                              <div
+                                key={activity._id}
+                                className="flex items-start gap-3 rounded-lg border border-border bg-background p-3"
+                              >
+                                <span className="mt-0.5 shrink-0 text-muted-foreground">
+                                  {activity.action ===
+                                  "github_commit_pushed" ? (
+                                    <svg
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                      className="size-4"
+                                    >
+                                      <path d="M17.718 8.004a6 6 0 0 0-11.436 0H2v2h4.282a6 6 0 0 0 11.436 0H22V8.004h-4.282zM12 14a4 4 0 1 1 0-8 4 4 0 0 1 0 8z" />
+                                    </svg>
+                                  ) : (
+                                    <svg
+                                      viewBox="0 0 24 24"
+                                      fill="currentColor"
+                                      className="size-4"
+                                    >
+                                      <path d="M7.177 3.073L9.573.677A.25.25 0 0 1 10 .854v4.792a.25.25 0 0 1-.427.177L7.177 3.427a.25.25 0 0 1 0-.354zM3.75 2.5a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5zm-2.25.75a2.25 2.25 0 1 1 3 2.122v5.256a2.251 2.251 0 1 1-1.5 0V5.372A2.25 2.25 0 0 1 1.5 3.25zM11 2.5h-1V4h1a1 1 0 0 1 1 1v5.628a2.251 2.251 0 1 0 1.5 0V5A2.5 2.5 0 0 0 11 2.5zm1 10.25a.75.75 0 1 1 1.5 0 .75.75 0 0 1-1.5 0z" />
+                                    </svg>
+                                  )}
+                                </span>
+
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-xs text-foreground">
+                                    {activity.text}
+                                  </p>
+                                  <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                                    {activity.meta?.pullRequestUrl && (
+                                      <a
+                                        href={activity.meta.pullRequestUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-[11px] font-medium text-primary transition hover:text-primary/80 hover:underline"
+                                      >
+                                        View PR #
+                                        {activity.meta.pullRequestNumber}
+                                      </a>
+                                    )}
+                                    {activity.meta?.commitUrl && (
+                                      <a
+                                        href={activity.meta.commitUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="font-mono text-[11px] font-medium text-primary transition hover:text-primary/80 hover:underline"
+                                      >
+                                        {activity.meta.commitShort}
+                                      </a>
+                                    )}
+                                    <span className="text-[11px] text-muted-foreground">
+                                      {formatDateTime(activity.createdAt)}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {activity.meta?.githubAvatarUrl && (
+                                  <img
+                                    src={activity.meta.githubAvatarUrl}
+                                    alt={activity.meta.githubUsername}
+                                    title={`@${activity.meta.githubUsername}`}
+                                    className="size-6 shrink-0 rounded-full border border-border"
+                                  />
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : null}
 
                   {activeTab === "comments" ? (
                     <div className={`${sectionPanelClass} p-4`}>
@@ -1045,9 +1752,7 @@ const confirmDeleteComment = async () => {
                 </div>
               </section>
 
-              {/* Aside (task details) remains unchanged */}
               <aside className={`h-fit xl:sticky xl:top-0 xl:self-start ${panelCardClass}`}>
-                {/* ... exact same code as original ... */}
                 <div className={`${panelHeaderClass} flex items-center justify-between gap-3`}>
                   <h3 className="text-base font-semibold text-foreground">
                     Task details
@@ -1083,8 +1788,178 @@ const confirmDeleteComment = async () => {
                       />
                     )}
                   </OverviewRow>
-                  {/* ... all other OverviewRow fields remain exactly the same ... */}
-                  {/* (description, assignee, due date, status, priority, reporter, created, updated) */}
+
+                  <OverviewRow label="Description" alignTop>
+                    {editingField === "description" ? (
+                      <textarea
+                        id="task-details-description"
+                        rows={3}
+                        value={form.description}
+                        autoFocus
+                        onChange={(event) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            description: event.target.value,
+                          }))
+                        }
+                        onBlur={() => setEditingField("")}
+                        placeholder="Add details, acceptance criteria, or important context"
+                        className={`${detailTextAreaClass} min-h-[5.5rem]`}
+                      />
+                    ) : (
+                      <EditableValueButton
+                        value={form.description}
+                        placeholder="Add details, acceptance criteria, or important context"
+                        onClick={() => setEditingField("description")}
+                        multiline
+                      />
+                    )}
+                  </OverviewRow>
+
+                  <OverviewRow label="Assignee">
+                    {editingField === "assigneeId" ? (
+                      <select
+                        ref={assigneeSelectRef}
+                        id="task-details-assignee"
+                        value={form.assigneeId}
+                        autoFocus
+                        onChange={(event) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            assigneeId: event.target.value,
+                          }))
+                        }
+                        onBlur={() => setEditingField("")}
+                        className={detailFieldClass}
+                      >
+                        <option value="">Unassigned</option>
+                        {members.map((member) => (
+                          <option key={member.id} value={member.id}>
+                            {member.name}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <EditableValueButton
+                        value={assigneeDisplayName}
+                        placeholder="Select an assignee"
+                        onClick={() => openPickerField("assigneeId")}
+                      />
+                    )}
+                  </OverviewRow>
+
+                  <OverviewRow label="Due Date">
+                    {editingField === "dueDate" ? (
+                      <input
+                        ref={dueDateInputRef}
+                        id="task-details-due-date"
+                        type="date"
+                        value={form.dueDate}
+                        autoFocus
+                        onChange={(event) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            dueDate: event.target.value,
+                          }))
+                        }
+                        onBlur={() => setEditingField("")}
+                        className={detailFieldClass}
+                      />
+                    ) : (
+                      <EditableValueButton
+                        value={dueDateLabel}
+                        placeholder="No due date"
+                        onClick={() => openPickerField("dueDate")}
+                      />
+                    )}
+                  </OverviewRow>
+
+                  <OverviewRow label="Status">
+                    {editingField === "status" ? (
+                      <select
+                        ref={statusSelectRef}
+                        id="task-details-status"
+                        value={form.status}
+                        autoFocus
+                        onChange={(event) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            status: event.target.value,
+                          }))
+                        }
+                        onBlur={() => setEditingField("")}
+                        className={detailSelectFieldClass}
+                      >
+                        {statusOptions.map((item) => (
+                          <option key={item.value} value={item.value}>
+                            {item.label}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <EditableValueButton
+                        value={statusLabel}
+                        placeholder="Select status"
+                        onClick={() => openPickerField("status")}
+                      />
+                    )}
+                  </OverviewRow>
+
+                  <OverviewRow label="Priority">
+                    {editingField === "priority" ? (
+                      <select
+                        ref={prioritySelectRef}
+                        id="task-details-priority"
+                        value={form.priority}
+                        autoFocus
+                        onChange={(event) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            priority: event.target.value,
+                          }))
+                        }
+                        onBlur={() => setEditingField("")}
+                        className={detailSelectFieldClass}
+                      >
+                        {PRIORITY_OPTIONS.map((item) => (
+                          <option key={item.value} value={item.value}>
+                            {item.label}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <EditableValueButton
+                        value={priorityLabel}
+                        placeholder="Select priority"
+                        onClick={() => openPickerField("priority")}
+                      />
+                    )}
+                  </OverviewRow>
+
+                  <OverviewRow label="Reporter" alignTop>
+                    <div className="space-y-0.5 py-1">
+                      <div className="text-sm font-medium text-foreground">
+                        {reporterDisplayName}
+                      </div>
+                      {reporterSecondary ? (
+                        <div className="text-xs text-muted-foreground">
+                          {reporterSecondary}
+                        </div>
+                      ) : null}
+                    </div>
+                  </OverviewRow>
+
+                  <OverviewRow label="Created">
+                    <div className="py-1 text-sm text-muted-foreground">
+                      {formatDateTime(task.createdAt)}
+                    </div>
+                  </OverviewRow>
+
+                  <OverviewRow label="Updated">
+                    <div className="py-1 text-sm text-muted-foreground">
+                      {formatDateTime(updatedAtValue)}
+                    </div>
+                  </OverviewRow>
                 </div>
               </aside>
             </div>
