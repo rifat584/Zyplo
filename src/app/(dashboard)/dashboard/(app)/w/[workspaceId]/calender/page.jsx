@@ -357,17 +357,28 @@ export default function WorkspaceCalenderPage() {
     loading: state.loading,
   }));
 
+  const workspaceProjects = useMemo(
+    () => projects.filter((project) => project.workspaceId === workspaceId),
+    [projects, workspaceId],
+  );
+  const { selectedProject, selectedProjectId } = useWorkspaceProjectSelection(
+    workspaceId,
+    workspaceProjects,
+  );
+
   const workspaceTasks = useMemo(
     () =>
       tasks.filter((task) => {
         if (task.workspaceId !== workspaceId) return false;
+        if (!selectedProjectId) return false;
+        if (String(task.projectId || "") !== selectedProjectId) return false;
         const due = task.dueDate ? new Date(task.dueDate) : null;
         const created = task.createdAt ? new Date(task.createdAt) : null;
         const hasValidDue = due && !Number.isNaN(due.getTime());
         const hasValidCreated = created && !Number.isNaN(created.getTime());
         return Boolean(hasValidDue || hasValidCreated);
       }),
-    [tasks, workspaceId],
+    [tasks, workspaceId, selectedProjectId],
   );
 
   const [monthDate, setMonthDate] = useState(() => new Date());
@@ -483,14 +494,6 @@ export default function WorkspaceCalenderPage() {
 
   const days = useMemo(() => buildCalendarDays(monthDate), [monthDate]);
   const monthIndex = monthDate.getMonth();
-  const workspaceProjects = useMemo(
-    () => projects.filter((project) => project.workspaceId === workspaceId),
-    [projects, workspaceId],
-  );
-  const { selectedProject } = useWorkspaceProjectSelection(
-    workspaceId,
-    workspaceProjects,
-  );
   const [createTarget, setCreateTarget] = useState(null);
   const [pendingDeleteTask, setPendingDeleteTask] = useState(null);
 
