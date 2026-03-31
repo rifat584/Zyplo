@@ -66,6 +66,7 @@ let state = {
   projects: [],
   activity: [],
   notifications: [],
+  socketToken: "",
   lastVisited: null,
   loaded: false,
   loading: false,
@@ -134,7 +135,11 @@ export async function loadDashboard(options = {}) {
   const loadPromise = (async () => {
     try {
       const data = await request("/api/dashboard/bootstrap");
-      const nextState = { ...data, loaded: true };
+      const nextState = {
+        ...data,
+        loaded: true,
+        socketToken: String(data?.socketToken || ""),
+      };
       if (!silent) nextState.loading = false;
       setState(nextState);
     } catch (error) {
@@ -151,6 +156,25 @@ export async function loadDashboard(options = {}) {
   } finally {
     if (pendingLoad === loadPromise) pendingLoad = null;
   }
+}
+
+// Add a live notification once and keep the list deduped by id.
+export function receiveLiveNotification(notification) {
+  if (!notification?.id) return;
+  if (state.notifications.some((item) => item.id === notification.id)) return;
+
+  setState({
+    notifications: [notification, ...state.notifications],
+  });
+}
+
+// Mark the current notification list as read in local state.
+export function readAllNotificationsLocally() {
+  setState({
+    notifications: state.notifications.map((item) =>
+      item?.read ? item : { ...item, read: true },
+    ),
+  });
 }
 
 export async function createWorkspace(name, memberEmails = []) {
@@ -221,11 +245,7 @@ export async function updateTask(taskId, patch) {
 
 export async function markAllNotificationsRead() {
   const previousNotifications = state.notifications;
-  const nextNotifications = previousNotifications.map((item) =>
-    item?.read ? item : { ...item, read: true },
-  );
-
-  setState({ notifications: nextNotifications });
+  readAllNotificationsLocally();
 
   try {
     await request("/api/dashboard/notifications/read-all", { method: "POST" });
