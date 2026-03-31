@@ -32,6 +32,7 @@ import {
   Settings,
   Sun,
   Star,
+  Sparkles,
   Timer,
   Trash2,
   UserPlus,
@@ -1973,16 +1974,50 @@ function WorkspaceToolbar() {
                     New Project
                   </Button>
 
+                  {/* --- AI KICKSTART BUTTON --- */}
+                  {/* The shared 'ai-kickstart' ID creates a perfectly seamless handoff to the Board! */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const isOnBoard = pathname.endsWith('/board');
+                      if (isOnBoard) {
+                        const event = new CustomEvent("zyplo-open-ai-kickstart", { detail: { workspaceId } });
+                        window.dispatchEvent(event);
+                      } else {
+                        toast.loading("Preparing AI Kickstart...", { id: "ai-kickstart" });
+                        router.push(`/dashboard/w/${workspaceId}/board`);
+                        
+                        setTimeout(() => {
+                          const event = new CustomEvent("zyplo-open-ai-kickstart", { detail: { workspaceId } });
+                          window.dispatchEvent(event);
+                        }, 800);
+                      }
+                    }}
+                    className={cn(
+                      dashboardContextButtonClasses,
+                      "group flex h-9 shrink-0 items-center justify-center overflow-hidden rounded-lg px-2 transition-all hover:px-3"
+                    )}
+                    aria-label="AI Kickstart"
+                  >
+                    <Sparkles className="size-4 shrink-0 text-amber-500" />
+                    <span className="max-w-0 overflow-hidden whitespace-nowrap text-sm font-medium opacity-0 transition-all duration-300 ease-in-out group-hover:max-w-[100px] group-hover:pl-2 group-hover:opacity-100">
+                      AI Kickstart
+                    </span>
+                  </button>
+
+                  {/* --- SETTINGS BUTTON --- */}
                   <Link
                     href={`/dashboard/w/${workspaceId}/settings`}
                     aria-label="Workspace settings"
                     className={cn(
                       dashboardContextButtonClasses,
-                      "inline-flex h-9 shrink-0 items-center gap-2 rounded-lg px-2.5 text-sm sm:px-3",
+                      "group flex h-9 shrink-0 items-center justify-center overflow-hidden rounded-lg px-2 transition-all hover:px-3",
                     )}
                   >
-                    <Settings className="size-4" />
-                    <span className="hidden sm:inline">Settings</span>
+                    <Settings className="size-4 shrink-0" />
+                    <span className="max-w-0 overflow-hidden whitespace-nowrap text-sm font-medium opacity-0 transition-all duration-300 ease-in-out group-hover:max-w-[100px] group-hover:pl-2 group-hover:opacity-100">
+                      Settings
+                    </span>
                   </Link>
                 </div>
               ) : null}
