@@ -50,7 +50,9 @@ import {
   markAllNotificationsRead,
   readAllNotificationsLocally,
   receiveLiveNotification,
+  removeLiveTask,
   resolveWorkspaceRole,
+  upsertLiveTask,
   useMockStore,
   useWorkspaceAccess,
 } from "./mockStore";
@@ -2232,12 +2234,33 @@ function Topbar({ onOpenSidebar }) {
 }
 
 export function AppShell({ children }) {
+  const params = useParams();
+  const pathname = usePathname();
+  const workspaceId =
+    typeof params?.workspaceId === "string" ? params.workspaceId : "";
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { currentUser, loaded, socketToken } = useMockStore((state) => ({
+  const socketRef = useRef(null);
+  const { currentUser, loaded, socketToken, projects } = useMockStore((state) => ({
     currentUser: state.currentUser || null,
     loaded: Boolean(state.loaded),
+    projects: state.projects || [],
     socketToken: String(state.socketToken || ""),
   }));
+  const workspaceProjects = useMemo(
+    () => projects.filter((project) => project.workspaceId === workspaceId),
+    [projects, workspaceId],
+  );
+  const { selectedProjectId } = useWorkspaceProjectSelection(
+    workspaceId,
+    workspaceProjects,
+  );
+  const taskWorkspaceId =
+    workspaceId &&
+    (pathname?.endsWith("/list") || pathname?.endsWith("/calender"))
+      ? workspaceId
+      : "";
+  const taskProjectId =
+    workspaceId && pathname?.endsWith("/board") ? selectedProjectId : "";
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -2275,18 +2298,65 @@ export function AppShell({ children }) {
       auth: { token: socketToken },
       transports: ["websocket"],
     });
+    socketRef.current = socket;
 
     // Add new notifications to the current list without a refresh.
     socket.on("notification:new", receiveLiveNotification);
     // Mirror read-all changes across open tabs instantly.
     socket.on("notification:read-all", readAllNotificationsLocally);
+    // Keep workspace-wide task lists in sync without a full reload.
+    socket.on("task:upsert", (task) => {
+      upsertLiveTask(task);
+      window.dispatchEvent(
+        new CustomEvent("zyplo-task-upsert", {
+          detail: task,
+        }),
+      );
+    });
+    // Remove deleted tasks from all open task views.
+    socket.on("task:deleted", (task) => {
+      removeLiveTask(task?.id);
+      window.dispatchEvent(
+        new CustomEvent("zyplo-task-deleted", {
+          detail: task,
+        }),
+      );
+    });
 
     return () => {
       socket.off("notification:new", receiveLiveNotification);
       socket.off("notification:read-all", readAllNotificationsLocally);
+      socket.off("task:upsert");
+      socket.off("task:deleted");
       socket.close();
+      if (socketRef.current === socket) socketRef.current = null;
     };
   }, [loaded, currentUser?.id, socketToken]);
+
+  useEffect(() => {
+    const socket = socketRef.current;
+    if (!socket) return;
+    if (!taskWorkspaceId && !taskProjectId) return;
+
+    // Listen only to the task rooms visible on the current page.
+    const subscription = {
+      workspaceId: taskWorkspaceId,
+      projectId: taskProjectId,
+    };
+
+    const subscribeToTasks = () => {
+      socket.emit("task:subscribe", subscription);
+    };
+
+    // Join task rooms once the socket exists and again after reconnects.
+    subscribeToTasks();
+    socket.on("connect", subscribeToTasks);
+
+    return () => {
+      socket.off("connect", subscribeToTasks);
+      socket.emit("task:unsubscribe", subscription);
+    };
+  }, [loaded, taskProjectId, taskWorkspaceId]);
 
 
   useEffect(() => {

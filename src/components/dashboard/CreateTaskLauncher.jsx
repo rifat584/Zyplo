@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
-import { loadDashboard, useMockStore } from "@/components/dashboard/mockStore";
+import { upsertLiveTask, useMockStore } from "@/components/dashboard/mockStore";
 import { useWorkspaceProjectSelection } from "@/components/dashboard/projectSelection";
 import CreateTaskModal from "@/components/board/CreateTaskModal";
 import { Button } from "@/components/ui/button";
@@ -149,7 +149,7 @@ export default function CreateTaskLauncher({
         method: "POST",
         body: JSON.stringify(payload),
       });
-      await loadDashboard({ force: true });
+      if (data?.task) upsertLiveTask(data.task);
       setOpen(false);
       onCreated?.(data?.task || null);
     } catch (error) {

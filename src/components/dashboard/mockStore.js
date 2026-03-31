@@ -118,6 +118,34 @@ export function useMockStore(selector) {
   return selector(snapshot);
 }
 
+// Add or replace one task in the shared dashboard store.
+export function upsertLiveTask(task) {
+  if (!task?.id) return;
+
+  const existingIndex = state.tasks.findIndex((item) => item.id === task.id);
+  if (existingIndex < 0) {
+    setState({ tasks: [task, ...state.tasks] });
+    return;
+  }
+
+  const nextTasks = [...state.tasks];
+  nextTasks[existingIndex] = {
+    ...nextTasks[existingIndex],
+    ...task,
+  };
+  setState({ tasks: nextTasks });
+}
+
+// Remove one task from the shared dashboard store.
+export function removeLiveTask(taskId) {
+  const nextTaskId = String(taskId || "");
+  if (!nextTaskId) return;
+
+  setState({
+    tasks: state.tasks.filter((task) => task.id !== nextTaskId),
+  });
+}
+
 export async function loadDashboard(options = {}) {
   const force = Boolean(options?.force);
   const silent = Boolean(options?.silent);
@@ -221,23 +249,34 @@ export async function createTask(payload) {
     method: "POST",
     body: JSON.stringify(payload),
   });
-  await loadDashboard({ force: true });
+  if (data?.task) upsertLiveTask(data.task);
   return data.task;
 }
 
 export async function updateTask(taskId, patch) {
+  const previousTask =
+    state.tasks.find((item) => item.id === String(taskId || "")) || null;
+
   try {
     const data = await request(`/api/dashboard/tasks/${taskId}`, {
       method: "PATCH",
       body: JSON.stringify(patch),
     });
-    await loadDashboard({ force: true });
+    if (data?.task) upsertLiveTask(data.task);
     return data.task;
   } catch (error) {
     // Some backend setups update the task but still return 404 "Task not found".
     if (error?.message === "Task not found") {
-      await loadDashboard({ force: true });
-      return state.tasks.find((item) => item.id === taskId) || null;
+      const fallbackTask = previousTask
+        ? {
+            ...previousTask,
+            ...patch,
+            updatedAt: new Date().toISOString(),
+          }
+        : null;
+
+      if (fallbackTask) upsertLiveTask(fallbackTask);
+      return fallbackTask;
     }
     throw error;
   }
