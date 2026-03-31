@@ -782,12 +782,27 @@ function GlobalTimerControl() {
   );
 }
 
+export function shouldMarkNotificationsRead({
+  open,
+  previousOpen,
+  unreadCount,
+  syncingReadState,
+}) {
+  return Boolean(
+    !open &&
+      previousOpen &&
+      unreadCount > 0 &&
+      !syncingReadState,
+  );
+}
+
 function NotificationsMenu() {
   const notifications = useMockStore((state) => state.notifications || []);
   const unreadCount = notifications.filter((item) => !item.read).length;
   const [open, setOpen] = useState(false);
   const [syncingReadState, setSyncingReadState] = useState(false);
   const rootRef = useRef(null);
+  const previousOpenRef = useRef(false);
 
   useEffect(() => {
     function onPointerDown(event) {
@@ -801,7 +816,19 @@ function NotificationsMenu() {
   }, []);
 
   useEffect(() => {
-    if (!open || unreadCount === 0 || syncingReadState) return;
+    const previousOpen = previousOpenRef.current;
+    previousOpenRef.current = open;
+
+    if (
+      !shouldMarkNotificationsRead({
+        open,
+        previousOpen,
+        unreadCount,
+        syncingReadState,
+      })
+    ) {
+      return;
+    }
 
     let active = true;
 
