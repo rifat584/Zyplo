@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
 import Board, { BoardSkeleton } from "@/components/board/Board";
 import {
   createProject,
@@ -43,6 +43,7 @@ export default function WorkspaceBoardPage() {
   const [newProjectKey, setNewProjectKey] = useState("");
   const [creatingProject, setCreatingProject] = useState(false);
   const [createError, setCreateError] = useState("");
+  const [kickstarting, setKickstarting] = useState(false); // AI State
   const firstProjectNameInputRef = useRef(null);
   const { isAdmin } = useWorkspaceAccess(workspaceId);
 
@@ -93,6 +94,44 @@ export default function WorkspaceBoardPage() {
       toast.error(message);
     } finally {
       setCreatingProject(false);
+    }
+  }
+
+ //  AI Kickstart Handler
+  async function handleAIKickstart() {
+    if (!selectedProjectId || kickstarting) return;
+    
+    try {
+      setKickstarting(true);
+      toast.loading("🤖 AI is analyzing project and building backlog...", { id: "ai-kickstart" });
+      
+      const response = await fetch(`/api/dashboard/tasks`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "x-silent-fetch": "true" 
+        },
+        body: JSON.stringify({ 
+          isAiKickstart: true, 
+          projectId: selectedProjectId 
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate AI tasks");
+      }
+
+      // 1. Force the global store to reload (Sidebar, Calendar, etc.)
+      await loadDashboard({ force: true, silent: true });
+      
+      // 2. Force the React Query cache to clear so the Board instantly renders the new tasks!
+      await queryClient.invalidateQueries();
+
+      toast.success("✨ Project Backlog Generated!", { id: "ai-kickstart" });
+    } catch (error) {
+      toast.error(error.message || "AI Generation failed.", { id: "ai-kickstart" });
+    } finally {
+      setKickstarting(false);
     }
   }
 
@@ -213,11 +252,27 @@ export default function WorkspaceBoardPage() {
       ) : null}
 
       {selectedProjectId ? (
-        <Board
-          key={selectedProjectId}
-          workspaceId={workspaceId}
-          projectId={selectedProjectId}
-        />
+        <div className="flex flex-col h-full">
+          {/* ✨ AI Kickstart Bar */}
+          <div className="flex items-center justify-end px-2 pt-4 pb-2">
+            <Button
+              onClick={handleAIKickstart}
+              disabled={kickstarting}
+              variant="outline"
+              size="sm"
+              className="gap-2 border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800 dark:border-indigo-900/50 dark:bg-indigo-900/20 dark:text-indigo-400 dark:hover:bg-indigo-900/40"
+            >
+              <Sparkles className="size-4" />
+              {kickstarting ? "AI is thinking..." : "AI Kickstart"}
+            </Button>
+          </div>
+
+          <Board
+            key={selectedProjectId}
+            workspaceId={workspaceId}
+            projectId={selectedProjectId}
+          />
+        </div>
       ) : null}
     </QueryClientProvider>
   );
