@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Plus, Sparkles } from "lucide-react";
+import { Plus } from "lucide-react";
 import Board, { BoardSkeleton } from "@/components/board/Board";
 import {
   createProject,
@@ -97,8 +97,8 @@ export default function WorkspaceBoardPage() {
     }
   }
 
- //  AI Kickstart Handler
-  async function handleAIKickstart() {
+  // --- AI Kickstart Handler (Triggered purely via the global listener now!) ---
+  const handleAIKickstart = useCallback(async () => {
     if (!selectedProjectId || kickstarting) return;
     
     try {
@@ -133,7 +133,21 @@ export default function WorkspaceBoardPage() {
     } finally {
       setKickstarting(false);
     }
-  }
+  }, [selectedProjectId, kickstarting, queryClient]);
+
+  // --- MAGIC LISTENER: Connects this page to the Topbar button in chrome.jsx ---
+  useEffect(() => {
+    const onGlobalKickstart = (e) => {
+      // Only trigger if the workspace matches and we aren't already generating
+      if (e.detail?.workspaceId === workspaceId && !kickstarting) {
+        handleAIKickstart();
+      }
+    };
+
+    window.addEventListener("zyplo-open-ai-kickstart", onGlobalKickstart);
+    return () => window.removeEventListener("zyplo-open-ai-kickstart", onGlobalKickstart);
+  }, [workspaceId, kickstarting, handleAIKickstart]);
+
 
   if (!workspaceId) {
     return (
@@ -252,21 +266,7 @@ export default function WorkspaceBoardPage() {
       ) : null}
 
       {selectedProjectId ? (
-        <div className="flex flex-col h-full">
-          {/* ✨ AI Kickstart Bar */}
-          <div className="flex items-center justify-end px-2 pt-4 pb-2">
-            <Button
-              onClick={handleAIKickstart}
-              disabled={kickstarting}
-              variant="outline"
-              size="sm"
-              className="gap-2 border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800 dark:border-indigo-900/50 dark:bg-indigo-900/20 dark:text-indigo-400 dark:hover:bg-indigo-900/40"
-            >
-              <Sparkles className="size-4" />
-              {kickstarting ? "AI is thinking..." : "AI Kickstart"}
-            </Button>
-          </div>
-
+        <div className="flex flex-col h-full relative">
           <Board
             key={selectedProjectId}
             workspaceId={workspaceId}
