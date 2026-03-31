@@ -404,11 +404,11 @@ export default function Board({ workspaceId, projectId }) {
     onSuccess: async (task) => {
       queryClient.setQueryData(boardQueryKey, (current) => {
         if (!current || !task) return current;
-        const nextColumns = (current.columns || []).map((column) => {
-          if (column.id !== task.columnId) return column;
-          return { ...column, tasks: [...(column.tasks || []), task] };
-        });
-        return { ...current, columns: normalizeColumns(nextColumns) };
+        return {
+          ...current,
+          // Reuse the live upsert path so socket echoes cannot duplicate the task.
+          columns: upsertTaskInColumns(current.columns || [], task),
+        };
       });
       setCreateOpen(false);
       toast.success("Task created");

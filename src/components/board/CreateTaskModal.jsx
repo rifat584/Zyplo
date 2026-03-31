@@ -160,7 +160,7 @@ export default function CreateTaskModal({
                 onChange={(event) =>
                   setForm((prev) => ({ ...prev, dueDate: event.target.value }))
                 }
-                className="h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className="h-10 w-full rounded-xl border border-border bg-surface px-3 text-sm text-foreground outline-none transition [color-scheme:light] dark:[color-scheme:dark] focus:border-primary focus:ring-2 focus:ring-primary/20"
               />
             </div>
 
