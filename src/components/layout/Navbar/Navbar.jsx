@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown, Sun, Moon } from "lucide-react";
+import { Menu, X, ChevronDown, Sun, Moon, Search } from "lucide-react";
 import ResourcesMenu from "./ResourcesMenu/ResourcesMenu";
 import { useTheme } from "@/Context/ThemeContext";
 import Logo from "@/components/Shared/Logo/Logo";
@@ -17,6 +17,9 @@ const Navbar = () => {
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const [mobileResourcesOpen, setMobileResourcesOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  
+  // OS State for the ⌘ vs Ctrl badge
+  const [isMac, setIsMac] = useState(false);
 
   const pathname = usePathname();
   const dropdownRef = useRef(null);
@@ -26,14 +29,11 @@ const Navbar = () => {
   const isAuthenticated = session.status === "authenticated";
   const [profile, setProfile] = useState(null);
 
-  // Theme state
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   const isPathActive = (path) => {
-    if (path === "/") {
-      return pathname === "/";
-    }
+    if (path === "/") return pathname === "/";
     return pathname === path || pathname.startsWith(`${path}/`);
   };
 
@@ -53,7 +53,6 @@ const Navbar = () => {
         : "text-foreground hover:text-secondary",
     );
 
-  // Close mega menu and profile menu on outside click
   useEffect(() => {
     const handler = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -67,27 +66,25 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Prevent hydration mismatch for theme toggle
   useEffect(() => {
     const frameId = requestAnimationFrame(() => {
       setMounted(true);
+      if (typeof window !== "undefined") {
+        setIsMac(navigator.platform.toUpperCase().indexOf("MAC") >= 0);
+      }
     });
-
     return () => cancelAnimationFrame(frameId);
   }, []);
 
   useEffect(() => {
     let cancelled = false;
-
     async function loadProfile() {
       if (!isAuthenticated) {
         setProfile(null);
         return;
       }
       try {
-        const res = await fetch("/api/dashboard/profile", {
-          cache: "no-store",
-        });
+        const res = await fetch("/api/dashboard/profile", { cache: "no-store" });
         const text = await res.text();
         const data = text ? JSON.parse(text) : null;
         if (!res.ok || !data?.currentUser) return;
@@ -96,11 +93,8 @@ const Navbar = () => {
         // keep session fallback
       }
     }
-
     loadProfile();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [isAuthenticated]);
 
   const closeAllMobile = () => {
@@ -110,9 +104,7 @@ const Navbar = () => {
   };
 
   const toggleMobileMenu = () => {
-    if (isOpen) {
-      setMobileResourcesOpen(false);
-    }
+    if (isOpen) setMobileResourcesOpen(false);
     setIsOpen((prev) => !prev);
   };
 
@@ -120,51 +112,45 @@ const Navbar = () => {
     setTheme(theme === "light" ? "dark" : "light");
   };
 
+  // =========================================================================
+  // 🚀 Simulate Ctrl+K to open your existing global modal
+  // =========================================================================
+  const openGlobalSearch = () => {
+    document.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "k",
+        metaKey: true, // Simulates Cmd for Mac
+        ctrlKey: true, // Simulates Ctrl for Windows
+        bubbles: true,
+      })
+    );
+  };
+
   const displayName = profile?.name || session.data?.user?.name || "User";
   const displayEmail = profile?.email || session.data?.user?.email || "";
-  const displayAvatarUrl =
-    profile?.avatarUrl || session.data?.user?.image || "";
+  const displayAvatarUrl = profile?.avatarUrl || session.data?.user?.image || "";
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/70 bg-background/78 backdrop-blur-xl transition-colors duration-300 supports-[backdrop-filter]:bg-background/72">
       <div className="mx-auto flex h-[4.25rem] max-w-7xl items-center justify-between px-4 sm:px-6">
+        
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <Logo
-            textSize="2xl md:3xl"
-            size={45}
-            imageClassName="max-md:h-9 max-md:w-9"
-          />
+          <Logo textSize="2xl md:3xl" size={45} imageClassName="max-md:h-9 max-md:w-9 shrink-0" />
         </Link>
 
         {/* Desktop Links */}
-        <div
-          className="relative hidden items-center gap-1.5 md:flex"
-          ref={dropdownRef}
-        >
-          <Link
-            href="/"
-            onClick={() => setResourcesOpen(false)}
-            className={getDesktopLinkClass("/")}
-          >
+        <div className="relative hidden items-center gap-1.5 md:flex shrink-0" ref={dropdownRef}>
+          <Link href="/" onClick={() => setResourcesOpen(false)} className={getDesktopLinkClass("/")}>
             Home
           </Link>
-          <Link
-            href="/pricing"
-            onClick={() => setResourcesOpen(false)}
-            className={getDesktopLinkClass("/pricing")}
-          >
+          <Link href="/pricing" onClick={() => setResourcesOpen(false)} className={getDesktopLinkClass("/pricing")}>
             Pricing
           </Link>
-          <Link
-            href="/blog"
-            onClick={() => setResourcesOpen(false)}
-            className={getDesktopLinkClass("/blog")}
-          >
+          <Link href="/blog" onClick={() => setResourcesOpen(false)} className={getDesktopLinkClass("/blog")}>
             Blog
           </Link>
 
-          {/* Resources Button (Click only) */}
           <button
             onClick={() => setResourcesOpen((p) => !p)}
             className={cn(
@@ -174,13 +160,9 @@ const Navbar = () => {
             )}
           >
             Resources
-            <ChevronDown
-              size={16}
-              className={`transition-transform duration-200 ${resourcesOpen ? "rotate-180" : ""}`}
-            />
+            <ChevronDown size={16} className={`transition-transform duration-200 ${resourcesOpen ? "rotate-180" : ""}`} />
           </button>
 
-          {/* Mega Menu */}
           <ResourcesMenu
             resources={resources}
             resourcesOpen={resourcesOpen}
@@ -193,113 +175,89 @@ const Navbar = () => {
 
         {/* Right Actions */}
         <div className="flex items-center gap-2.5 sm:gap-3">
+          
+          {/* --- Desktop Search Bar (Visible to ALL users on md+ screens) --- */}
+          <button
+            onClick={openGlobalSearch}
+            className="group hidden md:flex items-center justify-between gap-2 rounded-lg border border-border/75 bg-muted/50 px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-border hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-secondary/50 w-40 lg:w-64 shrink-0"
+          >
+            <div className="flex items-center gap-2 overflow-hidden">
+              <Search size={15} className="opacity-70 shrink-0" />
+              <span className="truncate">Search...</span>
+            </div>
+            {mounted && (
+              <kbd className="pointer-events-none hidden lg:inline-flex h-5 select-none items-center gap-1 rounded border border-border bg-background px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-70 group-hover:opacity-100 transition-opacity shrink-0">
+                <span className="text-xs">{isMac ? "⌘" : "Ctrl"}</span>K
+              </kbd>
+            )}
+          </button>
+
+          {/* --- Mobile Search Icon (Visible to ALL users on small screens) --- */}
+          <button
+            onClick={openGlobalSearch}
+            className="flex md:hidden h-9 w-9 items-center justify-center rounded-full border border-border/75 bg-card/80 text-muted-foreground shadow-sm transition-colors hover:border-primary/20 hover:bg-card hover:text-foreground focus:outline-none focus:ring-2 focus:ring-secondary/50 shrink-0"
+            aria-label="Search"
+          >
+            <Search size={16} />
+          </button>
+
           {/* --- Theme Toggle --- */}
           {mounted && (
             <button
               onClick={toggleTheme}
-              className="relative flex h-9 w-9 items-center justify-center rounded-full border border-border/75 bg-card/80 text-muted-foreground shadow-sm transition-colors duration-300 hover:border-primary/20 hover:bg-card hover:text-foreground cursor-pointer"
+              className="relative flex h-9 w-9 items-center justify-center rounded-full border border-border/75 bg-card/80 text-muted-foreground shadow-sm transition-colors duration-300 hover:border-primary/20 hover:bg-card hover:text-foreground cursor-pointer shrink-0"
               aria-label="Toggle theme"
             >
-              {theme === "light" ? (
-                <Moon size={16} className="text-current" />
-              ) : (
-                <Sun size={16} className="text-current" />
-              )}
+              {theme === "light" ? <Moon size={16} className="text-current" /> : <Sun size={16} className="text-current" />}
             </button>
           )}
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-2 lg:gap-4 shrink-0">
             {!isAuthenticated ? (
               <>
-                <Button
-                  as={Link}
-                  href="/login"
-                  variant="marketing-outline"
-                  size="sm"
-                  className="min-w-[6.75rem] hover:translate-y-0"
-                >
+                <Button as={Link} href="/login" variant="marketing-outline" size="sm" className="min-w-[5rem] lg:min-w-[6.75rem] hover:translate-y-0">
                   Sign in
                 </Button>
-                <Button
-                  as={Link}
-                  href="/register"
-                  variant="marketing"
-                  size="sm"
-                  className="min-w-[8rem]"
-                >
+                <Button as={Link} href="/register" variant="marketing" size="sm" className="min-w-[6rem] lg:min-w-[8rem]">
                   Get started
                 </Button>
               </>
             ) : (
-              <>
-                {/* --- Profile Dropdown (Desktop) --- */}
-                <div className="relative" ref={profileRef}>
-                  <button
-                    onClick={() => setProfileOpen(!profileOpen)}
-                    className="flex items-center gap-2 outline-none"
-                  >
-                    <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-bold text-primary dark:bg-primary/20 dark:text-primary hover:ring-2 hover:ring-primary/50 transition-all cursor-pointer">
-                      {displayAvatarUrl ? (
-                        <img
-                          src={displayAvatarUrl}
-                          alt={displayName}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <span>
-                          {(displayName?.charAt(0) || "U").toUpperCase()}
-                        </span>
-                      )}
+              <div className="relative" ref={profileRef}>
+                <button onClick={() => setProfileOpen(!profileOpen)} className="flex items-center gap-2 outline-none">
+                  <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-bold text-primary dark:bg-primary/20 dark:text-primary hover:ring-2 hover:ring-primary/50 transition-all cursor-pointer">
+                    {displayAvatarUrl ? (
+                      <img src={displayAvatarUrl} alt={displayName} className="h-full w-full object-cover" />
+                    ) : (
+                      <span>{(displayName?.charAt(0) || "U").toUpperCase()}</span>
+                    )}
+                  </div>
+                </button>
+
+                {profileOpen && (
+                  <div className="absolute right-0 top-12 z-30 w-56 rounded-xl border border-border bg-popover p-2 text-popover-foreground shadow-lg">
+                    <div className="mb-2 border-b border-border pb-2 px-2">
+                      <p className="text-sm font-medium text-foreground truncate">{displayName}</p>
+                      <p className="text-xs text-muted-foreground truncate">{displayEmail}</p>
                     </div>
-                  </button>
-
-                  {profileOpen ? (
-                    <div className="absolute right-0 top-12 z-30 w-56 rounded-xl border border-border bg-popover p-2 text-popover-foreground shadow-lg">
-                      <div className="mb-2 border-b border-border pb-2 px-2">
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {displayName}
-                        </p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {displayEmail}
-                        </p>
-                      </div>
-
-                      <div className="flex flex-col gap-1">
-                        <Link
-                          href="/dashboard"
-                          onClick={() => setProfileOpen(false)}
-                          className="flex w-full items-center rounded-md border-l-2 border-transparent px-2 py-2 text-left text-sm font-medium text-foreground transition-colors hover:border-l-secondary/45 hover:text-secondary"
-                        >
-                          Dashboard
-                        </Link>
-                        <Link
-                          href="/dashboard/profile"
-                          onClick={() => setProfileOpen(false)}
-                          className="flex w-full items-center rounded-md border-l-2 border-transparent px-2 py-2 text-left text-sm font-medium text-foreground transition-colors hover:border-l-secondary/45 hover:text-secondary"
-                        >
-                          Profile
-                        </Link>
-
-                        <button
-                          type="button"
-                          onClick={() => signOut({ callbackUrl: "/login" })}
-                          className="w-full rounded-lg border border-destructive/20 bg-destructive/6 px-2 py-2 text-left text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
-                        >
-                          Sign out
-                        </button>
-                      </div>
+                    <div className="flex flex-col gap-1">
+                      <Link href="/dashboard" onClick={() => setProfileOpen(false)} className="flex w-full items-center rounded-md border-l-2 border-transparent px-2 py-2 text-left text-sm font-medium text-foreground transition-colors hover:border-l-secondary/45 hover:text-secondary">
+                        Dashboard
+                      </Link>
+                      <Link href="/dashboard/profile" onClick={() => setProfileOpen(false)} className="flex w-full items-center rounded-md border-l-2 border-transparent px-2 py-2 text-left text-sm font-medium text-foreground transition-colors hover:border-l-secondary/45 hover:text-secondary">
+                        Profile
+                      </Link>
+                      <button type="button" onClick={() => signOut({ callbackUrl: "/login" })} className="w-full rounded-lg border border-destructive/20 bg-destructive/6 px-2 py-2 text-left text-sm font-medium text-destructive transition-colors hover:bg-destructive/10">
+                        Sign out
+                      </button>
                     </div>
-                  ) : null}
-                </div>
-              </>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
-          {/* Mobile Toggle */}
-          <button
-            onClick={toggleMobileMenu}
-            className="rounded-full border border-border/75 bg-card/75 p-2 text-muted-foreground shadow-sm transition-colors hover:border-secondary/20 hover:bg-card hover:text-foreground md:hidden"
-          >
+          <button onClick={toggleMobileMenu} className="rounded-full border border-border/75 bg-card/75 p-2 text-muted-foreground shadow-sm transition-colors hover:border-secondary/20 hover:bg-card hover:text-foreground md:hidden shrink-0">
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
@@ -310,136 +268,53 @@ const Navbar = () => {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="max-h-[calc(100vh-4rem)] overflow-y-auto overscroll-contain border-t border-border/70 bg-background/96 px-6 py-4 shadow-xl backdrop-blur-xl md:hidden">
-            {/* Top Links */}
-            <div className="flex flex-col space-y-2">
-              <Link
-                href="/"
-                onClick={closeAllMobile}
-                className={getMobileLinkClass("/")}
-              >
-                Home
-              </Link>
-              <Link
-                href="/pricing"
-                onClick={closeAllMobile}
-                className={getMobileLinkClass("/pricing")}
-              >
-                Pricing
-              </Link>
-              <Link
-                href="/blog"
-                onClick={closeAllMobile}
-                className={getMobileLinkClass("/blog")}
-              >
-                Blog
-              </Link>
+          <div className="flex flex-col space-y-2">
+            <Link href="/" onClick={closeAllMobile} className={getMobileLinkClass("/")}>Home</Link>
+            <Link href="/pricing" onClick={closeAllMobile} className={getMobileLinkClass("/pricing")}>Pricing</Link>
+            <Link href="/blog" onClick={closeAllMobile} className={getMobileLinkClass("/blog")}>Blog</Link>
 
-              {/* Resources Toggle */}
-              <button
-                onClick={() => setMobileResourcesOpen((p) => !p)}
-                className={cn(
-                  "flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors",
-                  mobileResourcesOpen || isPathActive("/resources")
-                    ? "border-secondary/20 bg-secondary/10 text-secondary"
-                    : "border-transparent text-foreground hover:border-border hover:bg-card/85 hover:text-secondary",
-                )}
-              >
-                Resources
-                <ChevronDown
-                  size={16}
-                  className={`${mobileResourcesOpen ? "rotate-180" : ""} transition-transform`}
-                />
-              </button>
-
-              <ResourcesMenu
-                resources={resources}
-                resourcesOpen={false}
-                setResourcesOpen={() => {}}
-                mobileResourcesOpen={mobileResourcesOpen}
-                setMobileResourcesOpen={setMobileResourcesOpen}
-                closeAll={closeAllMobile}
-              />
-            </div>
-
-            {/* Divider */}
-            <div className="flex flex-col gap-3 border-t border-border pt-4">
-              {!isAuthenticated ? (
-                <>
-                  <Button
-                    as={Link}
-                    href="/login"
-                    onClick={closeAllMobile}
-                    variant="marketing-outline"
-                    size="sm"
-                    className="w-full hover:translate-y-0"
-                  >
-                    Sign in
-                  </Button>
-                  <Button
-                    as={Link}
-                    href="/register"
-                    onClick={closeAllMobile}
-                    variant="marketing"
-                    size="sm"
-                    className="w-full"
-                  >
-                    Get started
-                  </Button>
-                </>
-              ) : (
-                <>
-                  {/* Dashboard (Mobile) */}
-                  <Link
-                    href="/dashboard"
-                    onClick={closeAllMobile}
-                    className="flex w-full items-center rounded-md border-l-2 border-transparent px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-l-secondary/45 hover:text-secondary"
-                  >
-                    Dashboard
-                  </Link>
-                  <Link
-                    href="/dashboard/profile"
-                    onClick={closeAllMobile}
-                    className="flex w-full items-center rounded-md border-l-2 border-transparent px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-l-secondary/45 hover:text-secondary"
-                  >
-                    Profile
-                  </Link>
-
-                  {/* Mobile User Info & Logout */}
-                  <div className="mt-2 px-3 py-2">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-bold text-primary dark:bg-primary/20 dark:text-primary">
-                        {displayAvatarUrl ? (
-                          <img
-                            src={displayAvatarUrl}
-                            alt={displayName}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <span>
-                            {(displayName?.charAt(0) || "U").toUpperCase()}
-                          </span>
-                        )}
-                      </div>
-                      <div className="overflow-hidden">
-                        <p className="truncate text-sm font-medium text-foreground">
-                          {displayName}
-                        </p>
-                        <p className="truncate text-xs text-muted-foreground">
-                          {displayEmail}
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => signOut({ callbackUrl: "/login" })}
-                      className="mt-3 w-full rounded-lg border border-destructive/20 bg-destructive/6 py-2 text-center text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
-                    >
-                      Sign out
-                    </button>
-                  </div>
-                </>
+            <button
+              onClick={() => setMobileResourcesOpen((p) => !p)}
+              className={cn(
+                "flex w-full items-center justify-between rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors",
+                mobileResourcesOpen || isPathActive("/resources") ? "border-secondary/20 bg-secondary/10 text-secondary" : "border-transparent text-foreground hover:border-border hover:bg-card/85 hover:text-secondary"
               )}
-            </div>
+            >
+              Resources
+              <ChevronDown size={16} className={`${mobileResourcesOpen ? "rotate-180" : ""} transition-transform`} />
+            </button>
+
+            <ResourcesMenu resources={resources} resourcesOpen={false} setResourcesOpen={() => {}} mobileResourcesOpen={mobileResourcesOpen} setMobileResourcesOpen={setMobileResourcesOpen} closeAll={closeAllMobile} />
+          </div>
+
+          <div className="flex flex-col gap-3 border-t border-border pt-4">
+            {!isAuthenticated ? (
+              <>
+                <Button as={Link} href="/login" onClick={closeAllMobile} variant="marketing-outline" size="sm" className="w-full hover:translate-y-0">Sign in</Button>
+                <Button as={Link} href="/register" onClick={closeAllMobile} variant="marketing" size="sm" className="w-full">Get started</Button>
+              </>
+            ) : (
+              <>
+                <Link href="/dashboard" onClick={closeAllMobile} className="flex w-full items-center rounded-md border-l-2 border-transparent px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-l-secondary/45 hover:text-secondary">Dashboard</Link>
+                <Link href="/dashboard/profile" onClick={closeAllMobile} className="flex w-full items-center rounded-md border-l-2 border-transparent px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-l-secondary/45 hover:text-secondary">Profile</Link>
+
+                <div className="mt-2 px-3 py-2">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-sm font-bold text-primary dark:bg-primary/20 dark:text-primary">
+                      {displayAvatarUrl ? <img src={displayAvatarUrl} alt={displayName} className="h-full w-full object-cover" /> : <span>{(displayName?.charAt(0) || "U").toUpperCase()}</span>}
+                    </div>
+                    <div className="overflow-hidden">
+                      <p className="truncate text-sm font-medium text-foreground">{displayName}</p>
+                      <p className="truncate text-xs text-muted-foreground">{displayEmail}</p>
+                    </div>
+                  </div>
+                  <button type="button" onClick={() => signOut({ callbackUrl: "/login" })} className="mt-3 w-full rounded-lg border border-destructive/20 bg-destructive/6 py-2 text-center text-sm font-medium text-destructive transition-colors hover:bg-destructive/10">
+                    Sign out
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
     </nav>
