@@ -2311,8 +2311,6 @@ export function AppShell({ children }) {
     typeof params?.workspaceId === "string" ? params.workspaceId : "";
   const [mobileOpen, setMobileOpen] = useState(false);
   const socketRef = useRef(null);
-  const hasSocketConnectedRef = useRef(false);
-  const lastTaskProjectIdRef = useRef("");
   const { currentUser, loaded, socketToken, projects } = useMockStore((state) => ({
     currentUser: state.currentUser || null,
     loaded: Boolean(state.loaded),
@@ -2327,14 +2325,13 @@ export function AppShell({ children }) {
     workspaceId,
     workspaceProjects,
   );
-  const taskWorkspaceId = "";
-  const taskProjectId =
+  const taskWorkspaceId =
     workspaceId &&
-    (pathname?.endsWith("/board") ||
-      pathname?.endsWith("/list") ||
-      pathname?.endsWith("/calender"))
-      ? selectedProjectId
+    (pathname?.endsWith("/list") || pathname?.endsWith("/calender"))
+      ? workspaceId
       : "";
+  const taskProjectId =
+    workspaceId && pathname?.endsWith("/board") ? selectedProjectId : "";
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -2373,7 +2370,6 @@ export function AppShell({ children }) {
       transports: ["websocket"],
     });
     socketRef.current = socket;
-    hasSocketConnectedRef.current = false;
 
     // Add new notifications to the current list without a refresh.
     socket.on("notification:new", receiveLiveNotification);
@@ -2404,7 +2400,6 @@ export function AppShell({ children }) {
       socket.off("task:upsert");
       socket.off("task:deleted");
       socket.close();
-      hasSocketConnectedRef.current = false;
       if (socketRef.current === socket) socketRef.current = null;
     };
   }, [loaded, currentUser?.id, socketToken]);
@@ -2414,52 +2409,25 @@ export function AppShell({ children }) {
     if (!socket) return;
     if (!taskWorkspaceId && !taskProjectId) return;
 
-    // Listen only to the current project's task room.
+    // Listen only to the task rooms visible on the current page.
     const subscription = {
       workspaceId: taskWorkspaceId,
       projectId: taskProjectId,
     };
-    const shouldSyncOnProjectChange =
-      Boolean(lastTaskProjectIdRef.current) &&
-      lastTaskProjectIdRef.current !== taskProjectId;
 
-    const syncProjectState = () => {
-      loadDashboard({ force: true, silent: true, preserveSocketToken: true })
-        .catch(() => {})
-        .finally(() => {
-          window.dispatchEvent(
-            new CustomEvent("zyplo-project-resync", {
-              detail: { projectId: taskProjectId },
-            }),
-          );
-        });
+    const subscribeToTasks = () => {
+      socket.emit("task:subscribe", subscription);
     };
 
-    const subscribeToTasks = (shouldSync = false) => {
-      socket.emit("task:subscribe", subscription, () => {
-        lastTaskProjectIdRef.current = taskProjectId;
-        if (shouldSync) syncProjectState();
-      });
-    };
-
-    const handleConnect = () => {
-      const shouldSyncOnReconnect = hasSocketConnectedRef.current;
-      hasSocketConnectedRef.current = true;
-      subscribeToTasks(shouldSyncOnReconnect || shouldSyncOnProjectChange);
-    };
-
-    if (socket.connected) {
-      subscribeToTasks(shouldSyncOnProjectChange);
-    }
-
-    // Rejoin the current project after reconnects and resync once.
-    socket.on("connect", handleConnect);
+    // Join task rooms once the socket exists and again after reconnects.
+    subscribeToTasks();
+    socket.on("connect", subscribeToTasks);
 
     return () => {
-      socket.off("connect", handleConnect);
+      socket.off("connect", subscribeToTasks);
       socket.emit("task:unsubscribe", subscription);
     };
-  }, [loaded, socketToken, taskProjectId, taskWorkspaceId]);
+  }, [loaded, taskProjectId, taskWorkspaceId]);
 
 
   useEffect(() => {
