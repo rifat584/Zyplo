@@ -1,8 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import Logo from "@/components/Shared/Logo/Logo";
 import Link from "next/link";
 import { FaFacebookF, FaLinkedinIn, FaGithub } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
+import { toast, Toaster } from "sonner";
 
 const quickLinks = [
   { href: "/", label: "Home" },
@@ -28,104 +32,161 @@ const socialLinks = [
 ];
 
 export default function Footer() {
+  const [email, setEmail] = useState("");
+
+  const handleSubscribe = async (event) => {
+    event.preventDefault();
+
+    try {
+      const baseUrl = (process.env.NEXT_PUBLIC_BACKEND_URL || "").replace(
+        /\/+$/,
+        ""
+      );
+
+      if (!baseUrl) {
+        throw new Error("Backend URL is not configured.");
+      }
+
+      const response = await fetch(`${baseUrl}/subscriber`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+
+      const text = await response.text();
+      let data = null;
+
+      try {
+        data = text ? JSON.parse(text) : null;
+      } catch {
+        data = text;
+      }
+
+      if (!response.ok) {
+        throw new Error(data?.message || "Failed to subscribe.");
+      }
+
+      toast.success("Subscribed successfully");
+      setEmail("");
+    } catch (error) {
+      toast.error(error?.message || "Failed to subscribe.");
+    }
+  };
+
   return (
-    <footer className="relative overflow-hidden border-t border-border/70 bg-card/80 pt-[4.5rem] pb-6 text-card-foreground backdrop-blur-sm">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-linear-to-b from-secondary/8 to-transparent" />
+    <>
+      <Toaster position="top-right" richColors />
 
-      <div className="mx-auto max-w-7xl px-6">
-        {/* Top Grid */}
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-[1.15fr_0.7fr_0.95fr_1.1fr]">
-          {/* Brand */}
-          <div className="relative">
-            <Link href="/" className="mb-4 inline-flex items-center">
-              <Logo showText textSize="3xl" size={44} className="-ml-1" />
-            </Link>
+      <footer className="relative overflow-hidden border-t border-border/70 bg-card/80 pt-[4.5rem] pb-6 text-card-foreground backdrop-blur-sm">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-linear-to-b from-secondary/8 to-transparent" />
 
-            <p className="marketing-copy mb-6 max-w-sm leading-relaxed">
-              Zyplo is a powerful project management platform built to help
-              teams plan smarter, collaborate better, and deliver faster.
-            </p>
+        <div className="mx-auto max-w-7xl px-6">
+          {/* Top Grid */}
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-[1.15fr_0.7fr_0.95fr_1.1fr]">
+            {/* Brand */}
+            <div className="relative">
+              <Link href="/" className="mb-4 inline-flex items-center">
+                <Logo showText textSize="3xl" size={44} className="-ml-1" />
+              </Link>
 
-            {/* Social Icons */}
-            <div className="flex gap-3">
-              {socialLinks.map(({ href, label, icon: Icon }) => (
-                <Link
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="rounded-full border border-border/80 bg-background/80 p-3 text-muted-foreground shadow-sm transition-colors hover:border-primary/25 hover:bg-card hover:text-primary"
+              <p className="marketing-copy mb-6 max-w-sm leading-relaxed">
+                Zyplo is a powerful project management platform built to help
+                teams plan smarter, collaborate better, and deliver faster.
+              </p>
+
+              {/* Social Icons */}
+              <div className="flex gap-3">
+                {socialLinks.map(({ href, label, icon: Icon }) => (
+                  <Link
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={label}
+                    className="rounded-full border border-border/80 bg-background/80 p-3 text-muted-foreground shadow-sm transition-colors hover:border-primary/25 hover:bg-card hover:text-primary"
+                  >
+                    <Icon size={14} />
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h4 className="marketing-subtle mb-4 text-sm font-semibold uppercase tracking-wide">
+                Quick Links
+              </h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                {quickLinks.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="transition-colors hover:text-primary"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Resources */}
+            <div>
+              <h4 className="marketing-subtle mb-4 text-sm font-semibold uppercase tracking-wide">
+                Resources
+              </h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                {resourceLinks.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="transition-colors hover:text-primary"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Newsletter */}
+            <div className="rounded-3xl border border-border/80 bg-background/75 p-5 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.35)]">
+              <h4 className="marketing-subtle mb-3 text-sm font-semibold uppercase tracking-wide">
+                Stay Updated
+              </h4>
+              <p className="marketing-copy mb-3 max-w-sm text-sm leading-6">
+                Get product updates and productivity tips directly in your
+                inbox.
+              </p>
+
+              <form className="flex flex-col gap-3" onSubmit={handleSubscribe}>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="Enter your email"
+                  className="h-11 w-full rounded-xl border border-border bg-card px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  required
+                />
+                <Button
+                  type="submit"
+                  variant="marketing"
+                  size="sm"
+                  className="h-11 w-full px-5"
                 >
-                  <Icon size={14} />
-                </Link>
-              ))}
+                  Subscribe
+                </Button>
+              </form>
             </div>
           </div>
 
-          <div>
-            <h4 className="marketing-subtle mb-4 text-sm font-semibold uppercase tracking-wide">
-              Quick Links
-            </h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              {quickLinks.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="transition-colors hover:text-primary">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div>
-            <h4 className="marketing-subtle mb-4 text-sm font-semibold uppercase tracking-wide">
-              Resources
-            </h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              {resourceLinks.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="transition-colors hover:text-primary">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Newsletter */}
-          <div className="rounded-3xl border border-border/80 bg-background/75 p-5 shadow-[0_18px_40px_-32px_rgba(15,23,42,0.35)]">
-            <h4 className="marketing-subtle mb-3 text-sm font-semibold uppercase tracking-wide">
-              Stay Updated
-            </h4>
-            <p className="marketing-copy mb-3 max-w-sm text-sm leading-6">
-              Get product updates and productivity tips directly in your inbox.
-            </p>
-
-            <div className="flex flex-col gap-3">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="h-11 w-full rounded-xl border border-border bg-card px-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20"
-              />
-              <Button
-                type="button"
-                variant="marketing"
-                size="sm"
-                className="h-11 w-full px-5"
-              >
-                Subscribe
-              </Button>
-            </div>
+          {/* Bottom */}
+          <div className="marketing-subtle mt-14 border-t border-border/80 pt-6 text-center text-sm">
+            <p>&copy; {new Date().getFullYear()} Zyplo. All rights reserved.</p>
           </div>
         </div>
-
-        {/* Bottom */}
-        <div className="marketing-subtle mt-14 border-t border-border/80 pt-6 text-center text-sm">
-          <p>© {new Date().getFullYear()} Zyplo. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
+      </footer>
+    </>
   );
 }
