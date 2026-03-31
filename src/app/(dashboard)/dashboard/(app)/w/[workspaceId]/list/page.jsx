@@ -7,6 +7,7 @@ import {
   upsertLiveTask,
   useMockStore,
 } from "@/components/dashboard/mockStore";
+import { useWorkspaceProjectSelection } from "@/components/dashboard/projectSelection";
 import CreateTaskLauncher from "@/components/dashboard/CreateTaskLauncher";
 import { toast } from "sonner";
 import TaskDetailsModal from "@/components/board/TaskDetailsModal";
@@ -273,14 +274,17 @@ export default function TaskListView() {
   const workspaceId =
     typeof params.workspaceId === "string" ? params.workspaceId : "";
 
-  const { allTasks, workspaceMembers, loaded, loading } = useMockStore((state) => ({
-    allTasks: state.tasks || [],
-    workspaceMembers:
-      (state.workspaces || []).find((workspace) => workspace.id === workspaceId)
-        ?.members || [],
-    loaded: Boolean(state.loaded),
-    loading: Boolean(state.loading),
-  }));
+  const { allTasks, projects, workspaceMembers, loaded, loading } = useMockStore(
+    (state) => ({
+      allTasks: state.tasks || [],
+      projects: state.projects || [],
+      workspaceMembers:
+        (state.workspaces || []).find((workspace) => workspace.id === workspaceId)
+          ?.members || [],
+      loaded: Boolean(state.loaded),
+      loading: Boolean(state.loading),
+    }),
+  );
 
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -319,7 +323,19 @@ export default function TaskListView() {
     dueDate: "",
   });
 
-  const workspaceTasks = allTasks.filter((t) => t.workspaceId === workspaceId);
+  const workspaceProjects = useMemo(
+    () => projects.filter((project) => project.workspaceId === workspaceId),
+    [projects, workspaceId],
+  );
+  const { selectedProject, selectedProjectId } = useWorkspaceProjectSelection(
+    workspaceId,
+    workspaceProjects,
+  );
+  const workspaceTasks = allTasks.filter((task) => {
+    if (task.workspaceId !== workspaceId) return false;
+    if (!selectedProjectId) return false;
+    return String(task.projectId || "") === selectedProjectId;
+  });
   const actionColSpan =
     3 +
     Number(visibleCols.status) +
@@ -688,10 +704,10 @@ export default function TaskListView() {
       <div className={`flex flex-col ${listHeaderClass}`}>
         <div className="px-6 py-4">
           <h2 className="text-lg font-semibold text-foreground">
-            All Tasks
+            {selectedProject?.name || "Project Tasks"}
           </h2>
           <p className="text-sm text-muted-foreground">
-            {workspaceTasks.length} tasks in this workspace
+            {workspaceTasks.length} tasks in this project
           </p>
         </div>
 

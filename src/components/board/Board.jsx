@@ -380,6 +380,19 @@ export default function Board({ workspaceId, projectId }) {
     };
   }, [boardQueryKey, projectId, queryClient]);
 
+  useEffect(() => {
+    function handleProjectResync(event) {
+      if (String(event?.detail?.projectId || "") !== String(projectId)) return;
+
+      // Refresh the board after reconnects or project switches.
+      queryClient.invalidateQueries({ queryKey: boardQueryKey }).catch(() => {});
+    }
+
+    window.addEventListener("zyplo-project-resync", handleProjectResync);
+    return () =>
+      window.removeEventListener("zyplo-project-resync", handleProjectResync);
+  }, [boardQueryKey, projectId, queryClient]);
+
   const createTaskMutation = useMutation({
     mutationFn: async (payload) => {
       const data = await fetchJson("/api/dashboard/tasks", {

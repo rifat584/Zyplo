@@ -149,6 +149,7 @@ export function removeLiveTask(taskId) {
 export async function loadDashboard(options = {}) {
   const force = Boolean(options?.force);
   const silent = Boolean(options?.silent);
+  const preserveSocketToken = Boolean(options?.preserveSocketToken);
 
   if (state.loading && pendingLoad) {
     if (!force) return pendingLoad;
@@ -166,7 +167,11 @@ export async function loadDashboard(options = {}) {
       const nextState = {
         ...data,
         loaded: true,
-        socketToken: String(data?.socketToken || ""),
+        // Keep the current socket token during silent resyncs.
+        socketToken:
+          preserveSocketToken && state.socketToken
+            ? state.socketToken
+            : String(data?.socketToken || ""),
       };
       if (!silent) nextState.loading = false;
       setState(nextState);
