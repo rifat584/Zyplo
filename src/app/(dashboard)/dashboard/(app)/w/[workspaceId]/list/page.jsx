@@ -2,7 +2,11 @@
 
 import { useParams } from "next/navigation";
 import { useState, useMemo, useRef } from "react";
-import { useMockStore, loadDashboard } from "@/components/dashboard/mockStore";
+import {
+  removeLiveTask,
+  upsertLiveTask,
+  useMockStore,
+} from "@/components/dashboard/mockStore";
 import CreateTaskLauncher from "@/components/dashboard/CreateTaskLauncher";
 import { toast } from "sonner";
 import TaskDetailsModal from "@/components/board/TaskDetailsModal";
@@ -449,18 +453,23 @@ export default function TaskListView() {
     setActiveDropdown(null);
 
     try {
+      let nextColumnId = String(task?.columnId || "");
+
       if (typeof nextPatch.status === "string") {
         const projectId = String(task?.projectId || "");
-        const sourceColumnId = String(task?.columnId || "");
+        let sourceColumnId = String(task?.columnId || "");
 
-        if (projectId && sourceColumnId) {
-          let columns = boardColumnsCacheRef.current.get(projectId);
-          if (!columns) {
-            const boardData = await fetchJson(
-              `/api/dashboard/boards/${projectId}`,
-            );
-            columns = boardData?.columns || [];
-            boardColumnsCacheRef.current.set(projectId, columns);
+        if (projectId) {
+          // Fetch the latest board once so move validation uses the real column.
+          const boardData = await fetchJson(`/api/dashboard/boards/${projectId}`);
+          const columns = boardData?.columns || [];
+          boardColumnsCacheRef.current.set(projectId, columns);
+
+          for (const column of columns) {
+            if (column.tasks?.some((item) => String(item.id) === String(taskId))) {
+              sourceColumnId = String(column.id);
+              break;
+            }
           }
 
           const destinationColumn = findColumnByStatus(
@@ -471,6 +480,7 @@ export default function TaskListView() {
             destinationColumn?.id &&
             String(destinationColumn.id) !== sourceColumnId
           ) {
+            nextColumnId = String(destinationColumn.id);
             const moveData = await fetchJson(
               `/api/dashboard/tasks/${taskId}/move`,
               {
@@ -503,7 +513,13 @@ export default function TaskListView() {
           throw error;
         }
       }
-      loadDashboard({ force: true }).catch(() => {});
+      upsertLiveTask({
+        ...task,
+        ...nextPatch,
+        columnId: nextColumnId,
+        updatedAt: new Date().toISOString(),
+      });
+      rollbackLocalPatch(taskId, nextPatch);
     } catch (err) {
       console.error("Failed to update task", err);
       rollbackLocalPatch(taskId, nextPatch);
@@ -564,7 +580,7 @@ export default function TaskListView() {
         uniqueIds.forEach((id) => delete next[id]);
         return next;
       });
-      await loadDashboard({ force: true });
+      uniqueIds.forEach((id) => removeLiveTask(id));
       if (shouldCloseSelectedTask) {
         setSelectedTask(null);
       }

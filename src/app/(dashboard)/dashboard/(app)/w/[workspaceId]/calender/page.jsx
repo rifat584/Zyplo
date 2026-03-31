@@ -27,7 +27,11 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 // file attach - helal / bayijid
-import { useMockStore, loadDashboard } from "@/components/dashboard/mockStore";
+import {
+  removeLiveTask,
+  upsertLiveTask,
+  useMockStore,
+} from "@/components/dashboard/mockStore";
 import TaskDeleteDialog from "@/components/dashboard/taskDeleteDialog";
 import { useWorkspaceProjectSelection } from "@/components/dashboard/projectSelection";
 import {
@@ -544,7 +548,7 @@ export default function WorkspaceCalenderPage() {
         );
       }
 
-      await fetchJson("/api/dashboard/tasks", {
+      const data = await fetchJson("/api/dashboard/tasks", {
         method: "POST",
         body: JSON.stringify({
           workspaceId,
@@ -560,7 +564,7 @@ export default function WorkspaceCalenderPage() {
         }),
       });
 
-      await loadDashboard({ force: true, silent: true });
+      if (data?.task) upsertLiveTask(data.task);
       setCreateOpen(false);
       setCreateTarget(null);
     } catch (error) {
@@ -658,7 +662,11 @@ export default function WorkspaceCalenderPage() {
         }
       }
 
-      await loadDashboard({ force: true, silent: true });
+      upsertLiveTask({
+        ...selectedTask,
+        ...values,
+        updatedAt: new Date().toISOString(),
+      });
       setSelectedTask(null);
     } catch (error) {
       console.error("Failed to update task", error);
@@ -683,7 +691,7 @@ export default function WorkspaceCalenderPage() {
       await fetchJson(`/api/dashboard/tasks/${pendingDeleteTask.id}`, {
         method: "DELETE",
       });
-      await loadDashboard({ force: true, silent: true });
+      removeLiveTask(pendingDeleteTask.id);
       setPendingDeleteTask(null);
       setSelectedTask(null);
       toast.success("Task deleted");
@@ -757,7 +765,11 @@ export default function WorkspaceCalenderPage() {
           dueDate: destinationDateKey,
         }),
       });
-      await loadDashboard({ force: true, silent: true });
+      upsertLiveTask({
+        ...movingTask,
+        dueDate: destinationDateKey,
+        updatedAt: new Date().toISOString(),
+      });
       setTaskDateOverrides((prev) => {
         const next = { ...prev };
         delete next[movingTask.id];
