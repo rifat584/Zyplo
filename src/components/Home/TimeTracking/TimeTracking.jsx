@@ -39,7 +39,7 @@ export default function TimeTracking() {
 
   return (
     <section className="relative overflow-hidden bg-background py-20 sm:py-24">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.08),transparent_34%),radial-gradient(circle_at_top,rgba(16,185,129,0.1),transparent_68%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-56" />
 
       <MainContainer className="relative z-10 px-6">
         <div className="rounded-[2.4rem] border border-border/70 bg-card/45 p-6 shadow-[0_30px_80px_-50px_rgba(15,23,42,0.32)] backdrop-blur-sm sm:p-10">
@@ -68,7 +68,7 @@ export default function TimeTracking() {
               variants={cardVariants}
               className="relative col-span-1 overflow-hidden rounded-[1.9rem] border border-border/70 bg-background/78 p-8 shadow-sm backdrop-blur-sm lg:col-span-2"
             >
-              <div className="pointer-events-none absolute inset-x-10 top-0 h-20 bg-linear-to-b from-secondary/12 to-transparent blur-2xl" />
+              <div className="pointer-events-none absolute inset-x-10 top-0 h-20 blur-2xl" />
               <div className="relative z-10 mb-8 flex items-start justify-between gap-3">
                 <div>
                   <p className="marketing-subtle text-xs font-semibold uppercase tracking-[0.2em]">
@@ -126,7 +126,11 @@ export default function TimeTracking() {
                         initial={{ width: "0%" }}
                         whileInView={{ width: "65%" }}
                         viewport={{ once: true }}
-                        transition={{ duration: 1.2, ease: "easeOut", delay: 0.3 }}
+                        transition={{
+                          duration: 1.2,
+                          ease: "easeOut",
+                          delay: 0.3,
+                        }}
                         className="absolute inset-y-0 left-0 rounded-full bg-linear-to-r from-primary to-secondary"
                       />
                     </div>
@@ -187,7 +191,7 @@ export default function TimeTracking() {
                 {timeTrackingData.entries.map((entry) => (
                   <div
                     key={`${entry.task}-${entry.when}`}
-                    className="group flex flex-col gap-1.5 rounded-2xl border border-border/60 bg-card/75 p-3 transition-all duration-300 hover:border-primary/15 hover:bg-card"
+                    className="group flex flex-col gap-1.5 rounded-2xl border border-border/60 bg-white/5 p-3 transition-all duration-300 hover:border-primary/15 hover:bg-card"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-foreground transition-colors group-hover:text-primary">

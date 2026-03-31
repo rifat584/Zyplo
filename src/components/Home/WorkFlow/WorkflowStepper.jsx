@@ -119,7 +119,7 @@ export default function WorkflowStepper() {
 
   return (
     <section className="relative bg-background py-16 sm:py-20">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.1),transparent_62%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-56" />
 
       <MainContainer className="relative px-6">
         <div className="relative overflow-hidden rounded-[2.2rem] border border-border/70 bg-card/46 px-4 py-10 shadow-[0_28px_70px_-44px_rgba(15,23,42,0.28)] backdrop-blur-sm sm:px-8 sm:py-12">
@@ -127,7 +127,7 @@ export default function WorkflowStepper() {
             className="pointer-events-none absolute inset-0 opacity-70 [background-image:radial-gradient(circle_at_center,rgba(15,23,42,0.08)_1.2px,transparent_1.2px)] [background-size:28px_28px] dark:[background-image:radial-gradient(circle_at_center,rgba(148,163,184,0.14)_1.2px,transparent_1.2px)]"
             aria-hidden
           />
-          <div className="pointer-events-none absolute left-1/2 top-1/2 h-[440px] w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-secondary/10 blur-[120px]" />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 h-[440px] w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[120px]" />
 
           <div className="relative z-10">
             <motion.div
@@ -243,7 +243,7 @@ export default function WorkflowStepper() {
                       ))}
                     </div>
 
-                    <div className="mt-auto rounded-[1.5rem] border border-border/70 bg-card/72 p-5 shadow-sm">
+                    <div className="mt-auto rounded-[1.5rem] border border-border/70 bg-black/20 p-5 shadow-sm">
                       <div className="mb-4 flex items-center justify-between gap-3">
                         <span className="text-sm font-semibold text-foreground">
                           {activeStep.content.previewTitle}
