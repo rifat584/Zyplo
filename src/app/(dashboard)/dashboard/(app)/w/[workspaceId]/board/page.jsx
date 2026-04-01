@@ -53,10 +53,6 @@ export default function WorkspaceBoardPage() {
     projects: state.projects || [],
   }));
 
-  useEffect(() => {
-    loadDashboard({ force: true }).catch(() => {});
-  }, []);
-
   const workspaceProjects = useMemo(
     () => projects.filter((project) => project.workspaceId === workspaceId),
     [projects, workspaceId],
@@ -122,7 +118,8 @@ export default function WorkspaceBoardPage() {
       }
 
       // 1. Force the global store to reload (Sidebar, Calendar, etc.)
-      await loadDashboard({ force: true, silent: true });
+      // Refresh store data without recreating the live socket session.
+      await loadDashboard({ force: true, silent: true, preserveSocketToken: true });
       
       // 2. Force the React Query cache to clear so the Board instantly renders the new tasks!
       await queryClient.invalidateQueries();
