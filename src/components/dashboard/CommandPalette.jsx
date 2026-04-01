@@ -52,6 +52,7 @@ export default function CommandPalette() {
   const { status: authStatus } = useSession(); // Added Session Status
   const isAuthenticated = authStatus === "authenticated"; // Guest Check
   const isMarketingRoute = !pathname?.startsWith("/dashboard");
+  const showFloatingButton = pathname !== "/";
   
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -631,7 +632,7 @@ export default function CommandPalette() {
   return (
     <>
       {/* --- FLOATING BUTTON --- */}
-      {!open && (
+      {!open && showFloatingButton && (
         <button
           ref={fabRef}
           onClick={() => {
