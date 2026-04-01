@@ -803,6 +803,13 @@ function NotificationsMenu() {
   const [syncingReadState, setSyncingReadState] = useState(false);
   const rootRef = useRef(null);
   const previousOpenRef = useRef(false);
+  const unreadCountRef = useRef(unreadCount);
+  const syncingReadStateRef = useRef(syncingReadState);
+
+  useEffect(() => {
+    unreadCountRef.current = unreadCount;
+    syncingReadStateRef.current = syncingReadState;
+  }, [unreadCount, syncingReadState]);
 
   useEffect(() => {
     function onPointerDown(event) {
@@ -823,8 +830,8 @@ function NotificationsMenu() {
       !shouldMarkNotificationsRead({
         open,
         previousOpen,
-        unreadCount,
-        syncingReadState,
+        unreadCount: unreadCountRef.current,
+        syncingReadState: syncingReadStateRef.current,
       })
     ) {
       return;
@@ -834,6 +841,7 @@ function NotificationsMenu() {
 
     async function syncReadState() {
       try {
+        syncingReadStateRef.current = true;
         setSyncingReadState(true);
         await markAllNotificationsRead();
       } catch (error) {
@@ -841,6 +849,7 @@ function NotificationsMenu() {
           toast.error(error?.message || "Failed to update notifications");
         }
       } finally {
+        syncingReadStateRef.current = false;
         if (active) setSyncingReadState(false);
       }
     }
@@ -850,7 +859,7 @@ function NotificationsMenu() {
     return () => {
       active = false;
     };
-  }, [open, unreadCount, syncingReadState]);
+  }, [open]);
 
   return (
     <div ref={rootRef} className="relative">
