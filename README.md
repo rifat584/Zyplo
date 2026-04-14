@@ -1,36 +1,145 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Zyplo
 
-## Getting Started
+> Developer-focused project management app built with Next.js for planning workspaces, tracking tasks, and collaborating across multiple dashboard views.
 
-First, run the development server:
+## Live Demo
+
+- TODO: add deployed URL
+
+## Features
+
+- Marketing site with landing, pricing, blog, roadmap, contact, demo, and resource pages
+- Email/password authentication plus Google and GitHub sign-in with NextAuth
+- Protected dashboard routing for authenticated users
+- Workspace creation, starring, deletion, and role-aware access controls
+- Workspace views for overview, timeline, board, calendar, list, timesheet, members, and settings
+- Drag-and-drop task workflows with task details, comments, due dates, and status management
+- Real-time dashboard updates and notifications through Socket.IO
+- Workspace invitation and invite-acceptance flow
+- GitHub App connection flow from workspace settings
+- Billing proxy routes for checkout, customer portal, and subscription status
+- Image upload flows for profile/task media through ImgBB and Cloudinary configuration
+
+## Tech Stack
+
+### Frontend
+
+- Next.js 16 (App Router)
+- React 19
+- Tailwind CSS 4
+- shadcn/ui
+- Framer Motion
+- TanStack React Query
+- DnD Kit
+- FullCalendar
+- Recharts
+- React Hook Form + Zod
+
+### Auth and Server-Side App Logic
+
+- NextAuth
+- Next.js Route Handlers
+- Next.js Proxy (`src/proxy.js`)
+- Socket.IO client
+
+### External Services Used by This Repo
+
+- Backend API via `BASE_URL` / `NEXT_PUBLIC_BACKEND_URL`
+- Google OAuth
+- GitHub OAuth
+- GitHub App installation flow
+- ImgBB upload API
+- Cloudinary unsigned upload configuration
+
+## Installation
+
+### 1. Clone the repository
+
+```bash
+git clone <your-repo-url>
+cd Zyplo
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Create your local environment file
+
+```bash
+cp .env.example .env.local
+```
+
+## Environment Variables
+
+Create a root `.env.local` file and use safe placeholder values like the following:
+
+```env
+BASE_URL=https://your-backend-api.example.com
+NEXT_PUBLIC_BACKEND_URL=https://your-backend-api.example.com
+NEXTAUTH_SECRET=your_nextauth_secret
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+NEXT_PUBLIC_GITHUB_APP_SLUG=your_github_app_slug
+IMG_HOST_KEY=your_imgbb_api_key
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+NEXT_PUBLIC_CLOUDINARY_PRESET=your_cloudinary_unsigned_preset
+```
+
+Notes:
+
+- `BASE_URL` and `NEXT_PUBLIC_BACKEND_URL` both point to the paired backend service used by auth, dashboard, and billing proxies.
+- This repository does not include the backend implementation, so backend setup details should come from that service's codebase or deployment config.
+
+## Usage
+
+### Run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The app runs at `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### Other useful scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run lint
+npm run build
+npm run start
+```
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```text
+Zyplo/
+├── public/
+├── src/
+│   ├── app/
+│   │   ├── (auth)/
+│   │   ├── (dashboard)/
+│   │   ├── (main)/
+│   │   └── api/
+│   ├── components/
+│   │   ├── Home/
+│   │   ├── Pricing/
+│   │   ├── auth/
+│   │   ├── board/
+│   │   └── dashboard/
+│   ├── Context/
+│   ├── Provider/
+│   └── lib/
+├── .env.example
+├── package.json
+└── README.md
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Future Improvements
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Add the public deployment URL to this README
+- Document the paired backend service and its setup separately
+- Add automated test coverage and CI setup documentation
