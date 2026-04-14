@@ -4,7 +4,7 @@
 
 ## Live Demo
 
-- TODO: add deployed URL
+- [Visit ZYPLO](https://zyplo-six.vercel.app/)
 
 ## Features
 
@@ -138,8 +138,23 @@ Zyplo/
 └── README.md
 ```
 
-## Future Improvements
+---
 
-- Add the public deployment URL to this README
-- Document the paired backend service and its setup separately
-- Add automated test coverage and CI setup documentation
+## Project Context
+
+- This project was originally developed as a group project.
+- This fork is maintained by Md Mahmud Ullah Hasan for portfolio and personal GitHub presentation.
+
+## Team
+
+- [Md Mahmud Ullah Hasan](https://github.com/rifat584)
+- [Israt Jahan](https://github.com/israt9528)
+- [Arifun Nahar Lipi](https://github.com/arifunnahar)
+- [Md Al Helal Mohammod Bayijid](https://github.com/Dsx7)
+- [MD Ebrahim Ali](https://github.com/ebrahim2355)
+
+## Author
+
+- Md Mahmud Ullah Hasan
+- LinkedIn: [https://www.linkedin.com/in/md-mahmud-ullah-hasan/](https://www.linkedin.com/in/md-mahmud-ullah-hasan/)
+- Email: [contactwithrifat@gmail.com](mailto:contactwithrifat@gmail.com)
