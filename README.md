@@ -6,6 +6,10 @@
 
 - [Visit ZYPLO](https://zyplo-six.vercel.app/)
 
+## Backend Repository
+
+- [ZYPLO Backend](https://github.com/rifat584/zyplo-backend)
+
 ## Features
 
 - Marketing site with landing, pricing, blog, roadmap, contact, demo, and resource pages
